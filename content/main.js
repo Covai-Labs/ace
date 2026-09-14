@@ -33,6 +33,9 @@ import {
 } from './utils/filename.js';
 import { createLogger } from './utils/logger.js';
 import { getAttributionSetting } from './utils/preferences.js';
+import { pollTransferInject } from './transfer/injector.js';
+import { getTransferTarget } from './transfer/targets.js';
+import { loadTransferRecord, clearTransferRecord } from './transfer/records.js';
 
 const logger = createLogger('ContentScript');
 
@@ -55,46 +58,82 @@ function enrichConversation(conversation) {
   return conversation;
 }
 
-async function checkAndInjectContinuation() {
-  try {
-    if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) return;
-    const res = await chrome.storage.local.get('pendingContinuation');
-    const data = res?.pendingContinuation;
-    if (!data || !data.payload) return;
+let transferInjectRunning = false;
 
-    // Expire pending continuation after 5 minutes
-    if (Date.now() - (data.timestamp || 0) > 300000) {
-      await chrome.storage.local.remove('pendingContinuation');
+function transferInjectEnv() {
+  return {
+    document,
+    isTopFrame: typeof window === 'undefined' || window.self === window.top,
+    clipboardWrite: async (text) => {
+      const ok = await copyToClipboard(text);
+      if (!ok) throw new Error('clipboard write failed');
+    },
+  };
+}
+
+async function runTransferInject() {
+  if (transferInjectRunning) return;
+  if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) return;
+  // Top frame only: iframes must never consume the payload.
+  if (typeof window !== 'undefined' && window.self !== window.top) return;
+
+  // Acquire before any await: the background nudge can otherwise overlap the
+  // document_idle pickup and inject the same prompt twice.
+  transferInjectRunning = true;
+  try {
+    let loaded;
+    try {
+      loaded = await loadTransferRecord(chrome.storage.local, window.location, Date.now());
+    } catch (e) {
+      logger.warn('Continuation injection read failed:', e);
       return;
     }
+    // No record for this page (wrong site, expired, or already consumed).
+    if (!loaded) return;
+    const { keys, record: data, payload } = loaded;
 
-    const inputSelectors = [
-      '#prompt-textarea',
-      'div[contenteditable="true"]',
-      'textarea',
-      '.user-prompt textarea',
-      'ms-prompt-editor textarea',
-    ];
+    const target = getTransferTarget(data.targetPlatform);
+    const label = target?.label || data.targetPlatform || 'target chat';
+    // Login-walled targets (Meta AI) get prefill only — never auto-send.
+    const autoSend = data.autoSend !== false && target?.requiresAuth !== true;
+    const result = await pollTransferInject(
+      transferInjectEnv(),
+      {
+        payload,
+        targetPlatform: data.targetPlatform,
+        autoSend,
+      },
+      {
+        onAttempt: (r, n) => logger.debug(`Transfer inject attempt ${n}:`, r.reason),
+      },
+    );
 
-    let inputEl = null;
-    for (const sel of inputSelectors) {
-      inputEl = document.querySelector(sel);
-      if (inputEl) break;
-    }
-
-    if (inputEl) {
-      if (inputEl.tagName === 'TEXTAREA' || inputEl.tagName === 'INPUT') {
-        inputEl.value = data.payload;
-        inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-        inputEl.dispatchEvent(new Event('change', { bubbles: true }));
-      } else {
-        inputEl.textContent = data.payload;
-        inputEl.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-
-      await chrome.storage.local.remove('pendingContinuation');
+    if (result.ok) {
+      let msg = `✅ Prompt placed on ${label} — review & send`;
+      if (result.autoSent) msg = `✅ Prompt placed and sent on ${label}`;
+      else if (target?.requiresAuth) msg = `✅ Prompt placed on ${label} — sign in to send`;
+      else if (data.truncated)
+        msg = `✅ Prompt placed on ${label} (truncated — too large to transfer in full)`;
+      await clearTransferRecord(chrome.storage.local, keys);
+      showExporterToast(msg, 'success');
       logger.info('Auto-injected transferred conversation context.');
+    } else {
+      const hint =
+        result.reason === 'blocked'
+          ? `dismiss any pop-up on ${label}, then press Ctrl+V`
+          : `press Ctrl+V in the ${label} chat box`;
+      await clearTransferRecord(chrome.storage.local, keys);
+      showExporterToast(`⚠️ Couldn't auto-fill ${label} — prompt copied, ${hint}`, 'error');
+      logger.warn('Transfer inject failed:', result);
     }
+  } finally {
+    transferInjectRunning = false;
+  }
+}
+
+async function checkAndInjectContinuation() {
+  try {
+    await runTransferInject();
   } catch (e) {
     logger.warn('Continuation injection check failed:', e);
   }
@@ -306,6 +345,16 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     if (request.action === 'SHOW_TOAST') {
       showExporterToast(request.message, request.toastType || 'success');
       sendResponse({ success: true });
+      return true;
+    }
+
+    if (request.action === 'TRY_TRANSFER_INJECT') {
+      // Background nudge fired when the target tab finishes loading —
+      // retries injection for late-hydrating SPA composers.
+      runTransferInject().then(
+        () => sendResponse({ acknowledged: true }),
+        (e) => sendResponse({ acknowledged: false, error: e?.message || String(e) }),
+      );
       return true;
     }
 
@@ -678,7 +727,26 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               ? activeParser.getPlatformName()
               : activeParser.name || activeParser.constructor.name.replace('Parser', '');
           conversation.metadata = { ...conversation.metadata, Source: platformName };
-          const payload = continuationFormatter.format(conversation, request.instruction || '');
+          const isArticle =
+            activeParser.name === 'WebArticle' ||
+            activeParser.constructor?.name === 'ArticleParser';
+          let template;
+          try {
+            const syncData = await chrome.storage.sync.get('transferPromptTemplate');
+            if (
+              syncData &&
+              typeof syncData.transferPromptTemplate === 'string' &&
+              syncData.transferPromptTemplate.includes('{history}')
+            ) {
+              template = syncData.transferPromptTemplate;
+            }
+          } catch {
+            // Fall back to formatter default
+          }
+          const payload = continuationFormatter.format(conversation, request.instruction || '', {
+            template,
+            isArticle,
+          });
 
           sendResponse({ success: true, payload });
         } catch (e) {

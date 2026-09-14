@@ -697,11 +697,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
 
         if (response && response.success && response.payload) {
+          let autoSend = true;
+          try {
+            const syncData = await chrome.storage.sync.get('transferAutoSend');
+            if (syncData && syncData.transferAutoSend !== undefined) {
+              autoSend = syncData.transferAutoSend !== false;
+            }
+          } catch {
+            // Default to auto-send
+          }
           await chrome.runtime.sendMessage({
             action: 'TRANSFER_CHAT',
             targetPlatform: targetPlatform,
             title: filenameInput ? filenameInput.value : 'AI Conversation',
             payload: response.payload,
+            autoSend,
           });
           setStatus('ready', `Opening ${targetPlatform}...`);
         } else {

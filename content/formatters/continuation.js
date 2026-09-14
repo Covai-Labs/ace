@@ -19,8 +19,35 @@ export function stripEncodedImages(content) {
   return cleaned;
 }
 
+export const DEFAULT_TRANSFER_INSTRUCTION =
+  'Please review the conversation history above and continue our conversation from where we left off.';
+
+export const DEFAULT_TRANSFER_PROMPT_TEMPLATE = `Here is the context of our previous conversation on {source}{title}:
+
+{history}
+
+--- Continuation Instruction ---
+{instruction}`;
+
+export const DEFAULT_ARTICLE_PROMPT_TEMPLATE = `Here is content extracted from {title} ({source}):
+
+{history}
+
+--- Instruction ---
+{instruction}`;
+
+export const DEFAULT_ARTICLE_INSTRUCTION =
+  'Please use the extracted content above as context for our conversation.';
+
+export function applyPromptTemplate(template, vars) {
+  const fallback = DEFAULT_TRANSFER_PROMPT_TEMPLATE;
+  const out = typeof template === 'string' && template.includes('{history}') ? template : fallback;
+  // Single pass: placeholder text inside substituted values is preserved.
+  return out.replace(/\{(source|title|history|instruction)\}/g, (match, key) => vars[key] || '');
+}
+
 export class ContinuationFormatter extends ExportFormatter {
-  format(conversation, customInstruction = '') {
+  format(conversation, customInstruction = '', opts = {}) {
     const { title, messages } = conversation;
     const sourcePlatform = conversation.metadata?.Source || 'AI Platform';
 
@@ -32,18 +59,29 @@ export class ContinuationFormatter extends ExportFormatter {
       })
       .join('\n\n');
 
-    let prompt = `Here is the context of our previous conversation on ${sourcePlatform}${
-      title ? ` ("${title}")` : ''
-    }:\n\n`;
-    prompt += `${formattedMessages}\n\n`;
-    prompt += `--- Continuation Instruction ---\n`;
-    if (customInstruction && customInstruction.trim().length > 0) {
-      prompt += `${customInstruction.trim()}\n`;
-    } else {
-      prompt += `Please review the conversation history above and continue our conversation from where we left off.\n`;
-    }
+    const isArticle =
+      opts.isArticle === true ||
+      /web\s*article/i.test(sourcePlatform || '') ||
+      conversation.metadata?.isArticle === true;
+    const instruction =
+      customInstruction && customInstruction.trim().length > 0
+        ? customInstruction.trim()
+        : isArticle
+          ? DEFAULT_ARTICLE_INSTRUCTION
+          : DEFAULT_TRANSFER_INSTRUCTION;
+    const template =
+      typeof opts.template === 'string' && opts.template.includes('{history}')
+        ? opts.template
+        : isArticle
+          ? DEFAULT_ARTICLE_PROMPT_TEMPLATE
+          : DEFAULT_TRANSFER_PROMPT_TEMPLATE;
 
-    return prompt;
+    return applyPromptTemplate(template, {
+      source: sourcePlatform,
+      title: title ? ` ("${title}")` : '',
+      history: formattedMessages,
+      instruction,
+    });
   }
 
   getFileExtension() {

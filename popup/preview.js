@@ -716,8 +716,31 @@ document.addEventListener('DOMContentLoaded', async () => {
         transferBtn.textContent = 'Transferring...';
 
         let payload = '';
+        let autoSend = true;
+        let template;
+        try {
+          const syncData = await chrome.storage.sync.get([
+            'transferAutoSend',
+            'transferPromptTemplate',
+          ]);
+          if (syncData) {
+            if (syncData.transferAutoSend !== undefined) {
+              autoSend = syncData.transferAutoSend !== false;
+            }
+            if (
+              typeof syncData.transferPromptTemplate === 'string' &&
+              syncData.transferPromptTemplate.includes('{history}')
+            ) {
+              template = syncData.transferPromptTemplate;
+            }
+          }
+        } catch {
+          // Defaults apply
+        }
         if (conversation) {
-          payload = continuationFormatter.format(conversation);
+          const source = conversation?.metadata?.Source || '';
+          const isArticle = source === 'Web Article' || source === 'WebArticle';
+          payload = continuationFormatter.format(conversation, '', { template, isArticle });
         } else {
           payload = stripEncodedImages(markdownContent || activeContent);
         }
@@ -727,6 +750,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           targetPlatform: targetPlatform,
           title: title || 'AI Conversation',
           payload: payload,
+          autoSend,
         });
       } catch (err) {
         console.error('[Preview] Transfer chat failed:', err);
