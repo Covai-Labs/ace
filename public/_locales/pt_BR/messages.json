@@ -279,6 +279,34 @@
     "message": "Se especificado, links do Obsidian abrirão notas diretamente dentro deste cofre (&vault=...).",
     "description": "Help text for obsidian vault setting"
   },
+  "transferAutoSendLabel": {
+    "message": "Auto-send prompt after transfer",
+    "description": "Label for transfer auto-send checkbox"
+  },
+  "transferAutoSendHelp": {
+    "message": "When on, the target chat submits the transferred prompt automatically. Login-walled targets (Meta AI) always prefill only.",
+    "description": "Help for transfer auto-send checkbox"
+  },
+  "transferPromptLabel": {
+    "message": "Transfer prompt template",
+    "description": "Label for transfer prompt template textarea"
+  },
+  "transferPromptHelp": {
+    "message": "Wraps the conversation sent to the target chat. Placeholders: {source} {title} {history} {instruction}. Must contain {history}.",
+    "description": "Help for transfer prompt template"
+  },
+  "transferPromptReset": {
+    "message": "Reset to default",
+    "description": "Reset transfer prompt template button"
+  },
+  "transferGroupAiChats": {
+    "message": "AI chats",
+    "description": "Transfer target group: AI chat platforms"
+  },
+  "transferGroupNoteApps": {
+    "message": "Note apps",
+    "description": "Transfer target group: note-taking apps"
+  },
   "launchModeTitle": {
     "message": "Ação de clique na barra de ferramentas",
     "description": "Title for launch mode section"

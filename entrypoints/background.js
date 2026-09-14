@@ -10,6 +10,22 @@ export default defineBackground(() => {
     chrome.runtime.setUninstallURL(UNINSTALL_URL);
   }
 
+  const TRANSFER_TARGET_IDS = [
+    'chatgpt',
+    'claude',
+    'gemini',
+    'deepseek',
+    'perplexity',
+    'qwen',
+    'mistral',
+    'lumo',
+    'copilot',
+    'meta',
+    'z_ai',
+    'grok',
+  ];
+
+  // Transfer-only registry (12 targets). Export/parsing still supports all platforms.
   const PLATFORM_URLS = {
     chatgpt: 'https://chatgpt.com/',
     claude: 'https://claude.ai/new',
@@ -18,14 +34,11 @@ export default defineBackground(() => {
     perplexity: 'https://www.perplexity.ai/',
     qwen: 'https://chat.qwen.ai/',
     mistral: 'https://chat.mistral.ai/',
-    notebooklm: 'https://notebook.google.com/',
-    copilot: 'https://copilot.microsoft.com/',
+    lumo: 'https://lumo.proton.me/',
+    copilot: 'https://copilot.com/',
     meta: 'https://www.meta.ai/',
     z_ai: 'https://chat.z.ai/',
-    aistudio: 'https://aistudio.google.com/',
-    lumo: 'https://lumo.proton.me/',
-    joyland: 'https://www.joyland.ai/',
-    chub: 'https://chub.ai/',
+    grok: 'https://grok.com/',
   };
 
   const SUPPORTED_DOCUMENT_URL_PATTERNS = ['<all_urls>'];
@@ -232,19 +245,48 @@ export default defineBackground(() => {
           return true;
         }
 
+        if (!TRANSFER_TARGET_IDS.includes(target)) {
+          sendResponse({ success: false, error: `Unsupported transfer target: ${target}` });
+          return true;
+        }
+
         const url = PLATFORM_URLS[target] || 'https://chatgpt.com/';
 
         (async () => {
           try {
-            await chrome.storage.local.set({
-              pendingContinuation: {
-                payload: request.payload,
-                targetPlatform: target,
-                timestamp: Date.now(),
-              },
-            });
-
-            await chrome.tabs.create({ url });
+            const payload = request.payload || '';
+            const autoSend = request.autoSend !== false;
+            // Create first: the record is keyed to this tab id in a single
+            // write, so concurrent transfers never share mutable state.
+            const tab = await chrome.tabs.create({ url });
+            const base = {
+              targetPlatform: target,
+              url,
+              timestamp: Date.now(),
+              autoSend,
+            };
+            if (tab && tab.id !== undefined) {
+              const key = `xfer_${tab.id}`;
+              try {
+                await chrome.storage.local.set({ [key]: { ...base, payload } });
+              } catch {
+                await writeChunkedOrTruncated(tab.id, base, payload);
+              }
+              pruneTransferKeys();
+            } else {
+              // No tab id (rare) — legacy singular record so transfer still works.
+              try {
+                await chrome.storage.local.set({ pendingContinuation: { ...base, payload } });
+              } catch {
+                await chrome.storage.local.set({
+                  pendingContinuation: {
+                    ...base,
+                    payload: truncatedPayload(payload),
+                    truncated: true,
+                  },
+                });
+              }
+            }
             sendResponse({ success: true });
           } catch (e) {
             console.error('[AI Exporter Background] Transfer failed:', e);
@@ -322,6 +364,77 @@ export default defineBackground(() => {
         handleCommand('download_markdown', 'preview.html');
       } else if (info.menuItemId === 'ai-exporter-open-preview') {
         handleCommand('open_preview', 'preview.html');
+      }
+    });
+  }
+
+  // Quota fallback: chunk the payload across tab-scoped keys, else store an
+  // honestly-marked truncation. Limits mirror content/transfer/records.js.
+  async function writeChunkedOrTruncated(tabId, base, payload) {
+    const key = `xfer_${tabId}`;
+    const parts = [];
+    for (let i = 0; i < payload.length; i += 700000) {
+      parts.push(payload.slice(i, i + 700000));
+    }
+    if (parts.length > 1 && parts.length <= 10) {
+      const obj = { [key]: { ...base, chunked: true, count: parts.length } };
+      parts.forEach((part, i) => {
+        obj[`xfer_${tabId}_c${i}`] = part;
+      });
+      try {
+        await chrome.storage.local.set(obj);
+        return;
+      } catch {
+        // Fall through to truncation
+      }
+    }
+    await chrome.storage.local.set({
+      [key]: { ...base, payload: truncatedPayload(payload), truncated: true },
+    });
+  }
+
+  function truncatedPayload(payload) {
+    return `${(payload || '').slice(0, 500000)}\n\n[Truncated: conversation too large to transfer in full.]`;
+  }
+
+  // Best-effort cleanup of other tabs' records. Only expired entries are
+  // removed, so a concurrent fresh transfer is never touched.
+  function pruneTransferKeys() {
+    (async () => {
+      try {
+        const dump = (await chrome.storage.local.get(null)) || {};
+        const now = Date.now();
+        const dead = [];
+        for (const [k, v] of Object.entries(dump)) {
+          if (!k.startsWith('xfer_') || k.includes('_c')) continue;
+          if (!v || typeof v !== 'object' || now - (v.timestamp || 0) >= 300000) {
+            dead.push(k);
+            const tabId = k.slice('xfer_'.length);
+            for (const ck of Object.keys(dump)) {
+              if (ck.startsWith(`xfer_${tabId}_c`)) dead.push(ck);
+            }
+          }
+        }
+        if (dead.length > 0) await chrome.storage.local.remove(dead);
+      } catch {
+        // Ignore
+      }
+    })();
+  }
+
+  // Nudge the target tab once it finishes loading so late-hydrating
+  // composers (React/SPA) get a retry even if document_idle fired early.
+  if (typeof chrome !== 'undefined' && chrome.tabs?.onUpdated) {
+    chrome.tabs.onUpdated.addListener(async (tabId, changeInfo) => {
+      if (!changeInfo || changeInfo.status !== 'complete') return;
+      try {
+        const key = `xfer_${tabId}`;
+        const res = await chrome.storage.local.get(key);
+        const data = res && res[key];
+        if (!data || Date.now() - (data.timestamp || 0) > 300000) return;
+        chrome.tabs.sendMessage(tabId, { action: 'TRY_TRANSFER_INJECT', key }).catch(() => {});
+      } catch {
+        // Ignore
       }
     });
   }

@@ -212,6 +212,16 @@ export function applyI18n(root = document) {
     }
   });
 
+  // Label attribute (e.g. optgroup headings in transfer target selects)
+  root.querySelectorAll('[data-i18n-label]').forEach((el) => {
+    const key = el.getAttribute('data-i18n-label');
+    if (!key) return;
+    const translation = t(key);
+    if (translation && translation !== key) {
+      el.setAttribute('label', translation);
+    }
+  });
+
   // Format options inside selects
   root
     .querySelectorAll('select#format-select option, select#default-format-select option')

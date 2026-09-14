@@ -116,19 +116,27 @@
             </div>
             <div class="transfer-row">
               <select id="continue-target-select">
-                <option value="chatgpt">ChatGPT</option>
-                <option value="claude">Claude</option>
-                <option value="gemini">Gemini</option>
-                <option value="deepseek">DeepSeek</option>
-                <option value="qwen">Qwen</option>
-                <option value="perplexity">Perplexity</option>
-                <option value="mistral">Mistral</option>
-                <option value="lumo">Lumo</option>
-                <option value="obsidian">Obsidian</option>
-                <option value="logseq">Logseq</option>
-                <option value="bear">Bear</option>
-                <option value="noteplan">NotePlan</option>
-                <option value="drafts">Drafts</option>
+                <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
+                  <option value="chatgpt">ChatGPT</option>
+                  <option value="claude">Claude</option>
+                  <option value="gemini">Gemini</option>
+                  <option value="deepseek">DeepSeek</option>
+                  <option value="qwen">Qwen</option>
+                  <option value="perplexity">Perplexity</option>
+                  <option value="mistral">Mistral</option>
+                  <option value="lumo">Lumo</option>
+                  <option value="copilot">Copilot</option>
+                  <option value="meta">Meta AI</option>
+                  <option value="z_ai">Z.ai</option>
+                  <option value="grok">Grok</option>
+                </optgroup>
+                <optgroup label="Note apps" data-i18n-label="transferGroupNoteApps">
+                  <option value="obsidian">Obsidian</option>
+                  <option value="logseq">Logseq</option>
+                  <option value="bear">Bear</option>
+                  <option value="noteplan">NotePlan</option>
+                  <option value="drafts">Drafts</option>
+                </optgroup>
               </select>
               <button id="transfer-btn" class="transfer-btn-primary" data-i18n="transferBtn">
                 ↗ Transfer

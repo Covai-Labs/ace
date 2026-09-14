@@ -229,19 +229,27 @@
                 >Default Transfer Target Platform</label
               >
               <select id="default-transfer-select" class="select-input">
-                <option value="claude">Claude (claude.ai)</option>
-                <option value="chatgpt">ChatGPT (chatgpt.com)</option>
-                <option value="gemini">Gemini (gemini.google.com)</option>
-                <option value="deepseek">DeepSeek (chat.deepseek.com)</option>
-                <option value="qwen">Qwen (chat.qwen.ai)</option>
-                <option value="perplexity">Perplexity (perplexity.ai)</option>
-                <option value="mistral">Mistral (chat.mistral.ai)</option>
-                <option value="lumo">Lumo (lumo.proton.me)</option>
-                <option value="obsidian">Obsidian (obsidian://)</option>
-                <option value="logseq">Logseq (logseq://)</option>
-                <option value="bear">Bear (bear://)</option>
-                <option value="noteplan">NotePlan (noteplan://)</option>
-                <option value="drafts">Drafts (drafts://)</option>
+                <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
+                  <option value="claude">Claude (claude.ai)</option>
+                  <option value="chatgpt">ChatGPT (chatgpt.com)</option>
+                  <option value="gemini">Gemini (gemini.google.com)</option>
+                  <option value="deepseek">DeepSeek (chat.deepseek.com)</option>
+                  <option value="qwen">Qwen (chat.qwen.ai)</option>
+                  <option value="perplexity">Perplexity (perplexity.ai)</option>
+                  <option value="mistral">Mistral (chat.mistral.ai)</option>
+                  <option value="lumo">Lumo (lumo.proton.me)</option>
+                  <option value="copilot">Copilot (copilot.com)</option>
+                  <option value="meta">Meta AI (meta.ai)</option>
+                  <option value="z_ai">Z.ai (chat.z.ai)</option>
+                  <option value="grok">Grok (grok.com)</option>
+                </optgroup>
+                <optgroup label="Note apps" data-i18n-label="transferGroupNoteApps">
+                  <option value="obsidian">Obsidian (obsidian://)</option>
+                  <option value="logseq">Logseq (logseq://)</option>
+                  <option value="bear">Bear (bear://)</option>
+                  <option value="noteplan">NotePlan (noteplan://)</option>
+                  <option value="drafts">Drafts (drafts://)</option>
+                </optgroup>
               </select>
               <span class="field-help" data-i18n="defaultTransferHelp"
                 >Initial target platform in the "Continue On" dropdown. When exporting on the
@@ -265,6 +273,41 @@
                 >If specified, Obsidian URIs will open notes directly inside this vault
                 (&amp;vault=...).</span
               >
+            </div>
+
+            <div class="field-group checkbox-group" style="margin-top: 16px">
+              <label class="checkbox-label">
+                <input type="checkbox" id="transfer-autosend-checkbox" checked />
+                <span data-i18n="transferAutoSendLabel">Auto-send prompt after transfer</span>
+              </label>
+              <span class="field-help" data-i18n="transferAutoSendHelp"
+                >When on, the target chat submits the transferred prompt automatically. Login-walled
+                targets (Meta AI) always prefill only.</span
+              >
+            </div>
+
+            <div class="field-group" style="margin-top: 16px">
+              <label for="transfer-prompt-input" class="field-label" data-i18n="transferPromptLabel"
+                >Transfer prompt template</label
+              >
+              <textarea
+                id="transfer-prompt-input"
+                class="select-input"
+                rows="6"
+                spellcheck="false"
+              ></textarea>
+              <span class="field-help" data-i18n="transferPromptHelp"
+                >Wraps the conversation sent to the target chat. Placeholders: {source} {title}
+                {history} {instruction}. Must contain {history}.</span
+              >
+              <button
+                id="transfer-prompt-reset"
+                class="secondary-btn"
+                data-i18n="transferPromptReset"
+                style="margin-top: 8px"
+              >
+                Reset to default
+              </button>
             </div>
           </div>
         </section>

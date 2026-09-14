@@ -1,5 +1,6 @@
 import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
+import { DEFAULT_TRANSFER_PROMPT_TEMPLATE } from '../content/formatters/continuation.js';
 
 function applyTheme(theme) {
   if (theme && theme !== 'system') {
@@ -86,6 +87,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     'defaultTransferTarget',
     'obsidianVaultName',
     'launchMode',
+    'transferAutoSend',
+    'transferPromptTemplate',
   ]);
 
   const activeTheme = stored.theme || 'system';
@@ -180,6 +183,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (obsidianVaultInput) {
     obsidianVaultInput.addEventListener('change', () => {
       chrome.storage.sync.set({ obsidianVaultName: obsidianVaultInput.value.trim() });
+      showToast();
+    });
+  }
+
+  const transferAutosendCheckbox = document.getElementById('transfer-autosend-checkbox');
+  if (transferAutosendCheckbox) {
+    transferAutosendCheckbox.checked = stored.transferAutoSend !== false;
+    transferAutosendCheckbox.addEventListener('change', () => {
+      chrome.storage.sync.set({ transferAutoSend: transferAutosendCheckbox.checked });
+      showToast();
+    });
+  }
+
+  const transferPromptInput = document.getElementById('transfer-prompt-input');
+  const transferPromptReset = document.getElementById('transfer-prompt-reset');
+  if (transferPromptInput) {
+    transferPromptInput.value = stored.transferPromptTemplate || DEFAULT_TRANSFER_PROMPT_TEMPLATE;
+    transferPromptInput.addEventListener('change', () => {
+      const value = transferPromptInput.value.trim() || DEFAULT_TRANSFER_PROMPT_TEMPLATE;
+      transferPromptInput.value = value.includes('{history}')
+        ? value
+        : DEFAULT_TRANSFER_PROMPT_TEMPLATE;
+      chrome.storage.sync.set({ transferPromptTemplate: transferPromptInput.value });
+      showToast();
+    });
+  }
+  if (transferPromptReset) {
+    transferPromptReset.addEventListener('click', () => {
+      if (transferPromptInput) transferPromptInput.value = DEFAULT_TRANSFER_PROMPT_TEMPLATE;
+      chrome.storage.sync.set({ transferPromptTemplate: DEFAULT_TRANSFER_PROMPT_TEMPLATE });
       showToast();
     });
   }
