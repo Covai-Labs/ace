@@ -31,8 +31,9 @@ test('feedback URL formatting generates correct GitHub issue URL without exposin
 
   const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
 
-  assert.ok(issueUrl.startsWith('https://github.com/Covai-Labs/ai-chat-exporter/issues/new?'));
-  assert.ok(issueUrl.includes('Platform%20Request'));
-  assert.ok(issueUrl.includes('example-ai.com'));
-  assert.ok(issueBody.includes('Page URL (optional)'));
+  const parsed = new URL(issueUrl);
+  assert.equal(parsed.origin, 'https://github.com');
+  assert.equal(parsed.pathname, '/Covai-Labs/ai-chat-exporter/issues/new');
+  assert.equal(parsed.searchParams.get('title'), '[Platform Request] Support for example-ai.com');
+  assert.ok(parsed.searchParams.get('body').includes('Page URL (optional)'));
 });
