@@ -186,6 +186,10 @@ Platform web layouts evolve frequently. If an exporter encounters issues on a mo
 
 This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. See [LICENSE](LICENSE) for the full license text.
 
+### Third-Party Test Fixtures Notice
+
+Sample test fixtures located in [`tests/fixtures/`](tests/fixtures/) consist of third-party DOM snapshots and API response excerpts retained solely for automated regression testing and platform interoperability under fair use principles. They are excluded from the project's MPL-2.0 license. See [`tests/fixtures/README.md`](tests/fixtures/README.md) for details.
+
 ---
 
 ## Acknowledgments
