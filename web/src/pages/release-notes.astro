@@ -1,0 +1,234 @@
+---
+import LegalLayout from '../layouts/LegalLayout.astro';
+---
+
+<LegalLayout
+  title="Release Notes"
+  description="Every AI Chat Exporter release, newest first. Notes are generated from GitHub Releases and rendered here."
+  canonicalPath="/release-notes.html"
+  updatedText="Generated from GitHub Releases"
+>
+  <div class="legal-highlight">
+    <strong>Fresh from GitHub:</strong> every published version, newest first — fetched live from
+    <a
+      href="https://github.com/Covai-Labs/ai-chat-exporter/releases"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      GitHub Releases
+    </a>
+    , so this page is never stale.
+  </div>
+
+  <div class="legal-body">
+    <div id="release-list" aria-live="polite">
+      <div class="callout callout-info">
+        <p>
+          Loading release notes… if they don’t appear, see them directly on
+          <a
+            href="https://github.com/Covai-Labs/ai-chat-exporter/releases"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            GitHub Releases
+          </a>
+          .
+        </p>
+      </div>
+    </div>
+    <noscript>
+      <div class="callout callout-info">
+        <p>
+          Release notes need JavaScript to load from GitHub. Browse them on
+          <a href="https://github.com/Covai-Labs/ai-chat-exporter/releases">GitHub Releases</a>.
+        </p>
+      </div>
+    </noscript>
+  </div>
+</LegalLayout>
+
+<style>
+  .release {
+    margin-top: 36px;
+    padding-top: 22px;
+    border-top: 1px solid var(--border-color);
+  }
+
+  .release-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .release-meta h2 {
+    margin: 0;
+    padding: 0;
+    border-bottom: none;
+    font-size: 1.4rem;
+  }
+
+  .release-date {
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .release-body ul {
+    list-style: disc;
+    padding-left: 24px;
+    margin: 12px 0 0;
+  }
+
+  .release-body li {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    margin-bottom: 8px;
+  }
+
+  .release-body a {
+    color: var(--color-primary);
+  }
+
+  .release-body h3 {
+    margin-top: 24px;
+    font-size: 1.05rem;
+  }
+</style>
+
+<script is:inline data-repo="Covai-Labs/ai-chat-exporter">
+  // Client-side release notes: fetched live from the GitHub Releases API so
+  // the page stays current without a site rebuild. Keep the Markdown subset
+  // renderer in sync with web-docs/src/utils/markdown.ts in decant-core.
+  (function () {
+    var container = document.getElementById('release-list');
+    if (!container) return;
+    var repo = document.currentScript.dataset.repo;
+    var fallback =
+      '<div class="callout callout-info"><p>Could not load release notes right now. See them on ' +
+      '<a href="https://github.com/' +
+      repo +
+      '/releases" target="_blank" rel="noopener noreferrer">GitHub Releases</a>.</p></div>';
+
+    function escapeHtml(s) {
+      return s
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function renderInline(s) {
+      var out = escapeHtml(s);
+      out = out.replace(/`([^`]+)`/g, '<code>$1</code>');
+      out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      out = out.replace(
+        /\[([^\]]+)\]\((https?:[^)\s]+)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>',
+      );
+      out = out.replace(
+        /(^|[\s(>])(https?:\/\/[^\s<)]+)/g,
+        '$1<a href="$2" target="_blank" rel="noopener noreferrer">$2</a>',
+      );
+      return out;
+    }
+
+    function renderMarkdown(src) {
+      var lines = src.replace(/\r\n/g, '\n').split('\n');
+      var html = '';
+      var inList = false;
+      var inCode = false;
+      function closeList() {
+        if (inList) {
+          html += '</ul>';
+          inList = false;
+        }
+      }
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i].trim();
+        if (line.indexOf('```') === 0) {
+          closeList();
+          html += inCode ? '</code></pre>' : '<pre><code>';
+          inCode = !inCode;
+          continue;
+        }
+        if (inCode) {
+          html += escapeHtml(lines[i]) + '\n';
+          continue;
+        }
+        if (line.indexOf('### ') === 0) {
+          closeList();
+          html += '<h3>' + renderInline(line.slice(4)) + '</h3>';
+        } else if (line.indexOf('## ') === 0) {
+          closeList();
+          html += '<h3>' + renderInline(line.slice(3)) + '</h3>';
+        } else if (line.indexOf('* ') === 0 || line.indexOf('- ') === 0) {
+          if (!inList) {
+            html += '<ul>';
+            inList = true;
+          }
+          html += '<li>' + renderInline(line.slice(2)) + '</li>';
+        } else if (line === '' || line === '---') {
+          closeList();
+        } else if (line.indexOf('# ') === 0) {
+          closeList();
+          html += '<h3>' + renderInline(line.slice(2)) + '</h3>';
+        } else {
+          closeList();
+          html += '<p>' + renderInline(line) + '</p>';
+        }
+      }
+      closeList();
+      if (inCode) html += '</code></pre>';
+      return html;
+    }
+
+    function fmtDate(iso) {
+      try {
+        return new Date(iso).toLocaleDateString('en-US', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric',
+        });
+      } catch (e) {
+        return iso.slice(0, 10);
+      }
+    }
+
+    fetch('https://api.github.com/repos/' + repo + '/releases?per_page=30', {
+      headers: { Accept: 'application/vnd.github+json' },
+    })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.json();
+      })
+      .then(function (releases) {
+        var live = releases.filter(function (r) {
+          return !r.draft;
+        });
+        if (!live.length) {
+          container.innerHTML = fallback;
+          return;
+        }
+        container.innerHTML = live
+          .map(function (r) {
+            var badge = r.prerelease ? ' <span class="release-date">pre-release</span>' : '';
+            return (
+              '<article class="release"><div class="release-meta"><h2>' +
+              escapeHtml(r.tag_name) +
+              '</h2><span class="release-date">' +
+              escapeHtml(fmtDate(r.published_at || r.created_at || '')) +
+              '</span>' +
+              badge +
+              '</div><div class="release-body">' +
+              renderMarkdown(r.body || '_No notes for this release._') +
+              '</div></article>'
+            );
+          })
+          .join('');
+      })
+      .catch(function () {
+        container.innerHTML = fallback;
+      });
+  })();
+</script>
