@@ -824,6 +824,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     document.title = `${effectiveFilename} - Chat Export Preview`;
 
+    const feedbackBtn = document.getElementById('feedback-btn');
+    const genericArticleNotice = document.getElementById('generic-article-notice');
+    const previewRequestSupportBtn = document.getElementById('preview-request-support-btn');
+
+    function openFeedbackIssue(convo) {
+      let domain = '';
+      let pageUrl = convo?.url || convo?.metadata?.url || convo?.metadata?.sourceUrl || '';
+      try {
+        if (pageUrl) domain = new URL(pageUrl).hostname;
+      } catch {
+        // Ignore invalid URL
+      }
+
+      const isGeneric =
+        convo?.isDedicatedAi === false ||
+        convo?.platform === 'WebArticle' ||
+        convo?.platform === 'Article';
+      const issueTitle = isGeneric
+        ? `[Platform Request] Support for ${domain || 'New AI Chat'}`
+        : `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
+
+      const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: ${isGeneric ? 'Yes' : 'No'}\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
+
+      const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+      if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
+        chrome.tabs.create({ url: issueUrl });
+      } else {
+        window.open(issueUrl, '_blank');
+      }
+    }
+
+    if (genericArticleNotice) {
+      if (
+        conversation &&
+        (conversation.isDedicatedAi === false ||
+          conversation.platform === 'WebArticle' ||
+          conversation.platform === 'Article')
+      ) {
+        genericArticleNotice.classList.remove('hidden');
+      } else {
+        genericArticleNotice.classList.add('hidden');
+      }
+    }
+
+    if (feedbackBtn) {
+      feedbackBtn.addEventListener('click', () => openFeedbackIssue(conversation));
+    }
+    if (previewRequestSupportBtn) {
+      previewRequestSupportBtn.addEventListener('click', () => openFeedbackIssue(conversation));
+    }
+
     if (conversation) {
       const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
       const initialMessages = conversation.messages.map((msg) => {
