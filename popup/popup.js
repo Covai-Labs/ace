@@ -5,6 +5,7 @@ import {
   DEFAULT_FILENAME_TEMPLATE,
 } from '../content/utils/filename.js';
 import { createLogger } from '../content/utils/logger.js';
+import { shouldShowUnsupportedWarning } from '../content/utils/feedback.js';
 
 const logger = createLogger('Popup');
 
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function updateUnsupportedWarning(report, pageUrl) {
     if (!unsupportedBanner) return;
-    if (report && report.available && report.isDedicatedAi === false) {
+    if (shouldShowUnsupportedWarning(report)) {
       unsupportedBanner.classList.remove('hidden');
       if (requestSupportBtn) {
         requestSupportBtn.onclick = (e) => {
@@ -489,6 +490,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   function showError() {
     setStatus('error', t('statusError') || 'Not Supported');
     errorEl.classList.remove('hidden');
+    if (unsupportedBanner) {
+      unsupportedBanner.classList.add('hidden');
+    }
     if (copilotRedirectBox) {
       const isCopilotMs = Boolean(tab?.url && tab.url.includes('copilot.microsoft.com'));
       copilotRedirectBox.classList.toggle('hidden', !isCopilotMs);

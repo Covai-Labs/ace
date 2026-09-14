@@ -1,12 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { shouldShowUnsupportedWarning } from '../content/utils/feedback.js';
 
-test('unsupported warning logic flags non-dedicated AI article parsers correctly', () => {
-  const isDedicatedAiArticle = false;
-  const platform = 'WebArticle';
+test('shouldShowUnsupportedWarning flags non-dedicated AI article parsers correctly', () => {
+  // Available and generic fallback (not dedicated AI) -> warning shown
+  assert.equal(shouldShowUnsupportedWarning({ available: true, isDedicatedAi: false }), true);
 
-  const shouldShowWarning = isDedicatedAiArticle === false || platform === 'WebArticle';
-  assert.equal(shouldShowWarning, true);
+  // Available and dedicated AI parser -> no warning
+  assert.equal(shouldShowUnsupportedWarning({ available: true, isDedicatedAi: true }), false);
+
+  // Parser not available -> no warning (error state handled separately)
+  assert.equal(shouldShowUnsupportedWarning({ available: false, isDedicatedAi: false }), false);
+  assert.equal(shouldShowUnsupportedWarning({ available: false, isDedicatedAi: true }), false);
+
+  // Null, undefined, or empty reports -> no warning
+  assert.equal(shouldShowUnsupportedWarning(null), false);
+  assert.equal(shouldShowUnsupportedWarning(undefined), false);
+  assert.equal(shouldShowUnsupportedWarning({}), false);
 });
 
 test('feedback URL formatting generates correct GitHub issue URL without exposing full page URL by default', () => {
@@ -21,8 +31,8 @@ test('feedback URL formatting generates correct GitHub issue URL without exposin
 
   const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
 
-  assert.match(issueUrl, /github\.com\/Covai-Labs\/ai-chat-exporter\/issues\/new/);
-  assert.match(issueUrl, /Platform%20Request/);
-  assert.match(issueUrl, /example-ai\.com/);
+  assert.ok(issueUrl.startsWith('https://github.com/Covai-Labs/ai-chat-exporter/issues/new?'));
+  assert.ok(issueUrl.includes('Platform%20Request'));
+  assert.ok(issueUrl.includes('example-ai.com'));
   assert.ok(issueBody.includes('Page URL (optional)'));
 });
