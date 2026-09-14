@@ -35,7 +35,11 @@ import { createLogger } from '../content/utils/logger.js';
 import { getAttributionSetting } from '../content/utils/preferences.js';
 import { pollTransferInject } from '../content/transfer/injector.js';
 import { getTransferTarget } from '../content/transfer/targets.js';
-import { loadTransferRecord, clearTransferRecord } from '../content/transfer/records.js';
+import {
+  loadTransferRecord,
+  loadTransferRecordByKey,
+  clearTransferRecord,
+} from '../content/transfer/records.js';
 
 const logger = createLogger('ContentScript');
 
@@ -76,7 +80,7 @@ export default defineContentScript({
       };
     }
 
-    async function runTransferInject() {
+    async function runTransferInject(exactKey) {
       if (transferInjectRunning) return;
       if (typeof chrome === 'undefined' || !chrome.storage || !chrome.storage.local) return;
       // Top frame only: iframes must never consume the payload.
@@ -88,7 +92,14 @@ export default defineContentScript({
       try {
         let loaded;
         try {
-          loaded = await loadTransferRecord(chrome.storage.local, window.location, Date.now());
+          loaded = exactKey
+            ? await loadTransferRecordByKey(
+                chrome.storage.local,
+                exactKey,
+                window.location,
+                Date.now(),
+              )
+            : await loadTransferRecord(chrome.storage.local, window.location, Date.now());
         } catch (e) {
           logger.warn('Continuation injection read failed:', e);
           return;
@@ -119,6 +130,8 @@ export default defineContentScript({
           else if (target?.requiresAuth) msg = `✅ Prompt placed on ${label} — sign in to send`;
           else if (data.truncated)
             msg = `✅ Prompt placed on ${label} (truncated — too large to transfer in full)`;
+          else if (result.autoSendSkipped === 'send-unconfirmed')
+            msg = `✅ Prompt placed on ${label} — if it didn't send, press Enter`;
           await clearTransferRecord(chrome.storage.local, keys);
           showExporterToast(msg, 'success');
           logger.info('Auto-injected transferred conversation context.');
@@ -327,8 +340,10 @@ export default defineContentScript({
 
         if (request.action === 'TRY_TRANSFER_INJECT') {
           // Background nudge fired when the target tab finishes loading —
-          // retries injection for late-hydrating SPA composers.
-          runTransferInject().then(
+          // retries injection for late-hydrating SPA composers. The nudge
+          // carries the exact record key so same-target concurrent transfers
+          // can never pick each other's payload.
+          runTransferInject(request.key).then(
             () => sendResponse({ acknowledged: true }),
             (e) => sendResponse({ acknowledged: false, error: e?.message || String(e) }),
           );

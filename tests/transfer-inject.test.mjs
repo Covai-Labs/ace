@@ -284,6 +284,113 @@ test('continuation template: template without {history} falls back to default', 
   );
 });
 
+test('attemptTransferInject: clipboardBackup false when clipboard API absent', async () => {
+  const docBlocked = docOf(
+    '<div role="dialog" aria-modal="true"><span>Wait</span></div>' +
+      '<div id="ask-input" data-lexical-editor="true" contenteditable="true"></div>',
+  );
+  const blocked = await attemptTransferInject(
+    { document: docBlocked, isTopFrame: true },
+    { payload: 'prompt', targetPlatform: 'perplexity', autoSend: false },
+  );
+  assert.equal(blocked.ok, false);
+  assert.equal(blocked.clipboardBackup, false);
+
+  const docOk = docOf('<textarea placeholder="Message DeepSeek"></textarea>');
+  const filled = await attemptTransferInject(
+    { document: docOk, isTopFrame: true },
+    { payload: 'prompt text here', targetPlatform: 'deepseek', autoSend: false },
+  );
+  assert.equal(filled.ok, true);
+  assert.equal(filled.clipboardBackup, false);
+});
+
+test('fillContentEditable: selects all first so drafts are replaced', async () => {
+  const { fillContentEditable, verifyContent } = await import('../content/transfer/injector.js');
+  const { document } = parseHTML(
+    '<!DOCTYPE html><html><body><div id="ed" contenteditable="true">old draft text</div></body></html>',
+  );
+  const el = document.querySelector('#ed');
+  let selected = null;
+  const calls = [];
+  document.getSelection = () => ({
+    selectAllChildren: (node) => {
+      selected = node;
+      node.textContent = '';
+    },
+  });
+  document.execCommand = (cmd, ui, text) => {
+    calls.push([cmd, el.textContent, text]);
+    el.textContent = el.textContent + text;
+    return true;
+  };
+  fillContentEditable(document, el, 'new payload words');
+  assert.equal(selected, el);
+  assert.ok(verifyContent(el, 'new payload words'));
+  assert.ok(!el.textContent.includes('old draft'));
+});
+
+test('attemptTransferInject: send failure reports send-failed without claiming sent', async () => {
+  const doc = docOf('<textarea placeholder="Message DeepSeek"></textarea>');
+  const res = await attemptTransferInject(okEnv(doc), {
+    payload: 'send me please with enough words',
+    targetPlatform: 'deepseek',
+    autoSend: true,
+  });
+  assert.equal(res.ok, true);
+  assert.equal(res.autoSent, false);
+  assert.ok(['send-failed', 'send-unconfirmed'].includes(res.autoSendSkipped));
+});
+
+test('attemptTransferInject: confirmed send when composer clears on submit', async () => {
+  const { document } = parseHTML(
+    '<!DOCTYPE html><html><body>' +
+      '<div data-testid="chat-input" contenteditable="true" role="textbox"></div>' +
+      '<button data-testid="chat-input-send">Send</button>' +
+      '</body></html>',
+  );
+  const composer = document.querySelector('[data-testid="chat-input"]');
+  document
+    .querySelector('[data-testid="chat-input-send"]')
+    .addEventListener('click', () => (composer.textContent = ''));
+  const res = await attemptTransferInject(okEnv(document), {
+    payload: 'claude please confirm this submission works',
+    targetPlatform: 'claude',
+    autoSend: true,
+  });
+  assert.equal(res.ok, true);
+  assert.equal(res.autoSent, true);
+});
+
+test('transfer records: exact-key load for nudges', async () => {
+  const { loadTransferRecordByKey } = await import('../content/transfer/records.js');
+  const now = 4_000_000;
+  const record = {
+    targetPlatform: 'claude',
+    url: 'https://claude.ai/new',
+    timestamp: now - 10,
+    payload: 'exact',
+  };
+  const storage = {
+    get: async (k) => {
+      const dump = { xfer_42: record, pendingContinuation: { timestamp: 0 } };
+      if (k === null || k === undefined) return { ...dump };
+      if (Array.isArray(k)) return Object.fromEntries(k.map((n) => [n, dump[n]]));
+      return { [k]: dump[k] };
+    },
+  };
+  const loc = { origin: 'https://claude.ai' };
+  const hit = await loadTransferRecordByKey(storage, 'xfer_42', loc, now);
+  assert.equal(hit.payload, 'exact');
+  assert.deepEqual(hit.keys, ['xfer_42']);
+  assert.equal(await loadTransferRecordByKey(storage, 'xfer_99', loc, now), null);
+  assert.equal(
+    await loadTransferRecordByKey(storage, 'xfer_42', { origin: 'https://evil.ai' }, now),
+    null,
+  );
+  assert.equal(await loadTransferRecordByKey(storage, 'xfer_42', loc, now + 400000), null);
+});
+
 test('continuation template: placeholders inside values are preserved', () => {
   const out = applyPromptTemplate('S:{source} H:{history} I:{instruction}', {
     source: 'ChatGPT',

@@ -117,6 +117,27 @@ export function expiredTransferKeys(dump, now = Date.now()) {
   return dead;
 }
 
+async function joinChunkedByKey(storage, dump, key, record) {
+  const count = record.count || 0;
+  const tabId = key.slice(TRANSFER_KEY_PREFIX.length);
+  if (key === LEGACY_TRANSFER_KEY || count <= 0 || count > MAX_CHUNKS) {
+    return { payload: null, keys: [key] };
+  }
+  let parts;
+  try {
+    const names = [];
+    for (let i = 0; i < count; i++) names.push(chunkKey(tabId, i));
+    parts = (await storage.get(names)) || {};
+  } catch {
+    return { payload: null, keys: [key] };
+  }
+  const payload = joinChunkedRecord({ ...dump, ...parts }, key, record);
+  if (payload === null) return { payload: null, keys: [key] };
+  const keys = [key];
+  for (let i = 0; i < count; i++) keys.push(chunkKey(tabId, i));
+  return { payload, keys };
+}
+
 /** Load + join our record. Returns { keys, record, payload } or null. */
 export async function loadTransferRecord(storage, location, now = Date.now()) {
   let dump;
@@ -132,24 +153,47 @@ export async function loadTransferRecord(storage, location, now = Date.now()) {
   let payload = picked.record.payload;
   let keys = [picked.key];
   if (picked.record.chunked) {
-    const count = picked.record.count || 0;
-    const tabId = picked.key.slice(TRANSFER_KEY_PREFIX.length);
-    if (picked.key === LEGACY_TRANSFER_KEY || count <= 0) return null;
-    let parts;
-    try {
-      const names = [];
-      for (let i = 0; i < count; i++) names.push(chunkKey(tabId, i));
-      parts = (await storage.get(names)) || {};
-    } catch {
-      return null;
-    }
-    payload = joinChunkedRecord({ ...dump, ...parts }, picked.key, picked.record);
-    if (payload === null) return null;
-    keys = [picked.key];
-    for (let i = 0; i < count; i++) keys.push(chunkKey(tabId, i));
+    ({ payload, keys } = await joinChunkedByKey(storage, dump, picked.key, picked.record));
   }
   if (!payload) return null;
   return { keys, record: picked.record, payload };
+}
+
+/**
+ * Load one exact record by key (used for background nudges, which know the
+ * tab id). Validates freshness + origin so a stale/mismatched key is ignored.
+ */
+export async function loadTransferRecordByKey(storage, key, location, now = Date.now()) {
+  if (!key || typeof key !== 'string') return loadTransferRecord(storage, location, now);
+  if (key === LEGACY_TRANSFER_KEY) return loadTransferRecord(storage, location, now);
+  let record;
+  try {
+    const res = (await storage.get(key)) || {};
+    record = res[key];
+  } catch {
+    return null;
+  }
+  if (!record || typeof record !== 'object') return null;
+  const origin = location?.origin;
+  if (!isFresh(record, now)) return null;
+  try {
+    if (record.url && new URL(record.url).origin !== origin) return null;
+  } catch {
+    // Unparseable stored URL — fall through to pickup.
+  }
+  let payload = record.payload;
+  let keys = [key];
+  if (record.chunked) {
+    let dump;
+    try {
+      dump = (await storage.get(null)) || {};
+    } catch {
+      return null;
+    }
+    ({ payload, keys } = await joinChunkedByKey(storage, dump, key, record));
+  }
+  if (!payload) return null;
+  return { keys, record, payload };
 }
 
 export async function clearTransferRecord(storage, keys) {

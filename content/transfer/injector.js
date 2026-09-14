@@ -195,6 +195,16 @@ export function fillContentEditable(doc, el, text) {
     // ignore
   }
   const d = (el.ownerDocument || doc) ?? (typeof document !== 'undefined' ? document : null);
+  // Select-all first so the payload replaces any existing draft instead of
+  // appending at the current caret position.
+  try {
+    const sel = d && d.getSelection && d.getSelection();
+    if (sel && typeof sel.selectAllChildren === 'function') {
+      sel.selectAllChildren(el);
+    }
+  } catch {
+    // ignore
+  }
   let inserted = false;
   try {
     if (d && typeof d.execCommand === 'function' && d.execCommand('insertText', false, text)) {
@@ -301,6 +311,17 @@ export function sendViaEnter(el) {
   }
 }
 
+/** True only when the clipboard backup actually completed. */
+async function tryClipboardBackup(env, payload) {
+  try {
+    if (!env || typeof env.clipboardWrite !== 'function') return false;
+    await env.clipboardWrite(payload);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 /**
  * One fill attempt. Never throws; always resolves a result object.
  * env: { document, clipboardWrite(text)->Promise, isTopFrame?: boolean }
@@ -321,22 +342,12 @@ export async function attemptTransferInject(env, { payload, targetPlatform, auto
       (blocker.id ? `#${blocker.id}` : '') +
       (blocker.describe ? `(${blocker.describe})` : '');
     // Still back the payload up to the clipboard so no work is lost.
-    try {
-      await env.clipboardWrite?.(payload);
-    } catch {
-      // ignore
-    }
-    return { ok: false, reason: 'blocked', detail: describe, clipboardBackup: true };
+    const blockedBackup = await tryClipboardBackup(env, payload);
+    return { ok: false, reason: 'blocked', detail: describe, clipboardBackup: blockedBackup };
   }
 
   // Clipboard backup first — never lose the prompt even if fill fails.
-  let clipboardBackup = false;
-  try {
-    await env.clipboardWrite?.(payload);
-    clipboardBackup = true;
-  } catch {
-    // ignore
-  }
+  const clipboardBackup = await tryClipboardBackup(env, payload);
 
   const tag = (composer.tagName || '').toUpperCase();
   if (tag === 'TEXTAREA' || tag === 'INPUT') fillTextarea(doc, composer, payload);
@@ -352,9 +363,16 @@ export async function attemptTransferInject(env, { payload, targetPlatform, auto
   let autoSent = false;
   let autoSendSkipped = null;
   if (autoSend) {
-    if (sendViaButton(doc, targetPlatform)) autoSent = true;
-    else if (sendViaEnter(composer)) autoSent = true;
-    else autoSendSkipped = 'send-failed';
+    const dispatched = sendViaButton(doc, targetPlatform) || sendViaEnter(composer);
+    if (!dispatched) {
+      autoSendSkipped = 'send-failed';
+    } else {
+      // Confirm submission instead of assuming it: editors clear the
+      // composer when a message is accepted.
+      await new Promise((r) => setTimeout(r, 800));
+      if (norm(readBack(composer)).length === 0) autoSent = true;
+      else autoSendSkipped = 'send-unconfirmed';
+    }
   }
 
   return { ok: true, autoSent, autoSendSkipped, clipboardBackup };

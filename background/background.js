@@ -281,7 +281,7 @@ if (typeof chrome !== 'undefined' && chrome.tabs && chrome.tabs.onUpdated) {
       const res = await chrome.storage.local.get(key);
       const data = res && res[key];
       if (!data || Date.now() - (data.timestamp || 0) > 300000) return;
-      chrome.tabs.sendMessage(tabId, { action: 'TRY_TRANSFER_INJECT' }).catch(() => {});
+      chrome.tabs.sendMessage(tabId, { action: 'TRY_TRANSFER_INJECT', key }).catch(() => {});
     } catch {
       // Ignore
     }
