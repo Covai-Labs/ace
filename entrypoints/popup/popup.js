@@ -51,8 +51,34 @@ document.addEventListener('DOMContentLoaded', async () => {
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
   const filenameInput = document.getElementById('filename-input');
   const continueTargetSelect = document.getElementById('continue-target-select');
+  const unsupportedBanner = document.getElementById('unsupported-warning-banner');
+  const requestSupportBtn = document.getElementById('request-support-btn');
   const previewableFormats = new Set(['markdown', 'json', 'html', 'doc', 'png', 'pdf']);
   const copyableFormats = new Set(['markdown', 'json', 'html']);
+
+  function updateUnsupportedWarning(report, pageUrl) {
+    if (!unsupportedBanner) return;
+    if (report && report.available && report.isDedicatedAi === false) {
+      unsupportedBanner.classList.remove('hidden');
+      if (requestSupportBtn) {
+        requestSupportBtn.onclick = (e) => {
+          e.preventDefault();
+          let domain = '';
+          try {
+            domain = new URL(pageUrl || tab?.url || '').hostname;
+          } catch {
+            // Ignore invalid URL
+          }
+          const issueTitle = `[Platform Request] Support for ${domain || 'New AI Chat'}`;
+          const issueBody = `### Platform Support Request\n\n- **Website Domain**: ${domain || 'N/A'}\n- **Current Parser**: ArticleParser (Generic Web Article)\n\n### Description\nPlease add dedicated parser support for this AI chat platform.\n\n- **Page URL (optional)**: `;
+          const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+          chrome.tabs.create({ url: issueUrl });
+        };
+      }
+    } else {
+      unsupportedBanner.classList.add('hidden');
+    }
+  }
 
   function setStatus(state, message) {
     if (!statusEl) return;
@@ -379,6 +405,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           }
           chatInfoEl.classList.remove('hidden');
           actionsEl.classList.remove('hidden');
+          updateUnsupportedWarning(response, tab?.url);
           errorEl.classList.add('hidden');
           if (copilotRedirectBox) {
             copilotRedirectBox.classList.add('hidden');

@@ -659,3 +659,36 @@ html[data-theme='dark'] .png-warning-banner {
     border: none !important;
   }
 }
+
+.generic-article-notice {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 8px 14px;
+  border-radius: 8px;
+  margin-top: 10px;
+  font-size: 13px;
+  color: var(--text-color);
+}
+
+.generic-article-notice .notice-text {
+  font-weight: 500;
+}
+
+.generic-article-notice .notice-link-btn {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.generic-article-notice .notice-link-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+}

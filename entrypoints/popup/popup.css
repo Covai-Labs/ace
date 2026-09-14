@@ -932,3 +932,48 @@ html[data-theme='light'] .decant-promo-box {
   border-radius: 6px;
   margin-top: 6px;
 }
+
+.unsupported-warning-banner {
+  background-color: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--text-primary);
+  font-size: 11px;
+  line-height: 1.4;
+  padding: 8px 10px;
+  border-radius: 8px;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.unsupported-warning-banner .warning-title {
+  font-weight: 600;
+  color: #ef4444;
+  font-size: 11px;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.unsupported-warning-banner .warning-desc {
+  margin: 0 0 6px 0;
+  color: var(--text-secondary);
+  font-size: 10.5px;
+}
+
+.unsupported-warning-banner .support-btn {
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.unsupported-warning-banner .support-btn:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: rgba(239, 68, 68, 0.5);
+}
