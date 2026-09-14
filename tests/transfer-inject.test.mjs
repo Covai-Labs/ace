@@ -224,21 +224,15 @@ test('attemptTransferInject: ignores iframes and empty payloads', async () => {
   );
 });
 
-test('pollTransferInject: reports attempts and succeeds once composer mounts', async () => {
+test('pollTransferInject: retries until composer mounts', async () => {
   const { document } = parseHTML('<!DOCTYPE html><html><body></body></html>');
-  let calls = 0;
-  const origQuery = document.querySelectorAll.bind(document);
-  document.querySelectorAll = (...args) => {
-    calls++;
-    // Mount the composer on the second poll to simulate SPA hydration.
-    // (One findComposer pass issues ~5 querySelectorAll calls for deepseek.)
-    if (calls === 6) {
-      const el = document.createElement('textarea');
-      el.setAttribute('placeholder', 'Message DeepSeek');
-      document.body.appendChild(el);
-    }
-    return origQuery(...args);
-  };
+  // Mount the composer mid-poll to simulate SPA hydration. The timer fires
+  // after the first attempt has already failed, so success proves a retry.
+  setTimeout(() => {
+    const el = document.createElement('textarea');
+    el.setAttribute('placeholder', 'Message DeepSeek');
+    document.body.appendChild(el);
+  }, 60);
   const res = await pollTransferInject(
     okEnv(document),
     { payload: 'late hydration payload here', targetPlatform: 'deepseek', autoSend: false },
