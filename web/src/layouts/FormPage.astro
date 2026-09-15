@@ -46,6 +46,9 @@ const { title, description, tallySrc, iframeId, canonicalPath } = Astro.props;
     </a>
   </div>
   <div class="form-container">
+    <!-- Appearance inside this iframe is 100% owned by Tally.so.
+         Do not add transparentBackground, theme params, or CSS that
+         paints through into the form. -->
     <iframe
       id={iframeId}
       data-tally-src={tallySrc}
@@ -58,10 +61,14 @@ const { title, description, tallySrc, iframeId, canonicalPath } = Astro.props;
     ></iframe>
   </div>
 
+  <!-- Official Tally embed handler: lets tally.so own resizing/theme of the frame. -->
+  <script async src="https://tally.so/widgets/embed.js"></script>
+
   <script is:inline>
     (function () {
-      const iframe =
-        document.getElementById('{iframeId}') || document.querySelector('iframe[data-tally-src]');
+      // Single form per page: resolve by data attribute so no build-time
+      // ID interpolation is needed inside this inline script.
+      const iframe = document.querySelector('iframe[data-tally-src]');
       if (!iframe) return;
 
       const ua = navigator.userAgent || '';
@@ -266,7 +273,8 @@ const { title, description, tallySrc, iframeId, canonicalPath } = Astro.props;
       border: 0;
       width: 100%;
       height: 100%;
-      /* Keep the embedded Tally form on its own theme. */
+      /* Do not set a background here: Tally.so owns the frame's theme. */
+      /* Normal prevents our page color-scheme from leaking into the embed. */
       color-scheme: normal;
     }
     @media (max-width: 768px) {
