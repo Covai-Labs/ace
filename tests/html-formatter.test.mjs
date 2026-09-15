@@ -264,6 +264,39 @@ test('HTML formatter formats multi-line LaTeX math blocks without stripping slas
   assert.ok(!output.includes('<br>]<br>'));
 });
 
+test('HTML formatter formats inline math without fragmenting list items or injecting extra lines (Issue #58)', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'Inline Math List Test',
+    messages: [
+      {
+        role: 'Assistant',
+        content:
+          "* Initial Symmetrical Short-Circuit Current ($$I''_k$$): The foundational RMS value used to size the breaking capacity of protective devices. It is calculated using the formula $$I''_k = c \\cdot U_n / (\\sqrt{3} \\cdot Z_k)$$, where c is a voltage factor,\n\n" +
+          'Standalone formula should still be on its own line:\n\n' +
+          '$$E = mc^2$$\n\n' +
+          'Concluding note.',
+      },
+    ],
+  };
+
+  const output = formatter.format(conversation);
+
+  // The bullet item must remain a single, intact list item with inline math
+  assert.ok(
+    output.includes(
+      '<li>Initial Symmetrical Short-Circuit Current (<span class="math-inline">$I\'\'_k$</span>): The foundational RMS value used to size the breaking capacity of protective devices. It is calculated using the formula <span class="math-inline">$I\'\'_k = c \\cdot U_n / (\\sqrt{3} \\cdot Z_k)$</span>, where c is a voltage factor,</li>',
+    ),
+  );
+
+  // Standalone math block must still be isolated on its own line in a math-block
+  assert.ok(output.includes('<p><span class="math-block">$$E = mc^2$$</span></p>'));
+  assert.ok(output.includes('<p>Standalone formula should still be on its own line:</p>'));
+  assert.ok(output.includes('<p>Concluding note.</p>'));
+});
+
 test('HTML formatter escapes malicious codeLang tags and untrusted details tags', async () => {
   const { HtmlFormatter } = await importFormatter();
   const formatter = new HtmlFormatter();

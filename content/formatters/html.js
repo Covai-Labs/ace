@@ -1367,7 +1367,7 @@ export function markdownToHtml(mdText) {
 
   // 3. Convert multi-line or bracket display math \[ ... \] or \\[ ... \\] to $$ ... $$
   mdText = mdText.replace(/(?:\\{1,2}\[)([\s\S]+?)(?:\\{1,2}\])(?!\()/g, (match, math) => {
-    return `$$${math}$$`;
+    return `\n\n$$${math}$$\n\n`;
   });
 
   // 4. Convert inline math \( ... \) or \\( ... \\) to $ ... $
@@ -1378,11 +1378,27 @@ export function markdownToHtml(mdText) {
   // 5. Pre-extract display math blocks ($$ ... $$) so multi-line equations are preserved as single blocks
   const mathBlockPlaceholders = new Map();
   let mathBlockCounter = 0;
-  mdText = mdText.replace(/\$\$([\s\S]+?)\$\$/g, (match, math) => {
-    const id = `@@HTML_MATH_BLOCK_${mathBlockCounter++}@@`;
-    const cleanMath = math.includes('\n') ? cleanLatexMath(math).trim() : cleanLatexMath(math);
-    mathBlockPlaceholders.set(id, `<span class="math-block">$$${cleanMath}$$</span>`);
-    return `\n\n${id}\n\n`;
+  mdText = mdText.replace(/\$\$([\s\S]+?)\$\$/g, (match, math, offset, fullText) => {
+    const isMultiLine = math.includes('\n');
+    let isStandalone = isMultiLine;
+    if (!isStandalone) {
+      const lineStart = fullText.lastIndexOf('\n', offset - 1);
+      const before = fullText.substring(lineStart + 1, offset);
+      const end = offset + match.length;
+      const lineEnd = fullText.indexOf('\n', end);
+      const after = lineEnd === -1 ? fullText.substring(end) : fullText.substring(end, lineEnd);
+      isStandalone = before.trim() === '' && after.trim() === '';
+    }
+
+    if (isStandalone) {
+      const id = `@@HTML_MATH_BLOCK_${mathBlockCounter++}@@`;
+      const cleanMath = isMultiLine ? cleanLatexMath(math).trim() : cleanLatexMath(math);
+      mathBlockPlaceholders.set(id, `<span class="math-block">$$${cleanMath}$$</span>`);
+      return `\n\n${id}\n\n`;
+    }
+
+    // Inline math: convert to $...$ so it does not inject blank lines or break surrounding prose
+    return `$${cleanLatexMath(math)}$`;
   });
 
   // 6. Restore code blocks
