@@ -741,17 +741,19 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             activeParser.name === 'WebArticle' ||
             activeParser.constructor?.name === 'ArticleParser';
           let template;
-          try {
-            const syncData = await chrome.storage.sync.get('transferPromptTemplate');
-            if (
-              syncData &&
-              typeof syncData.transferPromptTemplate === 'string' &&
-              syncData.transferPromptTemplate.includes('{history}')
-            ) {
-              template = syncData.transferPromptTemplate;
+          if (!isArticle) {
+            try {
+              const syncData = await chrome.storage.sync.get('transferPromptTemplate');
+              if (
+                syncData &&
+                typeof syncData.transferPromptTemplate === 'string' &&
+                syncData.transferPromptTemplate.includes('{history}')
+              ) {
+                template = syncData.transferPromptTemplate;
+              }
+            } catch {
+              // Fall back to formatter default
             }
-          } catch {
-            // Fall back to formatter default
           }
           const payload = continuationFormatter.format(conversation, request.instruction || '', {
             template,

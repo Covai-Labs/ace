@@ -39,6 +39,39 @@ export const DEFAULT_ARTICLE_PROMPT_TEMPLATE = `Here is content extracted from {
 export const DEFAULT_ARTICLE_INSTRUCTION =
   'Please use the extracted content above as context for our conversation.';
 
+export const DEFAULT_SELECTION_PROMPT_TEMPLATE = `Here is an excerpt from {title} ({source}):
+
+{history}
+
+--- Instruction ---
+{instruction}`;
+
+export const DEFAULT_SELECTION_INSTRUCTION = 'Please explain or analyze the excerpt above.';
+
+export function formatSelectionPrompt(selectionText, opts = {}) {
+  const cleanedSelection = stripEncodedImages(selectionText || '').trim();
+  const title = (opts.title || '').trim();
+  const source = (opts.source || opts.url || '').trim();
+  const instruction =
+    opts.instruction && opts.instruction.trim().length > 0
+      ? opts.instruction.trim()
+      : DEFAULT_SELECTION_INSTRUCTION;
+  const template =
+    typeof opts.template === 'string' && opts.template.includes('{history}')
+      ? opts.template
+      : DEFAULT_SELECTION_PROMPT_TEMPLATE;
+
+  const displayTitle = title || 'Web Page';
+  const displaySource = source || (title ? 'Web Page' : 'Unknown Source');
+
+  return applyPromptTemplate(template, {
+    title: displayTitle,
+    source: displaySource,
+    history: cleanedSelection,
+    instruction,
+  });
+}
+
 export function applyPromptTemplate(template, vars) {
   const fallback = DEFAULT_TRANSFER_PROMPT_TEMPLATE;
   const out = typeof template === 'string' && template.includes('{history}') ? template : fallback;
@@ -82,6 +115,10 @@ export class ContinuationFormatter extends ExportFormatter {
       history: formattedMessages,
       instruction,
     });
+  }
+
+  formatSelection(selectionText, opts = {}) {
+    return formatSelectionPrompt(selectionText, opts);
   }
 
   getFileExtension() {

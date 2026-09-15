@@ -1,3 +1,5 @@
+import { formatSelectionPrompt } from '../content/formatters/continuation.js';
+
 export default defineBackground(() => {
   const extVersion =
     typeof chrome !== 'undefined' && chrome.runtime?.getManifest
@@ -10,20 +12,22 @@ export default defineBackground(() => {
     chrome.runtime.setUninstallURL(UNINSTALL_URL);
   }
 
-  const TRANSFER_TARGET_IDS = [
-    'chatgpt',
-    'claude',
-    'gemini',
-    'deepseek',
-    'perplexity',
-    'qwen',
-    'mistral',
-    'lumo',
-    'copilot',
-    'meta',
-    'z_ai',
-    'grok',
+  const TRANSFER_TARGETS = [
+    { id: 'chatgpt', label: 'ChatGPT' },
+    { id: 'claude', label: 'Claude' },
+    { id: 'gemini', label: 'Gemini' },
+    { id: 'deepseek', label: 'DeepSeek' },
+    { id: 'perplexity', label: 'Perplexity' },
+    { id: 'qwen', label: 'Qwen' },
+    { id: 'mistral', label: 'Mistral' },
+    { id: 'lumo', label: 'Lumo' },
+    { id: 'copilot', label: 'Copilot' },
+    { id: 'meta', label: 'Meta AI' },
+    { id: 'z_ai', label: 'Z.ai' },
+    { id: 'grok', label: 'Grok' },
   ];
+
+  const TRANSFER_TARGET_IDS = TRANSFER_TARGETS.map((t) => t.id);
 
   // Transfer-only registry (12 targets). Export/parsing still supports all platforms.
   const PLATFORM_URLS = {
@@ -53,6 +57,7 @@ export default defineBackground(() => {
         chrome.i18n?.getMessage('contextMenuDownloadMarkdown') || 'Download Markdown';
       const previewTitle =
         chrome.i18n?.getMessage('contextMenuOpenPreview') || 'Open in Preview Tab';
+      const sendToAITitle = chrome.i18n?.getMessage('contextMenuSendToAI') || 'Send to AI';
 
       // Root item scoped only to supported AI chat platforms
       chrome.contextMenus.create({
@@ -88,6 +93,25 @@ export default defineBackground(() => {
         contexts: ['page', 'selection'],
         documentUrlPatterns: SUPPORTED_DOCUMENT_URL_PATTERNS,
       });
+
+      // Root item: Send to AI
+      chrome.contextMenus.create({
+        id: 'ai-exporter-transfer-root',
+        title: sendToAITitle,
+        contexts: ['page', 'selection'],
+        documentUrlPatterns: SUPPORTED_DOCUMENT_URL_PATTERNS,
+      });
+
+      // Child items for each transfer target
+      for (const target of TRANSFER_TARGETS) {
+        chrome.contextMenus.create({
+          id: `ai-exporter-transfer-${target.id}`,
+          parentId: 'ai-exporter-transfer-root',
+          title: target.label,
+          contexts: ['page', 'selection'],
+          documentUrlPatterns: SUPPORTED_DOCUMENT_URL_PATTERNS,
+        });
+      }
     });
   }
 
@@ -155,6 +179,186 @@ export default defineBackground(() => {
     });
   }
 
+  async function performTransfer(target, payload = '', title = 'AI Conversation', autoSend = true) {
+    const uriAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
+    if (uriAppTargets.includes(target)) {
+      const syncData = await chrome.storage.sync.get('obsidianVaultName');
+      const vault = syncData?.obsidianVaultName || '';
+      const cleanTitle =
+        title
+          .replace(/[#|^[\]]/g, '')
+          .replace(/[/\\?%*:|"<>]/g, '')
+          .trim()
+          .slice(0, 245) || 'AI Conversation';
+
+      let appUri = '';
+      if (target === 'obsidian') {
+        const params = new URLSearchParams();
+        params.append('name', cleanTitle);
+        if (vault && vault.trim().length > 0) params.append('vault', vault.trim());
+        if (payload) params.append('content', payload);
+        appUri = `obsidian://new?${params.toString()}`;
+      } else if (target === 'logseq') {
+        const params = new URLSearchParams();
+        params.append('page', cleanTitle);
+        if (payload) params.append('content', payload);
+        appUri = `logseq://x-callback-url/quickCapture?${params.toString()}`;
+      } else if (target === 'bear') {
+        const params = new URLSearchParams();
+        params.append('title', cleanTitle);
+        if (payload) params.append('text', payload);
+        appUri = `bear://x-callback-url/create?${params.toString()}`;
+      } else if (target === 'noteplan') {
+        const params = new URLSearchParams();
+        params.append('noteTitle', cleanTitle);
+        if (payload) params.append('text', payload);
+        appUri = `noteplan://x-callback-url/addText?${params.toString()}`;
+      } else if (target === 'drafts') {
+        const params = new URLSearchParams();
+        const fullText = cleanTitle ? `# ${cleanTitle}\n\n${payload}` : payload;
+        params.append('text', fullText);
+        appUri = `drafts://x-callback-url/create?${params.toString()}`;
+      }
+
+      await chrome.tabs.create({ url: appUri });
+      return { success: true, uri: appUri };
+    }
+
+    if (!TRANSFER_TARGET_IDS.includes(target)) {
+      throw new Error(`Unsupported transfer target: ${target}`);
+    }
+
+    const url = PLATFORM_URLS[target] || 'https://chatgpt.com/';
+    const tab = await chrome.tabs.create({ url });
+    const base = {
+      targetPlatform: target,
+      url,
+      timestamp: Date.now(),
+      autoSend,
+    };
+    if (tab && tab.id !== undefined) {
+      const key = `xfer_${tab.id}`;
+      try {
+        await chrome.storage.local.set({ [key]: { ...base, payload } });
+      } catch {
+        await writeChunkedOrTruncated(tab.id, base, payload);
+      }
+      pruneTransferKeys();
+    } else {
+      // No tab id (rare) — legacy singular record so transfer still works.
+      try {
+        await chrome.storage.local.set({ pendingContinuation: { ...base, payload } });
+      } catch {
+        await chrome.storage.local.set({
+          pendingContinuation: {
+            ...base,
+            payload: truncatedPayload(payload),
+            truncated: true,
+          },
+        });
+      }
+    }
+    return { success: true };
+  }
+
+  async function handleTransferContextMenu(targetId, info, tab) {
+    let syncData;
+    try {
+      syncData = await chrome.storage.sync.get(['transferAutoSend', 'selectionPromptTemplate']);
+    } catch {
+      // Defaults apply
+    }
+    const autoSend = syncData?.transferAutoSend !== false;
+
+    // 1. Text is selected: format selected text excerpt
+    if (info.selectionText && info.selectionText.trim().length > 0) {
+      const effectiveUrl = info.frameUrl || info.pageUrl || tab.url || '';
+      let pageSource = '';
+      try {
+        if (effectiveUrl) {
+          pageSource = new URL(effectiveUrl).hostname;
+        }
+      } catch {
+        pageSource = effectiveUrl;
+      }
+
+      const payload = formatSelectionPrompt(info.selectionText, {
+        title: tab.title || '',
+        source: pageSource,
+        url: effectiveUrl,
+        template: syncData?.selectionPromptTemplate,
+      });
+
+      try {
+        await performTransfer(targetId, payload, tab.title || 'AI Selection', autoSend);
+      } catch (err) {
+        console.error('[AI Exporter Background] Selection transfer failed:', err);
+      }
+      return;
+    }
+
+    // 2. No text selected: ask content script to extract (article or AI chat continuation)
+    try {
+      const targetFrameId = typeof info.frameId === 'number' ? info.frameId : undefined;
+      const sendOptions = targetFrameId !== undefined ? { frameId: targetFrameId } : undefined;
+
+      let response;
+      try {
+        response = await chrome.tabs.sendMessage(
+          tab.id,
+          { action: 'GET_CONTINUATION_PAYLOAD' },
+          sendOptions,
+        );
+      } catch {
+        // If content script was not already loaded in the target frame, attempt injection
+        if (typeof chrome !== 'undefined' && chrome.scripting?.executeScript) {
+          try {
+            const scriptTarget =
+              targetFrameId !== undefined
+                ? { tabId: tab.id, frameIds: [targetFrameId] }
+                : { tabId: tab.id };
+            await chrome.scripting.executeScript({
+              target: scriptTarget,
+              files: ['content-scripts/content.js'],
+            });
+            await new Promise((resolve) => setTimeout(resolve, 150));
+            response = await chrome.tabs.sendMessage(
+              tab.id,
+              { action: 'GET_CONTINUATION_PAYLOAD' },
+              sendOptions,
+            );
+          } catch (injectErr) {
+            console.warn('[AI Exporter Background] Script injection retry failed:', injectErr);
+          }
+        }
+      }
+
+      // If subframe failed or returned empty, try fallback to top frame if targetFrameId was not 0
+      if ((!response || !response.success) && targetFrameId && targetFrameId !== 0) {
+        try {
+          response = await chrome.tabs.sendMessage(
+            tab.id,
+            { action: 'GET_CONTINUATION_PAYLOAD' },
+            { frameId: 0 },
+          );
+        } catch {
+          // Ignore
+        }
+      }
+
+      if (response && response.success && response.payload) {
+        await performTransfer(targetId, response.payload, tab.title || 'AI Conversation', autoSend);
+      } else {
+        console.warn(
+          '[AI Exporter Background] GET_CONTINUATION_PAYLOAD failed or empty:',
+          response?.error,
+        );
+      }
+    } catch (err) {
+      console.warn('[AI Exporter Background] Transfer from context menu failed:', err);
+    }
+  }
+
   if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.action === 'OPEN_SIDE_PANEL') {
@@ -188,106 +392,15 @@ export default defineBackground(() => {
       }
 
       if (request.action === 'TRANSFER_CHAT') {
-        const target = request.targetPlatform;
-
-        const uriAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
-        if (uriAppTargets.includes(target)) {
-          (async () => {
-            try {
-              const syncData = await chrome.storage.sync.get('obsidianVaultName');
-              const vault = syncData.obsidianVaultName || '';
-              const title = request.title || 'AI Conversation';
-              const content = request.payload || '';
-
-              const cleanTitle =
-                title
-                  .replace(/[#|^[\]]/g, '')
-                  .replace(/[/\\?%*:|"<>]/g, '')
-                  .trim()
-                  .slice(0, 245) || 'AI Conversation';
-
-              let appUri = '';
-              if (target === 'obsidian') {
-                const params = new URLSearchParams();
-                params.append('name', cleanTitle);
-                if (vault && vault.trim().length > 0) params.append('vault', vault.trim());
-                if (content) params.append('content', content);
-                appUri = `obsidian://new?${params.toString()}`;
-              } else if (target === 'logseq') {
-                const params = new URLSearchParams();
-                params.append('page', cleanTitle);
-                if (content) params.append('content', content);
-                appUri = `logseq://x-callback-url/quickCapture?${params.toString()}`;
-              } else if (target === 'bear') {
-                const params = new URLSearchParams();
-                params.append('title', cleanTitle);
-                if (content) params.append('text', content);
-                appUri = `bear://x-callback-url/create?${params.toString()}`;
-              } else if (target === 'noteplan') {
-                const params = new URLSearchParams();
-                params.append('noteTitle', cleanTitle);
-                if (content) params.append('text', content);
-                appUri = `noteplan://x-callback-url/addText?${params.toString()}`;
-              } else if (target === 'drafts') {
-                const params = new URLSearchParams();
-                const fullText = cleanTitle ? `# ${cleanTitle}\n\n${content}` : content;
-                params.append('text', fullText);
-                appUri = `drafts://x-callback-url/create?${params.toString()}`;
-              }
-
-              await chrome.tabs.create({ url: appUri });
-              sendResponse({ success: true, uri: appUri });
-            } catch (e) {
-              console.error(`[AI Exporter Background] ${target} transfer failed:`, e);
-              sendResponse({ success: false, error: e.message });
-            }
-          })();
-          return true;
-        }
-
-        if (!TRANSFER_TARGET_IDS.includes(target)) {
-          sendResponse({ success: false, error: `Unsupported transfer target: ${target}` });
-          return true;
-        }
-
-        const url = PLATFORM_URLS[target] || 'https://chatgpt.com/';
-
         (async () => {
           try {
-            const payload = request.payload || '';
-            const autoSend = request.autoSend !== false;
-            // Create first: the record is keyed to this tab id in a single
-            // write, so concurrent transfers never share mutable state.
-            const tab = await chrome.tabs.create({ url });
-            const base = {
-              targetPlatform: target,
-              url,
-              timestamp: Date.now(),
-              autoSend,
-            };
-            if (tab && tab.id !== undefined) {
-              const key = `xfer_${tab.id}`;
-              try {
-                await chrome.storage.local.set({ [key]: { ...base, payload } });
-              } catch {
-                await writeChunkedOrTruncated(tab.id, base, payload);
-              }
-              pruneTransferKeys();
-            } else {
-              // No tab id (rare) — legacy singular record so transfer still works.
-              try {
-                await chrome.storage.local.set({ pendingContinuation: { ...base, payload } });
-              } catch {
-                await chrome.storage.local.set({
-                  pendingContinuation: {
-                    ...base,
-                    payload: truncatedPayload(payload),
-                    truncated: true,
-                  },
-                });
-              }
-            }
-            sendResponse({ success: true });
+            const res = await performTransfer(
+              request.targetPlatform,
+              request.payload || '',
+              request.title || 'AI Conversation',
+              request.autoSend !== false,
+            );
+            sendResponse(res);
           } catch (e) {
             console.error('[AI Exporter Background] Transfer failed:', e);
             sendResponse({ success: false, error: e.message });
@@ -357,13 +470,24 @@ export default defineBackground(() => {
   }
 
   if (typeof chrome !== 'undefined' && chrome.contextMenus?.onClicked) {
-    chrome.contextMenus.onClicked.addListener((info) => {
+    chrome.contextMenus.onClicked.addListener(async (info, tab) => {
       if (info.menuItemId === 'ai-exporter-copy-markdown') {
         handleCommand('copy_markdown', 'preview.html');
       } else if (info.menuItemId === 'ai-exporter-download-markdown') {
         handleCommand('download_markdown', 'preview.html');
       } else if (info.menuItemId === 'ai-exporter-open-preview') {
         handleCommand('open_preview', 'preview.html');
+      } else if (
+        typeof info.menuItemId === 'string' &&
+        info.menuItemId.startsWith('ai-exporter-transfer-')
+      ) {
+        const targetId = info.menuItemId.replace('ai-exporter-transfer-', '');
+        if (!TRANSFER_TARGET_IDS.includes(targetId)) return;
+
+        const currentTab = tab || (await getActiveTab());
+        if (!currentTab || !currentTab.id) return;
+
+        await handleTransferContextMenu(targetId, info, currentTab);
       }
     });
   }
