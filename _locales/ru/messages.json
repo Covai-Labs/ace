@@ -597,5 +597,9 @@
   "systemInfoCopied": {
     "message": "Системная информация скопирована в буфер обмена!",
     "description": "Toast message when system info is copied"
+  },
+  "contextMenuSendToAI": {
+    "message": "Отправить в ИИ",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
   }
 }

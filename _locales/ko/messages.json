@@ -596,5 +596,9 @@
   "systemInfoCopied": {
     "message": "시스템 정보가 클립보드에 복사되었습니다!",
     "description": "Toast message when system info is copied"
+  },
+  "contextMenuSendToAI": {
+    "message": "AI로 보내기",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
   }
 }

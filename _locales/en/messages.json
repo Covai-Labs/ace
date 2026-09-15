@@ -594,6 +594,10 @@
     "message": "Open in Preview Tab",
     "description": "Context menu item to open conversation in preview tab"
   },
+  "contextMenuSendToAI": {
+    "message": "Send to AI",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
   "pdfTab": {
     "message": "📄 PDF (.pdf)",
     "description": "PDF preview tab"

@@ -596,5 +596,9 @@
   "systemInfoCopied": {
     "message": "Informations système copiées dans le presse-papiers !",
     "description": "Toast message when system info is copied"
+  },
+  "contextMenuSendToAI": {
+    "message": "Envoyer à l'IA",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
   }
 }

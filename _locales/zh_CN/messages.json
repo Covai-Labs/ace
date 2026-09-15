@@ -596,5 +596,9 @@
   "systemInfoCopied": {
     "message": "系统信息已复制到剪贴板！",
     "description": "Toast message when system info is copied"
+  },
+  "contextMenuSendToAI": {
+    "message": "发送至 AI",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
   }
 }

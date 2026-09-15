@@ -28,6 +28,7 @@ test('locales define all context menu messages across all catalogs', () => {
         messages.contextMenuOpenPreview?.message,
         `Missing contextMenuOpenPreview in ${dir}`,
       );
+      assert.ok(messages.contextMenuSendToAI?.message, `Missing contextMenuSendToAI in ${dir}`);
     }
   }
 });
@@ -41,5 +42,18 @@ test('entrypoints/background.js sets up context menus with documentUrlPatterns a
   assert.match(bg, /ai-exporter-copy-markdown/);
   assert.match(bg, /ai-exporter-download-markdown/);
   assert.match(bg, /ai-exporter-open-preview/);
+  assert.match(bg, /ai-exporter-transfer-root/);
+  assert.match(bg, /ai-exporter-transfer-\$\{target\.id\}/);
+  assert.match(bg, /handleTransferContextMenu/);
+  assert.match(bg, /chrome\.contextMenus\.onClicked\.addListener/);
+});
+
+test('background/background.js sets up context menus matching entrypoint', () => {
+  const bg = fs.readFileSync('background/background.js', 'utf8');
+
+  assert.match(bg, /setupContextMenus/);
+  assert.match(bg, /ai-exporter-transfer-root/);
+  assert.match(bg, /ai-exporter-transfer-\$\{target\.id\}/);
+  assert.match(bg, /handleTransferContextMenu/);
   assert.match(bg, /chrome\.contextMenus\.onClicked\.addListener/);
 });
