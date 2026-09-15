@@ -63,7 +63,6 @@ const { title, description, tallySrc, iframeId, canonicalPath } = Astro.props;
 
   <!-- Official Tally embed handler: lets tally.so own resizing/theme of the frame. -->
   <script async src="https://tally.so/widgets/embed.js"></script>
-
   <script is:inline>
     (function () {
       // Single form per page: resolve by data attribute so no build-time
