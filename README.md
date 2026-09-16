@@ -157,7 +157,7 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 ### Choosing Between AI Chat Exporter and Decant
 
-AI Chat Exporter and [Decant](https://github.com/Covai-Labs/decant) share an extraction engine ([decant-core](https://github.com/Covai-Labs/decant-core)) but solve different jobs:
+AI Chat Exporter and [Decant](https://github.com/Covai-Labs/decant-browser-extension) share an extraction engine ([decant-core](https://github.com/Covai-Labs/decant)) but solve different jobs:
 
 | Your goal                                                                                               | Use                  |
 | :------------------------------------------------------------------------------------------------------ | :------------------- |
@@ -194,7 +194,7 @@ Sample test fixtures located in [`tests/fixtures/`](tests/fixtures/) consist of 
 
 ## Acknowledgments
 
-- [decant-core](https://github.com/Covai-Labs/decant-core) — Shared parser engine and intelligent article extraction.
+- [decant-core](https://github.com/Covai-Labs/decant) — Shared parser engine and intelligent article extraction.
 - [Turndown.js](https://github.com/mixmark-io/turndown) — HTML to Markdown conversion.
 - [DOMPurify](https://github.com/cure53/DOMPurify) — HTML sanitization.
 - [html2canvas](https://github.com/niklasvh/html2canvas) — Client-side PNG rendering.
