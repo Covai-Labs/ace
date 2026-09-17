@@ -1,9 +1,10 @@
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
-// Sitemap is intentionally static (public/sitemap.xml) — URLs never change,
-// so the build runs fast and there is no sitemap index duplication.
+// Sitemap is generated at build time via @astrojs/sitemap.
 export default defineConfig({
   site: 'https://ai-chat-exporter.covai.org',
+  integrations: [sitemap()],
   outDir: '../docs',
   build: {
     format: 'file',
