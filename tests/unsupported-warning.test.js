@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { shouldShowUnsupportedWarning } from '../content/utils/feedback.js';
+import {
+  shouldShowUnsupportedWarning,
+  buildPlatformSupportIssueUrl,
+} from '../content/utils/feedback.js';
 
 test('shouldShowUnsupportedWarning flags non-dedicated AI article parsers correctly', () => {
   // Available and generic fallback (not dedicated AI) -> warning shown
@@ -19,12 +22,9 @@ test('shouldShowUnsupportedWarning flags non-dedicated AI article parsers correc
   assert.equal(shouldShowUnsupportedWarning({}), false);
 });
 
-test('feedback URL formatting generates correct GitHub issue URL for platform requests', () => {
-  const domain = 'example-ai.com';
+test('buildPlatformSupportIssueUrl generates correct GitHub issue URL for platform requests', () => {
   const pageUrl = 'https://example-ai.com/chat/123';
-  const cleanUrl = pageUrl.startsWith('http') ? pageUrl : '';
-  const issueTitle = `platform: Support for ${domain || 'New AI Platform'}`;
-  const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
+  const issueUrl = buildPlatformSupportIssueUrl(pageUrl);
 
   const parsed = new URL(issueUrl);
   assert.equal(parsed.origin, 'https://github.com');

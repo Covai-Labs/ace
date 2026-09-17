@@ -5,7 +5,7 @@ import {
   DEFAULT_FILENAME_TEMPLATE,
 } from '../../content/utils/filename.js';
 import { createLogger } from '../../content/utils/logger.js';
-import { shouldShowUnsupportedWarning } from '../../content/utils/feedback.js';
+import { shouldShowUnsupportedWarning, buildPlatformSupportIssueUrl } from '../../content/utils/feedback.js';
 
 const logger = createLogger('Popup');
 
@@ -64,16 +64,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (requestSupportBtn) {
         requestSupportBtn.onclick = (e) => {
           e.preventDefault();
-          let domain = '';
-          const rawUrl = pageUrl || tab?.url || '';
-          try {
-            if (rawUrl) domain = new URL(rawUrl).hostname;
-          } catch {
-            // Ignore invalid URL
-          }
-          const cleanUrl = rawUrl.startsWith('http') ? rawUrl : '';
-          const issueTitle = `platform: Support for ${domain || 'New AI Platform'}`;
-          const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
+          const issueUrl = buildPlatformSupportIssueUrl(pageUrl || tab?.url || '');
           chrome.tabs.create({ url: issueUrl });
         };
       }

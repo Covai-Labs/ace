@@ -602,11 +602,11 @@
     "description": "Context menu item to transfer selected text or conversation to an AI chat"
   },
   "transferCopyClipboardLabel": {
-    "message": "Copy prompt to clipboard on transfer",
+    "message": "전송 시 프롬프트를 클립보드에 복사",
     "description": "Label for transfer copy to clipboard checkbox"
   },
   "transferCopyClipboardHelp": {
-    "message": "When enabled, also copies the transferred prompt to your clipboard as a backup so you can manually paste (Ctrl+V) if injection fails.",
+    "message": "활성화하면 전송된 프롬프트를 백업으로 클립보드에도 복사하여 자동 입력에 실패할 경우 수동으로 붙여넣기(Ctrl+V)할 수 있습니다.",
     "description": "Help for transfer copy to clipboard checkbox"
   }
 }

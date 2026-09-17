@@ -590,11 +590,11 @@
     "description": "Toast message when system info is copied"
   },
   "transferCopyClipboardLabel": {
-    "message": "Copy prompt to clipboard on transfer",
+    "message": "Copia il prompt negli appunti durante il trasferimento",
     "description": "Label for transfer copy to clipboard checkbox"
   },
   "transferCopyClipboardHelp": {
-    "message": "When enabled, also copies the transferred prompt to your clipboard as a backup so you can manually paste (Ctrl+V) if injection fails.",
+    "message": "Se abilitato, copia anche il prompt trasferito negli appunti come backup per consentire l'incollamento manuale (Ctrl+V) in caso di errore di iniezione.",
     "description": "Help for transfer copy to clipboard checkbox"
   }
 }

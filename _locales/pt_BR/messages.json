@@ -602,11 +602,11 @@
     "description": "Context menu item to transfer selected text or conversation to an AI chat"
   },
   "transferCopyClipboardLabel": {
-    "message": "Copy prompt to clipboard on transfer",
+    "message": "Copiar comando para a área de transferência ao transferir",
     "description": "Label for transfer copy to clipboard checkbox"
   },
   "transferCopyClipboardHelp": {
-    "message": "When enabled, also copies the transferred prompt to your clipboard as a backup so you can manually paste (Ctrl+V) if injection fails.",
+    "message": "Quando ativado, também copia o comando transferido para a área de transferência como backup para que você possa colar manualmente (Ctrl+V) se a injeção falhar.",
     "description": "Help for transfer copy to clipboard checkbox"
   }
 }

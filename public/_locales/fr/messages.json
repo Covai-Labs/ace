@@ -590,11 +590,11 @@
     "description": "Toast message when system info is copied"
   },
   "transferCopyClipboardLabel": {
-    "message": "Copy prompt to clipboard on transfer",
+    "message": "Copier l'invite dans le presse-papiers lors du transfert",
     "description": "Label for transfer copy to clipboard checkbox"
   },
   "transferCopyClipboardHelp": {
-    "message": "When enabled, also copies the transferred prompt to your clipboard as a backup so you can manually paste (Ctrl+V) if injection fails.",
+    "message": "Lorsque cette option est activée, copie également l'invite transférée dans le presse-papiers afin que vous puissiez la coller manuellement (Ctrl+V) si l'injection échoue.",
     "description": "Help for transfer copy to clipboard checkbox"
   }
 }

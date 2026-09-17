@@ -7,6 +7,7 @@ import { ContinuationFormatter, stripEncodedImages } from '../content/formatters
 import { sanitizeHtml } from '../content/utils/sanitizer.js';
 import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
+import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
 
 function applyTheme(theme, targetDoc = document) {
   if (!targetDoc || !targetDoc.documentElement) return;
@@ -443,9 +444,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         convo?.platform === 'Article';
       let issueUrl = '';
       if (isGeneric) {
-        const cleanUrl = pageUrl && pageUrl.startsWith('http') ? pageUrl : '';
-        const issueTitle = `platform: Support for ${domain || 'New AI Platform'}`;
-        issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
+        issueUrl = buildPlatformSupportIssueUrl(pageUrl || '');
       } else {
         const issueTitle = `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
         const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;

@@ -306,10 +306,16 @@ async function handleTransferContextMenu(targetId, info, tab) {
       template: syncData?.selectionPromptTemplate,
     });
 
-    if (copyToClipboard && tab && tab.id !== undefined) {
-      chrome.tabs
-        .sendMessage(tab.id, { action: 'COPY_TO_CLIPBOARD', text: payload }, sendOptions)
-        .catch(() => {});
+    if (copyToClipboard && tab?.id !== undefined) {
+      try {
+        await chrome.tabs.sendMessage(
+          tab.id,
+          { action: 'COPY_TO_CLIPBOARD', text: payload },
+          sendOptions,
+        );
+      } catch {
+        // Ignore
+      }
     }
 
     try {
@@ -366,10 +372,16 @@ async function handleTransferContextMenu(targetId, info, tab) {
     }
 
     if (response && response.success && response.payload) {
-      if (copyToClipboard && tab && tab.id !== undefined) {
-        chrome.tabs
-          .sendMessage(tab.id, { action: 'COPY_TO_CLIPBOARD', text: response.payload }, sendOptions)
-          .catch(() => {});
+      if (copyToClipboard && tab?.id !== undefined) {
+        try {
+          await chrome.tabs.sendMessage(
+            tab.id,
+            { action: 'COPY_TO_CLIPBOARD', text: response.payload },
+            sendOptions,
+          );
+        } catch {
+          // Ignore
+        }
       }
       await performTransfer(targetId, response.payload, tab.title || 'AI Conversation', autoSend);
     } else {

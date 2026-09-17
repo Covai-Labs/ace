@@ -138,16 +138,24 @@ async function runTransferInject(exactKey) {
       showExporterToast(msg, 'success');
       logger.info('Auto-injected transferred conversation context.');
     } else {
+      let copied = false;
       if (copyToClipboardEnabled) {
-        await copyToClipboard(payload).catch(() => {});
+        try {
+          copied = await copyToClipboard(payload);
+        } catch {
+          copied = false;
+        }
       }
-      const hint =
-        result.reason === 'blocked'
-          ? `dismiss any pop-up on ${label}, then press Ctrl+V`
-          : `press Ctrl+V in the ${label} chat box`;
       await clearTransferRecord(chrome.storage.local, keys);
-      const copyMsg = copyToClipboardEnabled ? ' — prompt copied, ' : ' — ';
-      showExporterToast(`⚠️ Couldn't auto-fill ${label}${copyMsg}${hint}`, 'error');
+      if (copied) {
+        const hint =
+          result.reason === 'blocked'
+            ? `dismiss any pop-up on ${label}, then press Ctrl+V`
+            : `press Ctrl+V in the ${label} chat box`;
+        showExporterToast(`⚠️ Couldn't auto-fill ${label} — prompt copied, ${hint}`, 'error');
+      } else {
+        showExporterToast(`⚠️ Couldn't auto-fill ${label}`, 'error');
+      }
       logger.warn('Transfer inject failed:', result);
     }
   } finally {

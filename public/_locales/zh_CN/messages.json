@@ -594,7 +594,7 @@
     "description": "Label for transfer copy to clipboard checkbox"
   },
   "transferCopyClipboardHelp": {
-    "message": "When enabled, also copies the transferred prompt to your clipboard as a backup so you can manually paste (Ctrl+V) if injection fails.",
+    "message": "启用后，在转移时还会将提示词复制到剪贴板作为备份，以便在自动填充失败时手动粘贴 (Ctrl+V)。",
     "description": "Help for transfer copy to clipboard checkbox"
   }
 }
