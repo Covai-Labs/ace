@@ -5,7 +5,10 @@ import {
   DEFAULT_FILENAME_TEMPLATE,
 } from '../content/utils/filename.js';
 import { createLogger } from '../content/utils/logger.js';
-import { shouldShowUnsupportedWarning } from '../content/utils/feedback.js';
+import {
+  shouldShowUnsupportedWarning,
+  buildPlatformSupportIssueUrl,
+} from '../content/utils/feedback.js';
 
 const logger = createLogger('Popup');
 
@@ -64,15 +67,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (requestSupportBtn) {
         requestSupportBtn.onclick = (e) => {
           e.preventDefault();
-          let domain = '';
-          try {
-            domain = new URL(pageUrl || tab?.url || '').hostname;
-          } catch {
-            // Ignore invalid URL
-          }
-          const issueTitle = `[Platform Request] Support for ${domain || 'New AI Chat'}`;
-          const issueBody = `### Platform Support Request\n\n- **Website Domain**: ${domain || 'N/A'}\n- **Current Parser**: ArticleParser (Generic Web Article)\n\n### Description\nPlease add dedicated parser support for this AI chat platform.\n\n- **Page URL (optional)**: `;
-          const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+          const issueUrl = buildPlatformSupportIssueUrl(pageUrl || tab?.url || '');
           chrome.tabs.create({ url: issueUrl });
         };
       }
@@ -698,13 +693,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (response && response.success && response.payload) {
           let autoSend = true;
+          let copyToClipboard = false;
           try {
-            const syncData = await chrome.storage.sync.get('transferAutoSend');
+            const syncData = await chrome.storage.sync.get([
+              'transferAutoSend',
+              'transferCopyToClipboard',
+            ]);
             if (syncData && syncData.transferAutoSend !== undefined) {
               autoSend = syncData.transferAutoSend !== false;
             }
+            if (syncData && syncData.transferCopyToClipboard) {
+              copyToClipboard = true;
+            }
           } catch {
             // Default to auto-send
+          }
+          if (copyToClipboard && response.payload) {
+            try {
+              if (navigator.clipboard?.writeText) {
+                await navigator.clipboard.writeText(response.payload);
+              }
+            } catch (err) {
+              logger.warn('Failed to copy to clipboard on transfer:', err);
+            }
           }
           await chrome.runtime.sendMessage({
             action: 'TRANSFER_CHAT',

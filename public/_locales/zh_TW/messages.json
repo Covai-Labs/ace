@@ -588,5 +588,13 @@
   "systemInfoCopied": {
     "message": "系統資訊已複製到剪貼簿！",
     "description": "Toast message when system info is copied"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "轉移時複製提示詞至剪貼簿",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "啟用後，轉移時還會將提示詞複製到剪貼簿作為備份，以便在自動填充失敗時手動貼上 (Ctrl+V)。",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

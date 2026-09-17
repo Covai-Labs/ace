@@ -7,6 +7,7 @@ import { ContinuationFormatter, stripEncodedImages } from '../content/formatters
 import { sanitizeHtml } from '../content/utils/sanitizer.js';
 import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
+import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
 
 function applyTheme(theme, targetDoc = document) {
   if (!targetDoc || !targetDoc.documentElement) return;
@@ -441,13 +442,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         convo?.isDedicatedAi === false ||
         convo?.platform === 'WebArticle' ||
         convo?.platform === 'Article';
-      const issueTitle = isGeneric
-        ? `[Platform Request] Support for ${domain || 'New AI Chat'}`
-        : `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
-
-      const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: ${isGeneric ? 'Yes' : 'No'}\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
-
-      const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+      let issueUrl;
+      if (isGeneric) {
+        issueUrl = buildPlatformSupportIssueUrl(pageUrl || '');
+      } else {
+        const issueTitle = `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
+        const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
+        issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+      }
       if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
         chrome.tabs.create({ url: issueUrl });
       } else {
@@ -717,15 +719,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let payload = '';
         let autoSend = true;
+        let copyToClipboard = false;
         let template;
         try {
           const syncData = await chrome.storage.sync.get([
             'transferAutoSend',
+            'transferCopyToClipboard',
             'transferPromptTemplate',
           ]);
           if (syncData) {
             if (syncData.transferAutoSend !== undefined) {
               autoSend = syncData.transferAutoSend !== false;
+            }
+            if (syncData.transferCopyToClipboard) {
+              copyToClipboard = true;
             }
             if (
               typeof syncData.transferPromptTemplate === 'string' &&
@@ -743,6 +750,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           payload = continuationFormatter.format(conversation, '', { template, isArticle });
         } else {
           payload = stripEncodedImages(markdownContent || activeContent);
+        }
+
+        if (copyToClipboard && payload) {
+          try {
+            if (navigator.clipboard?.writeText) {
+              await navigator.clipboard.writeText(payload);
+            }
+          } catch (err) {
+            console.warn('[Preview] Failed to copy to clipboard on transfer:', err);
+          }
         }
 
         await chrome.runtime.sendMessage({

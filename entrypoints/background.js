@@ -264,14 +264,53 @@ export default defineBackground(() => {
   async function handleTransferContextMenu(targetId, info, tab) {
     let syncData;
     try {
-      syncData = await chrome.storage.sync.get(['transferAutoSend', 'selectionPromptTemplate']);
+      syncData = await chrome.storage.sync.get([
+        'transferAutoSend',
+        'selectionPromptTemplate',
+        'transferCopyToClipboard',
+      ]);
     } catch {
       // Defaults apply
     }
     const autoSend = syncData?.transferAutoSend !== false;
+    const copyToClipboard = Boolean(syncData?.transferCopyToClipboard);
+
+    const targetFrameId = typeof info.frameId === 'number' ? info.frameId : undefined;
+    const sendOptions = targetFrameId !== undefined ? { frameId: targetFrameId } : undefined;
+
+    let selectedText = info.selectionText ? info.selectionText.trim() : '';
+
+    // If info.selectionText is empty, query content script in tab
+    if (!selectedText && tab && tab.id !== undefined) {
+      try {
+        const selRes = await chrome.tabs.sendMessage(
+          tab.id,
+          { action: 'GET_CURRENT_SELECTION' },
+          sendOptions,
+        );
+        if (selRes && selRes.success && typeof selRes.selection === 'string') {
+          selectedText = selRes.selection.trim();
+        }
+      } catch {
+        if (targetFrameId && targetFrameId !== 0) {
+          try {
+            const topRes = await chrome.tabs.sendMessage(
+              tab.id,
+              { action: 'GET_CURRENT_SELECTION' },
+              { frameId: 0 },
+            );
+            if (topRes && topRes.success && typeof topRes.selection === 'string') {
+              selectedText = topRes.selection.trim();
+            }
+          } catch {
+            // Ignore
+          }
+        }
+      }
+    }
 
     // 1. Text is selected: format selected text excerpt
-    if (info.selectionText && info.selectionText.trim().length > 0) {
+    if (selectedText && selectedText.length > 0) {
       const effectiveUrl = info.frameUrl || info.pageUrl || tab.url || '';
       let pageSource = '';
       try {
@@ -282,12 +321,24 @@ export default defineBackground(() => {
         pageSource = effectiveUrl;
       }
 
-      const payload = formatSelectionPrompt(info.selectionText, {
+      const payload = formatSelectionPrompt(selectedText, {
         title: tab.title || '',
         source: pageSource,
         url: effectiveUrl,
         template: syncData?.selectionPromptTemplate,
       });
+
+      if (copyToClipboard && tab?.id !== undefined) {
+        try {
+          await chrome.tabs.sendMessage(
+            tab.id,
+            { action: 'COPY_TO_CLIPBOARD', text: payload },
+            sendOptions,
+          );
+        } catch {
+          // Ignore
+        }
+      }
 
       try {
         await performTransfer(targetId, payload, tab.title || 'AI Selection', autoSend);
@@ -299,9 +350,6 @@ export default defineBackground(() => {
 
     // 2. No text selected: ask content script to extract (article or AI chat continuation)
     try {
-      const targetFrameId = typeof info.frameId === 'number' ? info.frameId : undefined;
-      const sendOptions = targetFrameId !== undefined ? { frameId: targetFrameId } : undefined;
-
       let response;
       try {
         response = await chrome.tabs.sendMessage(
@@ -347,6 +395,17 @@ export default defineBackground(() => {
       }
 
       if (response && response.success && response.payload) {
+        if (copyToClipboard && tab?.id !== undefined) {
+          try {
+            await chrome.tabs.sendMessage(
+              tab.id,
+              { action: 'COPY_TO_CLIPBOARD', text: response.payload },
+              sendOptions,
+            );
+          } catch {
+            // Ignore
+          }
+        }
         await performTransfer(targetId, response.payload, tab.title || 'AI Conversation', autoSend);
       } else {
         console.warn(

@@ -600,5 +600,13 @@
   "contextMenuSendToAI": {
     "message": "发送至 AI",
     "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "转移时复制提示词到剪贴板",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "启用后，在转移时还会将提示词复制到剪贴板作为备份，以便在自动填充失败时手动粘贴 (Ctrl+V)。",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

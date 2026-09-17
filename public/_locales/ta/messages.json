@@ -589,5 +589,13 @@
   "systemInfoCopied": {
     "message": "கணினி விவரங்கள் கிளிப்போர்டுக்கு நகலெடுக்கப்பட்டன!",
     "description": "Toast message when system info is copied"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "இடமாற்றத்தின் போது உரையாடலை கிளிப்போர்டில் நகலெடுக்கவும்",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "செயல்படுத்தப்பட்டால், தானியங்கு உள்ளீடு தோல்வியுற்றால் நீங்கள் கைமுறையாக (Ctrl+V) ஒட்டுவதற்கு மாற்றப்பட்ட உரையாடல் கிளிப்போர்டிலும் நகலெடுக்கப்படும்.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

@@ -588,5 +588,13 @@
   "systemInfoCopied": {
     "message": "Info di sistema copiate negli appunti!",
     "description": "Toast message when system info is copied"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "Copia il prompt negli appunti durante il trasferimento",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "Se abilitato, copia anche il prompt trasferito negli appunti come backup per consentire l'incollamento manuale (Ctrl+V) in caso di errore di iniezione.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

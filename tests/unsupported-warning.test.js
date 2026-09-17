@@ -1,6 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { shouldShowUnsupportedWarning } from '../content/utils/feedback.js';
+import {
+  shouldShowUnsupportedWarning,
+  buildPlatformSupportIssueUrl,
+} from '../content/utils/feedback.js';
 
 test('shouldShowUnsupportedWarning flags non-dedicated AI article parsers correctly', () => {
   // Available and generic fallback (not dedicated AI) -> warning shown
@@ -19,21 +22,25 @@ test('shouldShowUnsupportedWarning flags non-dedicated AI article parsers correc
   assert.equal(shouldShowUnsupportedWarning({}), false);
 });
 
-test('feedback URL formatting generates correct GitHub issue URL without exposing full page URL by default', () => {
-  const domain = 'example-ai.com';
-  const isGeneric = true;
-
-  const issueTitle = isGeneric
-    ? `[Platform Request] Support for ${domain}`
-    : `[Feedback] Issue with Chat Export`;
-
-  const issueBody = `### Platform Support Request\n\n- **Website Domain**: ${domain || 'N/A'}\n- **Current Parser**: ArticleParser (Generic Web Article)\n\n### Description\nPlease add dedicated parser support for this AI chat platform.\n\n- **Page URL (optional)**: `;
-
-  const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+test('buildPlatformSupportIssueUrl generates correct GitHub issue URL for platform requests', () => {
+  const pageUrl = 'https://example-ai.com/chat/123';
+  const issueUrl = buildPlatformSupportIssueUrl(pageUrl);
 
   const parsed = new URL(issueUrl);
   assert.equal(parsed.origin, 'https://github.com');
   assert.equal(parsed.pathname, '/Covai-Labs/ai-chat-exporter/issues/new');
-  assert.equal(parsed.searchParams.get('title'), '[Platform Request] Support for example-ai.com');
-  assert.ok(parsed.searchParams.get('body').includes('Page URL (optional)'));
+  assert.equal(parsed.searchParams.get('template'), 'platform_support.yml');
+  assert.equal(parsed.searchParams.get('title'), 'platform: Support for example-ai.com');
+  assert.equal(parsed.searchParams.get('platform'), 'example-ai.com');
+  assert.equal(parsed.searchParams.get('url'), 'https://example-ai.com/chat/123');
+});
+
+test('buildPlatformSupportIssueUrl ignores malformed or non-http URLs', () => {
+  for (const invalid of ['http-not-a-url', 'javascript:alert(1)', 'not-a-url', '']) {
+    const issueUrl = buildPlatformSupportIssueUrl(invalid);
+    const parsed = new URL(issueUrl);
+    assert.equal(parsed.searchParams.get('url'), '');
+    assert.equal(parsed.searchParams.get('platform'), '');
+    assert.equal(parsed.searchParams.get('title'), 'platform: Support for New AI Platform');
+  }
 });

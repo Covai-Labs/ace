@@ -600,5 +600,13 @@
   "contextMenuSendToAI": {
     "message": "Envoyer à l'IA",
     "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "Copier l'invite dans le presse-papiers lors du transfert",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "Lorsque cette option est activée, copie également l'invite transférée dans le presse-papiers afin que vous puissiez la coller manuellement (Ctrl+V) si l'injection échoue.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

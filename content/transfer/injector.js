@@ -195,27 +195,57 @@ export function fillContentEditable(doc, el, text) {
     // ignore
   }
   const d = (el.ownerDocument || doc) ?? (typeof document !== 'undefined' ? document : null);
+  const win = (doc && doc.defaultView) || (typeof window !== 'undefined' ? window : null);
+
   // Select-all first so the payload replaces any existing draft instead of
   // appending at the current caret position.
   try {
-    const sel = d && d.getSelection && d.getSelection();
+    const sel =
+      (d && d.getSelection && d.getSelection()) || (win && win.getSelection && win.getSelection());
     if (sel && typeof sel.selectAllChildren === 'function') {
       sel.selectAllChildren(el);
     }
   } catch {
     // ignore
   }
+
   let inserted = false;
-  try {
-    if (d && typeof d.execCommand === 'function' && d.execCommand('insertText', false, text)) {
-      inserted = true;
+
+  // 1. Multi-line insertion: In Firefox (Gecko), execCommand('insertText') truncates at the first newline.
+  // Using insertHTML with escaped HTML and <br> preserves multi-line text across both Firefox and Chromium editors.
+  if (text && text.includes('\n') && d && typeof d.execCommand === 'function') {
+    try {
+      const escHtml = text
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;')
+        .replace(/\r?\n/g, '<br>');
+      if (d.execCommand('insertHTML', false, escHtml)) {
+        inserted = true;
+      }
+    } catch {
+      // ignore
     }
-  } catch {
-    // ignore
   }
+
+  // 2. Single-line or fallback: execCommand('insertText')
   if (!inserted) {
     try {
-      const sel = (d && d.getSelection && d.getSelection()) || window.getSelection();
+      if (d && typeof d.execCommand === 'function' && d.execCommand('insertText', false, text)) {
+        inserted = true;
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  if (!inserted) {
+    try {
+      const sel =
+        (d && d.getSelection && d.getSelection()) ||
+        (win && win.getSelection && win.getSelection());
       if (sel) {
         sel.selectAllChildren(el);
         if (d && typeof d.execCommand === 'function') {
@@ -226,8 +256,9 @@ export function fillContentEditable(doc, el, text) {
       // ignore
     }
   }
+
+  // 3. Fallback: paragraph-structured direct insert (keeps ProseMirror/Quill/Lexical happy-ish).
   if (!inserted) {
-    // Last resort: paragraph-structured direct insert (keeps Quill/Lexical happy-ish).
     try {
       while (el.firstChild) el.removeChild(el.firstChild);
       const owner = el.ownerDocument || doc || document;
@@ -248,8 +279,22 @@ export function fillContentEditable(doc, el, text) {
       }
     }
   }
+
+  // Dispatch rich input & change events
   try {
-    el.dispatchEvent(new Event('input', { bubbles: true }));
+    const Ctor =
+      (win && (win.InputEvent || win.Event)) ||
+      (typeof InputEvent !== 'undefined' ? InputEvent : Event);
+    el.dispatchEvent(new Ctor('input', { bubbles: true, data: text, inputType: 'insertText' }));
+  } catch {
+    try {
+      el.dispatchEvent(new Event('input', { bubbles: true }));
+    } catch {
+      // ignore
+    }
+  }
+  try {
+    el.dispatchEvent(new Event('change', { bubbles: true }));
   } catch {
     // ignore
   }
@@ -394,10 +439,9 @@ export async function pollTransferInject(
     attempts++;
     last = await attemptTransferInject(env, opts);
     if (last.ok) return { ...last, attempts };
-    // Terminal states: don't spin for the full window.
-    if (last.reason === 'blocked' || last.reason === 'verify-failed') {
-      // Blocked may clear (user dismisses banner) — keep polling for blocked only.
-      if (last.reason === 'verify-failed') return { ...last, attempts };
+    // Terminal states: don't spin endlessly for verify-failed, but allow retries for SPA mounting.
+    if (last.reason === 'verify-failed' && attempts >= 4) {
+      return { ...last, attempts };
     }
     try {
       onAttempt && onAttempt(last, attempts);

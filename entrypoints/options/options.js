@@ -88,6 +88,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'obsidianVaultName',
     'launchMode',
     'transferAutoSend',
+    'transferCopyToClipboard',
     'transferPromptTemplate',
   ]);
 
@@ -192,6 +193,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     transferAutosendCheckbox.checked = stored.transferAutoSend !== false;
     transferAutosendCheckbox.addEventListener('change', () => {
       chrome.storage.sync.set({ transferAutoSend: transferAutosendCheckbox.checked });
+      showToast();
+    });
+  }
+
+  const transferCopyClipboardCheckbox = document.getElementById('transfer-copy-clipboard-checkbox');
+  if (transferCopyClipboardCheckbox) {
+    transferCopyClipboardCheckbox.checked = stored.transferCopyToClipboard === true;
+    transferCopyClipboardCheckbox.addEventListener('change', () => {
+      chrome.storage.sync.set({ transferCopyToClipboard: transferCopyClipboardCheckbox.checked });
       showToast();
     });
   }

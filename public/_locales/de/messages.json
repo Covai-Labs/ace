@@ -588,5 +588,13 @@
   "systemInfoCopied": {
     "message": "Systeminformationen in die Zwischenablage kopiert!",
     "description": "Toast message when system info is copied"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "Prompt bei Übertragung in die Zwischenablage kopieren",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "Kopiert den übertragenen Prompt bei Aktivierung zusätzlich in die Zwischenablage, um ihn manuell einzufügen (Strg+V), falls das automatische Einfügen fehlschlägt.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

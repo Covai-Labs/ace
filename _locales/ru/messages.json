@@ -601,5 +601,13 @@
   "contextMenuSendToAI": {
     "message": "Отправить в ИИ",
     "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "Копировать запрос в буфер обмена при переносе",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "Если включено, перенесенный запрос также копируется в буфер обмена в качестве резервной копии, чтобы вы могли вставить его вручную (Ctrl+V) в случае сбоя автозаполнения.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

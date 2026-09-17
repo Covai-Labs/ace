@@ -589,5 +589,13 @@
   "systemInfoCopied": {
     "message": "Системная информация скопирована в буфер обмена!",
     "description": "Toast message when system info is copied"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "Копировать запрос в буфер обмена при переносе",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "Если включено, перенесенный запрос также копируется в буфер обмена в качестве резервной копии, чтобы вы могли вставить его вручную (Ctrl+V) в случае сбоя автозаполнения.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

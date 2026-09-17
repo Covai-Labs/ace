@@ -601,5 +601,13 @@
   "contextMenuSendToAI": {
     "message": "Enviar a la IA",
     "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "Copiar mensaje al portapapeles al transferir",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "Cuando está activado, también copia el mensaje transferido al portapapeles como respaldo para que puedas pegarlo manualmente (Ctrl+V) si la inyección falla.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }
