@@ -5,7 +5,10 @@ import {
   DEFAULT_FILENAME_TEMPLATE,
 } from '../../content/utils/filename.js';
 import { createLogger } from '../../content/utils/logger.js';
-import { shouldShowUnsupportedWarning, buildPlatformSupportIssueUrl } from '../../content/utils/feedback.js';
+import {
+  shouldShowUnsupportedWarning,
+  buildPlatformSupportIssueUrl,
+} from '../../content/utils/feedback.js';
 
 const logger = createLogger('Popup');
 

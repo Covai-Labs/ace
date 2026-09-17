@@ -200,12 +200,7 @@ test('attemptTransferInject: fills a contenteditable composer with multi-line pa
     autoSend: false,
   });
   assert.equal(res.ok, true);
-  assert.ok(
-    verifyContent(
-      doc.querySelector('[data-testid="chat-input"]'),
-      multiLine,
-    ),
-  );
+  assert.ok(verifyContent(doc.querySelector('[data-testid="chat-input"]'), multiLine));
 });
 
 test('attemptTransferInject: blocked composer fails closed with clipboard backup', async () => {

@@ -34,3 +34,13 @@ test('buildPlatformSupportIssueUrl generates correct GitHub issue URL for platfo
   assert.equal(parsed.searchParams.get('platform'), 'example-ai.com');
   assert.equal(parsed.searchParams.get('url'), 'https://example-ai.com/chat/123');
 });
+
+test('buildPlatformSupportIssueUrl ignores malformed or non-http URLs', () => {
+  for (const invalid of ['http-not-a-url', 'javascript:alert(1)', 'not-a-url', '']) {
+    const issueUrl = buildPlatformSupportIssueUrl(invalid);
+    const parsed = new URL(issueUrl);
+    assert.equal(parsed.searchParams.get('url'), '');
+    assert.equal(parsed.searchParams.get('platform'), '');
+    assert.equal(parsed.searchParams.get('title'), 'platform: Support for New AI Platform');
+  }
+});

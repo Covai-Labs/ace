@@ -16,13 +16,19 @@ export function shouldShowUnsupportedWarning(report) {
  */
 export function buildPlatformSupportIssueUrl(pageUrl) {
   let domain = '';
+  let cleanUrl = '';
   const rawUrl = pageUrl || '';
   try {
-    if (rawUrl) domain = new URL(rawUrl).hostname;
+    if (rawUrl) {
+      const parsed = new URL(rawUrl);
+      if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+        domain = parsed.hostname;
+        cleanUrl = rawUrl;
+      }
+    }
   } catch {
     // Ignore invalid URL
   }
-  const cleanUrl = rawUrl.startsWith('http') ? rawUrl : '';
   const issueTitle = `platform: Support for ${domain || 'New AI Platform'}`;
   return `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
 }

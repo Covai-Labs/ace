@@ -842,7 +842,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         convo?.isDedicatedAi === false ||
         convo?.platform === 'WebArticle' ||
         convo?.platform === 'Article';
-      let issueUrl = '';
+      let issueUrl;
       if (isGeneric) {
         issueUrl = buildPlatformSupportIssueUrl(pageUrl || '');
       } else {

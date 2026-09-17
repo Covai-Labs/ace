@@ -244,7 +244,8 @@ export function fillContentEditable(doc, el, text) {
   if (!inserted) {
     try {
       const sel =
-        (d && d.getSelection && d.getSelection()) || (win && win.getSelection && win.getSelection());
+        (d && d.getSelection && d.getSelection()) ||
+        (win && win.getSelection && win.getSelection());
       if (sel) {
         sel.selectAllChildren(el);
         if (d && typeof d.execCommand === 'function') {
