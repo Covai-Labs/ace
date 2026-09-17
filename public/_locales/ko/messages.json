@@ -588,5 +588,13 @@
   "systemInfoCopied": {
     "message": "시스템 정보가 클립보드에 복사되었습니다!",
     "description": "Toast message when system info is copied"
+  },
+  "transferCopyClipboardLabel": {
+    "message": "Copy prompt to clipboard on transfer",
+    "description": "Label for transfer copy to clipboard checkbox"
+  },
+  "transferCopyClipboardHelp": {
+    "message": "When enabled, also copies the transferred prompt to your clipboard as a backup so you can manually paste (Ctrl+V) if injection fails.",
+    "description": "Help for transfer copy to clipboard checkbox"
   }
 }

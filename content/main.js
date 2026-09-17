@@ -64,14 +64,16 @@ function enrichConversation(conversation) {
 
 let transferInjectRunning = false;
 
-function transferInjectEnv() {
+function transferInjectEnv(copyToClipboardEnabled = false) {
   return {
     document,
     isTopFrame: typeof window === 'undefined' || window.self === window.top,
-    clipboardWrite: async (text) => {
-      const ok = await copyToClipboard(text);
-      if (!ok) throw new Error('clipboard write failed');
-    },
+    clipboardWrite: copyToClipboardEnabled
+      ? async (text) => {
+          const ok = await copyToClipboard(text);
+          if (!ok) throw new Error('clipboard write failed');
+        }
+      : undefined,
   };
 }
 
@@ -98,12 +100,22 @@ async function runTransferInject(exactKey) {
     if (!loaded) return;
     const { keys, record: data, payload } = loaded;
 
+    let copyToClipboardEnabled = false;
+    try {
+      if (chrome.storage.sync) {
+        const syncData = await chrome.storage.sync.get('transferCopyToClipboard');
+        copyToClipboardEnabled = Boolean(syncData?.transferCopyToClipboard);
+      }
+    } catch {
+      // default to false
+    }
+
     const target = getTransferTarget(data.targetPlatform);
     const label = target?.label || data.targetPlatform || 'target chat';
     // Login-walled targets (Meta AI) get prefill only — never auto-send.
     const autoSend = data.autoSend !== false && target?.requiresAuth !== true;
     const result = await pollTransferInject(
-      transferInjectEnv(),
+      transferInjectEnv(copyToClipboardEnabled),
       {
         payload,
         targetPlatform: data.targetPlatform,
@@ -126,12 +138,16 @@ async function runTransferInject(exactKey) {
       showExporterToast(msg, 'success');
       logger.info('Auto-injected transferred conversation context.');
     } else {
+      if (copyToClipboardEnabled) {
+        await copyToClipboard(payload).catch(() => {});
+      }
       const hint =
         result.reason === 'blocked'
           ? `dismiss any pop-up on ${label}, then press Ctrl+V`
           : `press Ctrl+V in the ${label} chat box`;
       await clearTransferRecord(chrome.storage.local, keys);
-      showExporterToast(`⚠️ Couldn't auto-fill ${label} — prompt copied, ${hint}`, 'error');
+      const copyMsg = copyToClipboardEnabled ? ' — prompt copied, ' : ' — ';
+      showExporterToast(`⚠️ Couldn't auto-fill ${label}${copyMsg}${hint}`, 'error');
       logger.warn('Transfer inject failed:', result);
     }
   } finally {
@@ -704,6 +720,35 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           });
         } catch (e) {
           console.error(e);
+          sendResponse({ success: false, error: e.message });
+        }
+      })();
+      return true;
+    }
+
+    if (request.action === 'GET_CURRENT_SELECTION') {
+      let selection = '';
+      try {
+        selection = window.getSelection ? window.getSelection().toString() : '';
+        if (!selection && document.activeElement) {
+          const el = document.activeElement;
+          if (typeof el.selectionStart === 'number' && typeof el.selectionEnd === 'number') {
+            selection = (el.value || '').slice(el.selectionStart, el.selectionEnd);
+          }
+        }
+      } catch {
+        // ignore
+      }
+      sendResponse({ success: true, selection: selection || '' });
+      return true;
+    }
+
+    if (request.action === 'COPY_TO_CLIPBOARD') {
+      (async () => {
+        try {
+          const ok = await copyToClipboard(request.text || '');
+          sendResponse({ success: ok });
+        } catch (e) {
           sendResponse({ success: false, error: e.message });
         }
       })();

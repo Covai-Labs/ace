@@ -191,6 +191,23 @@ test('attemptTransferInject: fills a contenteditable composer', async () => {
   );
 });
 
+test('attemptTransferInject: fills a contenteditable composer with multi-line payload', async () => {
+  const doc = docOf('<div data-testid="chat-input" contenteditable="true" role="textbox"></div>');
+  const multiLine = 'Here is line 1\n\nHere is line 2\nHere is line 3';
+  const res = await attemptTransferInject(okEnv(doc), {
+    payload: multiLine,
+    targetPlatform: 'claude',
+    autoSend: false,
+  });
+  assert.equal(res.ok, true);
+  assert.ok(
+    verifyContent(
+      doc.querySelector('[data-testid="chat-input"]'),
+      multiLine,
+    ),
+  );
+});
+
 test('attemptTransferInject: blocked composer fails closed with clipboard backup', async () => {
   const doc = docOf(
     '<div role="dialog" aria-modal="true"><span>Verification required</span></div>' +

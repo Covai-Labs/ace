@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
 import { test } from 'node:test';
 
 test('chrome.storage.sync schema defaults for options system', () => {
@@ -109,4 +110,32 @@ test('applyTheme correctly sets data-theme for all themes and removes for system
   // Empty or undefined removes attribute
   applyTheme('');
   assert.equal(mockDoc.documentElement.getAttribute('data-theme'), undefined);
+});
+
+test('transferCopyToClipboard defaults to false in options system', () => {
+  const defaultOptions = {
+    transferAutoSend: true,
+    transferCopyToClipboard: false,
+  };
+  assert.equal(defaultOptions.transferCopyToClipboard, false);
+});
+
+test('options HTML pages define transfer-copy-clipboard-checkbox', () => {
+  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+  const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+
+  assert.match(optionsHtml, /id="transfer-copy-clipboard-checkbox"/);
+  assert.match(optionsHtml, /data-i18n="transferCopyClipboardLabel"/);
+  assert.match(entrypointsOptionsHtml, /id="transfer-copy-clipboard-checkbox"/);
+  assert.match(entrypointsOptionsHtml, /data-i18n="transferCopyClipboardLabel"/);
+});
+
+test('options scripts wire transferCopyToClipboard storage setting', () => {
+  const optionsJs = fs.readFileSync('options/options.js', 'utf8');
+  const entrypointsOptionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+
+  assert.match(optionsJs, /'transferCopyToClipboard'/);
+  assert.match(optionsJs, /transferCopyClipboardCheckbox/);
+  assert.match(entrypointsOptionsJs, /'transferCopyToClipboard'/);
+  assert.match(entrypointsOptionsJs, /transferCopyClipboardCheckbox/);
 });

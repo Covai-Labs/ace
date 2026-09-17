@@ -48,12 +48,23 @@ test('entrypoints/background.js sets up context menus with documentUrlPatterns a
   assert.match(bg, /chrome\.contextMenus\.onClicked\.addListener/);
 });
 
-test('background/background.js sets up context menus matching entrypoint', () => {
-  const bg = fs.readFileSync('background/background.js', 'utf8');
+test('background scripts query GET_CURRENT_SELECTION fallback and support COPY_TO_CLIPBOARD', () => {
+  const bgEntry = fs.readFileSync('entrypoints/background.js', 'utf8');
+  const bgClassic = fs.readFileSync('background/background.js', 'utf8');
 
-  assert.match(bg, /setupContextMenus/);
-  assert.match(bg, /ai-exporter-transfer-root/);
-  assert.match(bg, /ai-exporter-transfer-\$\{target\.id\}/);
-  assert.match(bg, /handleTransferContextMenu/);
-  assert.match(bg, /chrome\.contextMenus\.onClicked\.addListener/);
+  for (const bg of [bgEntry, bgClassic]) {
+    assert.match(bg, /GET_CURRENT_SELECTION/);
+    assert.match(bg, /COPY_TO_CLIPBOARD/);
+    assert.match(bg, /transferCopyToClipboard/);
+  }
+});
+
+test('content scripts handle GET_CURRENT_SELECTION and COPY_TO_CLIPBOARD', () => {
+  const contentEntry = fs.readFileSync('entrypoints/content.js', 'utf8');
+  const contentClassic = fs.readFileSync('content/main.js', 'utf8');
+
+  for (const content of [contentEntry, contentClassic]) {
+    assert.match(content, /request\.action === 'GET_CURRENT_SELECTION'/);
+    assert.match(content, /request\.action === 'COPY_TO_CLIPBOARD'/);
+  }
 });

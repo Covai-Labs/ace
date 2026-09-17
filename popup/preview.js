@@ -441,13 +441,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         convo?.isDedicatedAi === false ||
         convo?.platform === 'WebArticle' ||
         convo?.platform === 'Article';
-      const issueTitle = isGeneric
-        ? `[Platform Request] Support for ${domain || 'New AI Chat'}`
-        : `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
-
-      const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: ${isGeneric ? 'Yes' : 'No'}\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
-
-      const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+      let issueUrl = '';
+      if (isGeneric) {
+        const cleanUrl = pageUrl && pageUrl.startsWith('http') ? pageUrl : '';
+        const issueTitle = `platform: Support for ${domain || 'New AI Platform'}`;
+        issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
+      } else {
+        const issueTitle = `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
+        const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
+        issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+      }
       if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
         chrome.tabs.create({ url: issueUrl });
       } else {
@@ -717,15 +720,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let payload = '';
         let autoSend = true;
+        let copyToClipboard = false;
         let template;
         try {
           const syncData = await chrome.storage.sync.get([
             'transferAutoSend',
+            'transferCopyToClipboard',
             'transferPromptTemplate',
           ]);
           if (syncData) {
             if (syncData.transferAutoSend !== undefined) {
               autoSend = syncData.transferAutoSend !== false;
+            }
+            if (syncData.transferCopyToClipboard) {
+              copyToClipboard = true;
             }
             if (
               typeof syncData.transferPromptTemplate === 'string' &&
@@ -743,6 +751,16 @@ document.addEventListener('DOMContentLoaded', async () => {
           payload = continuationFormatter.format(conversation, '', { template, isArticle });
         } else {
           payload = stripEncodedImages(markdownContent || activeContent);
+        }
+
+        if (copyToClipboard && payload) {
+          try {
+            if (navigator.clipboard?.writeText) {
+              await navigator.clipboard.writeText(payload);
+            }
+          } catch (err) {
+            console.warn('[Preview] Failed to copy to clipboard on transfer:', err);
+          }
         }
 
         await chrome.runtime.sendMessage({

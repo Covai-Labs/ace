@@ -19,21 +19,18 @@ test('shouldShowUnsupportedWarning flags non-dedicated AI article parsers correc
   assert.equal(shouldShowUnsupportedWarning({}), false);
 });
 
-test('feedback URL formatting generates correct GitHub issue URL without exposing full page URL by default', () => {
+test('feedback URL formatting generates correct GitHub issue URL for platform requests', () => {
   const domain = 'example-ai.com';
-  const isGeneric = true;
-
-  const issueTitle = isGeneric
-    ? `[Platform Request] Support for ${domain}`
-    : `[Feedback] Issue with Chat Export`;
-
-  const issueBody = `### Platform Support Request\n\n- **Website Domain**: ${domain || 'N/A'}\n- **Current Parser**: ArticleParser (Generic Web Article)\n\n### Description\nPlease add dedicated parser support for this AI chat platform.\n\n- **Page URL (optional)**: `;
-
-  const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+  const pageUrl = 'https://example-ai.com/chat/123';
+  const cleanUrl = pageUrl.startsWith('http') ? pageUrl : '';
+  const issueTitle = `platform: Support for ${domain || 'New AI Platform'}`;
+  const issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
 
   const parsed = new URL(issueUrl);
   assert.equal(parsed.origin, 'https://github.com');
   assert.equal(parsed.pathname, '/Covai-Labs/ai-chat-exporter/issues/new');
-  assert.equal(parsed.searchParams.get('title'), '[Platform Request] Support for example-ai.com');
-  assert.ok(parsed.searchParams.get('body').includes('Page URL (optional)'));
+  assert.equal(parsed.searchParams.get('template'), 'platform_support.yml');
+  assert.equal(parsed.searchParams.get('title'), 'platform: Support for example-ai.com');
+  assert.equal(parsed.searchParams.get('platform'), 'example-ai.com');
+  assert.equal(parsed.searchParams.get('url'), 'https://example-ai.com/chat/123');
 });
