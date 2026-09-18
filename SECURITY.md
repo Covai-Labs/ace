@@ -14,7 +14,7 @@ Only the latest release of AI Chat Exporter receives security updates.
 If you discover a security vulnerability or privacy concern in AI Chat Exporter:
 
 1. **Do NOT open a public issue.**
-2. Please report the issue privately through [GitHub Security Advisories](https://github.com/Covai-Labs/ai-chat-exporter/security/advisories/new).
+2. Please report the issue privately through [GitHub Security Advisories](https://github.com/Covai-Labs/ace/security/advisories/new).
 3. If you cannot use GitHub Advisories, please contact the maintainers directly.
 
 ### What to Include

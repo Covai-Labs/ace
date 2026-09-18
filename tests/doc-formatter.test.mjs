@@ -57,10 +57,10 @@ test('DocFormatter omits AI Chat Exporter credit when includeAttribution is fals
   };
 
   const withCredit = formatter.format(conversation);
-  assert.ok(withCredit.includes('https://ai-chat-exporter.covai.org'));
+  assert.ok(withCredit.includes('https://ace.covai.org'));
 
   const withoutCredit = formatter.format(conversation, { includeAttribution: false });
-  assert.ok(!withoutCredit.includes('https://ai-chat-exporter.covai.org'));
+  assert.ok(!withoutCredit.includes('https://ace.covai.org'));
   assert.ok(withoutCredit.includes('Exported from Claude'));
 });
 

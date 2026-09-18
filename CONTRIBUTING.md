@@ -4,7 +4,7 @@ Thank you for your interest in contributing to AI Chat Exporter! We welcome bug 
 
 ## Getting Started
 
-1. Check existing [Issues](https://github.com/Covai-Labs/ai-chat-exporter/issues) and [Pull Requests](https://github.com/Covai-Labs/ai-chat-exporter/pulls) before submitting new ones to avoid duplicates.
+1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues) and [Pull Requests](https://github.com/Covai-Labs/ace/pulls) before submitting new ones to avoid duplicates.
 2. For local setup, prerequisites, build steps, and codebase architecture, refer to the [Development Guide](DEVELOPMENT.md).
 
 ## Submitting Pull Requests

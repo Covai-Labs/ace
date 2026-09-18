@@ -90,7 +90,7 @@ export default defineConfig({
           : '__MSG_extensionName__',
       short_name: '__MSG_extensionShortName__',
       description: '__MSG_extensionDescription__',
-      homepage_url: 'https://ai-chat-exporter.covai.org/',
+      homepage_url: 'https://ace.covai.org/',
       permissions,
       host_permissions: hostPermissions,
       action: {

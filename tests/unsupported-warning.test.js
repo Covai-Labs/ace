@@ -28,7 +28,7 @@ test('buildPlatformSupportIssueUrl generates correct GitHub issue URL for platfo
 
   const parsed = new URL(issueUrl);
   assert.equal(parsed.origin, 'https://github.com');
-  assert.equal(parsed.pathname, '/Covai-Labs/ai-chat-exporter/issues/new');
+  assert.equal(parsed.pathname, '/Covai-Labs/ace/issues/new');
   assert.equal(parsed.searchParams.get('template'), 'platform_support.yml');
   assert.equal(parsed.searchParams.get('title'), 'platform: Support for example-ai.com');
   assert.equal(parsed.searchParams.get('platform'), 'example-ai.com');

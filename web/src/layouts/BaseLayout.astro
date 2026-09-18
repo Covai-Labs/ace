@@ -36,7 +36,7 @@ const {
   viewportContent = 'width=device-width, initial-scale=1.0',
 } = Astro.props;
 
-const SITE = 'https://ai-chat-exporter.covai.org';
+const SITE = 'https://ace.covai.org';
 const canonical = new URL(canonicalPath, SITE).toString();
 const image = new URL(ogImage, SITE).toString();
 const jsonLdArray = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : [];

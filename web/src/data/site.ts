@@ -2,10 +2,10 @@
 
 export const SITE = {
   name: 'AI Chat Exporter',
-  url: 'https://ai-chat-exporter.covai.org',
+  url: 'https://ace.covai.org',
   chromeStore: 'https://chromewebstore.google.com/detail/cgakhbhkplndjjknhgegfcipffflcaoj',
   firefoxAddons: 'https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/',
-  github: 'https://github.com/Covai-Labs/ai-chat-exporter',
+  github: 'https://github.com/Covai-Labs/ace',
   youtubeDemo: 'https://www.youtube.com/watch?v=5V2EZqDkUnU',
 };
 

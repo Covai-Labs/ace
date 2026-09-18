@@ -4,7 +4,7 @@
 
 **Export, back up, and transfer AI conversations to Markdown, JSON, HTML, Word (.doc), and PNG — 100% locally.**
 
-[![Website](https://img.shields.io/badge/Website-ai--chat--exporter.covai.org-blueviolet)](https://ai-chat-exporter.covai.org/)
+[![Website](https://img.shields.io/badge/Website-ace.covai.org-blueviolet)](https://ace.covai.org/)
 [![License: MPL 2.0](https://img.shields.io/badge/License-MPL_2.0-brightgreen.svg)](LICENSE)
 
 [![Chrome Web Store](https://img.shields.io/chrome-web-store/v/cgakhbhkplndjjknhgegfcipffflcaoj?logo=google-chrome&logoColor=white&label=Chrome%20Web%20Store&color=blue)](https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj)
@@ -13,7 +13,7 @@
 
 [![Chrome Users](https://img.shields.io/chrome-web-store/users/cgakhbhkplndjjknhgegfcipffflcaoj?logo=google-chrome&logoColor=white&label=Chrome%20Users&color=blue)](https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj)
 [![Firefox Users](https://img.shields.io/amo/users/ai-chat-export?logo=firefox-browser&logoColor=white&label=Firefox%20Users&color=orange)](https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/)
-[![GitHub Stars](https://img.shields.io/github/stars/Covai-Labs/ai-chat-exporter?logo=github&logoColor=white&color=yellow&label=Stars)](https://github.com/Covai-Labs/ai-chat-exporter/stargazers)
+[![GitHub Stars](https://img.shields.io/github/stars/Covai-Labs/ace?logo=github&logoColor=white&color=yellow&label=Stars)](https://github.com/Covai-Labs/ace/stargazers)
 
 [Quick Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#key-features) • [Chat Continuation](#cross-model-chat-continuation)
 
@@ -139,7 +139,7 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 #### Chrome / Edge / Brave / Chromium
 
-1. Download the latest `ai-chat-exporter-chromium.zip` from the [Releases page](https://github.com/Covai-Labs/ai-chat-exporter/releases).
+1. Download the latest `ai-chat-exporter-chromium.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases).
 2. Extract the zip file to a folder on your computer.
 3. Open your browser and navigate to `chrome://extensions/` (or `edge://extensions/`).
 4. Enable **Developer mode** using the toggle switch in the top-right corner.
@@ -147,7 +147,7 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 #### Firefox
 
-1. Download the latest `ai-chat-exporter-firefox.zip` from the [Releases page](https://github.com/Covai-Labs/ai-chat-exporter/releases).
+1. Download the latest `ai-chat-exporter-firefox.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases).
 2. Extract the zip file to a folder on your computer.
 3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
 4. Click **Load Temporary Add-on...**
@@ -177,7 +177,7 @@ the test harness.
 
 Platform web layouts evolve frequently. If an exporter encounters issues on a modified layout:
 
-1. Check existing [Issues](https://github.com/Covai-Labs/ai-chat-exporter/issues) or open a new one with the platform name and DOM context.
+1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues) or open a new one with the platform name and DOM context.
 2. Submit a Pull Request following our [Contribution Guidelines](CONTRIBUTING.md).
 
 ---

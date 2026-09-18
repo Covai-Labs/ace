@@ -30,5 +30,5 @@ export function buildPlatformSupportIssueUrl(pageUrl) {
     // Ignore invalid URL
   }
   const issueTitle = `platform: Support for ${domain || 'New AI Platform'}`;
-  return `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
+  return `https://github.com/Covai-Labs/ace/issues/new?template=platform_support.yml&title=${encodeURIComponent(issueTitle)}&platform=${encodeURIComponent(domain)}&url=${encodeURIComponent(cleanUrl)}`;
 }

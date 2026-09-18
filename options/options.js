@@ -339,7 +339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       browser: browser,
       os: os,
     });
-    feedbackLink.href = `https://ai-chat-exporter.covai.org/feedback.html?${params.toString()}`;
+    feedbackLink.href = `https://ace.covai.org/feedback.html?${params.toString()}`;
   }
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
