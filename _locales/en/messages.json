@@ -1,7 +1,19 @@
 {
   "extensionName": {
-    "message": "AI Chat Exporter - Free, Private, OpenSource",
-    "description": "The extension name"
+    "message": "ACE · Export Save Transfer · ChatGPT Claude Gemini · PDF Markdown PNG",
+    "description": "The extension name for Chrome Web Store"
+  },
+  "extensionNameEdge": {
+    "message": "ACE · Export ChatGPT Claude to PDF PNG & More",
+    "description": "The extension name for Microsoft Edge Add-ons (under 45 chars)"
+  },
+  "extensionNameFirefox": {
+    "message": "AI Chat Exporter - Free, Private, Open Source",
+    "description": "The extension name for Firefox AMO (under 50 chars)"
+  },
+  "extensionShortName": {
+    "message": "AI Exporter",
+    "description": "The short extension name (under 12 chars)"
   },
   "extensionDescription": {
     "message": "Export AI chats from ChatGPT, Claude, Gemini & more to Markdown or JSON.",

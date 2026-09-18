@@ -104,7 +104,7 @@ export class MarkdownFormatter extends ExportFormatter {
     let output = `# ${title || 'AI Chat Export'}\n\n`;
 
     if (shouldIncludeAttribution(options)) {
-      output += `**Exported with:** [AI Chat Exporter](https://ai-chat-exporter.covai.org)  \n`;
+      output += `**Exported with:** [AI Chat Exporter](https://ace.covai.org)  \n`;
     }
 
     const metadata = conversation.metadata || {};

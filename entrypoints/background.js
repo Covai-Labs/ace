@@ -5,8 +5,8 @@ export default defineBackground(() => {
     typeof chrome !== 'undefined' && chrome.runtime?.getManifest
       ? chrome.runtime.getManifest()?.version || '1.12.1'
       : '1.12.1';
-  const UNINSTALL_URL = `https://ai-chat-exporter.covai.org/uninstall-feedback.html?v=${extVersion}`;
-  const WELCOME_URL = 'https://ai-chat-exporter.covai.org/welcome.html';
+  const UNINSTALL_URL = `https://ace.covai.org/uninstall-feedback.html?v=${extVersion}`;
+  const WELCOME_URL = 'https://ace.covai.org/welcome.html';
 
   if (typeof chrome !== 'undefined' && chrome.runtime?.setUninstallURL) {
     chrome.runtime.setUninstallURL(UNINSTALL_URL);

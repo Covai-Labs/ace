@@ -15,7 +15,7 @@ export class DocFormatter extends ExportFormatter {
     const metaParts = [`Exported from ${escapeHtml(platform)}`, formattedDate];
     if (shouldIncludeAttribution(options)) {
       metaParts.push(
-        '<a href="https://ai-chat-exporter.covai.org/" style="color: #64748b;">AI Chat Exporter</a>',
+        '<a href="https://ace.covai.org/" style="color: #64748b;">AI Chat Exporter</a>',
       );
     }
     if (link) {

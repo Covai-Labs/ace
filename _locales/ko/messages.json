@@ -1,7 +1,19 @@
 {
   "extensionName": {
-    "message": "AI Chat Exporter - 무료, 프라이빗, 오픈소스",
-    "description": "The extension name"
+    "message": "ACE · 내보내기 저장 전송 · ChatGPT Claude Gemini · PDF Markdown PNG",
+    "description": "The extension name for Chrome Web Store"
+  },
+  "extensionNameEdge": {
+    "message": "ACE · AI 채팅 내보내기 (ChatGPT, Claude)",
+    "description": "The extension name for Microsoft Edge Add-ons (under 45 chars)"
+  },
+  "extensionNameFirefox": {
+    "message": "AI Chat Exporter - 무료, 비공개, 오픈 소스",
+    "description": "The extension name for Firefox AMO (under 50 chars)"
+  },
+  "extensionShortName": {
+    "message": "AI Exporter",
+    "description": "The short extension name (under 12 chars)"
   },
   "extensionDescription": {
     "message": "ChatGPT, Claude, Gemini 등의 AI 대화를 Markdown 또는 JSON으로 내보냅니다.",

@@ -23,9 +23,7 @@ test('MarkdownFormatter includes top site link, platform source, hyperlinked URL
   const output = formatter.format(conversation);
 
   assert.ok(output.includes('# Test Conversation'));
-  assert.ok(
-    output.includes('**Exported with:** [AI Chat Exporter](https://ai-chat-exporter.covai.org)'),
-  );
+  assert.ok(output.includes('**Exported with:** [AI Chat Exporter](https://ace.covai.org)'));
   assert.ok(output.includes('**Source:** Claude'));
   assert.ok(output.includes('**Date:** 8/6/2026 12:00:00'));
   assert.ok(output.includes('**Link:** [https://claude.ai/chat/123](https://claude.ai/chat/123)'));

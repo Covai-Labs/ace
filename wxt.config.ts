@@ -22,7 +22,7 @@ export default defineConfig({
           '48': 'icons/icon48.png',
           '128': 'icons/icon128.png',
         };
-        manifest.sidebar_action.default_title = '__MSG_extensionName__';
+        manifest.sidebar_action.default_title = '__MSG_extensionShortName__';
       }
     },
   },
@@ -65,6 +65,7 @@ export default defineConfig({
   manifestVersion: 3,
   manifest: ({ browser }) => {
     const isFirefox = browser === 'firefox';
+    const isEdge = browser === 'edge';
 
     const permissions = [
       'activeTab',
@@ -82,9 +83,14 @@ export default defineConfig({
 
     const baseManifest: any = {
       default_locale: 'en',
-      name: '__MSG_extensionName__',
+      name: isEdge
+        ? '__MSG_extensionNameEdge__'
+        : isFirefox
+          ? '__MSG_extensionNameFirefox__'
+          : '__MSG_extensionName__',
+      short_name: '__MSG_extensionShortName__',
       description: '__MSG_extensionDescription__',
-      homepage_url: 'https://ai-chat-exporter.covai.org/',
+      homepage_url: 'https://ace.covai.org/',
       permissions,
       host_permissions: hostPermissions,
       action: {
@@ -150,7 +156,7 @@ export default defineConfig({
     if (isFirefox) {
       baseManifest.sidebar_action = {
         default_panel: 'entrypoints/sidepanel/index.html',
-        default_title: '__MSG_extensionName__',
+        default_title: '__MSG_extensionShortName__',
         open_at_install: false,
         default_icon: {
           '16': 'icons/icon16.png',

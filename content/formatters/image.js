@@ -431,7 +431,7 @@ export class ImageFormatter extends ExportFormatter {
         </div>
         <div style="font-size: 12px; color: ${palette.subtitleColor}; text-align: right; white-space: nowrap; margin-left: 16px;">
           <div>${escapeHtml(formattedDate)}</div>
-          ${shouldIncludeAttribution(options) ? `<div style="margin-top: 2px;"><a href="https://ai-chat-exporter.covai.org" target="_blank" style="color: ${palette.subtitleColor}; text-decoration: none;">AI Chat Exporter</a></div>` : ''}
+          ${shouldIncludeAttribution(options) ? `<div style="margin-top: 2px;"><a href="https://ace.covai.org" target="_blank" style="color: ${palette.subtitleColor}; text-decoration: none;">AI Chat Exporter</a></div>` : ''}
         </div>
       </div>
 
@@ -445,7 +445,7 @@ export class ImageFormatter extends ExportFormatter {
           ? `
       <!-- Footer Watermark -->
       <div style="margin-top: 40px; border-top: 1px solid ${palette.borderColor}; padding-top: 16px; text-align: center; font-size: 12px; color: ${palette.subtitleColor};">
-        Exported with <strong>AI Chat Exporter</strong> • <span style="color: ${palette.accent};">https://ai-chat-exporter.covai.org/</span>
+        Exported with <strong>AI Chat Exporter</strong> • <span style="color: ${palette.accent};">https://ace.covai.org/</span>
       </div>`
           : ''
       }

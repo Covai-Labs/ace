@@ -1,7 +1,19 @@
 {
   "extensionName": {
-    "message": "AI Chat Exporter - இலவச, தனிப்பட்ட, திறந்த மூல மென்பொருள்",
-    "description": "The extension name"
+    "message": "ACE · ஏற்றுமதி சேமி இடமாற்று · ChatGPT Claude Gemini · PDF Markdown PNG",
+    "description": "The extension name for Chrome Web Store"
+  },
+  "extensionNameEdge": {
+    "message": "ACE · AI அரட்டை ஏற்றுமதி (ChatGPT, Claude)",
+    "description": "The extension name for Microsoft Edge Add-ons (under 45 chars)"
+  },
+  "extensionNameFirefox": {
+    "message": "AI Chat Exporter - இலவச, தனிப்பட்ட, திறந்த மூலம்",
+    "description": "The extension name for Firefox AMO (under 50 chars)"
+  },
+  "extensionShortName": {
+    "message": "AI Exporter",
+    "description": "The short extension name (under 12 chars)"
   },
   "extensionDescription": {
     "message": "ChatGPT, Claude, Gemini மற்றும் பிறவற்றிலிருந்து AI உரையாடல்களை Markdown அல்லது JSON ஆக ஏற்றுமதி செய்க.",

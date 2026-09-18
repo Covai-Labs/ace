@@ -2,15 +2,16 @@
   "manifest_version": 3,
   "default_locale": "en",
   "name": "__MSG_extensionName__",
+  "short_name": "__MSG_extensionShortName__",
   "description": "__MSG_extensionDescription__",
-  "homepage_url": "https://ai-chat-exporter.covai.org/",
+  "homepage_url": "https://ace.covai.org/",
   "permissions": ["activeTab", "storage", "sidePanel"],
   "side_panel": {
     "default_path": "sidepanel/sidepanel.html"
   },
   "sidebar_action": {
     "default_panel": "sidepanel/sidepanel.html",
-    "default_title": "__MSG_extensionName__",
+    "default_title": "__MSG_extensionShortName__",
     "default_icon": {
       "16": "icons/icon16.png",
       "48": "icons/icon48.png",

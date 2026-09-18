@@ -140,8 +140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (reportIssueLink) {
     reportIssueLink.addEventListener('click', (e) => {
       e.preventDefault();
-      const issueUrl =
-        'https://github.com/Covai-Labs/ai-chat-exporter/issues/new?template=bug_report.md';
+      const issueUrl = 'https://github.com/Covai-Labs/ace/issues/new?template=bug_report.md';
       chrome.tabs.create({ url: issueUrl });
     });
   }

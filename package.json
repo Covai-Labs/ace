@@ -9,8 +9,10 @@
   "scripts": {
     "dev": "wxt",
     "build": "wxt build",
+    "build:edge": "wxt build -b edge",
     "build:firefox": "wxt build -b firefox",
     "zip": "wxt zip",
+    "zip:edge": "wxt zip -b edge",
     "zip:firefox": "wxt zip -b firefox",
     "postinstall": "wxt prepare",
     "test": "node --test tests/*.test.*",

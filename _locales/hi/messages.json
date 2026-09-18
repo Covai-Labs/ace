@@ -1,7 +1,19 @@
 {
   "extensionName": {
-    "message": "AI Chat Exporter - मुफ़्त, सुरक्षित, ओपन सोर्स",
-    "description": "The extension name"
+    "message": "ACE · निर्यात और सहेजें · ChatGPT Claude Gemini · PDF Markdown PNG",
+    "description": "The extension name for Chrome Web Store"
+  },
+  "extensionNameEdge": {
+    "message": "ACE · AI चैट निर्यात (ChatGPT, Claude)",
+    "description": "The extension name for Microsoft Edge Add-ons (under 45 chars)"
+  },
+  "extensionNameFirefox": {
+    "message": "AI Chat Exporter - निःशुल्क, निजी, ओपन सोर्स",
+    "description": "The extension name for Firefox AMO (under 50 chars)"
+  },
+  "extensionShortName": {
+    "message": "AI Exporter",
+    "description": "The short extension name (under 12 chars)"
   },
   "extensionDescription": {
     "message": "ChatGPT, Claude, Gemini और अन्य से AI चैट को Markdown या JSON में निर्यात करें।",

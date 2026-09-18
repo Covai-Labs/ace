@@ -64,5 +64,5 @@ jobs:
       - name: Submit sitemap to IndexNow
         uses: bojieyang/indexnow-action@v3.0.0
         with:
-          sitemap-location: https://ai-chat-exporter.covai.org/sitemap-index.xml
+          sitemap-location: https://ace.covai.org/sitemap-index.xml
           key: ${{ secrets.INDEXNOW_KEY }}

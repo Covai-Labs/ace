@@ -69,7 +69,7 @@ test('HTML formatter converts parsed conversation into structured HTML document'
   assert.ok(output.includes('<!DOCTYPE html>'));
   assert.ok(output.includes('<title>Self-Consistency Test</title>'));
   assert.ok(output.includes('<span class="badge">ChatGPT</span>'));
-  assert.ok(output.includes('https://ai-chat-exporter.covai.org/'));
+  assert.ok(output.includes('href="https://ace.covai.org/"'));
   assert.ok(output.includes('Model: GPT-4'));
   assert.ok(output.includes('Method: API'));
   assert.ok(output.includes('Self-Consistency Test</h1>'));
@@ -183,7 +183,7 @@ test('HTML formatter renders task list checkboxes, collapsible thinking blocks, 
   assert.ok(output.includes('<footer class="export-footer">'));
   assert.ok(
     output.includes('href="https://ai-chat-exporter.org/"') ||
-      output.includes('href="https://ai-chat-exporter.covai.org/"'),
+      output.includes('href="https://ace.covai.org/"'),
   );
 });
 
@@ -202,7 +202,7 @@ test('HTML formatter omits export footer when includeAttribution is false', asyn
 
   const withoutFooter = formatter.format(conversation, { includeAttribution: false });
   assert.ok(!withoutFooter.includes('<footer class="export-footer">'));
-  assert.ok(!withoutFooter.includes('href="https://ai-chat-exporter.covai.org/"'));
+  assert.ok(!withoutFooter.includes('href="https://ace.covai.org/"'));
   assert.ok(withoutFooter.includes('<title>No Footer Test</title>'));
 });
 

@@ -448,7 +448,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else {
         const issueTitle = `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
         const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
-        issueUrl = `https://github.com/Covai-Labs/ai-chat-exporter/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+        issueUrl = `https://github.com/Covai-Labs/ace/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
       }
       if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
         chrome.tabs.create({ url: issueUrl });

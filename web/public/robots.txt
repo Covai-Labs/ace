@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ai-chat-exporter.covai.org/sitemap-index.xml
+Sitemap: https://ace.covai.org/sitemap-index.xml
