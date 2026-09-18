@@ -69,7 +69,7 @@ test('HTML formatter converts parsed conversation into structured HTML document'
   assert.ok(output.includes('<!DOCTYPE html>'));
   assert.ok(output.includes('<title>Self-Consistency Test</title>'));
   assert.ok(output.includes('<span class="badge">ChatGPT</span>'));
-  assert.ok(output.includes('https://ace.covai.org/'));
+  assert.ok(output.includes('href="https://ace.covai.org/"'));
   assert.ok(output.includes('Model: GPT-4'));
   assert.ok(output.includes('Method: API'));
   assert.ok(output.includes('Self-Consistency Test</h1>'));

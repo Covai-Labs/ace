@@ -81,7 +81,7 @@ test('ImageFormatter creates styled screenshot container with conversation conte
   assert.ok(html.includes('Hello AI!'));
   assert.ok(html.includes('Hello Human!'));
   assert.ok(html.includes('Exported with <strong>AI Chat Exporter</strong>'));
-  assert.ok(html.includes('https://ace.covai.org/'));
+  assert.ok(html.includes('>https://ace.covai.org/</span>'));
   assert.ok(html.includes('.copy-code-btn'));
   assert.ok(html.includes('display: none !important'));
   assert.ok(html.includes('.code-card'));
@@ -110,7 +110,7 @@ test('ImageFormatter.createScreenshotContainer omits footer watermark when inclu
   const html = container.innerHTML;
   assert.ok(!html.includes('Exported with'));
   assert.ok(!html.includes('AI Chat Exporter'));
-  assert.ok(!html.includes('https://ace.covai.org'));
+  assert.ok(!html.includes('ace.covai.org'));
 });
 
 test('ImageFormatter.preloadImages sanitizes cross-origin images to prevent canvas taint', async () => {
