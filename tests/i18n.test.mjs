@@ -151,13 +151,52 @@ test('options UI includes Language selector and options.js handles uiLanguage', 
   assert.match(optionsJs, /applyI18n/);
 });
 
-test('manifest.json and wxt.config.ts configure default_locale for web extension localization', () => {
+test('manifest.json and wxt.config.ts configure default_locale and names for web extension localization', () => {
   const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
   const wxtConfig = fs.readFileSync('wxt.config.ts', 'utf8');
 
   assert.equal(manifest.default_locale, 'en');
   assert.match(manifest.name, /__MSG_extensionName__/);
+  assert.match(manifest.short_name, /__MSG_extensionShortName__/);
   assert.match(manifest.description, /__MSG_extensionDescription__/);
 
   assert.match(wxtConfig, /default_locale:\s*'en'/);
+  assert.match(wxtConfig, /short_name:\s*'__MSG_extensionShortName__'/);
+  assert.match(wxtConfig, /__MSG_extensionNameEdge__/);
+  assert.match(wxtConfig, /__MSG_extensionNameFirefox__/);
+});
+
+test('store extension names and short_name adhere to strict length limits across all locales', () => {
+  for (const locale of REQUIRED_LOCALES) {
+    const catalog = JSON.parse(
+      fs.readFileSync(path.join('public', '_locales', locale, 'messages.json'), 'utf8'),
+    );
+
+    const chromeName = catalog.extensionName?.message;
+    const edgeName = catalog.extensionNameEdge?.message;
+    const firefoxName = catalog.extensionNameFirefox?.message;
+    const shortName = catalog.extensionShortName?.message;
+
+    assert.ok(chromeName, `Locale ${locale} should have extensionName`);
+    assert.ok(edgeName, `Locale ${locale} should have extensionNameEdge`);
+    assert.ok(firefoxName, `Locale ${locale} should have extensionNameFirefox`);
+    assert.ok(shortName, `Locale ${locale} should have extensionShortName`);
+
+    assert.ok(
+      chromeName.length <= 75,
+      `Locale ${locale} Chrome extensionName (${chromeName.length}) exceeds 75 chars: "${chromeName}"`,
+    );
+    assert.ok(
+      edgeName.length <= 45,
+      `Locale ${locale} Edge extensionNameEdge (${edgeName.length}) exceeds 45 chars: "${edgeName}"`,
+    );
+    assert.ok(
+      firefoxName.length <= 50,
+      `Locale ${locale} Firefox extensionNameFirefox (${firefoxName.length}) exceeds 50 chars: "${firefoxName}"`,
+    );
+    assert.ok(
+      shortName.length <= 12,
+      `Locale ${locale} extensionShortName (${shortName.length}) exceeds 12 chars: "${shortName}"`,
+    );
+  }
 });

@@ -47,6 +47,8 @@ jobs:
         run: |
           npm run build
           npm run zip
+          npm run build:edge
+          npm run zip:edge
           npm run build:firefox
           npm run zip:firefox
 
@@ -145,7 +147,7 @@ jobs:
           EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
           EDGE_API_KEY: ${{ secrets.EDGE_API_KEY }}
-          EDGE_ZIP_PATH: .output/*-chromium.zip
+          EDGE_ZIP_PATH: .output/*-edge.zip
 
   publish-chrome:
     needs: build

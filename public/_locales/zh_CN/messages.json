@@ -1,7 +1,19 @@
 {
   "extensionName": {
-    "message": "AI Chat Exporter - 免费、隐私、开源",
-    "description": "The extension name"
+    "message": "ACE · 导出 保存 传输 · ChatGPT Claude Gemini · PDF Markdown PNG",
+    "description": "The extension name for Chrome Web Store"
+  },
+  "extensionNameEdge": {
+    "message": "ACE · AI 对话导出 (ChatGPT, Claude)",
+    "description": "The extension name for Microsoft Edge Add-ons (under 45 chars)"
+  },
+  "extensionNameFirefox": {
+    "message": "AI Chat Exporter - 免费、隐私保护、开源",
+    "description": "The extension name for Firefox AMO (under 50 chars)"
+  },
+  "extensionShortName": {
+    "message": "AI Exporter",
+    "description": "The short extension name (under 12 chars)"
   },
   "extensionDescription": {
     "message": "将 ChatGPT、Claude、Gemini 等 AI 对话导出为 Markdown 或 JSON。",
