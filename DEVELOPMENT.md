@@ -58,14 +58,14 @@ changes its DOM or you want to add support for a new platform:
 2. Add a DOM fixture under `tests/fixtures/` and a matching `tests/<platform>-parser.test.mjs`.
 3. Add the platform to the README supported platforms table and `web/src/data/guides.ts`.
 4. If a custom guide page is needed, add `web/src/pages/<platform>-exporter.astro`; otherwise, provide metadata in `web/src/data/platform-details.ts` so dynamic routing `[slug].astro` generates it automatically.
-5. Run `npm test && npm run lint && npm run format:check` before committing.
+5. Run `npm test && npm run lint && npm run format:check` (and `cd web && npm run build` if files under `web/` were modified) before committing.
 
 ## Website & Platform Guides (`ace.covai.org`)
 
 The official documentation and guide site is located in `web/` and built with [Astro](https://astro.build):
 
-- **Dynamic Guide Pages (`web/src/pages/[slug].astro`)**: Generates individual platform export guides for all supported AI platforms that don't have dedicated hand-crafted pages.
-- **Platform Metadata (`web/src/data/platform-details.ts`)**: Defines platform-specific copy, features, step-by-step export instructions, and tailored FAQs.
+- **Dynamic Guide Pages (`web/src/pages/[slug].astro`)**: Generates individual platform export guides and step-by-step export instructions for all supported AI platforms that don't have dedicated hand-crafted pages.
+- **Platform Metadata (`web/src/data/platform-details.ts`)**: Defines platform-specific copy, key features, and tailored FAQs.
 - **Guides Index (`web/src/data/guides.ts`)**: Feeds `guides.html` with links to every platform guide and export format walkthrough.
 - **Local Dev**: Run `cd web && npm run dev` to start the Astro development server at `http://localhost:4321`.
 - **Static Build**: Run `cd web && npm run build` to compile the static site into `docs/`.
