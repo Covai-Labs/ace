@@ -1,0 +1,168 @@
+---
+import GuideLayout from '../layouts/GuideLayout.astro';
+import CtaSection from '../components/CtaSection.astro';
+import FAQ from '../components/FAQ.astro';
+import RelatedPages from '../components/RelatedPages.astro';
+import StepList from '../components/StepList.astro';
+import Callout from '../components/Callout.astro';
+import { DYNAMIC_PLATFORMS, type DynamicPlatformGuide } from '../data/platform-details';
+import { formatGuides, guideHref } from '../data/guides';
+
+export async function getStaticPaths() {
+  return DYNAMIC_PLATFORMS.map((platform) => ({
+    params: { slug: platform.slug },
+    props: { platform },
+  }));
+}
+
+interface Props {
+  platform: DynamicPlatformGuide;
+}
+
+const { platform } = Astro.props;
+
+const steps = [
+  {
+    title: `1. Open your ${platform.platformName} chat`,
+    body: `Navigate to any conversation thread or prompt session on ${platform.platformName}.`,
+  },
+  {
+    title: '2. Click AI Chat Exporter',
+    body: 'Click the extension icon in your toolbar (or open the Chromium side panel) to launch the instant preview.',
+  },
+  {
+    title: '3. Choose format & export',
+    body: 'Select your preferred format (Markdown, PDF, HTML, JSON, Word, PNG) and click <strong>Download</strong> or <strong>Smart Copy</strong>.',
+  },
+];
+
+const relatedItems = formatGuides.slice(0, 4).map((f) => ({
+  title: f.title,
+  href: guideHref(f.slug),
+  desc: f.desc,
+}));
+---
+
+<GuideLayout
+  title={platform.title}
+  description={platform.description}
+  slug={platform.slug}
+  heroTitle={platform.heroTitle}
+  heroSubtitle={platform.heroSubtitle}
+  badge={platform.badge}
+>
+  <!-- Why Export Conversations -->
+  <section class="content-section">
+    <h2>Why Export {platform.platformName} Conversations</h2>
+    {platform.whyExport.map((para) => (
+      <p>{para}</p>
+    ))}
+  </section>
+
+  <!-- Platform-Specific Parsing -->
+  <section class="content-section">
+    <h2>{platform.parsingHighlightsTitle}</h2>
+    <p>{platform.parsingHighlightsDesc}</p>
+    <div class="features-grid">
+      {platform.features.map((f) => (
+        <div class="feature-card">
+          <h3>{f.title}</h3>
+          <p>{f.desc}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- Seven Export Formats -->
+  <section class="content-section">
+    <h2>Seven Export Formats Supported</h2>
+    <p>
+      Every {platform.platformName} conversation can be exported into whichever format best fits
+      your workflow:
+    </p>
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Format</th>
+            <th>Best For</th>
+            <th>Features</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <strong>Markdown (.md)</strong>
+            </td>
+            <td>Obsidian, Logseq, Notion, Git</td>
+            <td>Clean syntax, code fences, KaTeX math ($...$), tables</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>PDF (.pdf)</strong>
+            </td>
+            <td>Printing, archiving, sharing</td>
+            <td>Formatted headers, rendered math, page breaks, syntax highlighting</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>HTML (.html)</strong>
+            </td>
+            <td>Web publishing, standalone viewing</td>
+            <td>Self-contained, responsive layout, styled blocks</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>JSON (.json)</strong>
+            </td>
+            <td>Developers, data pipelines, backups</td>
+            <td>Structured Export Schema v1, message roles, metadata</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Word (.doc)</strong>
+            </td>
+            <td>Microsoft Word, Google Docs</td>
+            <td>Editable documents with tables, headings, and formatting intact</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>PNG Snapshot</strong>
+            </td>
+            <td>Discord, Slack, social media</td>
+            <td>High-res visual capture with Dark and Solarized themes</td>
+          </tr>
+          <tr>
+            <td>
+              <strong>Plain Text (.txt)</strong>
+            </td>
+            <td>Quick notes, command-line tools</td>
+            <td>Raw text without markup for minimal storage</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- How to Export -->
+  <section class="content-section">
+    <h2>How to Export {platform.platformName} Conversations</h2>
+    <StepList steps={steps} />
+  </section>
+
+  <Callout type="tip" title="100% Local-First Privacy">
+    AI Chat Exporter operates entirely inside your local browser sandbox. Your conversation history,
+    prompts, and exported files never leave your computer. There are zero remote tracking servers,
+    zero analytics, and zero telemetry.
+  </Callout>
+
+  <!-- FAQ -->
+  <section class="content-section">
+    <h2>Frequently Asked Questions</h2>
+    <FAQ items={platform.faqs} />
+  </section>
+
+  <RelatedPages items={relatedItems} heading="Popular Export Workflows" />
+
+  <CtaSection />
+</GuideLayout>

@@ -95,11 +95,13 @@ AI Chat Exporter extracts full conversation threads from all major AI chat platf
 | **[Meta AI](https://www.meta.ai)**                            |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **[Proton Lumo](https://lumo.proton.me)**                     |    ✅    |  ✅  |        ✅        |             ✅             |
 | **[Z.ai](https://z.ai)**                                      |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
+| **[Grok](https://grok.com)**                                  |    ✅    |  ✅  |        ✅        |             ✅             |
+| **[Duck.ai](https://duck.ai)**                                |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **[Joyland](https://www.joyland.ai)**                         |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **[Chub AI](https://chub.ai)**                                |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **Generic Web Articles** _(single-page convenience)_          |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 
-> **Continuation Targets:** Seamless prompt injection is supported for general-purpose chat models (ChatGPT, Claude, Gemini, DeepSeek, Proton Lumo, Perplexity, Qwen, Mistral) and PKM note-taking apps (**Obsidian**, **Logseq**, **Bear**, **NotePlan**, **Drafts**). Platforms requiring character selection (Joyland, Chub AI) or workspace setup (NotebookLM) are supported for clean export only.
+> **Continuation Targets:** Seamless prompt injection is supported for general-purpose chat models (ChatGPT, Claude, Gemini, DeepSeek, Grok, Proton Lumo, Perplexity, Qwen, Mistral) and PKM note-taking apps (**Obsidian**, **Logseq**, **Bear**, **NotePlan**, **Drafts**). Platforms requiring character selection (Joyland, Chub AI) or workspace setup (NotebookLM) are supported for clean export only.
 
 ---
 
