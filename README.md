@@ -95,6 +95,8 @@ AI Chat Exporter extracts full conversation threads from all major AI chat platf
 | **[Meta AI](https://www.meta.ai)**                            |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **[Proton Lumo](https://lumo.proton.me)**                     |    ✅    |  ✅  |        ✅        |             ✅             |
 | **[Z.ai](https://z.ai)**                                      |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
+| **[Grok](https://grok.com)**                                  |    ✅    |  ✅  |        ✅        |             ✅             |
+| **[Duck.ai](https://duck.ai)**                                |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **[Joyland](https://www.joyland.ai)**                         |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **[Chub AI](https://chub.ai)**                                |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
 | **Generic Web Articles** _(single-page convenience)_          |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
