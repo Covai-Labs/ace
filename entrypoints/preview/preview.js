@@ -215,16 +215,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentBlobUrl = null;
     }
 
-    const cleanTitle = getCleanPdfTitle();
-    let cleanForPreview = content
+    const cleanForPreview = content
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/\s*onclick="[^"]*"/gi, '');
-    if (cleanTitle) {
-      cleanForPreview = cleanForPreview.replace(
-        /<title>[\s\S]*?<\/title>/i,
-        `<title>${cleanTitle.replace(/[&<>"']/g, (s) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[s])}</title>`,
-      );
-    }
     const blob = new Blob([cleanForPreview], { type: 'text/html' });
     currentBlobUrl = URL.createObjectURL(blob);
     previewRendered.src = currentBlobUrl;

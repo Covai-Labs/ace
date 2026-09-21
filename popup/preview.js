@@ -238,9 +238,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const printIframe = () => {
     if (!previewRendered || !previewRendered.contentWindow) return;
-    const cleanTitle = (previewFilename || conversation?.title || title || 'AI Chat Export')
-      .replace(/\.pdf$/i, '')
-      .trim();
+    const cleanTitle =
+      (previewFilename || conversation?.title || title || 'AI Chat Export')
+        .replace(/\.pdf$/i, '')
+        .trim() || 'AI Chat Export';
     try {
       const doc =
         previewRendered.contentDocument ||
