@@ -170,6 +170,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   let conversation = null;
   let title = 'Untitled Chat';
   let initialFormat;
+  let previewFilename = null;
+  let effectiveFilename = null;
 
   let htmlContent = '';
   let markdownContent = '';
@@ -182,15 +184,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   let currentBlobUrl = null;
   let cachedPngBlob = null;
 
+  const getCleanPdfTitle = () => {
+    const raw =
+      (filenameInput ? filenameInput.value.trim() : '') ||
+      previewFilename ||
+      effectiveFilename ||
+      conversation?.title ||
+      title ||
+      'AI Chat Export';
+    return raw.replace(/\.pdf$/i, '').trim() || 'AI Chat Export';
+  };
+
+  const syncIframeDocTitle = (cleanTitle) => {
+    const titleToSet = cleanTitle || getCleanPdfTitle();
+    try {
+      const doc =
+        previewRendered?.contentDocument ||
+        (previewRendered?.contentWindow && previewRendered.contentWindow.document);
+      if (doc) {
+        doc.title = titleToSet;
+      }
+    } catch {
+      // Ignore iframe access error
+    }
+  };
+
   const setIframeContent = (content) => {
     if (currentBlobUrl) {
       URL.revokeObjectURL(currentBlobUrl);
       currentBlobUrl = null;
     }
 
-    const cleanForPreview = content
+    const cleanTitle = getCleanPdfTitle();
+    let cleanForPreview = content
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
       .replace(/\s*onclick="[^"]*"/gi, '');
+    if (cleanTitle) {
+      cleanForPreview = cleanForPreview.replace(
+        /<title>[\s\S]*?<\/title>/i,
+        `<title>${cleanTitle.replace(/[&<>"']/g, (s) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[s])}</title>`,
+      );
+    }
     const blob = new Blob([cleanForPreview], { type: 'text/html' });
     currentBlobUrl = URL.createObjectURL(blob);
     previewRendered.src = currentBlobUrl;
@@ -198,6 +232,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   previewRendered.addEventListener('load', () => {
     syncThemeToIframe(currentSyncTheme);
+    syncIframeDocTitle();
     try {
       const doc =
         previewRendered.contentDocument ||
@@ -533,44 +568,58 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const printIframe = () => {
     if (!previewRendered) return;
+    const cleanTitle = getCleanPdfTitle();
+
     try {
       const doc =
         previewRendered.contentDocument ||
         (previewRendered.contentWindow && previewRendered.contentWindow.document);
-      if (doc && doc.documentElement) {
-        if (currentSyncTheme && currentSyncTheme !== 'system') {
-          doc.documentElement.setAttribute('data-theme', currentSyncTheme);
-        } else {
-          const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-          doc.documentElement.setAttribute('data-theme', isDark ? 'modern-dark' : 'modern-light');
+      if (doc) {
+        doc.title = cleanTitle;
+        if (doc.documentElement) {
+          if (currentSyncTheme && currentSyncTheme !== 'system') {
+            doc.documentElement.setAttribute('data-theme', currentSyncTheme);
+          } else {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            doc.documentElement.setAttribute('data-theme', isDark ? 'modern-dark' : 'modern-light');
+          }
+          let printStyle = doc.getElementById('print-custom-style');
+          if (!printStyle) {
+            printStyle = doc.createElement('style');
+            printStyle.id = 'print-custom-style';
+            doc.head.appendChild(printStyle);
+          }
+          let cssRules = '';
+          if (pageBreakCheckbox && pageBreakCheckbox.checked) {
+            cssRules +=
+              '.message-card.role-user { page-break-before: always !important; break-before: page !important; }';
+          }
+          printStyle.textContent = cssRules;
         }
-        let printStyle = doc.getElementById('print-custom-style');
-        if (!printStyle) {
-          printStyle = doc.createElement('style');
-          printStyle.id = 'print-custom-style';
-          doc.head.appendChild(printStyle);
-        }
-        let cssRules = '';
-        if (pageBreakCheckbox && pageBreakCheckbox.checked) {
-          cssRules +=
-            '.message-card.role-user { page-break-before: always !important; break-before: page !important; }';
-        }
-        printStyle.textContent = cssRules;
       }
     } catch {
       // Ignore iframe style injection errors
     }
 
+    const previousDocumentTitle = document.title;
+    document.title = cleanTitle;
+
     try {
       if (previewRendered.contentWindow) {
         previewRendered.contentWindow.focus();
         previewRendered.contentWindow.print();
+        setTimeout(() => {
+          document.title = previousDocumentTitle || `${cleanTitle} - Chat Export Preview`;
+        }, 1000);
         return;
       }
     } catch (err) {
       console.warn('[Preview] Iframe print access blocked, falling back to window.print():', err);
     }
     window.print();
+    setTimeout(() => {
+      document.title = previousDocumentTitle || `${cleanTitle} - Chat Export Preview`;
+    }, 1000);
   };
 
   const updateDownloadButtonLabel = (extension) => {
@@ -750,9 +799,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   previewRendered.addEventListener('load', () => {
     syncThemeToIframe(currentSyncTheme);
+    syncIframeDocTitle();
   });
 
-  let previewFilename = null;
+  previewFilename = null;
 
   try {
     const data = await chrome.storage.local.get([
@@ -816,14 +866,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       title: displayTitle,
     });
 
-    const effectiveFilename = previewFilename || computedDefaultFilename;
+    effectiveFilename = previewFilename || computedDefaultFilename;
     if (filenameInput) {
       filenameInput.value = effectiveFilename;
+      filenameInput.addEventListener('input', () => {
+        const clean = getCleanPdfTitle();
+        document.title = `${clean} - Chat Export Preview`;
+        syncIframeDocTitle(clean);
+      });
     }
     if (titleEl) {
       titleEl.textContent = displayTitle;
     }
     document.title = `${effectiveFilename} - Chat Export Preview`;
+    syncIframeDocTitle(getCleanPdfTitle());
 
     const feedbackBtn = document.getElementById('feedback-btn');
     const genericArticleNotice = document.getElementById('generic-article-notice');

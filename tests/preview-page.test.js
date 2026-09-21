@@ -44,6 +44,10 @@ test('preview script handles PDF format and autoPrint', () => {
   assert.match(previewJs, /initialFormat === 'pdf'/);
   assert.match(previewJs, /printIframe/);
   assert.match(previewJs, /autoPrint/);
+  assert.match(previewJs, /getCleanPdfTitle/);
+  assert.match(previewJs, /syncIframeDocTitle/);
+  assert.match(previewJs, /doc\.title = cleanTitle/);
+  assert.match(previewJs, /filenameInput\.addEventListener\('input'/);
 });
 
 test('preview page and script handle real PNG rendering and Word .doc MIME type with UTF-8 BOM', () => {

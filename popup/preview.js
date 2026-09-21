@@ -238,6 +238,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const printIframe = () => {
     if (!previewRendered || !previewRendered.contentWindow) return;
+    const cleanTitle = (previewFilename || conversation?.title || title || 'AI Chat Export')
+      .replace(/\.pdf$/i, '')
+      .trim();
+    try {
+      const doc =
+        previewRendered.contentDocument ||
+        (previewRendered.contentWindow && previewRendered.contentWindow.document);
+      if (doc && cleanTitle) {
+        doc.title = cleanTitle;
+      }
+    } catch {
+      // Ignore
+    }
     previewRendered.contentWindow.focus();
     previewRendered.contentWindow.print();
   };
