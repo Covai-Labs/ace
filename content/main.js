@@ -273,6 +273,7 @@ function detectParser() {
 
 const PARSE_CACHE_TTL_MS = 90 * 1000;
 let parseCache = null;
+// eslint-disable-next-line no-unused-vars
 let isPopupOpen = false;
 let domObserver = null;
 let mutationDebounceTimer = null;
@@ -412,7 +413,6 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               return;
             }
 
-            const startTime = Date.now();
             const conversation = enrichConversation(
               await activeParser.parse({ full: false, parserMode }),
             );
@@ -451,14 +451,6 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               queryId,
               data: reportData,
             });
-
-            const elapsed = Date.now() - startTime;
-            if (!isPopupOpen && currentFrameIsTop && count > 0 && elapsed > 250) {
-              const toastMsg =
-                chrome.i18n?.getMessage('toastChatReady', [platformName, String(count)]) ||
-                `⚡ ${platformName} chat ready to export (${count} messages)`;
-              showExporterToast(toastMsg);
-            }
           } catch (e) {
             logger.error('Discover frames parse error:', e);
             if (currentFrameIsTop) {
@@ -510,7 +502,6 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               return;
             }
 
-            const startTime = Date.now();
             logger.debug('Executing activeParser.parse({ full: false, parserMode })...');
             const conversation = enrichConversation(
               await activeParser.parse({ full: false, parserMode }),
@@ -549,14 +540,6 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 
             logger.debug('Sending CHECK_AVAILABILITY response:', responseData);
             sendResponse(responseData);
-
-            const elapsed = Date.now() - startTime;
-            if (!isPopupOpen && currentFrameIsTop && count > 0 && elapsed > 250) {
-              const toastMsg =
-                chrome.i18n?.getMessage('toastChatReady', [platformName, String(count)]) ||
-                `⚡ ${platformName} chat ready to export (${count} messages)`;
-              showExporterToast(toastMsg);
-            }
           } catch (e) {
             logger.error('Check availability parse threw error:', e);
             if (currentFrameIsTop) {

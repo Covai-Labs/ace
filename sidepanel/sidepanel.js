@@ -35,8 +35,23 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const statusEl = document.getElementById('sp-status');
   const headerRefreshBtn = document.getElementById('sp-refresh-btn');
+  const headerCloseBtn = document.getElementById('sp-close-btn');
   const tabBtns = document.querySelectorAll('.sp-tab-btn');
   const tabContents = document.querySelectorAll('.sp-tab-content');
+
+  if (headerCloseBtn) {
+    headerCloseBtn.addEventListener('click', () => {
+      if (
+        typeof browser !== 'undefined' &&
+        browser.sidebarAction &&
+        typeof browser.sidebarAction.close === 'function'
+      ) {
+        browser.sidebarAction.close();
+      } else if (typeof window !== 'undefined' && typeof window.close === 'function') {
+        window.close();
+      }
+    });
+  }
 
   tabBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -106,6 +121,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  let refreshDebounceTimer = null;
+  function debouncedRefreshAllPanels(delayMs = 150) {
+    if (refreshDebounceTimer) {
+      clearTimeout(refreshDebounceTimer);
+    }
+    refreshDebounceTimer = setTimeout(() => {
+      refreshAllPanels();
+    }, delayMs);
+  }
+
   if (headerRefreshBtn) {
     headerRefreshBtn.addEventListener('click', async () => {
       await refreshAllPanels();
@@ -114,8 +139,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (typeof chrome !== 'undefined' && chrome.tabs) {
     if (chrome.tabs.onActivated) {
-      chrome.tabs.onActivated.addListener(async () => {
-        await refreshAllPanels();
+      chrome.tabs.onActivated.addListener(() => {
+        debouncedRefreshAllPanels();
       });
     }
     if (chrome.tabs.onUpdated) {
@@ -123,7 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (changeInfo.status === 'complete' || changeInfo.url || changeInfo.title) {
           const activeTab = await getActiveTab();
           if (activeTab && activeTab.id === tabId) {
-            await refreshAllPanels();
+            debouncedRefreshAllPanels();
           }
         }
       });

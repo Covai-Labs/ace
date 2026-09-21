@@ -18,497 +18,474 @@
         </div>
       </header>
 
-      <main class="options-main">
-        <!-- Section 0: Appearance Theme -->
-        <section class="card">
-          <div class="card-header">
-            <span class="card-icon">🎨</span>
-            <h2 data-i18n="themeSectionTitle">Appearance Theme</h2>
-          </div>
-          <div class="card-body">
-            <div class="field-group">
-              <label for="theme-select" class="field-label" data-i18n="themeLabel"
-                >Extension Theme</label
-              >
-              <select id="theme-select" class="select-input">
-                <option value="system">System Default (Auto-detect)</option>
-                <option value="light">Modern Light</option>
-                <option value="dark">Modern Dark</option>
-                <option value="github-light">GitHub Light</option>
-                <option value="github-dark">GitHub Dark</option>
-                <option value="nord">Nord Slate</option>
-                <option value="dracula">Dracula</option>
-                <option value="solarized-light">Solarized Light</option>
-                <option value="solarized-dark">Solarized Dark</option>
-                <option value="catppuccin">Catppuccin Mocha</option>
-                <option value="monokai">Monokai</option>
-                <option value="synthwave">Synthwave '84</option>
-                <option value="gruvbox">Gruvbox</option>
-              </select>
-              <span class="field-help" data-i18n="themeHelp"
-                >Controls color theme for extension popup, options, and preview window.</span
-              >
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 0.5: Language / Localization -->
-        <section class="card">
-          <div class="card-header">
-            <span class="card-icon">🌐</span>
-            <h2 data-i18n="languageSectionTitle">Language</h2>
-          </div>
-          <div class="card-body">
-            <div class="field-group">
-              <label for="language-select" class="field-label" data-i18n="languageLabel"
-                >UI Language</label
-              >
-              <select id="language-select" class="select-input">
-                <option value="auto">Browser Default (Auto-detect)</option>
-                <option value="en">English</option>
-                <option value="ru">Русский (Russian)</option>
-                <option value="ta">தமிழ் (Tamil)</option>
-                <option value="es">Español (Spanish)</option>
-                <option value="zh_CN">简体中文 (Simplified Chinese)</option>
-                <option value="zh_TW">繁體中文 (Traditional Chinese)</option>
-                <option value="ja">日本語 (Japanese)</option>
-                <option value="de">Deutsch (German)</option>
-                <option value="fr">Français (French)</option>
-                <option value="hi">हिन्दी (Hindi)</option>
-                <option value="pt_BR">Português (Portuguese)</option>
-                <option value="it">Italiano (Italian)</option>
-                <option value="ko">한국어 (Korean)</option>
-              </select>
-              <span class="field-help" data-i18n="languageHelp"
-                >Choose the display language for the extension interface.</span
-              >
-              <div
-                class="field-help"
-                style="
-                  margin-top: 10px;
-                  display: flex;
-                  align-items: center;
-                  gap: 6px;
-                  flex-wrap: wrap;
-                "
-              >
-                <span data-i18n="languageContributeHelp"
-                  >Want to see your language or improve translations?</span
-                >
-                <a
-                  href="https://github.com/Covai-Labs/ace/tree/main/public/_locales"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style="
-                    color: var(--primary-color, #3b82f6);
-                    text-decoration: none;
-                    font-weight: 500;
-                  "
-                  data-i18n="languageContributeLink"
-                >
-                  Help translate on GitHub ↗
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 1: Export Defaults -->
-        <section class="card">
-          <div class="card-header">
-            <span class="card-icon">📁</span>
-            <h2 data-i18n="exportDefaultsTitle">Export Defaults</h2>
-          </div>
-          <div class="card-body">
-            <div class="field-group">
-              <label for="default-format-select" class="field-label" data-i18n="defaultFormatLabel"
-                >Default Export Format</label
-              >
-              <select id="default-format-select" class="select-input">
-                <option value="markdown">Markdown (.md)</option>
-                <option value="json">JSON (.json)</option>
-                <option value="html">HTML (.html)</option>
-                <option value="png">Shareable Image (.png)</option>
-                <option value="pdf">PDF (.pdf)</option>
-              </select>
-              <span class="field-help" data-i18n="defaultFormatHelp"
-                >Format pre-selected when opening the export popup or side panel.</span
-              >
-            </div>
-
-            <div class="field-group checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="default-include-images" checked />
-                <span data-i18n="includeImagesDefault">Include images in exports by default</span>
-              </label>
-            </div>
-
-            <div class="field-group checkbox-group">
-              <label class="checkbox-label">
-                <input type="checkbox" id="include-attribution" checked />
-                <span data-i18n="includeAttributionDefault"
-                  >Include "Exported with AI Chat Exporter" credit in exports</span
-                >
-              </label>
-            </div>
-
-            <div class="field-group" style="margin-top: 12px">
-              <label
-                for="filename-template-input"
-                class="field-label"
-                data-i18n="filenameTemplateLabel"
-                >Export Filename Pattern</label
-              >
-              <input
-                type="text"
-                id="filename-template-input"
-                class="select-input"
-                placeholder="{platform} - {title} - {datetime}"
-                value="{platform} - {title} - {datetime}"
-              />
-              <span class="field-help" data-i18n="filenameTemplateHelp"
-                >Template for exported filenames. Supported tokens: {platform}, {title}, {date},
-                {time}, {datetime}.</span
-              >
-              <div
-                class="field-help"
-                style="margin-top: 6px; font-weight: 500; color: var(--text-primary)"
-              >
-                <span data-i18n="filenameTemplatePreview">Preview:</span>
-                <code
-                  id="filename-preview"
-                  style="
-                    background: var(--input-bg);
-                    padding: 2px 6px;
-                    border-radius: 4px;
-                    border: 1px solid var(--border-color);
-                    font-family: monospace;
-                  "
-                  >Gemini - Comparing Markdown and PDF - 2026-08-19_11-35</code
-                >
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 2: Extraction Modes -->
-        <section class="card">
-          <div class="card-header">
-            <span class="card-icon">⚙️</span>
-            <h2 data-i18n="parserModeTitle">Parser Extraction Mode</h2>
-          </div>
-          <div class="card-body">
-            <div class="field-group">
-              <label for="parser-mode-select" class="field-label" data-i18n="parserModeLabel"
-                >Preferred Extraction Mode</label
-              >
-              <select id="parser-mode-select" class="select-input">
-                <option value="auto">Auto (API when available, with DOM fallback)</option>
-                <option value="prefer_dom">Prefer DOM Mode (Direct element scraping)</option>
-                <option value="prefer_api">Prefer API Mode (Raw payload fetch)</option>
-              </select>
-              <span class="field-help" data-i18n="parserModeHelp"
-                >Controls how conversation text and media are retrieved on ChatGPT and Claude.</span
-              >
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 3: Transfer Chat Defaults -->
-        <section class="card">
-          <div class="card-header">
-            <span class="card-icon">↗️</span>
-            <h2 data-i18n="transferDefaultsTitle">Transfer Chat Defaults</h2>
-          </div>
-          <div class="card-body">
-            <div class="field-group">
-              <label
-                for="default-transfer-select"
-                class="field-label"
-                data-i18n="defaultTransferTargetLabel"
-                >Default Transfer Target Platform</label
-              >
-              <select id="default-transfer-select" class="select-input">
-                <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
-                  <option value="claude">Claude (claude.ai)</option>
-                  <option value="chatgpt">ChatGPT (chatgpt.com)</option>
-                  <option value="gemini">Gemini (gemini.google.com)</option>
-                  <option value="deepseek">DeepSeek (chat.deepseek.com)</option>
-                  <option value="qwen">Qwen (chat.qwen.ai)</option>
-                  <option value="perplexity">Perplexity (perplexity.ai)</option>
-                  <option value="mistral">Mistral (chat.mistral.ai)</option>
-                  <option value="lumo">Lumo (lumo.proton.me)</option>
-                  <option value="copilot">Copilot (copilot.com)</option>
-                  <option value="meta">Meta AI (meta.ai)</option>
-                  <option value="z_ai">Z.ai (chat.z.ai)</option>
-                  <option value="grok">Grok (grok.com)</option>
-                </optgroup>
-                <optgroup label="Note apps" data-i18n-label="transferGroupNoteApps">
-                  <option value="obsidian">Obsidian (obsidian://)</option>
-                  <option value="logseq">Logseq (logseq://)</option>
-                  <option value="bear">Bear (bear://)</option>
-                  <option value="noteplan">NotePlan (noteplan://)</option>
-                  <option value="drafts">Drafts (drafts://)</option>
-                </optgroup>
-              </select>
-              <span class="field-help" data-i18n="defaultTransferHelp"
-                >Initial target platform in the "Continue On" dropdown. When exporting on the
-                current default platform (e.g. ChatGPT), it smartly auto-switches to an alternate
-                platform.</span
-              >
-            </div>
-
-            <div class="field-group" style="margin-top: 16px">
-              <label for="obsidian-vault-input" class="field-label" data-i18n="obsidianVaultLabel"
-                >Obsidian Vault Name (Optional)</label
-              >
-              <input
-                type="text"
-                id="obsidian-vault-input"
-                class="select-input"
-                placeholder="e.g. My Vault"
-                data-i18n-placeholder="obsidianVaultPlaceholder"
-              />
-              <span class="field-help" data-i18n="obsidianVaultHelp"
-                >If specified, Obsidian URIs will open notes directly inside this vault
-                (&amp;vault=...).</span
-              >
-            </div>
-
-            <div class="field-group checkbox-group" style="margin-top: 16px">
-              <label class="checkbox-label">
-                <input type="checkbox" id="transfer-autosend-checkbox" checked />
-                <span data-i18n="transferAutoSendLabel">Auto-send prompt after transfer</span>
-              </label>
-              <span class="field-help" data-i18n="transferAutoSendHelp"
-                >When on, the target chat submits the transferred prompt automatically. Login-walled
-                targets (Meta AI) always prefill only.</span
-              >
-            </div>
-
-            <div class="field-group checkbox-group" style="margin-top: 16px">
-              <label class="checkbox-label">
-                <input type="checkbox" id="transfer-copy-clipboard-checkbox" />
-                <span data-i18n="transferCopyClipboardLabel"
-                  >Copy prompt to clipboard on transfer</span
-                >
-              </label>
-              <span class="field-help" data-i18n="transferCopyClipboardHelp"
-                >When enabled, also copies the transferred prompt to your clipboard as a backup so
-                you can manually paste (Ctrl+V) if injection fails.</span
-              >
-            </div>
-
-            <div class="field-group" style="margin-top: 16px">
-              <label for="transfer-prompt-input" class="field-label" data-i18n="transferPromptLabel"
-                >Transfer prompt template</label
-              >
-              <textarea
-                id="transfer-prompt-input"
-                class="select-input"
-                rows="6"
-                spellcheck="false"
-              ></textarea>
-              <span class="field-help" data-i18n="transferPromptHelp"
-                >Wraps the conversation sent to the target chat. Placeholders: {source} {title}
-                {history} {instruction}. Must contain {history}.</span
-              >
-              <button
-                id="transfer-prompt-reset"
-                class="secondary-btn"
-                data-i18n="transferPromptReset"
-                style="margin-top: 8px"
-              >
-                Reset to default
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 4: Chrome Launch Action (Chrome Only) -->
-        <section class="card chrome-only-section" id="launch-mode-section">
-          <div class="card-header">
-            <span class="card-icon">📌</span>
-            <h2 data-i18n="launchModeTitle">Extension Toolbar Click Action</h2>
-          </div>
-          <div class="card-body">
-            <div class="radio-group">
-              <label class="radio-label">
-                <input type="radio" name="launch-mode" value="popup" checked />
-                <div>
-                  <strong data-i18n="launchModePopup">Extension Popup</strong>
-                  <span class="sub-text" data-i18n="launchModePopupDesc"
-                    >Opens a compact popup window on click</span
-                  >
-                </div>
-              </label>
-
-              <label class="radio-label">
-                <input type="radio" name="launch-mode" value="sidepanel" />
-                <div>
-                  <strong data-i18n="launchModeSidepanel">Persistent Side Panel</strong>
-                  <span class="sub-text" data-i18n="launchModeSidepanelDesc"
-                    >Opens side panel pinned to the browser window</span
-                  >
-                </div>
-              </label>
-            </div>
-          </div>
-        </section>
-
-        <!-- Section 4.5: Keyboard Shortcuts -->
-        <section class="card" id="shortcuts-section">
-          <div class="card-header">
-            <span class="card-icon">⌨️</span>
-            <h2 data-i18n="shortcutsSectionTitle">Keyboard Shortcuts</h2>
-          </div>
-          <div class="card-body">
-            <div class="shortcuts-list">
-              <div class="shortcut-item">
-                <div class="shortcut-info">
-                  <strong data-i18n="shortcutCopyMarkdownLabel">Copy Markdown</strong>
-                  <span class="sub-text" data-i18n="shortcutCopyMarkdownDesc"
-                    >Instantly copy current chat in Markdown format</span
-                  >
-                </div>
-                <div class="shortcut-badge">
-                  <kbd class="key">Alt</kbd> + <kbd class="key">Shift</kbd> +
-                  <kbd class="key">C</kbd>
-                </div>
-              </div>
-
-              <div class="shortcut-item">
-                <div class="shortcut-info">
-                  <strong data-i18n="shortcutDownloadMarkdownLabel">Download Markdown</strong>
-                  <span class="sub-text" data-i18n="shortcutDownloadMarkdownDesc"
-                    >Directly download current chat as a .md file</span
-                  >
-                </div>
-                <div class="shortcut-badge">
-                  <kbd class="key">Alt</kbd> + <kbd class="key">Shift</kbd> +
-                  <kbd class="key">D</kbd>
-                </div>
-              </div>
-
-              <div class="shortcut-item">
-                <div class="shortcut-info">
-                  <strong data-i18n="shortcutOpenPreviewLabel">Open in Preview Tab</strong>
-                  <span class="sub-text" data-i18n="shortcutOpenPreviewDesc"
-                    >Open chat in full-page Markdown preview</span
-                  >
-                </div>
-                <div class="shortcut-badge">
-                  <kbd class="key">Alt</kbd> + <kbd class="key">Shift</kbd> +
-                  <kbd class="key">P</kbd>
-                </div>
-              </div>
-            </div>
-
-            <!-- Chromium Configure Button -->
-            <div
-              class="field-group chrome-shortcuts-action"
-              id="chrome-shortcuts-action"
-              style="margin-top: 16px"
+      <div class="options-layout">
+        <aside class="options-sidebar" aria-label="Settings categories">
+          <nav class="options-nav" id="options-nav">
+            <a href="#section-appearance" class="nav-item active" id="nav-appearance">
+              <span class="nav-icon">🎨</span>
+              <span class="nav-label" data-i18n="themeSectionTitle">Appearance</span>
+            </a>
+            <a href="#section-language" class="nav-item" id="nav-language">
+              <span class="nav-icon">🌐</span>
+              <span class="nav-label" data-i18n="languageSectionTitle">Language</span>
+            </a>
+            <a href="#section-export" class="nav-item" id="nav-export">
+              <span class="nav-icon">📁</span>
+              <span class="nav-label" data-i18n="exportDefaultsTitle">Export Defaults</span>
+            </a>
+            <a href="#section-extraction" class="nav-item" id="nav-extraction">
+              <span class="nav-icon">⚙️</span>
+              <span class="nav-label" data-i18n="parserModeTitle">Extraction Mode</span>
+            </a>
+            <a href="#section-transfer" class="nav-item" id="nav-transfer">
+              <span class="nav-icon">↗️</span>
+              <span class="nav-label" data-i18n="transferDefaultsTitle">AI Transfer</span>
+            </a>
+            <a href="#launch-mode-section" class="nav-item" id="nav-launch-mode">
+              <span class="nav-icon">🚀</span>
+              <span class="nav-label" data-i18n="launchModeTitle">Launch Mode</span>
+            </a>
+            <a
+              href="#firefox-sidebar-section"
+              class="nav-item firefox-only-nav hidden"
+              id="nav-firefox-sidebar"
             >
-              <button
-                type="button"
-                id="configure-shortcuts-btn"
-                class="secondary-btn"
-                style="
-                  display: inline-flex;
-                  align-items: center;
-                  gap: 8px;
-                  padding: 8px 16px;
-                  border-radius: 6px;
-                  background: rgba(59, 130, 246, 0.15);
-                  color: #60a5fa;
-                  border: 1px solid rgba(59, 130, 246, 0.3);
-                  font-weight: 500;
-                  font-size: 13px;
-                  cursor: pointer;
-                "
-              >
-                <span data-i18n="shortcutsConfigureBtn">Configure Shortcuts ↗</span>
-              </button>
-            </div>
+              <span class="nav-icon">🗂️</span>
+              <span class="nav-label">Firefox Sidebar</span>
+            </a>
+            <a href="#shortcuts-section" class="nav-item" id="nav-shortcuts">
+              <span class="nav-icon">⌨️</span>
+              <span class="nav-label" data-i18n="shortcutsSectionTitle">Shortcuts</span>
+            </a>
+            <a href="#feedback-section" class="nav-item" id="nav-feedback">
+              <span class="nav-icon">💬</span>
+              <span class="nav-label" data-i18n="feedbackTitle">Feedback</span>
+            </a>
+          </nav>
+        </aside>
 
-            <!-- Firefox Shortcuts Info Banner -->
-            <div
-              class="field-group firefox-shortcuts-action hidden"
-              id="firefox-shortcuts-action"
-              style="margin-top: 16px"
-            >
-              <div
-                style="
-                  background: rgba(255, 255, 255, 0.05);
-                  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
-                  border-radius: 8px;
-                  padding: 12px 16px;
-                  font-size: 13px;
-                  line-height: 1.5;
-                "
-              >
-                <strong
-                  data-i18n="firefoxShortcutsTitle"
-                  style="display: block; margin-bottom: 6px"
+        <main class="options-main">
+          <!-- Section 0: Appearance Theme -->
+          <section class="card" id="section-appearance">
+            <div class="card-header">
+              <span class="card-icon">🎨</span>
+              <h2 data-i18n="themeSectionTitle">Appearance Theme</h2>
+            </div>
+            <div class="card-body">
+              <div class="field-group">
+                <label for="theme-select" class="field-label" data-i18n="themeLabel"
+                  >Extension Theme</label
                 >
-                  Firefox Shortcut Customization
-                </strong>
-                <span data-i18n="firefoxShortcutsHelp" class="sub-text">
-                  To customize shortcuts in Firefox: Open about:addons → Click the gear icon ⚙️ at
-                  top-right → Select "Manage Extension Shortcuts".
-                </span>
-                <div style="margin-top: 10px">
-                  <button
-                    type="button"
-                    id="copy-about-addons-btn"
-                    class="secondary-btn"
+                <select id="theme-select" class="select-input">
+                  <option value="system">System Default (Auto-detect)</option>
+                  <option value="light">Modern Light</option>
+                  <option value="dark">Modern Dark</option>
+                  <option value="github-light">GitHub Light</option>
+                  <option value="github-dark">GitHub Dark</option>
+                  <option value="nord">Nord Slate</option>
+                  <option value="dracula">Dracula</option>
+                  <option value="solarized-light">Solarized Light</option>
+                  <option value="solarized-dark">Solarized Dark</option>
+                  <option value="catppuccin">Catppuccin Mocha</option>
+                  <option value="monokai">Monokai</option>
+                  <option value="synthwave">Synthwave '84</option>
+                  <option value="gruvbox">Gruvbox</option>
+                </select>
+                <span class="field-help" data-i18n="themeHelp"
+                  >Controls color theme for extension popup, options, and preview window.</span
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 0.5: Language / Localization -->
+          <section class="card" id="section-language">
+            <div class="card-header">
+              <span class="card-icon">🌐</span>
+              <h2 data-i18n="languageSectionTitle">Language</h2>
+            </div>
+            <div class="card-body">
+              <div class="field-group">
+                <label for="language-select" class="field-label" data-i18n="languageLabel"
+                  >UI Language</label
+                >
+                <select id="language-select" class="select-input">
+                  <option value="auto">Browser Default (Auto-detect)</option>
+                  <option value="en">English</option>
+                  <option value="ru">Русский (Russian)</option>
+                  <option value="ta">தமிழ் (Tamil)</option>
+                  <option value="es">Español (Spanish)</option>
+                  <option value="zh_CN">简体中文 (Simplified Chinese)</option>
+                  <option value="zh_TW">繁體中文 (Traditional Chinese)</option>
+                  <option value="ja">日本語 (Japanese)</option>
+                  <option value="de">Deutsch (German)</option>
+                  <option value="fr">Français (French)</option>
+                  <option value="hi">हिन्दी (Hindi)</option>
+                  <option value="pt_BR">Português (Portuguese)</option>
+                  <option value="it">Italiano (Italian)</option>
+                  <option value="ko">한국어 (Korean)</option>
+                </select>
+                <span class="field-help" data-i18n="languageHelp"
+                  >Choose the display language for the extension interface.</span
+                >
+                <div
+                  class="field-help"
+                  style="
+                    margin-top: 10px;
+                    display: flex;
+                    align-items: center;
+                    gap: 6px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <span data-i18n="languageContributeHelp"
+                    >Want to see your language or improve translations?</span
+                  >
+                  <a
+                    href="https://github.com/Covai-Labs/ace/tree/main/public/_locales"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     style="
-                      padding: 4px 12px;
-                      border-radius: 4px;
-                      font-size: 12px;
-                      cursor: pointer;
-                      background: rgba(255, 255, 255, 0.08);
-                      border: 1px solid rgba(255, 255, 255, 0.2);
-                      color: var(--text-color, #ffffff);
+                      color: var(--primary-color, #3b82f6);
+                      text-decoration: none;
+                      font-weight: 500;
                     "
+                    data-i18n="languageContributeLink"
                   >
-                    <span data-i18n="copyAboutAddons">Copy about:addons</span>
-                  </button>
+                    Help translate on GitHub ↗
+                  </a>
                 </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
-        <!-- Section 5: Feedback & Bug Reports -->
-        <section class="card">
-          <div class="card-header">
-            <span class="card-icon">💬</span>
-            <h2 data-i18n="feedbackTitle">Feedback &amp; Bug Reports</h2>
-          </div>
-          <div class="card-body">
-            <div class="field-group">
-              <span
-                class="field-help"
-                data-i18n="feedbackHelp"
-                style="margin-bottom: 12px; display: block"
+          <!-- Section 1: Export Defaults -->
+          <section class="card" id="section-export">
+            <div class="card-header">
+              <span class="card-icon">📁</span>
+              <h2 data-i18n="exportDefaultsTitle">Export Defaults</h2>
+            </div>
+            <div class="card-body">
+              <div class="field-group">
+                <label
+                  for="default-format-select"
+                  class="field-label"
+                  data-i18n="defaultFormatLabel"
+                  >Default Export Format</label
+                >
+                <select id="default-format-select" class="select-input">
+                  <option value="markdown">Markdown (.md)</option>
+                  <option value="json">JSON (.json)</option>
+                  <option value="html">HTML (.html)</option>
+                  <option value="png">Shareable Image (.png)</option>
+                  <option value="pdf">PDF (.pdf)</option>
+                </select>
+                <span class="field-help" data-i18n="defaultFormatHelp"
+                  >Format pre-selected when opening the export popup or side panel.</span
+                >
+              </div>
+
+              <div class="field-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="default-include-images" checked />
+                  <span data-i18n="includeImagesDefault">Include images in exports by default</span>
+                </label>
+              </div>
+
+              <div class="field-group checkbox-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="include-attribution" checked />
+                  <span data-i18n="includeAttributionDefault"
+                    >Include "Exported with AI Chat Exporter" credit in exports</span
+                  >
+                </label>
+              </div>
+
+              <div class="field-group" style="margin-top: 12px">
+                <label
+                  for="filename-template-input"
+                  class="field-label"
+                  data-i18n="filenameTemplateLabel"
+                  >Export Filename Pattern</label
+                >
+                <input
+                  type="text"
+                  id="filename-template-input"
+                  class="select-input"
+                  placeholder="{platform} - {title} - {datetime}"
+                  value="{platform} - {title} - {datetime}"
+                />
+                <span class="field-help" data-i18n="filenameTemplateHelp"
+                  >Template for exported filenames. Supported tokens: {platform}, {title}, {date},
+                  {time}, {datetime}.</span
+                >
+                <div
+                  class="field-help"
+                  style="margin-top: 6px; font-weight: 500; color: var(--text-primary)"
+                >
+                  <span data-i18n="filenameTemplatePreview">Preview:</span>
+                  <code
+                    id="filename-preview"
+                    style="
+                      background: var(--input-bg);
+                      padding: 2px 6px;
+                      border-radius: 4px;
+                      border: 1px solid var(--border-color);
+                      font-family: monospace;
+                    "
+                    >Gemini - Comparing Markdown and PDF - 2026-08-19_11-35</code
+                  >
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 2: Extraction Modes -->
+          <section class="card" id="section-extraction">
+            <div class="card-header">
+              <span class="card-icon">⚙️</span>
+              <h2 data-i18n="parserModeTitle">Parser Extraction Mode</h2>
+            </div>
+            <div class="card-body">
+              <div class="field-group">
+                <label for="parser-mode-select" class="field-label" data-i18n="parserModeLabel"
+                  >Preferred Extraction Mode</label
+                >
+                <select id="parser-mode-select" class="select-input">
+                  <option value="auto">Auto (API when available, with DOM fallback)</option>
+                  <option value="prefer_dom">Prefer DOM Mode (Direct element scraping)</option>
+                  <option value="prefer_api">Prefer API Mode (Raw payload fetch)</option>
+                </select>
+                <span class="field-help" data-i18n="parserModeHelp"
+                  >Controls how conversation text and media are retrieved on ChatGPT and
+                  Claude.</span
+                >
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 3: Transfer Chat Defaults -->
+          <section class="card" id="section-transfer">
+            <div class="card-header">
+              <span class="card-icon">↗️</span>
+              <h2 data-i18n="transferDefaultsTitle">Transfer Chat Defaults</h2>
+            </div>
+            <div class="card-body">
+              <div class="field-group">
+                <label
+                  for="default-transfer-select"
+                  class="field-label"
+                  data-i18n="defaultTransferTargetLabel"
+                  >Default Transfer Target Platform</label
+                >
+                <select id="default-transfer-select" class="select-input">
+                  <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
+                    <option value="claude">Claude (claude.ai)</option>
+                    <option value="chatgpt">ChatGPT (chatgpt.com)</option>
+                    <option value="gemini">Gemini (gemini.google.com)</option>
+                    <option value="deepseek">DeepSeek (chat.deepseek.com)</option>
+                    <option value="qwen">Qwen (chat.qwen.ai)</option>
+                    <option value="perplexity">Perplexity (perplexity.ai)</option>
+                    <option value="mistral">Mistral (chat.mistral.ai)</option>
+                    <option value="lumo">Lumo (lumo.proton.me)</option>
+                    <option value="copilot">Copilot (copilot.com)</option>
+                    <option value="meta">Meta AI (meta.ai)</option>
+                    <option value="z_ai">Z.ai (chat.z.ai)</option>
+                    <option value="grok">Grok (grok.com)</option>
+                  </optgroup>
+                  <optgroup label="Note apps" data-i18n-label="transferGroupNoteApps">
+                    <option value="obsidian">Obsidian (obsidian://)</option>
+                    <option value="logseq">Logseq (logseq://)</option>
+                    <option value="bear">Bear (bear://)</option>
+                    <option value="noteplan">NotePlan (noteplan://)</option>
+                    <option value="drafts">Drafts (drafts://)</option>
+                  </optgroup>
+                </select>
+                <span class="field-help" data-i18n="defaultTransferHelp"
+                  >Initial target platform in the "Continue On" dropdown. When exporting on the
+                  current default platform (e.g. ChatGPT), it smartly auto-switches to an alternate
+                  platform.</span
+                >
+              </div>
+
+              <div class="field-group" style="margin-top: 16px">
+                <label for="obsidian-vault-input" class="field-label" data-i18n="obsidianVaultLabel"
+                  >Obsidian Vault Name (Optional)</label
+                >
+                <input
+                  type="text"
+                  id="obsidian-vault-input"
+                  class="select-input"
+                  placeholder="e.g. My Vault"
+                  data-i18n-placeholder="obsidianVaultPlaceholder"
+                />
+                <span class="field-help" data-i18n="obsidianVaultHelp"
+                  >If specified, Obsidian URIs will open notes directly inside this vault
+                  (&amp;vault=...).</span
+                >
+              </div>
+
+              <div class="field-group checkbox-group" style="margin-top: 16px">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="transfer-autosend-checkbox" checked />
+                  <span data-i18n="transferAutoSendLabel">Auto-send prompt after transfer</span>
+                </label>
+                <span class="field-help" data-i18n="transferAutoSendHelp"
+                  >When on, the target chat submits the transferred prompt automatically.
+                  Login-walled targets (Meta AI) always prefill only.</span
+                >
+              </div>
+
+              <div class="field-group checkbox-group" style="margin-top: 16px">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="transfer-copy-clipboard-checkbox" />
+                  <span data-i18n="transferCopyClipboardLabel"
+                    >Copy prompt to clipboard on transfer</span
+                  >
+                </label>
+                <span class="field-help" data-i18n="transferCopyClipboardHelp"
+                  >When enabled, also copies the transferred prompt to your clipboard as a backup so
+                  you can manually paste (Ctrl+V) if injection fails.</span
+                >
+              </div>
+
+              <div class="field-group" style="margin-top: 16px">
+                <label
+                  for="transfer-prompt-input"
+                  class="field-label"
+                  data-i18n="transferPromptLabel"
+                  >Transfer prompt template</label
+                >
+                <textarea
+                  id="transfer-prompt-input"
+                  class="select-input"
+                  rows="6"
+                  spellcheck="false"
+                ></textarea>
+                <span class="field-help" data-i18n="transferPromptHelp"
+                  >Wraps the conversation sent to the target chat. Placeholders: {source} {title}
+                  {history} {instruction}. Must contain {history}.</span
+                >
+                <button
+                  id="transfer-prompt-reset"
+                  class="secondary-btn"
+                  data-i18n="transferPromptReset"
+                  style="margin-top: 8px"
+                >
+                  Reset to default
+                </button>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4: Chrome Launch Action (Chrome Only) -->
+          <section class="card chrome-only-section" id="launch-mode-section">
+            <div class="card-header">
+              <span class="card-icon">📌</span>
+              <h2 data-i18n="launchModeTitle">Extension Toolbar Click Action</h2>
+            </div>
+            <div class="card-body">
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="launch-mode" value="popup" checked />
+                  <div>
+                    <strong data-i18n="launchModePopup">Extension Popup</strong>
+                    <span class="sub-text" data-i18n="launchModePopupDesc"
+                      >Opens a compact popup window on click</span
+                    >
+                  </div>
+                </label>
+
+                <label class="radio-label">
+                  <input type="radio" name="launch-mode" value="sidepanel" />
+                  <div>
+                    <strong data-i18n="launchModeSidepanel">Persistent Side Panel</strong>
+                    <span class="sub-text" data-i18n="launchModeSidepanelDesc"
+                      >Opens side panel pinned to the browser window</span
+                    >
+                  </div>
+                </label>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4-FF: Firefox Sidebar Integration (Firefox Only) -->
+          <section class="card firefox-only-section hidden" id="firefox-sidebar-section">
+            <div class="card-header">
+              <span class="card-icon">🗂️</span>
+              <h2>Firefox Browser Sidebar</h2>
+            </div>
+            <div class="card-body">
+              <p class="sub-text">
+                The browser sidebar can be opened or closed natively using your browser's sidebar
+                toggle, by clicking the ✕ button in the sidebar header, or by searching your
+                browser's sidebar keyboard shortcut.
+              </p>
+            </div>
+          </section>
+
+          <!-- Section 4.5: Keyboard Shortcuts -->
+          <section class="card" id="shortcuts-section">
+            <div class="card-header">
+              <span class="card-icon">⌨️</span>
+              <h2 data-i18n="shortcutsSectionTitle">Keyboard Shortcuts</h2>
+            </div>
+            <div class="card-body">
+              <div class="shortcuts-list">
+                <div class="shortcut-item">
+                  <div class="shortcut-info">
+                    <strong data-i18n="shortcutCopyMarkdownLabel">Copy Markdown</strong>
+                    <span class="sub-text" data-i18n="shortcutCopyMarkdownDesc"
+                      >Instantly copy current chat in Markdown format</span
+                    >
+                  </div>
+                  <div class="shortcut-badge">
+                    <kbd class="key">Alt</kbd> + <kbd class="key">Shift</kbd> +
+                    <kbd class="key">C</kbd>
+                  </div>
+                </div>
+
+                <div class="shortcut-item">
+                  <div class="shortcut-info">
+                    <strong data-i18n="shortcutDownloadMarkdownLabel">Download Markdown</strong>
+                    <span class="sub-text" data-i18n="shortcutDownloadMarkdownDesc"
+                      >Directly download current chat as a .md file</span
+                    >
+                  </div>
+                  <div class="shortcut-badge">
+                    <kbd class="key">Alt</kbd> + <kbd class="key">Shift</kbd> +
+                    <kbd class="key">D</kbd>
+                  </div>
+                </div>
+
+                <div class="shortcut-item">
+                  <div class="shortcut-info">
+                    <strong data-i18n="shortcutOpenPreviewLabel">Open in Preview Tab</strong>
+                    <span class="sub-text" data-i18n="shortcutOpenPreviewDesc"
+                      >Open chat in full-page Markdown preview</span
+                    >
+                  </div>
+                  <div class="shortcut-badge">
+                    <kbd class="key">Alt</kbd> + <kbd class="key">Shift</kbd> +
+                    <kbd class="key">P</kbd>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Chromium Configure Button -->
+              <div
+                class="field-group chrome-shortcuts-action"
+                id="chrome-shortcuts-action"
+                style="margin-top: 16px"
               >
-                Found a bug, want to request a platform parser feature, or have feedback? We'd love
-                to hear from you.
-              </span>
-              <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center">
-                <a
-                  id="feedback-link"
-                  href="https://ace.covai.org/feedback.html"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <button
+                  type="button"
+                  id="configure-shortcuts-btn"
                   class="secondary-btn"
                   style="
                     display: inline-flex;
                     align-items: center;
                     gap: 8px;
-                    text-decoration: none;
                     padding: 8px 16px;
                     border-radius: 6px;
                     background: rgba(59, 130, 246, 0.15);
@@ -516,37 +493,129 @@
                     border: 1px solid rgba(59, 130, 246, 0.3);
                     font-weight: 500;
                     font-size: 13px;
-                  "
-                >
-                  <span data-i18n="submitFeedback">💬 Submit Feedback or Issue Report</span>
-                </a>
-                <button
-                  type="button"
-                  id="copy-system-info-btn"
-                  class="secondary-btn"
-                  style="
-                    display: inline-flex;
-                    align-items: center;
-                    gap: 8px;
-                    padding: 8px 16px;
-                    border-radius: 6px;
-                    background: rgba(255, 255, 255, 0.08);
-                    color: var(--text-primary);
-                    border: 1px solid rgba(255, 255, 255, 0.2);
-                    font-weight: 500;
-                    font-size: 13px;
                     cursor: pointer;
                   "
                 >
-                  <span data-i18n="copySystemInfo">📋 Copy System Info for Issues</span>
+                  <span data-i18n="shortcutsConfigureBtn">Configure Shortcuts ↗</span>
                 </button>
               </div>
-            </div>
-          </div>
-        </section>
 
-        <div id="toast" class="toast hidden" data-i18n="toastSaved">Preferences saved!</div>
-      </main>
+              <!-- Firefox Shortcuts Info Banner -->
+              <div
+                class="field-group firefox-shortcuts-action hidden"
+                id="firefox-shortcuts-action"
+                style="margin-top: 16px"
+              >
+                <div
+                  style="
+                    background: rgba(255, 255, 255, 0.05);
+                    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+                    border-radius: 8px;
+                    padding: 12px 16px;
+                    font-size: 13px;
+                    line-height: 1.5;
+                  "
+                >
+                  <strong
+                    data-i18n="firefoxShortcutsTitle"
+                    style="display: block; margin-bottom: 6px"
+                  >
+                    Firefox Shortcut Customization
+                  </strong>
+                  <span data-i18n="firefoxShortcutsHelp" class="sub-text">
+                    To customize shortcuts in Firefox: Open about:addons → Click the gear icon ⚙️ at
+                    top-right → Select "Manage Extension Shortcuts".
+                  </span>
+                  <div style="margin-top: 10px">
+                    <button
+                      type="button"
+                      id="copy-about-addons-btn"
+                      class="secondary-btn"
+                      style="
+                        padding: 4px 12px;
+                        border-radius: 4px;
+                        font-size: 12px;
+                        cursor: pointer;
+                        background: rgba(255, 255, 255, 0.08);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        color: var(--text-color, #ffffff);
+                      "
+                    >
+                      <span data-i18n="copyAboutAddons">Copy about:addons</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 5: Feedback & Bug Reports -->
+          <section class="card" id="feedback-section">
+            <div class="card-header">
+              <span class="card-icon">💬</span>
+              <h2 data-i18n="feedbackTitle">Feedback &amp; Bug Reports</h2>
+            </div>
+            <div class="card-body">
+              <div class="field-group">
+                <span
+                  class="field-help"
+                  data-i18n="feedbackHelp"
+                  style="margin-bottom: 12px; display: block"
+                >
+                  Found a bug, want to request a platform parser feature, or have feedback? We'd
+                  love to hear from you.
+                </span>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center">
+                  <a
+                    id="feedback-link"
+                    href="https://ace.covai.org/feedback.html"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="secondary-btn"
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;
+                      text-decoration: none;
+                      padding: 8px 16px;
+                      border-radius: 6px;
+                      background: rgba(59, 130, 246, 0.15);
+                      color: #60a5fa;
+                      border: 1px solid rgba(59, 130, 246, 0.3);
+                      font-weight: 500;
+                      font-size: 13px;
+                    "
+                  >
+                    <span data-i18n="submitFeedback">💬 Submit Feedback or Issue Report</span>
+                  </a>
+                  <button
+                    type="button"
+                    id="copy-system-info-btn"
+                    class="secondary-btn"
+                    style="
+                      display: inline-flex;
+                      align-items: center;
+                      gap: 8px;
+                      padding: 8px 16px;
+                      border-radius: 6px;
+                      background: rgba(255, 255, 255, 0.08);
+                      color: var(--text-primary);
+                      border: 1px solid rgba(255, 255, 255, 0.2);
+                      font-weight: 500;
+                      font-size: 13px;
+                      cursor: pointer;
+                    "
+                  >
+                    <span data-i18n="copySystemInfo">📋 Copy System Info for Issues</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div id="toast" class="toast hidden" data-i18n="toastSaved">Preferences saved!</div>
+        </main>
+      </div>
     </div>
     <script type="module" src="options.js"></script>
   </body>

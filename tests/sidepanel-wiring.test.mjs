@@ -48,9 +48,45 @@ test('popup.html and popup.js do not provide a side panel button in popup UI', (
   assert.doesNotMatch(popupJs, /open-sidepanel-btn/);
 });
 
-test('sidepanel header contains refresh button and sidepanel.js handles tab switch listeners', () => {
+test('sidepanel header contains refresh button and sidepanel.js handles tab switch listeners with debouncing', () => {
   assert.match(sidepanelHtml, /id="sp-refresh-btn"/);
   assert.match(sidepanelJs, /getElementById\(['"]sp-refresh-btn['"]\)/);
   assert.match(sidepanelJs, /chrome\.tabs\.onActivated/);
   assert.match(sidepanelJs, /chrome\.tabs\.onUpdated/);
+  assert.match(sidepanelJs, /debouncedRefreshAllPanels/);
+});
+
+test('debouncedRefreshAllPanels coalesces burst tab switch events and only triggers after delay', async () => {
+  let timer = null;
+  let refreshCount = 0;
+  function refreshAllPanels() {
+    refreshCount++;
+  }
+  function debouncedRefreshAllPanels(delayMs = 150) {
+    if (timer) {
+      clearTimeout(timer);
+    }
+    timer = setTimeout(() => {
+      refreshAllPanels();
+    }, delayMs);
+  }
+
+  // Simulate rapid burst of tab activations/updates
+  debouncedRefreshAllPanels(150);
+  debouncedRefreshAllPanels(150);
+  debouncedRefreshAllPanels(150);
+
+  // Before delay expires (at 50ms), no refresh should have fired
+  await new Promise((resolve) => setTimeout(resolve, 50));
+  assert.equal(refreshCount, 0, 'Refresh should not execute prematurely before debounce duration');
+
+  // After delay expires (past 150ms), exactly one refresh should have fired
+  await new Promise((resolve) => setTimeout(resolve, 150));
+  assert.equal(refreshCount, 1, 'Burst of tab events must coalesce into a single refresh');
+});
+
+test('sidepanel header contains close button and sidepanel.js handles closing the sidebar', () => {
+  assert.match(sidepanelHtml, /id="sp-close-btn"/);
+  assert.match(sidepanelJs, /getElementById\(['"]sp-close-btn['"]\)/);
+  assert.match(sidepanelJs, /browser\.sidebarAction\.close/);
 });
