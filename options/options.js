@@ -71,12 +71,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     (typeof browser !== 'undefined' &&
       typeof browser.runtime !== 'undefined' &&
       Boolean(browser.runtime.getBrowserInfo));
+  const navLaunchMode = document.getElementById('nav-launch-mode');
+  const navFirefoxSidebar = document.getElementById('nav-firefox-sidebar');
   if (isFirefox) {
     if (launchModeSection) launchModeSection.classList.add('hidden');
+    if (navLaunchMode) navLaunchMode.classList.add('hidden');
     if (firefoxSidebarSection) firefoxSidebarSection.classList.remove('hidden');
+    if (navFirefoxSidebar) navFirefoxSidebar.classList.remove('hidden');
   } else {
     if (launchModeSection) launchModeSection.classList.remove('hidden');
+    if (navLaunchMode) navLaunchMode.classList.remove('hidden');
     if (firefoxSidebarSection) firefoxSidebarSection.classList.add('hidden');
+    if (navFirefoxSidebar) navFirefoxSidebar.classList.add('hidden');
   }
 
   const obsidianVaultInput = document.getElementById('obsidian-vault-input');
@@ -364,6 +370,59 @@ document.addEventListener('DOMContentLoaded', async () => {
           applyI18n();
         }
       }
+    });
+  }
+
+  // Sidebar Navigation & Scrollspy
+  const navLinks = document.querySelectorAll('.options-nav .nav-item');
+  if (navLinks.length > 0) {
+    const sections = Array.from(navLinks)
+      .map((link) => {
+        const hash = link.getAttribute('href');
+        return hash && hash.startsWith('#') ? document.getElementById(hash.slice(1)) : null;
+      })
+      .filter(Boolean);
+
+    if (typeof IntersectionObserver !== 'undefined' && sections.length > 0) {
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              navLinks.forEach((link) => {
+                if (link.getAttribute('href') === `#${entry.target.id}`) {
+                  link.classList.add('active');
+                } else {
+                  link.classList.remove('active');
+                }
+              });
+            }
+          });
+        },
+        {
+          rootMargin: '-10% 0px -70% 0px',
+          threshold: 0,
+        },
+      );
+
+      sections.forEach((section) => observer.observe(section));
+    }
+
+    navLinks.forEach((link) => {
+      link.addEventListener('click', (e) => {
+        const hash = link.getAttribute('href');
+        if (hash && hash.startsWith('#')) {
+          const target = document.getElementById(hash.slice(1));
+          if (target) {
+            e.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            if (history && history.replaceState) {
+              history.replaceState(null, '', hash);
+            }
+            navLinks.forEach((l) => l.classList.remove('active'));
+            link.classList.add('active');
+          }
+        }
+      });
     });
   }
 });
