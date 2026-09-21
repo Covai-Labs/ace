@@ -85,10 +85,8 @@ test('debouncedRefreshAllPanels coalesces burst tab switch events and only trigg
   assert.equal(refreshCount, 1, 'Burst of tab events must coalesce into a single refresh');
 });
 
-test('options.js and background.js synchronize firefoxSidebarEnabled preference', () => {
-  const optionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
-  assert.match(optionsJs, /firefoxSidebarEnabled/);
-  assert.match(optionsJs, /browser\.sidebarAction\.setPanel/);
-  assert.match(backgroundJs, /firefoxSidebarEnabled/);
-  assert.match(backgroundJs, /browser\.sidebarAction\.setPanel/);
+test('sidepanel header contains close button and sidepanel.js handles closing the sidebar', () => {
+  assert.match(sidepanelHtml, /id="sp-close-btn"/);
+  assert.match(sidepanelJs, /getElementById\(['"]sp-close-btn['"]\)/);
+  assert.match(sidepanelJs, /browser\.sidebarAction\.close/);
 });

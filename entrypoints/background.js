@@ -126,27 +126,6 @@ export default defineBackground(() => {
         console.warn('[AI Exporter Background] Failed to set side panel behavior:', err);
       }
     }
-
-    if (
-      typeof browser !== 'undefined' &&
-      browser.sidebarAction &&
-      typeof browser.sidebarAction.setPanel === 'function'
-    ) {
-      try {
-        const data = await chrome.storage.sync.get('firefoxSidebarEnabled');
-        const isEnabled = Boolean(data.firefoxSidebarEnabled);
-        if (isEnabled) {
-          await browser.sidebarAction.setPanel({ panel: 'sidepanel.html' });
-        } else {
-          await browser.sidebarAction.setPanel({ panel: '' });
-          if (typeof browser.sidebarAction.close === 'function') {
-            await browser.sidebarAction.close().catch(() => {});
-          }
-        }
-      } catch (err) {
-        console.warn('[AI Exporter Background] Failed to set Firefox sidebar behavior:', err);
-      }
-    }
   }
 
   if (typeof chrome !== 'undefined' && chrome.runtime?.onStartup) {
@@ -158,7 +137,7 @@ export default defineBackground(() => {
 
   if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName === 'sync' && (changes.launchMode || changes.firefoxSidebarEnabled)) {
+      if (areaName === 'sync' && changes.launchMode) {
         syncSidePanelBehavior();
       }
     });
@@ -458,10 +437,6 @@ export default defineBackground(() => {
               browser.sidebarAction &&
               typeof browser.sidebarAction.open === 'function'
             ) {
-              if (typeof browser.sidebarAction.setPanel === 'function') {
-                await browser.sidebarAction.setPanel({ panel: 'sidepanel.html' });
-                await chrome.storage.sync.set({ firefoxSidebarEnabled: true });
-              }
               await browser.sidebarAction.open();
               sendResponse({ success: true });
             } else {
