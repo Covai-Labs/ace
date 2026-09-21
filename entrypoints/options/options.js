@@ -251,7 +251,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (typeof browser !== 'undefined' && browser.sidebarAction) {
         try {
           if (enabled) {
-            await browser.sidebarAction.setPanel({ panel: 'entrypoints/sidepanel/index.html' });
+            await browser.sidebarAction.setPanel({ panel: 'sidepanel.html' });
           } else {
             await browser.sidebarAction.setPanel({ panel: '' });
             if (typeof browser.sidebarAction.close === 'function') {

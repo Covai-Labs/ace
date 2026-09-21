@@ -136,7 +136,7 @@ export default defineBackground(() => {
         const data = await chrome.storage.sync.get('firefoxSidebarEnabled');
         const isEnabled = Boolean(data.firefoxSidebarEnabled);
         if (isEnabled) {
-          await browser.sidebarAction.setPanel({ panel: 'entrypoints/sidepanel/index.html' });
+          await browser.sidebarAction.setPanel({ panel: 'sidepanel.html' });
         } else {
           await browser.sidebarAction.setPanel({ panel: '' });
           if (typeof browser.sidebarAction.close === 'function') {
@@ -459,7 +459,7 @@ export default defineBackground(() => {
               typeof browser.sidebarAction.open === 'function'
             ) {
               if (typeof browser.sidebarAction.setPanel === 'function') {
-                await browser.sidebarAction.setPanel({ panel: 'entrypoints/sidepanel/index.html' });
+                await browser.sidebarAction.setPanel({ panel: 'sidepanel.html' });
                 await chrome.storage.sync.set({ firefoxSidebarEnabled: true });
               }
               await browser.sidebarAction.open();

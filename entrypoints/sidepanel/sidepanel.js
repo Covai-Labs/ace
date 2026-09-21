@@ -37,6 +37,51 @@ document.addEventListener('DOMContentLoaded', async () => {
   const headerRefreshBtn = document.getElementById('sp-refresh-btn');
   const tabBtns = document.querySelectorAll('.sp-tab-btn');
   const tabContents = document.querySelectorAll('.sp-tab-content');
+  const disabledNotice = document.getElementById('sp-disabled-notice');
+  const disabledSettingsBtn = document.getElementById('sp-disabled-settings-btn');
+  const tabsNav = document.querySelector('.sp-tabs');
+  const mainContent = document.querySelector('.sp-content');
+
+  const isFirefox = typeof browser !== 'undefined' && Boolean(browser.sidebarAction);
+  let isSidebarDisabled = false;
+
+  function setSidebarDisabledView(disabled) {
+    isSidebarDisabled = disabled;
+    if (disabledNotice) {
+      disabledNotice.style.display = disabled ? 'flex' : 'none';
+    }
+    if (tabsNav) {
+      tabsNav.style.display = disabled ? 'none' : 'flex';
+    }
+    if (mainContent) {
+      mainContent.style.display = disabled ? 'none' : 'block';
+    }
+    if (headerRefreshBtn) {
+      headerRefreshBtn.style.display = disabled ? 'none' : 'inline-flex';
+    }
+    if (statusEl) {
+      statusEl.style.display = disabled ? 'none' : 'inline-flex';
+    }
+  }
+
+  if (disabledSettingsBtn) {
+    disabledSettingsBtn.addEventListener('click', () => {
+      if (typeof chrome !== 'undefined' && chrome.runtime?.openOptionsPage) {
+        chrome.runtime.openOptionsPage();
+      }
+    });
+  }
+
+  if (isFirefox && typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+    try {
+      const data = await chrome.storage.sync.get('firefoxSidebarEnabled');
+      if (data.firefoxSidebarEnabled === false) {
+        setSidebarDisabledView(true);
+      }
+    } catch {
+      // Ignore
+    }
+  }
 
   tabBtns.forEach((btn) => {
     btn.addEventListener('click', () => {
@@ -68,7 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function checkAvailability() {
-    if (!statusEl) return;
+    if (!statusEl || isSidebarDisabled) return;
     try {
       const activeTab = await getActiveTab();
       if (!activeTab || !activeTab.id) {
@@ -91,6 +136,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function refreshAllPanels() {
+    if (isSidebarDisabled) return;
     await checkAvailability();
     const iframes = document.querySelectorAll('.sp-tab-iframe');
     iframes.forEach((iframe) => {
@@ -108,6 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let refreshDebounceTimer = null;
   function debouncedRefreshAllPanels(delayMs = 150) {
+    if (isSidebarDisabled) return;
     if (refreshDebounceTimer) {
       clearTimeout(refreshDebounceTimer);
     }
@@ -150,9 +197,18 @@ document.addEventListener('DOMContentLoaded', async () => {
           await initI18n(changes.uiLanguage.newValue || 'auto');
           applyI18n();
         }
+        if (changes.firefoxSidebarEnabled !== undefined && isFirefox) {
+          const enabled = Boolean(changes.firefoxSidebarEnabled.newValue);
+          setSidebarDisabledView(!enabled);
+          if (enabled) {
+            await checkAvailability();
+          }
+        }
       }
     });
   }
 
-  await checkAvailability();
+  if (!isSidebarDisabled) {
+    await checkAvailability();
+  }
 });
