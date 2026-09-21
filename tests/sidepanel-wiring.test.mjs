@@ -48,9 +48,18 @@ test('popup.html and popup.js do not provide a side panel button in popup UI', (
   assert.doesNotMatch(popupJs, /open-sidepanel-btn/);
 });
 
-test('sidepanel header contains refresh button and sidepanel.js handles tab switch listeners', () => {
+test('sidepanel header contains refresh button and sidepanel.js handles tab switch listeners with debouncing', () => {
   assert.match(sidepanelHtml, /id="sp-refresh-btn"/);
   assert.match(sidepanelJs, /getElementById\(['"]sp-refresh-btn['"]\)/);
   assert.match(sidepanelJs, /chrome\.tabs\.onActivated/);
   assert.match(sidepanelJs, /chrome\.tabs\.onUpdated/);
+  assert.match(sidepanelJs, /debouncedRefreshAllPanels/);
+});
+
+test('options.js and background.js synchronize firefoxSidebarEnabled preference', () => {
+  const optionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+  assert.match(optionsJs, /firefoxSidebarEnabled/);
+  assert.match(optionsJs, /browser\.sidebarAction\.setPanel/);
+  assert.match(backgroundJs, /firefoxSidebarEnabled/);
+  assert.match(backgroundJs, /browser\.sidebarAction\.setPanel/);
 });

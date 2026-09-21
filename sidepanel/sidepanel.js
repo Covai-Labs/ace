@@ -106,6 +106,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  let refreshDebounceTimer = null;
+  function debouncedRefreshAllPanels(delayMs = 150) {
+    if (refreshDebounceTimer) {
+      clearTimeout(refreshDebounceTimer);
+    }
+    refreshDebounceTimer = setTimeout(() => {
+      refreshAllPanels();
+    }, delayMs);
+  }
+
   if (headerRefreshBtn) {
     headerRefreshBtn.addEventListener('click', async () => {
       await refreshAllPanels();
@@ -114,8 +124,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (typeof chrome !== 'undefined' && chrome.tabs) {
     if (chrome.tabs.onActivated) {
-      chrome.tabs.onActivated.addListener(async () => {
-        await refreshAllPanels();
+      chrome.tabs.onActivated.addListener(() => {
+        debouncedRefreshAllPanels();
       });
     }
     if (chrome.tabs.onUpdated) {
@@ -123,7 +133,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (changeInfo.status === 'complete' || changeInfo.url || changeInfo.title) {
           const activeTab = await getActiveTab();
           if (activeTab && activeTab.id === tabId) {
-            await refreshAllPanels();
+            debouncedRefreshAllPanels();
           }
         }
       });

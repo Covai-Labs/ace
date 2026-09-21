@@ -42,6 +42,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const defaultTransferSelect = document.getElementById('default-transfer-select');
   const launchModeSection = document.getElementById('launch-mode-section');
   const launchModeRadios = document.querySelectorAll('input[name="launch-mode"]');
+  const firefoxSidebarSection = document.getElementById('firefox-sidebar-section');
+  const firefoxSidebarEnabledCheckbox = document.getElementById('firefox-sidebar-enabled');
   const toast = document.getElementById('toast');
 
   let toastTimer = null;
@@ -70,8 +72,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     (typeof browser !== 'undefined' &&
       typeof browser.runtime !== 'undefined' &&
       Boolean(browser.runtime.getBrowserInfo));
-  if (isFirefox && launchModeSection) {
-    launchModeSection.classList.add('hidden');
+  if (isFirefox) {
+    if (launchModeSection) launchModeSection.classList.add('hidden');
+    if (firefoxSidebarSection) firefoxSidebarSection.classList.remove('hidden');
+  } else {
+    if (launchModeSection) launchModeSection.classList.remove('hidden');
+    if (firefoxSidebarSection) firefoxSidebarSection.classList.add('hidden');
   }
 
   const obsidianVaultInput = document.getElementById('obsidian-vault-input');
@@ -87,6 +93,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'defaultTransferTarget',
     'obsidianVaultName',
     'launchMode',
+    'firefoxSidebarEnabled',
     'transferAutoSend',
     'transferCopyToClipboard',
     'transferPromptTemplate',
@@ -235,6 +242,29 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   });
+
+  if (firefoxSidebarEnabledCheckbox) {
+    firefoxSidebarEnabledCheckbox.checked = Boolean(stored.firefoxSidebarEnabled);
+    firefoxSidebarEnabledCheckbox.addEventListener('change', async () => {
+      const enabled = firefoxSidebarEnabledCheckbox.checked;
+      await chrome.storage.sync.set({ firefoxSidebarEnabled: enabled });
+      if (typeof browser !== 'undefined' && browser.sidebarAction) {
+        try {
+          if (enabled) {
+            await browser.sidebarAction.setPanel({ panel: 'sidepanel.html' });
+          } else {
+            await browser.sidebarAction.setPanel({ panel: '' });
+            if (typeof browser.sidebarAction.close === 'function') {
+              await browser.sidebarAction.close().catch(() => {});
+            }
+          }
+        } catch (err) {
+          console.warn('Failed to update Firefox sidebar panel:', err);
+        }
+      }
+      showToast();
+    });
+  }
 
   const chromeShortcutsAction = document.getElementById('chrome-shortcuts-action');
   const firefoxShortcutsAction = document.getElementById('firefox-shortcuts-action');
