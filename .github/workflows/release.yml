@@ -86,6 +86,7 @@ jobs:
         with:
           files: |
             .output/ai-chat-exporter-chromium.zip
+            .output/ai-chat-exporter-edge.zip
             .output/ai-chat-exporter-firefox.zip
             .output/SHA256SUMS.txt
           generate_release_notes: true

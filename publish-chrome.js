@@ -29,6 +29,8 @@ if (!EXTENSION_ID || !CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
   process.exit(1);
 }
 
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 async function getAccessToken() {
   console.log('Retrieving Google OAuth2 access token...');
   const response = await fetch('https://oauth2.googleapis.com/token', {
@@ -84,11 +86,60 @@ async function uploadPackage(accessToken) {
   const data = await response.json();
   console.log('Upload response:', data);
 
-  if (data.uploadState === 'FAILURE') {
-    throw new Error(`Chrome Web Store upload reported failure: ${JSON.stringify(data.itemError)}`);
+  if (data.uploadState === 'SUCCESS') {
+    console.log('Package upload succeeded.');
+    return;
   }
 
-  console.log('Package upload succeeded.');
+  if (data.uploadState === 'IN_PROGRESS') {
+    console.log('Upload still processing; polling until it reaches SUCCESS...');
+    await waitForUploadSuccess(accessToken);
+    console.log('Package upload succeeded.');
+    return;
+  }
+
+  throw new Error(
+    `Chrome Web Store upload finished with unexpected state ${JSON.stringify(data.uploadState)}: ${JSON.stringify(data.itemError)}`,
+  );
+}
+
+async function waitForUploadSuccess(accessToken) {
+  const statusUrl = `https://www.googleapis.com/chromewebstore/v1.1/items/${EXTENSION_ID}?projection=DRAFT`;
+  const maxAttempts = 30;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await sleep(10000);
+    console.log(`Checking upload status (attempt ${attempt}/${maxAttempts})...`);
+
+    const statusResponse = await fetch(statusUrl, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'x-goog-api-version': '2',
+      },
+    });
+
+    if (!statusResponse.ok) {
+      const text = await statusResponse.text();
+      console.warn(
+        `Failed to retrieve upload status (${statusResponse.status}): ${text}. Retrying...`,
+      );
+      continue;
+    }
+
+    const item = await statusResponse.json();
+    console.log(`Current upload state: ${item.uploadState}`);
+
+    if (item.uploadState === 'SUCCESS') {
+      return;
+    }
+    if (item.uploadState === 'FAILURE') {
+      throw new Error(
+        `Chrome Web Store upload reported failure: ${JSON.stringify(item.itemError)}`,
+      );
+    }
+  }
+
+  throw new Error('Timeout: upload did not reach SUCCESS within the polling limit.');
 }
 
 async function publishExtension(accessToken) {
@@ -110,6 +161,13 @@ async function publishExtension(accessToken) {
 
   const data = await response.json();
   console.log('Publish response:', data);
+
+  if (!Array.isArray(data.status) || !data.status.includes('OK')) {
+    throw new Error(
+      `Chrome Web Store publish not accepted (status: ${JSON.stringify(data.status)}, detail: ${JSON.stringify(data.statusDetail)})`,
+    );
+  }
+
   console.log('Extension successfully published/submitted for review.');
 }
 
