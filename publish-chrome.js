@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 
 const EXTENSION_ID = process.env.CHROME_EXTENSION_ID;
+const PUBLISHER_ID = process.env.CHROME_PUBLISHER_ID;
 const CLIENT_ID = process.env.CHROME_CLIENT_ID;
 const CLIENT_SECRET = process.env.CHROME_CLIENT_SECRET;
 const REFRESH_TOKEN = process.env.CHROME_REFRESH_TOKEN;
@@ -22,12 +23,14 @@ function resolveZipPath(pattern) {
   return pattern;
 }
 
-if (!EXTENSION_ID || !CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
+if (!EXTENSION_ID || !PUBLISHER_ID || !CLIENT_ID || !CLIENT_SECRET || !REFRESH_TOKEN) {
   console.error(
-    'Error: CHROME_EXTENSION_ID, CHROME_CLIENT_ID, CHROME_CLIENT_SECRET, and CHROME_REFRESH_TOKEN environment variables must be set.',
+    'Error: CHROME_EXTENSION_ID, CHROME_PUBLISHER_ID, CHROME_CLIENT_ID, CHROME_CLIENT_SECRET, and CHROME_REFRESH_TOKEN environment variables must be set.',
   );
   process.exit(1);
 }
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
 async function getAccessToken() {
   console.log('Retrieving Google OAuth2 access token...');
@@ -65,13 +68,13 @@ async function uploadPackage(accessToken) {
     `Package read successfully. Size: ${(zipBuffer.length / (1024 * 1024)).toFixed(2)} MB`,
   );
 
-  console.log('Step 1: Uploading package to Chrome Web Store...');
-  const uploadUrl = `https://www.googleapis.com/upload/chromewebstore/v1.1/items/${EXTENSION_ID}`;
+  console.log('Step 1: Uploading package to Chrome Web Store (API v2)...');
+  const uploadUrl = `https://chromewebstore.googleapis.com/upload/v2/publishers/${PUBLISHER_ID}/items/${EXTENSION_ID}:upload`;
   const response = await fetch(uploadUrl, {
-    method: 'PUT',
+    method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      'x-goog-api-version': '2',
+      'Content-Type': 'application/zip',
     },
     body: zipBuffer,
   });
@@ -84,23 +87,89 @@ async function uploadPackage(accessToken) {
   const data = await response.json();
   console.log('Upload response:', data);
 
-  if (data.uploadState === 'FAILURE') {
-    throw new Error(`Chrome Web Store upload reported failure: ${JSON.stringify(data.itemError)}`);
+  const state = data.uploadState;
+  if (state === 'SUCCESS' || state === 'SUCCEEDED') {
+    console.log('Package upload succeeded.');
+    return;
   }
 
-  console.log('Package upload succeeded.');
+  if (state === 'IN_PROGRESS' || state === 'UPLOAD_IN_PROGRESS') {
+    console.log('Upload still processing; polling fetchStatus until it completes...');
+    await waitForUploadSuccess(accessToken);
+    console.log('Package upload succeeded.');
+    return;
+  }
+
+  throw new Error(
+    `Chrome Web Store upload finished with unexpected state ${JSON.stringify(state)}: ${JSON.stringify(data.itemError || data)}`,
+  );
+}
+
+async function waitForUploadSuccess(accessToken) {
+  const statusUrl = `https://chromewebstore.googleapis.com/v2/publishers/${PUBLISHER_ID}/items/${EXTENSION_ID}:fetchStatus`;
+  const maxAttempts = 30;
+
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    await sleep(10000);
+    console.log(`Checking upload status (attempt ${attempt}/${maxAttempts})...`);
+
+    let statusResponse;
+    try {
+      statusResponse = await fetch(statusUrl, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+    } catch (err) {
+      console.warn(`Failed to retrieve upload status (network error): ${err.message}. Retrying...`);
+      continue;
+    }
+
+    if (!statusResponse.ok) {
+      const text = await statusResponse.text();
+      if ([401, 403, 404].includes(statusResponse.status)) {
+        throw new Error(
+          `Upload status check failed with ${statusResponse.status} (not retryable): ${text}`,
+        );
+      }
+      console.warn(
+        `Failed to retrieve upload status (${statusResponse.status}): ${text}. Retrying...`,
+      );
+      continue;
+    }
+
+    const item = await statusResponse.json();
+    const uploadState = item.lastAsyncUploadState || item.uploadState;
+    console.log(`Current upload state: ${uploadState}`);
+
+    if (uploadState === 'SUCCESS' || uploadState === 'SUCCEEDED') {
+      return;
+    }
+    if (uploadState === 'FAILURE' || uploadState === 'FAILED') {
+      throw new Error(
+        `Chrome Web Store upload reported failure: ${JSON.stringify(item.itemError || item)}`,
+      );
+    }
+    if (uploadState !== 'IN_PROGRESS' && uploadState !== 'UPLOAD_IN_PROGRESS') {
+      throw new Error(
+        `Unexpected upload state returned: ${JSON.stringify(uploadState)}. Aborting upload wait.`,
+      );
+    }
+  }
+
+  throw new Error('Timeout: upload did not reach SUCCESS within the polling limit.');
 }
 
 async function publishExtension(accessToken) {
-  console.log('Step 2: Publishing the uploaded extension...');
-  const publishUrl = `https://www.googleapis.com/chromewebstore/v1.1/items/${EXTENSION_ID}/publish`;
+  console.log('Step 2: Publishing the uploaded extension (API v2)...');
+  const publishUrl = `https://chromewebstore.googleapis.com/v2/publishers/${PUBLISHER_ID}/items/${EXTENSION_ID}:publish`;
   const response = await fetch(publishUrl, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${accessToken}`,
-      'x-goog-api-version': '2',
-      'Content-Length': '0',
+      'Content-Type': 'application/json',
     },
+    body: JSON.stringify({}),
   });
 
   if (!response.ok) {
@@ -109,8 +178,24 @@ async function publishExtension(accessToken) {
   }
 
   const data = await response.json();
-  console.log('Publish response:', data);
-  console.log('Extension successfully published/submitted for review.');
+  // In v2, publish response returns { name, itemId, state, warningInfo? }
+  // Valid success/submission states: PENDING_REVIEW, PUBLISHED, STAGED, PUBLISHED_TO_TESTERS
+  const ACCEPTED_PUBLISH_STATES = new Set([
+    'PENDING_REVIEW',
+    'PUBLISHED',
+    'STAGED',
+    'PUBLISHED_TO_TESTERS',
+  ]);
+
+  if (data.state && !ACCEPTED_PUBLISH_STATES.has(data.state)) {
+    throw new Error(
+      `Chrome Web Store publish returned unsuccessful state ${JSON.stringify(data.state)}: ${JSON.stringify(data)}`,
+    );
+  }
+
+  console.log(
+    `Extension successfully published / submitted for review (state: ${data.state || 'OK'}).`,
+  );
 }
 
 async function run() {

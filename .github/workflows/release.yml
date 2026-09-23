@@ -86,6 +86,7 @@ jobs:
         with:
           files: |
             .output/ai-chat-exporter-chromium.zip
+            .output/ai-chat-exporter-edge.zip
             .output/ai-chat-exporter-firefox.zip
             .output/SHA256SUMS.txt
           generate_release_notes: true
@@ -152,6 +153,11 @@ jobs:
   publish-chrome:
     needs: build
     runs-on: ubuntu-latest
+    # fetchStatus observes item-wide upload state, so serialize Chrome
+    # publish runs to avoid one run publishing another run's draft.
+    concurrency:
+      group: publish-chrome-store
+      cancel-in-progress: false
     if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'chrome'))
     steps:
       - name: Checkout code
@@ -172,6 +178,7 @@ jobs:
         run: node publish-chrome.js
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
+          CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
           CHROME_CLIENT_ID: ${{ secrets.CHROME_CLIENT_ID }}
           CHROME_CLIENT_SECRET: ${{ secrets.CHROME_CLIENT_SECRET }}
           CHROME_REFRESH_TOKEN: ${{ secrets.CHROME_REFRESH_TOKEN }}
