@@ -203,8 +203,8 @@ test('preview scripts invoke recalculateContent on live export option changes', 
     const js = fs.readFileSync(previewPath, 'utf8');
     assert.match(
       js,
-      /applyExportOptionChanges\(exportOptions,\s*changes\)[\s\S]*?recalculateContent\(\)/,
-      `${previewPath} should recalculate content when exportOptions change`,
+      /chrome\.storage\.onChanged\.addListener\([^)]*\)\s*=>\s*\{[\s\S]*?applyExportOptionChanges\(exportOptions,\s*changes\)[\s\S]*?recalculateContent\(\)[\s\S]*?\}\);/,
+      `${previewPath} should recalculate content within the storage change listener`,
     );
   }
 });
