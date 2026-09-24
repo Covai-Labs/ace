@@ -197,3 +197,14 @@ test('preview pages load and forward messageNumbering/exportOptions to formatter
     );
   }
 });
+
+test('preview scripts invoke recalculateContent on live export option changes', () => {
+  for (const previewPath of ['entrypoints/preview/preview.js', 'popup/preview.js']) {
+    const js = fs.readFileSync(previewPath, 'utf8');
+    assert.match(
+      js,
+      /applyExportOptionChanges\(exportOptions,\s*changes\)[\s\S]*?recalculateContent\(\)/,
+      `${previewPath} should recalculate content when exportOptions change`,
+    );
+  }
+});

@@ -86,6 +86,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       applyTheme(selected, document);
       syncThemeToIframe(selected);
       cachedPngBlob = null;
+      recalculateContent();
     });
   }
 
@@ -127,11 +128,13 @@ document.addEventListener('DOMContentLoaded', async () => {
           syncThemeToIframe(currentSyncTheme);
         }
         cachedPngBlob = null;
+        recalculateContent();
       }
     });
   }
 
   let conversation = null;
+  let fallbackPreviewContent = '';
   let title = 'Untitled Chat';
   let initialFormat;
 
@@ -142,6 +145,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let activeContent = '';
   let activeExtension = 'html';
+  let currentActiveTab = 'html-render';
 
   let currentBlobUrl = null;
   let cachedPngBlob = null;
@@ -318,6 +322,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const switchTab = (tabName) => {
+    currentActiveTab = tabName;
     syncUrlFormat(tabName);
     const buttons = formatTabsContainer.querySelectorAll('.control-btn');
     buttons.forEach((btn) => {
@@ -376,6 +381,28 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     updateDownloadButtonLabel(activeExtension);
+  };
+
+  const recalculateContent = () => {
+    if (!conversation && !fallbackPreviewContent) return;
+
+    if (conversation) {
+      htmlContent = htmlFormatter.format(conversation, {
+        ...exportOptions,
+        theme: currentSyncTheme,
+      });
+      markdownContent = markdownFormatter.format(conversation, exportOptions);
+      jsonContent = jsonFormatter.format(conversation);
+      docContent = docFormatter.format(conversation, exportOptions);
+    } else {
+      htmlContent = sanitizeHtml(fallbackPreviewContent);
+      markdownContent = fallbackPreviewContent;
+      jsonContent = fallbackPreviewContent;
+      docContent = fallbackPreviewContent;
+    }
+
+    cachedPngBlob = null;
+    switchTab(currentActiveTab);
   };
 
   formatTabsContainer.addEventListener('click', (e) => {
@@ -486,21 +513,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       previewRequestSupportBtn.addEventListener('click', () => openFeedbackIssue(conversation));
     }
 
-    if (conversation) {
-      htmlContent = htmlFormatter.format(conversation, {
-        ...exportOptions,
-        theme: currentSyncTheme,
-      });
-      markdownContent = markdownFormatter.format(conversation, exportOptions);
-      jsonContent = jsonFormatter.format(conversation);
-      docContent = docFormatter.format(conversation, exportOptions);
-    } else {
-      const fallbackContent = data.previewContent || '';
-      htmlContent = sanitizeHtml(fallbackContent);
-      markdownContent = fallbackContent;
-      jsonContent = fallbackContent;
-      docContent = fallbackContent;
-    }
+    fallbackPreviewContent = data.previewContent || '';
 
     let initialTab = 'html-render';
     if (initialFormat === 'json') {
@@ -538,7 +551,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       );
     }
 
-    switchTab(initialTab);
+    currentActiveTab = initialTab;
+    recalculateContent();
 
     if (autoDownloadPng && initialFormat === 'png') {
       setTimeout(() => {
