@@ -69,7 +69,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   let includeAttribution = true;
   let messageNumbering = 'off';
   try {
-    const syncData = await chrome.storage.sync.get(['theme', 'includeAttribution', 'messageNumbering']);
+    const syncData = await chrome.storage.sync.get([
+      'theme',
+      'includeAttribution',
+      'messageNumbering',
+    ]);
     currentSyncTheme = syncData.theme || 'system';
     if (syncData.includeAttribution !== undefined) {
       includeAttribution = syncData.includeAttribution;
