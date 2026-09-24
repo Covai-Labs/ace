@@ -641,5 +641,13 @@
   "transferCopyClipboardHelp": {
     "message": "செயல்படுத்தப்பட்டால், தானியங்கு உள்ளீடு தோல்வியுற்றால் நீங்கள் கைமுறையாக (Ctrl+V) ஒட்டுவதற்கு மாற்றப்பட்ட உரையாடல் கிளிப்போர்டிலும் நகலெடுக்கப்படும்.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

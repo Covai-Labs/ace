@@ -103,6 +103,30 @@
               <option value="gruvbox">📻 Gruvbox</option>
             </select>
           </div>
+          <div class="image-control-group">
+            <label class="checkbox-label" style="margin: 0; cursor: pointer">
+              <input type="checkbox" id="include-images-checkbox" checked />
+              <span data-i18n="includeImages">Include Images</span>
+            </label>
+          </div>
+
+          <div class="thinking-control-group">
+            <label class="checkbox-label" style="margin: 0; cursor: pointer">
+              <input type="checkbox" id="include-thinking-checkbox" checked />
+              <span data-i18n="includeThinking">Include Thoughts</span>
+            </label>
+          </div>
+
+          <div class="numbering-control-group">
+            <span class="transfer-label" data-i18n="messageNumberingLabel">Numbering:</span>
+            <select id="preview-numbering-select" class="transfer-select" title="Message Numbering">
+              <option value="off" data-i18n="messageNumberingOff">Off</option>
+              <option value="per-message" data-i18n="messageNumberingPerMessage">
+                Per Message
+              </option>
+              <option value="per-turn" data-i18n="messageNumberingPerTurn">Per Turn</option>
+            </select>
+          </div>
 
           <div class="transfer-control-group">
             <span class="transfer-label" data-i18n="continueOn">Continue On:</span>

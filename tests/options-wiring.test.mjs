@@ -139,3 +139,23 @@ test('options scripts wire transferCopyToClipboard storage setting', () => {
   assert.match(entrypointsOptionsJs, /'transferCopyToClipboard'/);
   assert.match(entrypointsOptionsJs, /transferCopyClipboardCheckbox/);
 });
+
+test('options HTML pages define default-include-thinking checkbox', () => {
+  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+  const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+
+  assert.match(optionsHtml, /id="default-include-thinking"/);
+  assert.match(optionsHtml, /data-i18n="includeThinkingDefault"/);
+  assert.match(entrypointsOptionsHtml, /id="default-include-thinking"/);
+  assert.match(entrypointsOptionsHtml, /data-i18n="includeThinkingDefault"/);
+});
+
+test('options scripts wire includeThinking storage setting', () => {
+  const optionsJs = fs.readFileSync('options/options.js', 'utf8');
+  const entrypointsOptionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+
+  assert.match(optionsJs, /'includeThinking'/);
+  assert.match(optionsJs, /defaultIncludeThinking/);
+  assert.match(entrypointsOptionsJs, /'includeThinking'/);
+  assert.match(entrypointsOptionsJs, /defaultIncludeThinking/);
+});

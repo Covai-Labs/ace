@@ -640,5 +640,13 @@
   "transferCopyClipboardHelp": {
     "message": "啟用後，轉移時還會將提示詞複製到剪貼簿作為備份，以便在自動填充失敗時手動貼上 (Ctrl+V)。",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

@@ -46,3 +46,14 @@ test('popup supports dual-MIME Smart Copy using ClipboardItem', () => {
   assert.match(popupJs, /['"]text\/html['"]/);
   assert.match(popupJs, /['"]text\/plain['"]/);
 });
+
+test('popup places open in tab as primary button and export chat as secondary', () => {
+  assert.match(
+    popupHtml,
+    /<div class="primary-row">\s*<button id="preview-btn" class="primary-btn"/,
+  );
+  assert.match(
+    popupHtml,
+    /<div class="secondary-row">\s*<button id="export-btn" class="secondary-btn"/,
+  );
+});

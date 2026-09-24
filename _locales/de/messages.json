@@ -640,5 +640,13 @@
   "transferCopyClipboardHelp": {
     "message": "Kopiert den übertragenen Prompt bei Aktivierung zusätzlich in die Zwischenablage, um ihn manuell einzufügen (Strg+V), falls das automatische Einfügen fehlschlägt.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

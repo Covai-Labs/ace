@@ -131,6 +131,10 @@
     "message": "Include Images",
     "description": "Checkbox label for including images"
   },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
   "highQualityPng": {
     "message": "High Quality PNG (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -234,6 +238,10 @@
   "includeAttributionDefault": {
     "message": "Include \"Exported with AI Chat Exporter\" credit in exports",
     "description": "Label for default include attribution credit checkbox"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   },
   "messageNumberingLabel": {
     "message": "Message Numbering",

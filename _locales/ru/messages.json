@@ -641,5 +641,13 @@
   "transferCopyClipboardHelp": {
     "message": "Если включено, перенесенный запрос также копируется в буфер обмена в качестве резервной копии, чтобы вы могли вставить его вручную (Ctrl+V) в случае сбоя автозаполнения.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }
