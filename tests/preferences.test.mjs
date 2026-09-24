@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
   DEFAULT_INCLUDE_ATTRIBUTION,
+  DEFAULT_INCLUDE_THINKING,
   DEFAULT_MESSAGE_NUMBERING,
   DEFAULT_THEME,
   getExportOptions,
@@ -20,6 +21,7 @@ test('getExportOptions returns defaults when storage is empty or throws', async 
   const options = await getExportOptions();
   assert.equal(options.theme, DEFAULT_THEME);
   assert.equal(options.includeAttribution, DEFAULT_INCLUDE_ATTRIBUTION);
+  assert.equal(options.includeThinking, DEFAULT_INCLUDE_THINKING);
   assert.equal(options.messageNumbering, DEFAULT_MESSAGE_NUMBERING);
 });
 
@@ -105,6 +107,12 @@ test('applyExportOptionChanges updates options and returns true on changes', () 
   });
   assert.equal(changedAttribution, true);
   assert.equal(current.includeAttribution, false);
+
+  const changedThinking = applyExportOptionChanges(current, {
+    includeThinking: { newValue: false },
+  });
+  assert.equal(changedThinking, true);
+  assert.equal(current.includeThinking, false);
 
   const changedNumbering = applyExportOptionChanges(current, {
     messageNumbering: { newValue: 'per-message' },

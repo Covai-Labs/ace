@@ -463,12 +463,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updateCopyButtonVisibility() {
     const format = formatSelect.value;
     const isCopyable = copyableFormats.has(format);
-    const isPreviewable = previewableFormats.has(format) && format !== 'png';
+    const isPreviewable = previewableFormats.has(format);
     copyBtn.classList.toggle('hidden', !isCopyable);
     previewBtn.classList.toggle('hidden', !isPreviewable);
-    if (format === 'png') {
-      exportBtn.textContent = '🖼️ ' + (t('openInTab') || 'Export in New Tab');
-    } else if (format === 'pdf') {
+    if (format === 'pdf') {
       exportBtn.textContent = '📄 ' + (t('printSavePdf') || 'Export & Print PDF');
     } else {
       exportBtn.textContent = t('exportChat') || '📥 Export Chat';

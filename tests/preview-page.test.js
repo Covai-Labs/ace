@@ -98,3 +98,17 @@ test('preview page has global include-images control and recalculates content on
   assert.match(previewJs, /stripImages/);
   assert.match(previewJs, /includeImagesCheckbox\.addEventListener\('change'/);
 });
+
+test('preview page has global include-thinking control and recalculates content on toggle', () => {
+  assert.match(previewHtml, /id="include-thinking-checkbox"/);
+  assert.match(previewHtml, /class="[^"]*thinking-control-group[^"]*"/);
+  assert.match(previewJs, /stripThinking/);
+  assert.match(previewJs, /includeThinkingCheckbox\.addEventListener\('change'/);
+});
+
+test('preview page has message-numbering control and recalculates content on change', () => {
+  assert.match(previewHtml, /id="preview-numbering-select"/);
+  assert.match(previewHtml, /class="[^"]*numbering-control-group[^"]*"/);
+  assert.match(previewJs, /previewNumberingSelect\.addEventListener\('change'/);
+  assert.match(previewJs, /exportOptions\.messageNumbering\s*=/);
+});

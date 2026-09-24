@@ -640,5 +640,13 @@
   "transferCopyClipboardHelp": {
     "message": "Quando ativado, também copia o comando transferido para a área de transferência como backup para que você possa colar manualmente (Ctrl+V) se a injeção falhar.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

@@ -7,6 +7,8 @@ import { ContinuationFormatter, stripEncodedImages } from '../content/formatters
 import { sanitizeHtml } from '../content/utils/sanitizer.js';
 import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
+import { stripImages } from '../content/utils/strip-images.js';
+import { stripThinking } from '../content/utils/strip-thinking.js';
 import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
 import { getExportOptions, applyExportOptionChanges } from '../content/utils/preferences.js';
 
@@ -38,6 +40,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pngOptionsBar = document.getElementById('png-options-bar');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
+  const includeThinkingCheckbox = document.getElementById('include-thinking-checkbox');
+  const previewNumberingSelect = document.getElementById('preview-numbering-select');
 
   if (pngQualityCheckbox) {
     pngQualityCheckbox.addEventListener('change', () => {
@@ -47,6 +51,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (includeImagesCheckbox) {
     includeImagesCheckbox.addEventListener('change', () => {
       cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+  if (includeThinkingCheckbox) {
+    includeThinkingCheckbox.addEventListener('change', () => {
+      cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+  if (previewNumberingSelect) {
+    previewNumberingSelect.addEventListener('change', () => {
+      exportOptions.messageNumbering = previewNumberingSelect.value;
+      cachedPngBlob = null;
+      recalculateContent();
     });
   }
 
@@ -90,6 +108,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  if (previewNumberingSelect) {
+    previewNumberingSelect.value = exportOptions.messageNumbering || 'off';
+  }
+  if (includeThinkingCheckbox) {
+    includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
+  }
+
   const syncThemeToIframe = (theme) => {
     try {
       if (previewRendered && previewRendered.contentWindow) {
@@ -126,6 +151,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
           applyTheme(currentSyncTheme, document);
           syncThemeToIframe(currentSyncTheme);
+        }
+        if (changes.messageNumbering && previewNumberingSelect) {
+          previewNumberingSelect.value = exportOptions.messageNumbering;
+        }
+        if (changes.includeThinking && includeThinkingCheckbox) {
+          includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
         }
         cachedPngBlob = null;
         recalculateContent();
@@ -391,13 +422,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (conversation) {
-      htmlContent = htmlFormatter.format(conversation, {
+      const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
+      const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
+      const filteredMessages = conversation.messages.map((msg) => {
+        let content = msg.content;
+        if (!includeImages && content) {
+          content = stripImages(content);
+        }
+        if (!includeThinking && content) {
+          content = stripThinking(content);
+        }
+        if (content !== msg.content) {
+          return { ...msg, content };
+        }
+        return msg;
+      });
+      const activeConv = { ...conversation, messages: filteredMessages };
+
+      htmlContent = htmlFormatter.format(activeConv, {
         ...exportOptions,
         theme: currentSyncTheme,
       });
-      markdownContent = markdownFormatter.format(conversation, exportOptions);
-      jsonContent = jsonFormatter.format(conversation);
-      docContent = docFormatter.format(conversation, exportOptions);
+      markdownContent = markdownFormatter.format(activeConv, exportOptions);
+      jsonContent = jsonFormatter.format(activeConv);
+      docContent = docFormatter.format(activeConv, exportOptions);
     } else {
       htmlContent = sanitizeHtml(fallbackPreviewContent);
       markdownContent = fallbackPreviewContent;
@@ -438,6 +486,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'autoDownloadPng',
       'highQualityPng',
       'includeImages',
+      'includeThinking',
     ]);
 
     if (data.previewTheme && (!currentSyncTheme || currentSyncTheme === 'system')) {
@@ -461,6 +510,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (includeImagesCheckbox && data.includeImages !== undefined) {
       includeImagesCheckbox.checked = data.includeImages;
+    }
+    if (includeThinkingCheckbox && data.includeThinking !== undefined) {
+      includeThinkingCheckbox.checked = data.includeThinking;
     }
 
     titleEl.textContent = title;
@@ -649,6 +701,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!pngBlob && conversation) {
           const isHighQuality = pngQualityCheckbox ? pngQualityCheckbox.checked : true;
           const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
+          const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
           const activeTheme = getActiveTheme();
 
           // Directly capture the rendered HTML container from the preview iframe
@@ -676,7 +729,24 @@ document.addEventListener('DOMContentLoaded', async () => {
               theme: activeTheme,
             });
           } else {
-            pngBlob = await imageFormatter.format(conversation, {
+            const filteredMessages =
+              conversation && Array.isArray(conversation.messages)
+                ? conversation.messages.map((msg) => {
+                    let content = msg.content;
+                    if (!includeImages && content) {
+                      content = stripImages(content);
+                    }
+                    if (!includeThinking && content) {
+                      content = stripThinking(content);
+                    }
+                    if (content !== msg.content) {
+                      return { ...msg, content };
+                    }
+                    return msg;
+                  })
+                : [];
+            const activeConv = { ...conversation, messages: filteredMessages };
+            pngBlob = await imageFormatter.format(activeConv, {
               ...exportOptions,
               highQuality: isHighQuality,
               includeImages,

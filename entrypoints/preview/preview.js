@@ -8,6 +8,7 @@ import {
   stripEncodedImages,
 } from '../../content/formatters/continuation.js';
 import { stripImages } from '../../content/utils/strip-images.js';
+import { stripThinking } from '../../content/utils/strip-thinking.js';
 import { sanitizeHtml } from '../../content/utils/sanitizer.js';
 import { initI18n, applyI18n, t } from '../../content/utils/i18n.js';
 import {
@@ -67,6 +68,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pngOptionsBar = document.getElementById('png-options-bar');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
+  const includeThinkingCheckbox = document.getElementById('include-thinking-checkbox');
+  const previewNumberingSelect = document.getElementById('preview-numbering-select');
 
   if (pngQualityCheckbox) {
     pngQualityCheckbox.addEventListener('change', () => {
@@ -75,6 +78,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   if (includeImagesCheckbox) {
     includeImagesCheckbox.addEventListener('change', () => {
+      cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+  if (includeThinkingCheckbox) {
+    includeThinkingCheckbox.addEventListener('change', () => {
+      cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+  if (previewNumberingSelect) {
+    previewNumberingSelect.addEventListener('change', () => {
+      exportOptions.messageNumbering = previewNumberingSelect.value;
       cachedPngBlob = null;
       recalculateContent();
     });
@@ -119,6 +135,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
+  if (previewNumberingSelect) {
+    previewNumberingSelect.value = exportOptions.messageNumbering || 'off';
+  }
+  if (includeThinkingCheckbox) {
+    includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
+  }
+
   const syncThemeToIframe = (theme) => {
     try {
       if (previewRendered && previewRendered.contentWindow) {
@@ -155,6 +178,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
           applyTheme(currentSyncTheme, document);
           syncThemeToIframe(currentSyncTheme);
+        }
+        if (changes.messageNumbering && previewNumberingSelect) {
+          previewNumberingSelect.value = exportOptions.messageNumbering;
+        }
+        if (changes.includeThinking && includeThinkingCheckbox) {
+          includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
         }
         cachedPngBlob = null;
         recalculateContent();
@@ -453,11 +482,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!conversation || !Array.isArray(conversation.messages)) return;
 
     const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
+    const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
     const filteredMessages = conversation.messages
       .filter((_, idx) => selectedIndices.has(idx))
       .map((msg) => {
-        if (!includeImages && msg.content) {
-          return { ...msg, content: stripImages(msg.content) };
+        let content = msg.content;
+        if (!includeImages && content) {
+          content = stripImages(content);
+        }
+        if (!includeThinking && content) {
+          content = stripThinking(content);
+        }
+        if (content !== msg.content) {
+          return { ...msg, content };
         }
         return msg;
       });
@@ -804,6 +841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'autoDownloadPng',
       'highQualityPng',
       'includeImages',
+      'includeThinking',
     ]);
 
     if (data.previewTheme && (!currentSyncTheme || currentSyncTheme === 'system')) {
@@ -832,6 +870,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (includeImagesCheckbox && data.includeImages !== undefined) {
       includeImagesCheckbox.checked = data.includeImages;
+    }
+    if (includeThinkingCheckbox && data.includeThinking !== undefined) {
+      includeThinkingCheckbox.checked = data.includeThinking;
     }
 
     let filenameTemplate = DEFAULT_FILENAME_TEMPLATE;
@@ -924,9 +965,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (conversation) {
       const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
+      const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
       const initialMessages = conversation.messages.map((msg) => {
-        if (!includeImages && msg.content) {
-          return { ...msg, content: stripImages(msg.content) };
+        let content = msg.content;
+        if (!includeImages && content) {
+          content = stripImages(content);
+        }
+        if (!includeThinking && content) {
+          content = stripThinking(content);
+        }
+        if (content !== msg.content) {
+          return { ...msg, content };
         }
         return msg;
       });
@@ -1094,12 +1143,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!pngBlob && conversation) {
           const isHighQuality = pngQualityCheckbox ? pngQualityCheckbox.checked : true;
           const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
+          const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
           const activeTheme = getActiveTheme();
           const filteredMessages =
             conversation && Array.isArray(conversation.messages) && selectedIndices
               ? conversation.messages.filter((_, idx) => selectedIndices.has(idx))
               : conversation?.messages || [];
-          const activeConv = { ...conversation, messages: filteredMessages };
+          const processedMessages = filteredMessages.map((msg) => {
+            let content = msg.content;
+            if (!includeImages && content) {
+              content = stripImages(content);
+            }
+            if (!includeThinking && content) {
+              content = stripThinking(content);
+            }
+            if (content !== msg.content) {
+              return { ...msg, content };
+            }
+            return msg;
+          });
+          const activeConv = { ...conversation, messages: processedMessages };
 
           // Directly capture the rendered HTML container from the preview iframe
           let container = null;

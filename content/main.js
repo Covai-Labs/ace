@@ -33,6 +33,7 @@ import {
 } from './utils/filename.js';
 import { createLogger } from './utils/logger.js';
 import { getExportOptions } from './utils/preferences.js';
+import { stripThinking } from './utils/strip-thinking.js';
 import { pollTransferInject } from './transfer/injector.js';
 import { getTransferTarget } from './transfer/targets.js';
 import {
@@ -600,7 +601,15 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           const options = await getExportOptions({
             highQuality: request.highQualityPng !== false,
             theme: request.theme,
+            includeThinking: request.includeThinking,
           });
+          if (options.includeThinking === false) {
+            conversation.messages.forEach((msg) => {
+              if (msg.content) {
+                msg.content = stripThinking(msg.content);
+              }
+            });
+          }
           const formattedResult = await formatter.format(conversation, options);
           const mimeType = formatter.getMimeType();
           const blob =
@@ -694,7 +703,15 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           console.log('Parsed conversation with', conversation.messages.length, 'messages');
           const formatOptions = await getExportOptions({
             theme: request.theme,
+            includeThinking: request.includeThinking,
           });
+          if (formatOptions.includeThinking === false) {
+            conversation.messages.forEach((msg) => {
+              if (msg.content) {
+                msg.content = stripThinking(msg.content);
+              }
+            });
+          }
           const primaryContent = formatter.format(conversation, formatOptions);
           const htmlFormatter = formatters.html;
           const richHtmlContent = htmlFormatter
@@ -838,6 +855,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 
           const formatter = formatters.markdown;
           const exportOptions = await getExportOptions();
+          if (exportOptions.includeThinking === false) {
+            conversation.messages.forEach((msg) => {
+              if (msg.content) {
+                msg.content = stripThinking(msg.content);
+              }
+            });
+          }
           const markdownContent = formatter.format(conversation, exportOptions);
 
           if (shortcut === 'copy_markdown') {

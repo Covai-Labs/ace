@@ -314,7 +314,8 @@ html.in-iframe .header-top-row .preview-filename-wrapper {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
   width: 100%;
   padding-top: 8px;
   border-top: 1px dashed var(--border-color);
@@ -415,7 +416,9 @@ h1 {
 
 .theme-control-group,
 .transfer-control-group,
-.image-control-group {
+.image-control-group,
+.thinking-control-group,
+.numbering-control-group {
   display: inline-flex;
   align-items: center;
   gap: 4px;

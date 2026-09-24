@@ -640,5 +640,13 @@
   "transferCopyClipboardHelp": {
     "message": "Lorsque cette option est activée, copie également l'invite transférée dans le presse-papiers afin que vous puissiez la coller manuellement (Ctrl+V) si l'injection échoue.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

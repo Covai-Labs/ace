@@ -1,6 +1,7 @@
 import { normalizeMessageNumbering } from '../formatters/base.js';
 
 export const DEFAULT_INCLUDE_ATTRIBUTION = true;
+export const DEFAULT_INCLUDE_THINKING = true;
 export const DEFAULT_MESSAGE_NUMBERING = 'off';
 export const DEFAULT_THEME = 'system';
 
@@ -36,6 +37,7 @@ export async function getMessageNumberingSetting() {
 export async function getExportOptions(overrides = {}) {
   let theme = DEFAULT_THEME;
   let includeAttribution = DEFAULT_INCLUDE_ATTRIBUTION;
+  let includeThinking = DEFAULT_INCLUDE_THINKING;
   let messageNumbering = DEFAULT_MESSAGE_NUMBERING;
 
   try {
@@ -43,12 +45,16 @@ export async function getExportOptions(overrides = {}) {
       const syncData = await chrome.storage.sync.get([
         'theme',
         'includeAttribution',
+        'includeThinking',
         'messageNumbering',
       ]);
       if (syncData) {
         if (syncData.theme) theme = syncData.theme;
         if (syncData.includeAttribution !== undefined) {
           includeAttribution = syncData.includeAttribution;
+        }
+        if (syncData.includeThinking !== undefined) {
+          includeThinking = syncData.includeThinking !== false;
         }
         if (syncData.messageNumbering !== undefined) {
           messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
@@ -66,6 +72,7 @@ export async function getExportOptions(overrides = {}) {
   return {
     theme,
     includeAttribution,
+    includeThinking,
     messageNumbering,
     ...cleanOverrides,
   };
@@ -87,6 +94,10 @@ export function applyExportOptionChanges(currentOptions, changes) {
   }
   if (changes.includeAttribution) {
     currentOptions.includeAttribution = changes.includeAttribution.newValue !== false;
+    changed = true;
+  }
+  if (changes.includeThinking) {
+    currentOptions.includeThinking = changes.includeThinking.newValue !== false;
     changed = true;
   }
   if (changes.messageNumbering) {

@@ -276,7 +276,8 @@ html.in-iframe .header-top-row h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
   width: 100%;
   padding-top: 8px;
   border-top: 1px dashed var(--border-color);
@@ -377,14 +378,18 @@ h1 {
   box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
 }
 
-/* Transfer Chat Control Group */
-.transfer-control-group {
+/* Transfer Chat & Toolbar Control Groups */
+.theme-control-group,
+.transfer-control-group,
+.image-control-group,
+.thinking-control-group,
+.numbering-control-group {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   background-color: var(--secondary-bg);
   border: 1px solid var(--border-color);
-  padding: 3px;
+  padding: 3px 8px;
   border-radius: 8px;
 }
 

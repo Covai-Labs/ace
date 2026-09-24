@@ -640,5 +640,13 @@
   "transferCopyClipboardHelp": {
     "message": "सक्षम होने पर, स्थानांतरित प्रॉम्प्ट को बैकअप के रूप में क्लिपबोर्ड पर भी कॉपी करता है ताकि इंजेक्शन विफल होने पर आप मैन्युअल रूप से (Ctrl+V) पेस्ट कर सकें।",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }
