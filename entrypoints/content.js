@@ -32,7 +32,7 @@ import {
 } from '../content/utils/filename.js';
 import { stripImages } from '../content/utils/strip-images.js';
 import { createLogger } from '../content/utils/logger.js';
-import { getAttributionSetting } from '../content/utils/preferences.js';
+import { getAttributionSetting, getMessageNumberingSetting } from '../content/utils/preferences.js';
 import { pollTransferInject } from '../content/transfer/injector.js';
 import { getTransferTarget } from '../content/transfer/targets.js';
 import {
@@ -590,6 +590,7 @@ export default defineContentScript({
                 highQuality: request.highQualityPng !== false,
                 theme: request.theme,
                 includeAttribution: await getAttributionSetting(),
+                messageNumbering: await getMessageNumberingSetting(),
               };
               const formattedResult = await formatter.format(conversation, options);
               const mimeType = formatter.getMimeType();
@@ -693,6 +694,7 @@ export default defineContentScript({
               const formatOptions = {
                 theme: request.theme,
                 includeAttribution: await getAttributionSetting(),
+                messageNumbering: await getMessageNumberingSetting(),
               };
               const primaryContent = formatter.format(conversation, formatOptions);
               const htmlFormatter = formatters.html;
@@ -853,6 +855,7 @@ export default defineContentScript({
               const formatter = formatters.markdown;
               const markdownContent = formatter.format(conversation, {
                 includeAttribution: await getAttributionSetting(),
+                messageNumbering: await getMessageNumberingSetting(),
               });
 
               if (shortcut === 'copy_markdown') {

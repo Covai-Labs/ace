@@ -203,6 +203,28 @@
 
               <div class="field-group" style="margin-top: 12px">
                 <label
+                  for="message-numbering-select"
+                  class="field-label"
+                  data-i18n="messageNumberingLabel"
+                  >Message Numbering</label
+                >
+                <select id="message-numbering-select" class="select-input">
+                  <option value="off" data-i18n="messageNumberingOff">Off (no numbers)</option>
+                  <option value="per-message" data-i18n="messageNumberingPerMessage">
+                    Per message (1, 2, 3, 4…)
+                  </option>
+                  <option value="per-turn" data-i18n="messageNumberingPerTurn">
+                    Per turn (1, 1, 2, 2…)
+                  </option>
+                </select>
+                <span class="field-help" data-i18n="messageNumberingHelp"
+                  >Adds a number to each message header in Markdown, HTML, and Word
+                  exports.</span
+                >
+              </div>
+
+              <div class="field-group" style="margin-top: 12px">
+                <label
                   for="filename-template-input"
                   class="field-label"
                   data-i18n="filenameTemplateLabel"

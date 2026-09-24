@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const defaultFormatSelect = document.getElementById('default-format-select');
   const defaultIncludeImages = document.getElementById('default-include-images');
   const includeAttribution = document.getElementById('include-attribution');
+  const messageNumberingSelect = document.getElementById('message-numbering-select');
   const filenameTemplateInput = document.getElementById('filename-template-input');
   const filenamePreview = document.getElementById('filename-preview');
   const parserModeSelect = document.getElementById('parser-mode-select');
@@ -93,6 +94,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'defaultFormat',
     'includeImages',
     'includeAttribution',
+    'messageNumbering',
     'filenameTemplate',
     'parserMode',
     'defaultTransferTarget',
@@ -122,6 +124,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (stored.includeImages !== undefined) defaultIncludeImages.checked = stored.includeImages;
   if (stored.includeAttribution !== undefined)
     includeAttribution.checked = stored.includeAttribution;
+  if (messageNumberingSelect) {
+    messageNumberingSelect.value = stored.messageNumbering || 'off';
+  }
   if (filenameTemplateInput) {
     filenameTemplateInput.value = stored.filenameTemplate || DEFAULT_FILENAME_TEMPLATE;
     updateFilenamePreview(filenameTemplateInput.value);
@@ -168,6 +173,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ includeAttribution: includeAttribution.checked });
     showToast();
   });
+
+  if (messageNumberingSelect) {
+    messageNumberingSelect.addEventListener('change', () => {
+      chrome.storage.sync.set({ messageNumbering: messageNumberingSelect.value });
+      showToast();
+    });
+  }
 
   if (filenameTemplateInput) {
     filenameTemplateInput.addEventListener('input', () => {

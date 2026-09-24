@@ -32,7 +32,7 @@ import {
   DEFAULT_FILENAME_TEMPLATE,
 } from './utils/filename.js';
 import { createLogger } from './utils/logger.js';
-import { getAttributionSetting } from './utils/preferences.js';
+import { getAttributionSetting, getMessageNumberingSetting } from './utils/preferences.js';
 import { pollTransferInject } from './transfer/injector.js';
 import { getTransferTarget } from './transfer/targets.js';
 import {
@@ -601,6 +601,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             highQuality: request.highQualityPng !== false,
             theme: request.theme,
             includeAttribution: await getAttributionSetting(),
+            messageNumbering: await getMessageNumberingSetting(),
           };
           const formattedResult = await formatter.format(conversation, options);
           const mimeType = formatter.getMimeType();
@@ -696,6 +697,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           const formatOptions = {
             theme: request.theme,
             includeAttribution: await getAttributionSetting(),
+            messageNumbering: await getMessageNumberingSetting(),
           };
           const primaryContent = formatter.format(conversation, formatOptions);
           const htmlFormatter = formatters.html;
@@ -841,6 +843,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           const formatter = formatters.markdown;
           const markdownContent = formatter.format(conversation, {
             includeAttribution: await getAttributionSetting(),
+            messageNumbering: await getMessageNumberingSetting(),
           });
 
           if (shortcut === 'copy_markdown') {
