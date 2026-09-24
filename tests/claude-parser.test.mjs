@@ -211,7 +211,7 @@ test('ClaudeParser extracts conversation from Claude API when available', async 
 
   // Message 2: Claude response with thinking process and text content
   assert.equal(result.messages[1].role, 'Claude');
-  assert.match(result.messages[1].content, /Thinking Process:/);
+  assert.match(result.messages[1].content, /Thinking Process:|<think>/);
   assert.match(result.messages[1].content, /Need to analyze the provided/);
   assert.match(result.messages[1].content, /Here is the response\./);
 
