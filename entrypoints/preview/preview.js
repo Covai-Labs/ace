@@ -16,7 +16,7 @@ import {
   DEFAULT_FILENAME_TEMPLATE,
 } from '../../content/utils/filename.js';
 import { buildPlatformSupportIssueUrl } from '../../content/utils/feedback.js';
-import { normalizeMessageNumbering } from '../../content/formatters/base.js';
+import { getExportOptions, applyExportOptionChanges } from '../../content/utils/preferences.js';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import Prism from '../../content/lib/prismjs/prism-bundle.js';
 
@@ -94,24 +94,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   const transferBtn = document.getElementById('transfer-btn');
   const transferTargetSelect = document.getElementById('transfer-target-select');
 
-  let currentSyncTheme = 'system';
-  let includeAttribution = true;
-  let messageNumbering = 'off';
-  try {
-    const syncData = await chrome.storage.sync.get([
-      'theme',
-      'includeAttribution',
-      'messageNumbering',
-    ]);
-    currentSyncTheme = syncData.theme || 'system';
-    if (syncData.includeAttribution !== undefined) {
-      includeAttribution = syncData.includeAttribution;
-    }
-    messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
-    applyTheme(currentSyncTheme, document);
-  } catch {
-    // Ignore theme loading errors when running standalone
-  }
+  let exportOptions = await getExportOptions();
+  let currentSyncTheme = exportOptions.theme;
+  applyTheme(currentSyncTheme, document);
 
   const normalizeThemeForDropdown = (theme) => {
     if (theme === 'dark') return 'modern-dark';
@@ -125,6 +110,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     previewThemeSelect.addEventListener('change', () => {
       const selected = previewThemeSelect.value;
       currentSyncTheme = selected;
+      exportOptions.theme = selected;
       chrome.storage.sync.set({ theme: selected });
       applyTheme(selected, document);
       syncThemeToIframe(selected);
@@ -162,17 +148,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName === 'sync' && changes.theme) {
-        currentSyncTheme = changes.theme.newValue || 'system';
-        if (previewThemeSelect)
-          previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
-        applyTheme(currentSyncTheme, document);
-        syncThemeToIframe(currentSyncTheme);
-        cachedPngBlob = null;
-        recalculateContent();
-      }
-      if (areaName === 'sync' && changes.messageNumbering) {
-        messageNumbering = normalizeMessageNumbering(changes.messageNumbering.newValue);
+      if (areaName === 'sync' && applyExportOptionChanges(exportOptions, changes)) {
+        if (changes.theme) {
+          currentSyncTheme = exportOptions.theme;
+          if (previewThemeSelect)
+            previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
+          applyTheme(currentSyncTheme, document);
+          syncThemeToIframe(currentSyncTheme);
+        }
         cachedPngBlob = null;
         recalculateContent();
       }
@@ -483,17 +466,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const shouldIncludeToc = Boolean(includeTocCheckbox && includeTocCheckbox.checked);
 
     htmlContent = htmlFormatter.format(activeConv, {
+      ...exportOptions,
       theme: currentSyncTheme,
       includeToc: shouldIncludeToc,
-      includeAttribution,
-      messageNumbering,
     });
-    markdownContent = markdownFormatter.format(activeConv, {
-      includeAttribution,
-      messageNumbering,
-    });
+    markdownContent = markdownFormatter.format(activeConv, exportOptions);
     jsonContent = jsonFormatter.format(activeConv);
-    docContent = docFormatter.format(activeConv, { includeAttribution, messageNumbering });
+    docContent = docFormatter.format(activeConv, exportOptions);
 
     cachedPngBlob = null;
     switchTab(currentActiveTab);
@@ -829,6 +808,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (data.previewTheme && (!currentSyncTheme || currentSyncTheme === 'system')) {
       currentSyncTheme = data.previewTheme;
+      exportOptions.theme = currentSyncTheme;
       if (previewThemeSelect) {
         previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
       }
@@ -952,16 +932,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       const initialConv = { ...conversation, messages: initialMessages };
       htmlContent = htmlFormatter.format(initialConv, {
+        ...exportOptions,
         theme: currentSyncTheme,
-        includeAttribution,
-        messageNumbering,
       });
-      markdownContent = markdownFormatter.format(initialConv, {
-        includeAttribution,
-        messageNumbering,
-      });
+      markdownContent = markdownFormatter.format(initialConv, exportOptions);
       jsonContent = jsonFormatter.format(initialConv);
-      docContent = docFormatter.format(initialConv, { includeAttribution, messageNumbering });
+      docContent = docFormatter.format(initialConv, exportOptions);
     } else {
       const fallbackContent = data.previewContent || '';
       htmlContent = sanitizeHtml(fallbackContent);
@@ -1151,11 +1127,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
           } else {
             pngBlob = await imageFormatter.format(activeConv, {
+              ...exportOptions,
               highQuality: isHighQuality,
               includeImages,
               theme: activeTheme,
-              includeAttribution,
-              messageNumbering,
             });
           }
           cachedPngBlob = pngBlob;
