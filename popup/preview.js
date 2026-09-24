@@ -384,7 +384,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const recalculateContent = () => {
-    if (!conversation && !fallbackPreviewContent) return;
+    if (!conversation && !fallbackPreviewContent) {
+      cachedPngBlob = null;
+      switchTab(currentActiveTab);
+      return;
+    }
 
     if (conversation) {
       htmlContent = htmlFormatter.format(conversation, {
