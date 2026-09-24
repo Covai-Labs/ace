@@ -1,4 +1,4 @@
-import { ExportFormatter, shouldIncludeAttribution } from './base.js';
+import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
 import { sanitizeHtml } from '../utils/sanitizer.js';
 import { katexCss, katexJs, autoRenderJs, prismCss, prismJs } from '../lib/assets.js';
 
@@ -19,6 +19,7 @@ export class HtmlFormatter extends ExportFormatter {
         : '';
 
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
 
     // Table of Contents
     let tocHtml = '';
@@ -27,19 +28,21 @@ export class HtmlFormatter extends ExportFormatter {
         .map((m, i) => {
           const isUser = m.role === 'User';
           const label = isUser ? 'User' : m.role && m.role !== 'Assistant' ? m.role : platform;
+          const msgNumber = messageNumbers[i];
+          const numberPrefix = msgNumber !== null ? `[${msgNumber}] ` : '';
           const snippet = (m.content || '')
             .replace(/<[^>]*>/g, '')
             .replace(/\[(?:x|X|\s)\]/g, '')
             .replace(/[`#*_~]/g, '')
             .trim()
             .substring(0, 60);
-          return `<li><a href="#msg-card-${i}"><strong>${escapeHtml(label)}:</strong> ${escapeHtml(snippet || 'Message')}</a></li>`;
+          return `<li><a href="#msg-card-${i}"><strong>${escapeHtml(numberPrefix + label)}:</strong> ${escapeHtml(snippet || 'Message')}</a></li>`;
         })
         .join('\n');
       tocHtml = `
         <nav class="toc-card" aria-label="Table of Contents">
           <div class="toc-title">📑 Table of Contents</div>
-          <ol class="toc-list">
+          <ol class="toc-list${messageNumbers[0] !== null ? ' toc-list-numbered' : ''}">
             ${tocItems}
           </ol>
         </nav>
@@ -70,6 +73,8 @@ export class HtmlFormatter extends ExportFormatter {
                 ? msg.role
                 : platform;
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
+            const msgNumber = messageNumbers[idx];
+            const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
             const htmlContent = sanitizeHtml(markdownToHtml(msg.content));
 
             return `
@@ -77,7 +82,7 @@ export class HtmlFormatter extends ExportFormatter {
           <div class="message-header">
             <div class="message-header-info">
               <div class="message-avatar">${avatarText}</div>
-              <span>${escapeHtml(roleName)}</span>
+              <span>${escapeHtml(displayName)}</span>
             </div>
             <button class="copy-msg-btn" title="Copy message text">
               <svg class="copy-icon" viewBox="0 0 24 24" width="13" height="13"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -472,6 +477,11 @@ ${prismJs}
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
+    }
+
+    .toc-list-numbered {
+      list-style-type: none;
+      padding-left: 0;
     }
 
     .toc-list li {

@@ -235,6 +235,26 @@
     "message": "Включать упоминание \"Exported with AI Chat Exporter\" при экспорте",
     "description": "Label for default include attribution credit checkbox"
   },
+  "messageNumberingLabel": {
+    "message": "Message Numbering",
+    "description": "Label for message numbering dropdown"
+  },
+  "messageNumberingHelp": {
+    "message": "Adds a number to each message header in Markdown, HTML, and Word exports.",
+    "description": "Help text for message numbering setting"
+  },
+  "messageNumberingOff": {
+    "message": "Off (no numbers)",
+    "description": "Message numbering off option"
+  },
+  "messageNumberingPerMessage": {
+    "message": "Per message (1, 2, 3, 4…)",
+    "description": "Message numbering per message option"
+  },
+  "messageNumberingPerTurn": {
+    "message": "Per turn (1, 1, 2, 2…)",
+    "description": "Message numbering per turn option"
+  },
   "parserModeTitle": {
     "message": "Режим извлечения парсера",
     "description": "Title for parser mode section"

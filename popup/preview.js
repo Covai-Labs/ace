@@ -8,6 +8,7 @@ import { sanitizeHtml } from '../content/utils/sanitizer.js';
 import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
+import { normalizeMessageNumbering } from '../content/formatters/base.js';
 
 function applyTheme(theme, targetDoc = document) {
   if (!targetDoc || !targetDoc.documentElement) return;
@@ -66,12 +67,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Load and apply extension theme
   let currentSyncTheme = 'system';
   let includeAttribution = true;
+  let messageNumbering = 'off';
   try {
-    const syncData = await chrome.storage.sync.get(['theme', 'includeAttribution']);
+    const syncData = await chrome.storage.sync.get([
+      'theme',
+      'includeAttribution',
+      'messageNumbering',
+    ]);
     currentSyncTheme = syncData.theme || 'system';
     if (syncData.includeAttribution !== undefined) {
       includeAttribution = syncData.includeAttribution;
     }
+    messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
     applyTheme(currentSyncTheme, document);
   } catch {
     // Ignore theme loading errors when running standalone
@@ -492,10 +499,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (conversation) {
-      htmlContent = htmlFormatter.format(conversation, { includeAttribution });
-      markdownContent = markdownFormatter.format(conversation, { includeAttribution });
+      htmlContent = htmlFormatter.format(conversation, { includeAttribution, messageNumbering });
+      markdownContent = markdownFormatter.format(conversation, {
+        includeAttribution,
+        messageNumbering,
+      });
       jsonContent = jsonFormatter.format(conversation);
-      docContent = docFormatter.format(conversation, { includeAttribution });
+      docContent = docFormatter.format(conversation, { includeAttribution, messageNumbering });
     } else {
       const fallbackContent = data.previewContent || '';
       htmlContent = sanitizeHtml(fallbackContent);
@@ -665,6 +675,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               includeImages,
               theme: activeTheme,
               includeAttribution,
+              messageNumbering,
             });
           }
           cachedPngBlob = pngBlob;
