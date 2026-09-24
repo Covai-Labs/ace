@@ -62,6 +62,31 @@ test('getExportOptions applies overrides', async () => {
   assert.equal(options.highQuality, true);
 });
 
+test('getExportOptions ignores undefined overrides but preserves explicit non-undefined values', async () => {
+  globalThis.chrome = {
+    storage: {
+      sync: {
+        get: async () => ({
+          theme: 'dark',
+          includeAttribution: true,
+          messageNumbering: 'per-message',
+        }),
+      },
+    },
+  };
+
+  const optionsWithUndefined = await getExportOptions({
+    theme: undefined,
+    customNull: null,
+    customFalse: false,
+  });
+  assert.equal(optionsWithUndefined.theme, 'dark');
+  assert.equal(optionsWithUndefined.includeAttribution, true);
+  assert.equal(optionsWithUndefined.messageNumbering, 'per-message');
+  assert.equal(optionsWithUndefined.customNull, null);
+  assert.equal(optionsWithUndefined.customFalse, false);
+});
+
 test('applyExportOptionChanges updates options and returns true on changes', () => {
   const current = {
     theme: 'system',

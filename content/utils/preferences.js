@@ -59,11 +59,15 @@ export async function getExportOptions(overrides = {}) {
     // Fall back to defaults on storage failure or standalone mode
   }
 
+  const cleanOverrides = Object.fromEntries(
+    Object.entries(overrides).filter(([, value]) => value !== undefined),
+  );
+
   return {
     theme,
     includeAttribution,
     messageNumbering,
-    ...overrides,
+    ...cleanOverrides,
   };
 }
 
