@@ -16,6 +16,7 @@ import {
   DEFAULT_FILENAME_TEMPLATE,
 } from '../../content/utils/filename.js';
 import { buildPlatformSupportIssueUrl } from '../../content/utils/feedback.js';
+import { normalizeMessageNumbering } from '../../content/formatters/base.js';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import Prism from '../../content/lib/prismjs/prism-bundle.js';
 
@@ -95,12 +96,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let currentSyncTheme = 'system';
   let includeAttribution = true;
+  let messageNumbering = 'off';
   try {
-    const syncData = await chrome.storage.sync.get(['theme', 'includeAttribution']);
+    const syncData = await chrome.storage.sync.get(['theme', 'includeAttribution', 'messageNumbering']);
     currentSyncTheme = syncData.theme || 'system';
     if (syncData.includeAttribution !== undefined) {
       includeAttribution = syncData.includeAttribution;
     }
+    messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
     applyTheme(currentSyncTheme, document);
   } catch {
     // Ignore theme loading errors when running standalone
@@ -161,6 +164,11 @@ document.addEventListener('DOMContentLoaded', async () => {
           previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
         applyTheme(currentSyncTheme, document);
         syncThemeToIframe(currentSyncTheme);
+        cachedPngBlob = null;
+        recalculateContent();
+      }
+      if (areaName === 'sync' && changes.messageNumbering) {
+        messageNumbering = normalizeMessageNumbering(changes.messageNumbering.newValue);
         cachedPngBlob = null;
         recalculateContent();
       }
@@ -474,10 +482,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       theme: currentSyncTheme,
       includeToc: shouldIncludeToc,
       includeAttribution,
+      messageNumbering,
     });
-    markdownContent = markdownFormatter.format(activeConv, { includeAttribution });
+    markdownContent = markdownFormatter.format(activeConv, { includeAttribution, messageNumbering });
     jsonContent = jsonFormatter.format(activeConv);
-    docContent = docFormatter.format(activeConv, { includeAttribution });
+    docContent = docFormatter.format(activeConv, { includeAttribution, messageNumbering });
 
     cachedPngBlob = null;
     switchTab(currentActiveTab);
@@ -938,10 +947,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       htmlContent = htmlFormatter.format(initialConv, {
         theme: currentSyncTheme,
         includeAttribution,
+        messageNumbering,
       });
-      markdownContent = markdownFormatter.format(initialConv, { includeAttribution });
+      markdownContent = markdownFormatter.format(initialConv, {
+        includeAttribution,
+        messageNumbering,
+      });
       jsonContent = jsonFormatter.format(initialConv);
-      docContent = docFormatter.format(initialConv, { includeAttribution });
+      docContent = docFormatter.format(initialConv, { includeAttribution, messageNumbering });
     } else {
       const fallbackContent = data.previewContent || '';
       htmlContent = sanitizeHtml(fallbackContent);
@@ -1135,6 +1148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               includeImages,
               theme: activeTheme,
               includeAttribution,
+              messageNumbering,
             });
           }
           cachedPngBlob = pngBlob;

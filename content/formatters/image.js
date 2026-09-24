@@ -1,6 +1,7 @@
 import html2canvas from 'html2canvas';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import { ExportFormatter, shouldIncludeAttribution } from './base.js';
+import { getMessageNumber, normalizeMessageNumbering } from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
 
 export const THEME_PALETTES = {
@@ -369,9 +370,15 @@ export class ImageFormatter extends ExportFormatter {
     `;
 
     const formattedMessages = (messages || [])
-      .map((msg) => {
+      .map((msg, idx) => {
         const isUser = msg.role === 'User';
         const roleName = isUser ? 'User' : platform;
+        const msgNumber = getMessageNumber(
+          messages,
+          idx,
+          normalizeMessageNumbering(options?.messageNumbering),
+        );
+        const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
         const avatarBg = isUser ? palette.accent : '#0ea5e9';
         const avatarText = isUser ? 'U' : platform[0] || 'A';
         const htmlContent = markdownToHtml(msg.content);
@@ -382,7 +389,7 @@ export class ImageFormatter extends ExportFormatter {
               <div style="width: 24px; height: 24px; border-radius: 50%; background-color: ${avatarBg}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">
                 ${escapeHtml(avatarText)}
               </div>
-              <span style="font-size: 13px; font-weight: 600; color: ${palette.subtitleColor};">${escapeHtml(roleName)}</span>
+              <span style="font-size: 13px; font-weight: 600; color: ${palette.subtitleColor};">${escapeHtml(displayName)}</span>
             </div>
             <div style="max-width: 90%; background-color: ${isUser ? palette.userBg : palette.assistantBg}; border: 1px solid ${isUser ? palette.userBorder : palette.assistantBorder}; border-radius: 12px; padding: 16px 20px; font-size: 14px; color: ${palette.textColor}; word-break: break-word;">
               ${htmlContent}

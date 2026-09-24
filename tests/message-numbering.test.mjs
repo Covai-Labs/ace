@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
+import { parseHTML } from 'linkedom';
 import {
   getMessageNumber,
   normalizeMessageNumbering,
@@ -8,6 +9,7 @@ import {
 import { MarkdownFormatter } from '../content/formatters/markdown.js';
 import { HtmlFormatter } from '../content/formatters/html.js';
 import { DocFormatter } from '../content/formatters/doc.js';
+import { ImageFormatter } from '../content/formatters/image.js';
 
 const CONVERSATION = {
   title: 'Numbering Test',
@@ -101,5 +103,49 @@ test('options pages wire messageNumbering storage setting', () => {
     const js = fs.readFileSync(jsPath, 'utf8');
     assert.match(js, /'messageNumbering'/);
     assert.match(js, /messageNumberingSelect/);
+  }
+});
+
+test('ImageFormatter numbers screenshot headers when enabled', () => {
+  if (typeof globalThis.document === 'undefined') {
+    const { document, window } = parseHTML('<!DOCTYPE html><html><body></body></html>');
+    globalThis.document = document;
+    globalThis.window = window;
+  }
+  const formatter = new ImageFormatter();
+  const numbered = formatter.createScreenshotContainer(CONVERSATION, {
+    messageNumbering: 'per-message',
+  });
+  assert.ok(numbered.innerHTML.includes('User [1]'));
+  assert.ok(numbered.innerHTML.includes('[2]'));
+
+  const plain = formatter.createScreenshotContainer(CONVERSATION);
+  assert.ok(!plain.innerHTML.includes('User [1]'));
+});
+
+test('preview pages load and forward messageNumbering to formatters', () => {
+  for (const previewPath of ['entrypoints/preview/preview.js', 'popup/preview.js']) {
+    const js = fs.readFileSync(previewPath, 'utf8');
+    assert.match(js, /'messageNumbering'/, `${previewPath} should read the setting`);
+    assert.match(
+      js,
+      /markdownFormatter\.format\(.*messageNumbering/s,
+      `${previewPath} should forward numbering to Markdown`,
+    );
+    assert.match(
+      js,
+      /htmlFormatter\.format\(.*messageNumbering/s,
+      `${previewPath} should forward numbering to HTML`,
+    );
+    assert.match(
+      js,
+      /docFormatter\.format\(.*messageNumbering/s,
+      `${previewPath} should forward numbering to Word`,
+    );
+    assert.match(
+      js,
+      /imageFormatter\.format\(.*messageNumbering/s,
+      `${previewPath} should forward numbering to PNG`,
+    );
   }
 });
