@@ -4,6 +4,7 @@ import test from 'node:test';
 import { parseHTML } from 'linkedom';
 import {
   getMessageNumber,
+  getMessageNumbers,
   normalizeMessageNumbering,
 } from '../content/formatters/base.js';
 import { MarkdownFormatter } from '../content/formatters/markdown.js';
@@ -56,6 +57,21 @@ test('getMessageNumber handles leading assistant and out-of-range safely', () =>
   assert.equal(getMessageNumber(messages, -1, 'per-message'), null);
 });
 
+test('getMessageNumbers preserves turn numbering and reflects message updates', () => {
+  const messages = [
+    { role: 'ChatGPT' },
+    { role: 'User' },
+    { role: 'ChatGPT' },
+    { role: 'User' },
+    { role: 'ChatGPT' },
+  ];
+  assert.deepEqual(getMessageNumbers(messages, 'perTurn'), [1, 1, 1, 2, 2]);
+  assert.deepEqual(getMessageNumbers(messages, 'per-message'), [1, 2, 3, 4, 5]);
+  assert.deepEqual(getMessageNumbers(messages, 'off'), [null, null, null, null, null]);
+  messages[3].role = 'ChatGPT';
+  assert.deepEqual(getMessageNumbers(messages, 'per-turn'), [1, 1, 1, 1, 1]);
+});
+
 test('MarkdownFormatter defaults to no numbers', () => {
   const output = new MarkdownFormatter().format(CONVERSATION);
   assert.ok(output.includes('## Prompt:\nFirst question'));
@@ -94,6 +110,30 @@ test('HtmlFormatter and DocFormatter include numbers in headers', () => {
   assert.ok(!htmlOff.includes('User [1]'));
 });
 
+test('HtmlFormatter uses only explicit numbering in the table of contents when enabled', () => {
+  const formatter = new HtmlFormatter();
+  const numbered = formatter.format(CONVERSATION, {
+    includeToc: true,
+    messageNumbering: 'per-turn',
+  });
+  assert.match(numbered, /<ol class="toc-list toc-list-numbered">/);
+  assert.match(numbered, /\.toc-list-numbered\s*\{\s*list-style-type: none;/);
+  const { document } = parseHTML(numbered);
+  assert.deepEqual(
+    Array.from(document.querySelectorAll('.toc-list li'), (item) => item.textContent.trim()),
+    [
+      '[1] User: First question',
+      '[1] ChatGPT: First answer',
+      '[2] User: Second question',
+      '[2] ChatGPT: Second answer',
+    ],
+  );
+
+  const unnumbered = formatter.format(CONVERSATION, { includeToc: true });
+  assert.match(unnumbered, /<ol class="toc-list">/);
+  assert.doesNotMatch(unnumbered, /<ol class="toc-list toc-list-numbered">/);
+});
+
 test('options pages wire messageNumbering storage setting', () => {
   for (const htmlPath of ['options/options.html', 'entrypoints/options/index.html']) {
     const html = fs.readFileSync(htmlPath, 'utf8');
@@ -103,6 +143,10 @@ test('options pages wire messageNumbering storage setting', () => {
     const js = fs.readFileSync(jsPath, 'utf8');
     assert.match(js, /'messageNumbering'/);
     assert.match(js, /messageNumberingSelect/);
+    assert.match(
+      js,
+      /messageNumberingSelect\.value = normalizeMessageNumbering\(stored\.messageNumbering\)/,
+    );
   }
 });
 

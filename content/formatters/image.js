@@ -1,7 +1,6 @@
 import html2canvas from 'html2canvas';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
-import { ExportFormatter, shouldIncludeAttribution } from './base.js';
-import { getMessageNumber, normalizeMessageNumbering } from './base.js';
+import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
 
 export const THEME_PALETTES = {
@@ -349,6 +348,7 @@ export class ImageFormatter extends ExportFormatter {
   createScreenshotContainer(conversation, options = {}) {
     const palette = this.resolveThemePalette(options);
     const { title, messages } = conversation;
+    const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
     const now = new Date();
     const formattedDate = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.toLocaleTimeString('en-US', { hour12: false })}`;
     const platform = conversation.metadata?.Source || 'AI';
@@ -373,11 +373,7 @@ export class ImageFormatter extends ExportFormatter {
       .map((msg, idx) => {
         const isUser = msg.role === 'User';
         const roleName = isUser ? 'User' : platform;
-        const msgNumber = getMessageNumber(
-          messages,
-          idx,
-          normalizeMessageNumbering(options?.messageNumbering),
-        );
+        const msgNumber = messageNumbers[idx];
         const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
         const avatarBg = isUser ? palette.accent : '#0ea5e9';
         const avatarText = isUser ? 'U' : platform[0] || 'A';

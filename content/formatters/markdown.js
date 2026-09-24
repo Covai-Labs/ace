@@ -1,5 +1,4 @@
-import { ExportFormatter, shouldIncludeAttribution } from './base.js';
-import { getMessageNumber, normalizeMessageNumbering } from './base.js';
+import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
 
 function cleanLatexMath(latex) {
   if (!latex || typeof latex !== 'string') return '';
@@ -144,6 +143,7 @@ export class MarkdownFormatter extends ExportFormatter {
     output += `\n`;
 
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const messageNumbers = getMessageNumbers(messages, options.messageNumbering);
     const imageCounter = { count: 1 };
     const imageDefinitions = [];
     const occupiedLabels = new Set();
@@ -173,10 +173,10 @@ export class MarkdownFormatter extends ExportFormatter {
       if (isWebArticle || isArticleRole) {
         output += `${processedContent}\n\n`;
       } else {
-        const numberingMode = normalizeMessageNumbering(options.messageNumbering);
-        const msgNumber = getMessageNumber(messages, msgIndex, numberingMode);
+        const msgNumber = messageNumbers[msgIndex];
         const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
-        const heading = msg.role === 'User' ? `## Prompt${numberSuffix}:` : `## Response${numberSuffix}:`;
+        const heading =
+          msg.role === 'User' ? `## Prompt${numberSuffix}:` : `## Response${numberSuffix}:`;
         output += `${heading}\n`;
         output += `${processedContent}\n\n`;
       }

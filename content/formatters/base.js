@@ -19,6 +19,24 @@ export function normalizeMessageNumbering(value) {
 }
 
 /**
+ * Returns display numbers for all messages in a single pass.
+ * @param {Array<{role?: string}>} messages
+ * @param {'off'|'per-message'|'per-turn'} mode
+ * @returns {Array<number|null>}
+ */
+export function getMessageNumbers(messages, mode) {
+  if (!Array.isArray(messages)) return [];
+  const normalized = normalizeMessageNumbering(mode);
+  if (normalized === 'off') return Array.from(messages, () => null);
+  if (normalized === 'per-message') return Array.from(messages, (_, index) => index + 1);
+  let turn = 0;
+  return Array.from(messages, (message) => {
+    if (message?.role === 'User') turn += 1;
+    return turn === 0 ? 1 : turn;
+  });
+}
+
+/**
  * Returns the display number for a message at a given index.
  * @param {Array<{role?: string}>} messages
  * @param {number} index
@@ -30,11 +48,7 @@ export function getMessageNumber(messages, index, mode) {
   if (normalized === 'off') return null;
   if (!Array.isArray(messages) || index < 0 || index >= messages.length) return null;
   if (normalized === 'per-message') return index + 1;
-  let turn = 0;
-  for (let i = 0; i <= index; i++) {
-    if (messages[i]?.role === 'User') turn += 1;
-  }
-  return turn === 0 ? 1 : turn;
+  return getMessageNumbers(messages, normalized)[index];
 }
 /**
  * Determines whether attribution should be included based on formatter options.

@@ -1,6 +1,7 @@
 import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { DEFAULT_TRANSFER_PROMPT_TEMPLATE } from '../content/formatters/continuation.js';
+import { normalizeMessageNumbering } from '../content/formatters/base.js';
 
 function applyTheme(theme) {
   if (theme && theme !== 'system') {
@@ -125,7 +126,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (stored.includeAttribution !== undefined)
     includeAttribution.checked = stored.includeAttribution;
   if (messageNumberingSelect) {
-    messageNumberingSelect.value = stored.messageNumbering || 'off';
+    messageNumberingSelect.value = normalizeMessageNumbering(stored.messageNumbering);
   }
   if (filenameTemplateInput) {
     filenameTemplateInput.value = stored.filenameTemplate || DEFAULT_FILENAME_TEMPLATE;

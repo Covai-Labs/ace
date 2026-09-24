@@ -1,5 +1,4 @@
-import { ExportFormatter, shouldIncludeAttribution } from './base.js';
-import { getMessageNumber, normalizeMessageNumbering } from './base.js';
+import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
 import { sanitizeHtml } from '../utils/sanitizer.js';
 import { katexCss, katexJs, autoRenderJs, prismCss, prismJs } from '../lib/assets.js';
 
@@ -20,16 +19,16 @@ export class HtmlFormatter extends ExportFormatter {
         : '';
 
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
 
     // Table of Contents
     let tocHtml = '';
     if (options?.includeToc && messages && messages.length > 0) {
-      const numberingMode = normalizeMessageNumbering(options?.messageNumbering);
       const tocItems = messages
         .map((m, i) => {
           const isUser = m.role === 'User';
           const label = isUser ? 'User' : m.role && m.role !== 'Assistant' ? m.role : platform;
-          const msgNumber = getMessageNumber(messages, i, numberingMode);
+          const msgNumber = messageNumbers[i];
           const numberPrefix = msgNumber !== null ? `[${msgNumber}] ` : '';
           const snippet = (m.content || '')
             .replace(/<[^>]*>/g, '')
@@ -43,7 +42,7 @@ export class HtmlFormatter extends ExportFormatter {
       tocHtml = `
         <nav class="toc-card" aria-label="Table of Contents">
           <div class="toc-title">📑 Table of Contents</div>
-          <ol class="toc-list">
+          <ol class="toc-list${messageNumbers[0] !== null ? ' toc-list-numbered' : ''}">
             ${tocItems}
           </ol>
         </nav>
@@ -74,11 +73,7 @@ export class HtmlFormatter extends ExportFormatter {
                 ? msg.role
                 : platform;
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
-            const msgNumber = getMessageNumber(
-              messages,
-              idx,
-              normalizeMessageNumbering(options?.messageNumbering),
-            );
+            const msgNumber = messageNumbers[idx];
             const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
             const htmlContent = sanitizeHtml(markdownToHtml(msg.content));
 
@@ -482,6 +477,11 @@ ${prismJs}
       display: flex;
       flex-direction: column;
       gap: 0.4rem;
+    }
+
+    .toc-list-numbered {
+      list-style-type: none;
+      padding-left: 0;
     }
 
     .toc-list li {

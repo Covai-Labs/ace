@@ -1,5 +1,4 @@
-import { ExportFormatter, shouldIncludeAttribution } from './base.js';
-import { getMessageNumber, normalizeMessageNumbering } from './base.js';
+import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
 
 export class DocFormatter extends ExportFormatter {
@@ -30,6 +29,7 @@ export class DocFormatter extends ExportFormatter {
     }
 
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
 
     const formattedMessages = isWebArticle
       ? messages
@@ -58,11 +58,7 @@ export class DocFormatter extends ExportFormatter {
                 ? msg.role
                 : platform;
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
-            const msgNumber = getMessageNumber(
-              messages,
-              idx,
-              normalizeMessageNumbering(options?.messageNumbering),
-            );
+            const msgNumber = messageNumbers[idx];
             const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
             const rawHtmlContent = markdownToHtml(msg.content);
             // Strip copy buttons and inline SVGs which cause LibreOffice HTML import filter errors
