@@ -167,28 +167,32 @@ test('ImageFormatter numbers screenshot headers when enabled', () => {
   assert.ok(!plain.innerHTML.includes('User [1]'));
 });
 
-test('preview pages load and forward messageNumbering to formatters', () => {
+test('preview pages load and forward messageNumbering/exportOptions to formatters', () => {
   for (const previewPath of ['entrypoints/preview/preview.js', 'popup/preview.js']) {
     const js = fs.readFileSync(previewPath, 'utf8');
-    assert.match(js, /'messageNumbering'/, `${previewPath} should read the setting`);
     assert.match(
       js,
-      /markdownFormatter\.format\(.*messageNumbering/s,
+      /'messageNumbering'|getExportOptions/,
+      `${previewPath} should read the export setting`,
+    );
+    assert.match(
+      js,
+      /markdownFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
       `${previewPath} should forward numbering to Markdown`,
     );
     assert.match(
       js,
-      /htmlFormatter\.format\(.*messageNumbering/s,
+      /htmlFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
       `${previewPath} should forward numbering to HTML`,
     );
     assert.match(
       js,
-      /docFormatter\.format\(.*messageNumbering/s,
+      /docFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
       `${previewPath} should forward numbering to Word`,
     );
     assert.match(
       js,
-      /imageFormatter\.format\(.*messageNumbering/s,
+      /imageFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
       `${previewPath} should forward numbering to PNG`,
     );
   }

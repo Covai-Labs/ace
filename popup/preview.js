@@ -8,7 +8,7 @@ import { sanitizeHtml } from '../content/utils/sanitizer.js';
 import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
-import { normalizeMessageNumbering } from '../content/formatters/base.js';
+import { getExportOptions, applyExportOptionChanges } from '../content/utils/preferences.js';
 
 function applyTheme(theme, targetDoc = document) {
   if (!targetDoc || !targetDoc.documentElement) return;
@@ -64,25 +64,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   const transferBtn = document.getElementById('transfer-btn');
   const transferTargetSelect = document.getElementById('transfer-target-select');
 
-  // Load and apply extension theme
-  let currentSyncTheme = 'system';
-  let includeAttribution = true;
-  let messageNumbering = 'off';
-  try {
-    const syncData = await chrome.storage.sync.get([
-      'theme',
-      'includeAttribution',
-      'messageNumbering',
-    ]);
-    currentSyncTheme = syncData.theme || 'system';
-    if (syncData.includeAttribution !== undefined) {
-      includeAttribution = syncData.includeAttribution;
-    }
-    messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
-    applyTheme(currentSyncTheme, document);
-  } catch {
-    // Ignore theme loading errors when running standalone
-  }
+  // Load and apply extension theme and export options
+  let exportOptions = await getExportOptions();
+  let currentSyncTheme = exportOptions.theme;
+  applyTheme(currentSyncTheme, document);
 
   const normalizeThemeForDropdown = (theme) => {
     if (theme === 'dark') return 'modern-dark';
@@ -96,6 +81,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     previewThemeSelect.addEventListener('change', () => {
       const selected = previewThemeSelect.value;
       currentSyncTheme = selected;
+      exportOptions.theme = selected;
       chrome.storage.sync.set({ theme: selected });
       applyTheme(selected, document);
       syncThemeToIframe(selected);
@@ -132,12 +118,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName === 'sync' && changes.theme) {
-        currentSyncTheme = changes.theme.newValue || 'system';
-        if (previewThemeSelect)
-          previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
-        applyTheme(currentSyncTheme, document);
-        syncThemeToIframe(currentSyncTheme);
+      if (areaName === 'sync' && applyExportOptionChanges(exportOptions, changes)) {
+        if (changes.theme) {
+          currentSyncTheme = exportOptions.theme;
+          if (previewThemeSelect)
+            previewThemeSelect.value = normalizeThemeForDropdown(currentSyncTheme);
+          applyTheme(currentSyncTheme, document);
+          syncThemeToIframe(currentSyncTheme);
+        }
         cachedPngBlob = null;
       }
     });
@@ -499,13 +487,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (conversation) {
-      htmlContent = htmlFormatter.format(conversation, { includeAttribution, messageNumbering });
-      markdownContent = markdownFormatter.format(conversation, {
-        includeAttribution,
-        messageNumbering,
+      htmlContent = htmlFormatter.format(conversation, {
+        ...exportOptions,
+        theme: currentSyncTheme,
       });
+      markdownContent = markdownFormatter.format(conversation, exportOptions);
       jsonContent = jsonFormatter.format(conversation);
-      docContent = docFormatter.format(conversation, { includeAttribution, messageNumbering });
+      docContent = docFormatter.format(conversation, exportOptions);
     } else {
       const fallbackContent = data.previewContent || '';
       htmlContent = sanitizeHtml(fallbackContent);
@@ -671,11 +659,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             });
           } else {
             pngBlob = await imageFormatter.format(conversation, {
+              ...exportOptions,
               highQuality: isHighQuality,
               includeImages,
               theme: activeTheme,
-              includeAttribution,
-              messageNumbering,
             });
           }
           cachedPngBlob = pngBlob;

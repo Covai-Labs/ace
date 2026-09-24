@@ -32,7 +32,7 @@ import {
 } from '../content/utils/filename.js';
 import { stripImages } from '../content/utils/strip-images.js';
 import { createLogger } from '../content/utils/logger.js';
-import { getAttributionSetting, getMessageNumberingSetting } from '../content/utils/preferences.js';
+import { getExportOptions } from '../content/utils/preferences.js';
 import { pollTransferInject } from '../content/transfer/injector.js';
 import { getTransferTarget } from '../content/transfer/targets.js';
 import {
@@ -586,12 +586,10 @@ export default defineContentScript({
               if (request.format === 'png') {
                 await ensureHtml2CanvasLoaded();
               }
-              const options = {
+              const options = await getExportOptions({
                 highQuality: request.highQualityPng !== false,
                 theme: request.theme,
-                includeAttribution: await getAttributionSetting(),
-                messageNumbering: await getMessageNumberingSetting(),
-              };
+              });
               const formattedResult = await formatter.format(conversation, options);
               const mimeType = formatter.getMimeType();
               const blob =
@@ -691,11 +689,9 @@ export default defineContentScript({
                 });
               }
               logger.debug('Parsed conversation with', conversation.messages.length, 'messages');
-              const formatOptions = {
+              const formatOptions = await getExportOptions({
                 theme: request.theme,
-                includeAttribution: await getAttributionSetting(),
-                messageNumbering: await getMessageNumberingSetting(),
-              };
+              });
               const primaryContent = formatter.format(conversation, formatOptions);
               const htmlFormatter = formatters.html;
               const richHtmlContent = htmlFormatter
@@ -853,10 +849,8 @@ export default defineContentScript({
               }
 
               const formatter = formatters.markdown;
-              const markdownContent = formatter.format(conversation, {
-                includeAttribution: await getAttributionSetting(),
-                messageNumbering: await getMessageNumberingSetting(),
-              });
+              const exportOptions = await getExportOptions();
+              const markdownContent = formatter.format(conversation, exportOptions);
 
               if (shortcut === 'copy_markdown') {
                 const copied = await copyToClipboard(markdownContent);
