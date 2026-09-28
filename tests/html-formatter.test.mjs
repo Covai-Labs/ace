@@ -171,6 +171,10 @@ test('HTML formatter renders task list checkboxes, collapsible thinking blocks, 
   assert.ok(output.includes('Thinking Process</summary>'));
   assert.ok(output.includes('class="thinking-content"'));
   assert.ok(output.includes('Analyzing the user query...'));
+  // Closing tags must stay raw elements, not escaped paragraph text
+  assert.ok(output.includes('</div>\n</details>'));
+  assert.ok(!output.includes('&lt;/div&gt;'));
+  assert.ok(!output.includes('&lt;/details&gt;'));
 
   // Check per-message copy button
   assert.ok(output.includes('copy-msg-btn'));
