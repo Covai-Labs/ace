@@ -1354,7 +1354,7 @@ export function markdownToHtml(mdText) {
 
   // Process <think>...</think> reasoning blocks into collapsible details
   mdText = mdText.replace(/<think>([\s\S]*?)<\/think>/gi, (match, thinkContent) => {
-    return `\n\n<details class="thinking-block"><summary class="thinking-summary"><svg class="thinking-icon" viewBox="0 0 24 24" width="14" height="14"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/></svg> Thinking Process</summary><div class="thinking-content">\n\n${thinkContent.trim()}\n\n</div></details>\n\n`;
+    return `\n\n<details class="thinking-block"><summary class="thinking-summary"><svg class="thinking-icon" viewBox="0 0 24 24" width="14" height="14"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/></svg> Thinking Process</summary><div class="thinking-content">\n\n${thinkContent.trim()}\n\n</div>\n</details>\n\n`;
   });
 
   // 1. Protect fenced code blocks (``` ... ``` or ~~~ ... ~~~)
