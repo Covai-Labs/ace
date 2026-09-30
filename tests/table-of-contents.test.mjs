@@ -198,3 +198,51 @@ test('ImageFormatter includes a ToC block when enabled', () => {
   const plain = formatter.createScreenshotContainer(CONVERSATION);
   assert.ok(!plain.innerHTML.includes('Table of Contents'));
 });
+
+test('MarkdownFormatter ignores headings inside fenced code blocks', () => {
+  const fenced = {
+    title: 'Fenced',
+    messages: [
+      { role: 'User', content: 'First?' },
+      { role: 'ChatGPT', content: '```markdown\n## Prompt\n```\n~~~python\n## Response\n~~~' },
+      { role: 'User', content: 'Second?' },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+  const output = new MarkdownFormatter().format(fenced, { includeToc: true });
+  const anchors = Array.from(output.matchAll(/\]\(#([^)]+)\)/g), (m) => m[1]);
+  // The fenced ## Prompt and ## Response must NOT steal slugs.
+  // Second user message should get prompt-1, not prompt-2.
+  assert.deepEqual(anchors, ['prompt', 'response', 'prompt-1']);
+});
+
+test('MarkdownFormatter accounts for indented ATX headings', () => {
+  const indented = {
+    title: 'Indented',
+    messages: [
+      { role: 'User', content: 'First?' },
+      { role: 'ChatGPT', content: '   ## Prompt\n\nIndented prompt heading.' },
+      { role: 'User', content: 'Second?' },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+  const output = new MarkdownFormatter().format(indented, { includeToc: true });
+  const anchors = Array.from(output.matchAll(/\]\(#([^)]+)\)/g), (m) => m[1]);
+  // The indented `   ## Prompt` is a valid CommonMark heading and consumes prompt-1.
+  // The second user message therefore receives prompt-2.
+  assert.deepEqual(anchors, ['prompt', 'response', 'prompt-2']);
+});
+
+test('getTocItems preserves code comparisons and unmatched angle brackets', () => {
+  const compMessages = [
+    { role: 'User', content: 'Compare 1 < 2 and 3 > 1 in python' },
+    { role: 'ChatGPT', content: 'Check if x < pivot before continuing' },
+    { role: 'User', content: 'Unmatched < bracket at end' },
+    { role: 'ChatGPT', content: '<p>HTML tag <span class="badge">test</span></p>' },
+  ];
+  const items = getTocItems(compMessages);
+  assert.equal(items[0].snippet, 'Compare 1 < 2 and 3 > 1 in python');
+  assert.equal(items[1].snippet, 'Check if x < pivot before continuing');
+  assert.equal(items[2].snippet, 'Unmatched < bracket at end');
+  assert.equal(items[3].snippet, 'HTML tag test');
+});

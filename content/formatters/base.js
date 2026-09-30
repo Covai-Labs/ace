@@ -111,9 +111,9 @@ export function getMessageTimestamp(message) {
  * @returns {string|null}
  */
 const ISO_LIKE =
-  /^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:\s*(?:Z|[+-]\d{2}:?\d{2}))?)?/;
+  /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?)?(?:\s*(Z|[+-]\d{2}:?\d{2}))?$/i;
 const EN_US_LOCALE =
-  /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AP]M)?)?/i;
+  /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AP]M)?)?$/i;
 
 export function formatMessageTimestamp(timestamp) {
   if (typeof timestamp === 'number' && Number.isFinite(timestamp)) {
@@ -145,8 +145,46 @@ export function formatMessageTimestamp(timestamp) {
       .trim()
       .slice(0, 200);
     if (!singleLine) return null;
-    // ISO-8601 strings: safe for the Date constructor everywhere.
-    if (ISO_LIKE.test(singleLine)) {
+
+    // ISO-8601 strings: validate calendar and time fields.
+    const isoMatch = singleLine.match(ISO_LIKE);
+    if (isoMatch) {
+      const year = Number(isoMatch[1]);
+      const month = Number(isoMatch[2]);
+      const day = Number(isoMatch[3]);
+      const hour = isoMatch[4] !== undefined ? Number(isoMatch[4]) : 0;
+      const minute = isoMatch[5] !== undefined ? Number(isoMatch[5]) : 0;
+      const second = isoMatch[6] !== undefined ? Number(isoMatch[6]) : 0;
+      const ms = isoMatch[7] !== undefined ? Number(isoMatch[7].slice(0, 3).padEnd(3, '0')) : 0;
+      const tz = isoMatch[8];
+
+      if (month < 1 || month > 12) return singleLine;
+      if (day < 1 || day > 31) return singleLine;
+      if (hour < 0 || hour > 23) return singleLine;
+      if (minute < 0 || minute > 59) return singleLine;
+      if (second < 0 || second > 59) return singleLine;
+
+      const testUtc = new Date(Date.UTC(year, month - 1, day));
+      if (
+        testUtc.getUTCFullYear() !== year ||
+        testUtc.getUTCMonth() !== month - 1 ||
+        testUtc.getUTCDate() !== day
+      ) {
+        return singleLine;
+      }
+
+      if (!tz) {
+        const local = new Date(year, month - 1, day, hour, minute, second, ms);
+        if (!Number.isNaN(local.getTime())) {
+          try {
+            return local.toISOString();
+          } catch {
+            return singleLine;
+          }
+        }
+        return singleLine;
+      }
+
       const parsed = new Date(singleLine);
       if (!Number.isNaN(parsed.getTime())) {
         try {
@@ -157,6 +195,7 @@ export function formatMessageTimestamp(timestamp) {
       }
       return singleLine;
     }
+
     // ChatGPT en-US locale strings: explicit M/D field map, never guessed.
     const locale = singleLine.match(EN_US_LOCALE);
     if (locale) {
@@ -167,13 +206,28 @@ export function formatMessageTimestamp(timestamp) {
       const minute = locale[5] !== undefined ? Number(locale[5]) : 0;
       const second = locale[6] !== undefined ? Number(locale[6]) : 0;
       const meridiem = locale[7] ? locale[7].toUpperCase() : null;
-      if (meridiem === 'PM' && hour < 12) hour += 12;
-      if (meridiem === 'AM' && hour === 12) hour = 0;
+
+      if (month < 1 || month > 12) return singleLine;
+      if (day < 1 || day > 31) return singleLine;
+      if (minute < 0 || minute > 59) return singleLine;
+      if (second < 0 || second > 59) return singleLine;
+
+      if (meridiem) {
+        if (hour < 1 || hour > 12) return singleLine;
+        if (meridiem === 'PM' && hour < 12) hour += 12;
+        if (meridiem === 'AM' && hour === 12) hour = 0;
+      } else {
+        if (hour < 0 || hour > 23) return singleLine;
+      }
+
       const parsed = new Date(year, month - 1, day, hour, minute, second);
       const valid =
         parsed.getFullYear() === year &&
         parsed.getMonth() === month - 1 &&
-        parsed.getDate() === day;
+        parsed.getDate() === day &&
+        parsed.getHours() === hour &&
+        parsed.getMinutes() === minute &&
+        parsed.getSeconds() === second;
       if (valid) {
         try {
           return parsed.toISOString();
@@ -189,9 +243,10 @@ export function formatMessageTimestamp(timestamp) {
 }
 
 /**
- * Strips HTML tags without regex sanitization (keeps CodeQL's
- * incomplete-sanitization query quiet and can't leave `<script` fragments).
- * Drops `<...>` spans; a `<` never closed by `>` is dropped with the tail.
+ * Strips HTML tags and comments while preserving literal angle-bracket
+ * comparisons (e.g. `1 < 2 and 3 > 1` or `x < pivot`) and code syntax.
+ * Only well-formed HTML tags (`<tag...>`, `</tag>`, `<tag/>`) and comments
+ * (`<!--...-->`) are removed; unclosed or literal `<` are preserved.
  * @param {unknown} text
  * @returns {string}
  */
@@ -206,9 +261,16 @@ export function stripTags(text) {
       break;
     }
     output += input.slice(i, open);
-    const close = input.indexOf('>', open + 1);
-    if (close === -1) break;
-    i = close + 1;
+    const rest = input.slice(open);
+    const tagMatch = rest.match(
+      /^<(?:\/?[a-zA-Z][a-zA-Z0-9:-]*(?:\s+[^"'>]*(?:(?:"[^"]*"|'[^']*')[^"'>]*)*)?\s*\/?>|!--[\s\S]*?-->|![a-zA-Z][^>]*>)/,
+    );
+    if (tagMatch) {
+      i = open + tagMatch[0].length;
+    } else {
+      output += '<';
+      i = open + 1;
+    }
   }
   return output;
 }

@@ -136,7 +136,7 @@
     "description": "Checkbox label for high quality PNG"
   },
   "exportOptions": {
-    "message": "Options",
+    "message": "Opções",
     "description": "Export options menu button in preview toolbar"
   },
   "exportChat": {

@@ -104,6 +104,45 @@ export function extractBase64ImagesToReference(
   return { text: processed, definitions };
 }
 
+/**
+ * Extracts ATX heading text from markdown content, ignoring lines inside
+ * fenced code blocks and supporting CommonMark 0-3 space indentation.
+ * @param {string} content
+ * @returns {string[]}
+ */
+export function extractContentHeadings(content) {
+  const headings = [];
+  const lines = String(content || '').split(/\r?\n/);
+  let inFence = false;
+  let fenceChar = '';
+  let fenceLen = 0;
+
+  for (const line of lines) {
+    const trimmedLead = line.replace(/^[ ]{0,3}/, '');
+    const fenceMatch = trimmedLead.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const char = fenceMatch[1][0];
+      const len = fenceMatch[1].length;
+      if (!inFence) {
+        inFence = true;
+        fenceChar = char;
+        fenceLen = len;
+        continue;
+      } else if (char === fenceChar && len >= fenceLen) {
+        inFence = false;
+        continue;
+      }
+    }
+    if (inFence) continue;
+
+    const headingMatch = line.match(/^[ ]{0,3}#{1,6}[ \t]+(.+?)(?:[ \t]+#+[ \t]*)?$/);
+    if (headingMatch) {
+      headings.push(headingMatch[1].trim());
+    }
+  }
+  return headings;
+}
+
 export class MarkdownFormatter extends ExportFormatter {
   format(conversation, options = {}) {
     const { title, messages } = conversation;
@@ -189,8 +228,8 @@ export class MarkdownFormatter extends ExportFormatter {
       const anchors = tocItems.map((item) => {
         const anchor = uniqueSlug(headingTextFor(messages[item.index], item.index));
         const content = messages[item.index]?.content || '';
-        for (const match of String(content).matchAll(/^#{1,6}\s+(.+)$/gm)) {
-          uniqueSlug(match[1]);
+        for (const heading of extractContentHeadings(content)) {
+          uniqueSlug(heading);
         }
         return anchor;
       });

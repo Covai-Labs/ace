@@ -1,3 +1,5 @@
+process.env.TZ = 'UTC';
+
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {
@@ -28,16 +30,22 @@ test('formatMessageTimestamp standardizes date strings to ISO', () => {
   );
   assert.equal(formatMessageTimestamp('2026-09-14T09:20:38.494750Z'), '2026-09-14T09:20:38.494Z');
   // ChatGPT-style locale strings become ISO instead of raw passthrough.
-  assert.match(formatMessageTimestamp('9/30/2026 08:48:07'), /^\d{4}-\d{2}-\d{2}T/);
+  assert.equal(formatMessageTimestamp('9/30/2026 08:48:07'), '2026-09-30T08:48:07.000Z');
 });
 
 test('formatMessageTimestamp never silently swaps day and month', () => {
-  // Explicit M/D contract for en-US producer strings (May 9, never Sept 5;
-  // UTC conversion may land on the 8th past midnight east of Greenwich)…
-  assert.match(formatMessageTimestamp('05/09/2026'), /^2026-05-0[89]T/);
-  // …while anything outside the known formats passes through untouched.
+  // Explicit M/D contract for en-US producer strings (May 9, never Sept 5)
+  assert.equal(formatMessageTimestamp('05/09/2026'), '2026-05-09T00:00:00.000Z');
+  // Anything outside the known formats or with invalid fields passes through untouched.
   assert.equal(formatMessageTimestamp('30.09.2026'), '30.09.2026');
   assert.equal(formatMessageTimestamp('not a date'), 'not a date');
+  assert.equal(formatMessageTimestamp('9/30/2026 01:99:99'), '9/30/2026 01:99:99');
+  assert.equal(
+    formatMessageTimestamp('9/30/2026 08:48:07 (edited)'),
+    '9/30/2026 08:48:07 (edited)',
+  );
+  assert.equal(formatMessageTimestamp('2024-02-31T00:00:00Z'), '2024-02-31T00:00:00Z');
+  assert.equal(formatMessageTimestamp('2024-02-31'), '2024-02-31');
 });
 
 test('formatMessageTimestamp rejects blank and undatable values', () => {
