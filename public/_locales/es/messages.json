@@ -631,11 +631,11 @@
     "description": "Help for transfer copy to clipboard checkbox"
   },
   "includeTimestamps": {
-    "message": "Include Dates",
+    "message": "Incluir fechas",
     "description": "Checkbox label for including per-message timestamps"
   },
   "includeTimestampsDefault": {
-    "message": "Include per-message date / time when available",
+    "message": "Incluir fecha/hora por mensaje cuando esté disponible",
     "description": "Label for default include timestamps checkbox"
   }
 }

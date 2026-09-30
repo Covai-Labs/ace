@@ -650,11 +650,11 @@
     "description": "Label for default include thinking checkbox"
   },
   "includeTimestamps": {
-    "message": "Include Dates",
+    "message": "Daten einschließen",
     "description": "Checkbox label for including per-message timestamps"
   },
   "includeTimestampsDefault": {
-    "message": "Include per-message date / time when available",
+    "message": "Datum/Uhrzeit pro Nachricht einschließen, sofern verfügbar",
     "description": "Label for default include timestamps checkbox"
   }
 }
