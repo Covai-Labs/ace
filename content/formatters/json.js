@@ -1,4 +1,4 @@
-import { ExportFormatter } from './base.js';
+import { ExportFormatter, formatMessageTimestamp } from './base.js';
 
 const SCHEMA_PATH = './schemas/export-v1.schema.json';
 
@@ -56,12 +56,17 @@ export class JsonFormatter extends ExportFormatter {
         title: conversation.title || 'AI Chat Export',
       },
       messages: (conversation.messages || []).map((message, index) => {
-        return {
+        const entry = {
           index,
           role: normalizeRole(message.role),
           displayRole: message.role || 'Unknown',
           content: message.content || '',
         };
+        const timestamp = formatMessageTimestamp(message?.timestamp);
+        if (timestamp) {
+          entry.timestamp = timestamp;
+        }
+        return entry;
       }),
       metadata,
     };

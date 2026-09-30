@@ -628,5 +628,13 @@
   "transferCopyClipboardHelp": {
     "message": "Se abilitato, copia anche il prompt trasferito negli appunti come backup per consentire l'incollamento manuale (Ctrl+V) in caso di errore di iniezione.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeTimestamps": {
+    "message": "Include Dates",
+    "description": "Checkbox label for including per-message timestamps"
+  },
+  "includeTimestampsDefault": {
+    "message": "Include per-message date / time when available",
+    "description": "Label for default include timestamps checkbox"
   }
 }

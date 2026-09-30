@@ -60,6 +60,79 @@ export function shouldIncludeAttribution(options = {}) {
   return options.includeAttribution !== false;
 }
 
+/**
+ * Determines whether per-message timestamps should be included based on formatter options.
+ * Timestamps are opt-in and only rendered when the parser provided one.
+ * @param {{ includeTimestamps?: boolean }} [options]
+ * @returns {boolean}
+ */
+export function shouldIncludeTimestamps(options = {}) {
+  return options.includeTimestamps === true;
+}
+
+/**
+ * Normalizes a numeric epoch to milliseconds.
+ * Values with abs < 1e11 are treated as seconds (current ms ~1.7e12,
+ * current seconds ~1.7e9); everything else is treated as milliseconds.
+ * This keeps `0` as a valid Unix-epoch value.
+ * @param {number} value
+ * @returns {number}
+ */
+export function normalizeEpochToMs(value) {
+  if (Math.abs(value) < 1e11) return value * 1000;
+  return value;
+}
+
+/**
+ * Returns the raw timestamp string for a message, if present.
+ * Parsers (via decant-core) attach `timestamp` as ISO, epoch, or locale strings.
+ * @param {{ timestamp?: unknown }} [message]
+ * @returns {string|null}
+ */
+export function getMessageTimestamp(message) {
+  return formatMessageTimestamp(message?.timestamp);
+}
+
+/**
+ * Formats a raw timestamp for display. Preserves parser-provided strings
+ * (locale or ISO) and normalizes numeric epochs to ISO (seconds or ms).
+ * Strips line breaks so the value is safe to embed in Markdown headings
+ * and HTML attributes. Returns null when absent/blank/unsupported.
+ * @param {unknown} timestamp
+ * @returns {string|null}
+ */
+export function formatMessageTimestamp(timestamp) {
+  if (typeof timestamp === 'number' && Number.isFinite(timestamp)) {
+    try {
+      return new Date(normalizeEpochToMs(timestamp)).toISOString();
+    } catch {
+      return String(timestamp);
+    }
+  }
+  if (typeof timestamp === 'string') {
+    // Numeric strings may be seconds or ms epochs — normalize like numbers.
+    const trimmed = timestamp.trim();
+    if (!trimmed) return null;
+    if (/^[+-]?\d+(\.\d+)?$/.test(trimmed)) {
+      const numeric = Number(trimmed);
+      if (Number.isFinite(numeric)) {
+        try {
+          return new Date(normalizeEpochToMs(numeric)).toISOString();
+        } catch {
+          return trimmed;
+        }
+      }
+    }
+    // Collapse line breaks/tabs to single spaces and cap length.
+    const singleLine = trimmed
+      .replace(/[\r\n\t]+/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+    return singleLine ? singleLine.slice(0, 200) : null;
+  }
+  return null;
+}
+
 export class ExportFormatter {
   constructor() {}
 

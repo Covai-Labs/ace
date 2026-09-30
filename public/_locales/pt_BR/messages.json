@@ -628,5 +628,13 @@
   "transferCopyClipboardHelp": {
     "message": "Quando ativado, também copia o comando transferido para a área de transferência como backup para que você possa colar manualmente (Ctrl+V) se a injeção falhar.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeTimestamps": {
+    "message": "Include Dates",
+    "description": "Checkbox label for including per-message timestamps"
+  },
+  "includeTimestampsDefault": {
+    "message": "Include per-message date / time when available",
+    "description": "Label for default include timestamps checkbox"
   }
 }

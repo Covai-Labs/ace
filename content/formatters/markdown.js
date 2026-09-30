@@ -1,4 +1,10 @@
-import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
+import {
+  ExportFormatter,
+  getMessageNumbers,
+  shouldIncludeAttribution,
+  shouldIncludeTimestamps,
+  formatMessageTimestamp,
+} from './base.js';
 
 function cleanLatexMath(latex) {
   if (!latex || typeof latex !== 'string') return '';
@@ -175,8 +181,14 @@ export class MarkdownFormatter extends ExportFormatter {
       } else {
         const msgNumber = messageNumbers[msgIndex];
         const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
+        const timestamp = shouldIncludeTimestamps(options)
+          ? formatMessageTimestamp(msg?.timestamp)
+          : null;
+        const dateSuffix = timestamp ? ` — ${timestamp}` : '';
         const heading =
-          msg.role === 'User' ? `## Prompt${numberSuffix}:` : `## Response${numberSuffix}:`;
+          msg.role === 'User'
+            ? `## Prompt${numberSuffix}${dateSuffix}:`
+            : `## Response${numberSuffix}${dateSuffix}:`;
         output += `${heading}\n`;
         output += `${processedContent}\n\n`;
       }

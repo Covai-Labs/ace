@@ -2,6 +2,7 @@ import { normalizeMessageNumbering } from '../formatters/base.js';
 
 export const DEFAULT_INCLUDE_ATTRIBUTION = true;
 export const DEFAULT_INCLUDE_THINKING = true;
+export const DEFAULT_INCLUDE_TIMESTAMPS = false;
 export const DEFAULT_MESSAGE_NUMBERING = 'off';
 export const DEFAULT_THEME = 'system';
 
@@ -32,12 +33,13 @@ export async function getMessageNumberingSetting() {
 /**
  * Reads and normalizes all export-relevant preferences from chrome.storage.sync.
  * @param {Record<string, any>} [overrides]
- * @returns {Promise<{ theme: string, includeAttribution: boolean, messageNumbering: string, [key: string]: any }>}
+ * @returns {Promise<{ theme: string, includeAttribution: boolean, messageNumbering: string, includeTimestamps: boolean, [key: string]: any }>}
  */
 export async function getExportOptions(overrides = {}) {
   let theme = DEFAULT_THEME;
   let includeAttribution = DEFAULT_INCLUDE_ATTRIBUTION;
   let includeThinking = DEFAULT_INCLUDE_THINKING;
+  let includeTimestamps = DEFAULT_INCLUDE_TIMESTAMPS;
   let messageNumbering = DEFAULT_MESSAGE_NUMBERING;
 
   try {
@@ -46,6 +48,7 @@ export async function getExportOptions(overrides = {}) {
         'theme',
         'includeAttribution',
         'includeThinking',
+        'includeTimestamps',
         'messageNumbering',
       ]);
       if (syncData) {
@@ -55,6 +58,9 @@ export async function getExportOptions(overrides = {}) {
         }
         if (syncData.includeThinking !== undefined) {
           includeThinking = syncData.includeThinking !== false;
+        }
+        if (syncData.includeTimestamps !== undefined) {
+          includeTimestamps = syncData.includeTimestamps === true;
         }
         if (syncData.messageNumbering !== undefined) {
           messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
@@ -73,6 +79,7 @@ export async function getExportOptions(overrides = {}) {
     theme,
     includeAttribution,
     includeThinking,
+    includeTimestamps,
     messageNumbering,
     ...cleanOverrides,
   };
@@ -98,6 +105,10 @@ export function applyExportOptionChanges(currentOptions, changes) {
   }
   if (changes.includeThinking) {
     currentOptions.includeThinking = changes.includeThinking.newValue !== false;
+    changed = true;
+  }
+  if (changes.includeTimestamps) {
+    currentOptions.includeTimestamps = changes.includeTimestamps.newValue === true;
     changed = true;
   }
   if (changes.messageNumbering) {

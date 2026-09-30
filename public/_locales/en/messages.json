@@ -629,5 +629,13 @@
   "systemInfoCopied": {
     "message": "System info copied to clipboard!",
     "description": "Toast message when system info is copied"
+  },
+  "includeTimestampsDefault": {
+    "message": "Include per-message date / time when available",
+    "description": "Label for default include timestamps checkbox"
+  },
+  "includeTimestamps": {
+    "message": "Include Dates",
+    "description": "Checkbox label for including per-message timestamps"
   }
 }

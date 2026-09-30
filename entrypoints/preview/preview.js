@@ -69,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
   const includeThinkingCheckbox = document.getElementById('include-thinking-checkbox');
+  const includeTimestampsCheckbox = document.getElementById('include-timestamps-checkbox');
   const previewNumberingSelect = document.getElementById('preview-numbering-select');
 
   if (pngQualityCheckbox) {
@@ -84,6 +85,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.addEventListener('change', () => {
+      cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+  if (includeTimestampsCheckbox) {
+    includeTimestampsCheckbox.addEventListener('change', () => {
+      exportOptions.includeTimestamps = includeTimestampsCheckbox.checked;
       cachedPngBlob = null;
       recalculateContent();
     });
@@ -141,6 +149,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
   }
+  if (includeTimestampsCheckbox) {
+    includeTimestampsCheckbox.checked = exportOptions.includeTimestamps === true;
+  }
 
   const syncThemeToIframe = (theme) => {
     try {
@@ -184,6 +195,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (changes.includeThinking && includeThinkingCheckbox) {
           includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
+        }
+        if (changes.includeTimestamps && includeTimestampsCheckbox) {
+          includeTimestampsCheckbox.checked = exportOptions.includeTimestamps === true;
         }
         cachedPngBlob = null;
         recalculateContent();

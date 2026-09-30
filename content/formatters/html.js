@@ -1,4 +1,10 @@
-import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
+import {
+  ExportFormatter,
+  getMessageNumbers,
+  shouldIncludeAttribution,
+  shouldIncludeTimestamps,
+  formatMessageTimestamp,
+} from './base.js';
 import { sanitizeHtml } from '../utils/sanitizer.js';
 import { katexCss, katexJs, autoRenderJs, prismCss, prismJs } from '../lib/assets.js';
 
@@ -20,6 +26,7 @@ export class HtmlFormatter extends ExportFormatter {
 
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
     const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
+    const includeTimestamps = shouldIncludeTimestamps(options);
 
     // Table of Contents
     let tocHtml = '';
@@ -30,13 +37,17 @@ export class HtmlFormatter extends ExportFormatter {
           const label = isUser ? 'User' : m.role && m.role !== 'Assistant' ? m.role : platform;
           const msgNumber = messageNumbers[i];
           const numberPrefix = msgNumber !== null ? `[${msgNumber}] ` : '';
+          const timestamp = includeTimestamps ? formatMessageTimestamp(m?.timestamp) : null;
+          const dateSuffix = timestamp
+            ? ` <span class="toc-date">${escapeHtml(timestamp)}</span>`
+            : '';
           const snippet = (m.content || '')
             .replace(/<[^>]*>/g, '')
             .replace(/\[(?:x|X|\s)\]/g, '')
             .replace(/[`#*_~]/g, '')
             .trim()
             .substring(0, 60);
-          return `<li><a href="#msg-card-${i}"><strong>${escapeHtml(numberPrefix + label)}:</strong> ${escapeHtml(snippet || 'Message')}</a></li>`;
+          return `<li><a href="#msg-card-${i}"><strong>${escapeHtml(numberPrefix + label)}:</strong> ${escapeHtml(snippet || 'Message')}${dateSuffix}</a></li>`;
         })
         .join('\n');
       tocHtml = `
@@ -75,6 +86,10 @@ export class HtmlFormatter extends ExportFormatter {
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
             const msgNumber = messageNumbers[idx];
             const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
+            const timestamp = includeTimestamps ? formatMessageTimestamp(msg?.timestamp) : null;
+            const dateBadge = timestamp
+              ? `<span class="message-timestamp">${escapeHtml(timestamp)}</span>`
+              : '';
             const htmlContent = sanitizeHtml(markdownToHtml(msg.content));
 
             return `
@@ -83,6 +98,7 @@ export class HtmlFormatter extends ExportFormatter {
             <div class="message-header-info">
               <div class="message-avatar">${avatarText}</div>
               <span>${escapeHtml(displayName)}</span>
+              ${dateBadge}
             </div>
             <button class="copy-msg-btn" title="Copy message text">
               <svg class="copy-icon" viewBox="0 0 24 24" width="13" height="13"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
@@ -498,6 +514,20 @@ ${prismJs}
 
     .toc-list a:hover {
       text-decoration: underline;
+    }
+
+    .toc-date {
+      color: var(--text-secondary);
+      font-weight: 400;
+      font-size: 0.78rem;
+      white-space: nowrap;
+    }
+
+    .message-timestamp {
+      font-weight: 400;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      white-space: nowrap;
     }
 
     .message-list {
