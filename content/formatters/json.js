@@ -1,4 +1,4 @@
-import { ExportFormatter } from './base.js';
+import { ExportFormatter, formatMessageTimestamp } from './base.js';
 
 const SCHEMA_PATH = './schemas/export-v1.schema.json';
 
@@ -62,18 +62,7 @@ export class JsonFormatter extends ExportFormatter {
           displayRole: message.role || 'Unknown',
           content: message.content || '',
         };
-        const timestamp =
-          typeof message.timestamp === 'number' && Number.isFinite(message.timestamp)
-            ? (() => {
-                try {
-                  return new Date(message.timestamp).toISOString();
-                } catch {
-                  return String(message.timestamp);
-                }
-              })()
-            : typeof message.timestamp === 'string' && message.timestamp.trim()
-              ? message.timestamp.trim()
-              : null;
+        const timestamp = formatMessageTimestamp(message?.timestamp);
         if (timestamp) {
           entry.timestamp = timestamp;
         }

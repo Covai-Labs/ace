@@ -181,10 +181,9 @@ export class MarkdownFormatter extends ExportFormatter {
       } else {
         const msgNumber = messageNumbers[msgIndex];
         const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
-        const timestamp =
-          shouldIncludeTimestamps(options) && msg?.timestamp
-            ? formatMessageTimestamp(msg.timestamp)
-            : null;
+        const timestamp = shouldIncludeTimestamps(options)
+          ? formatMessageTimestamp(msg?.timestamp)
+          : null;
         const dateSuffix = timestamp ? ` — ${timestamp}` : '';
         const heading =
           msg.role === 'User'

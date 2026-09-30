@@ -67,8 +67,7 @@ export class DocFormatter extends ExportFormatter {
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
             const msgNumber = messageNumbers[idx];
             const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
-            const timestamp =
-              includeTimestamps && msg?.timestamp ? formatMessageTimestamp(msg.timestamp) : null;
+            const timestamp = includeTimestamps ? formatMessageTimestamp(msg?.timestamp) : null;
             const dateSuffix = timestamp ? ` • ${escapeHtml(timestamp)}` : '';
             const rawHtmlContent = markdownToHtml(msg.content);
             // Strip copy buttons and inline SVGs which cause LibreOffice HTML import filter errors

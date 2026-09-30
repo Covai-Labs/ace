@@ -37,8 +37,7 @@ export class HtmlFormatter extends ExportFormatter {
           const label = isUser ? 'User' : m.role && m.role !== 'Assistant' ? m.role : platform;
           const msgNumber = messageNumbers[i];
           const numberPrefix = msgNumber !== null ? `[${msgNumber}] ` : '';
-          const timestamp =
-            includeTimestamps && m?.timestamp ? formatMessageTimestamp(m.timestamp) : null;
+          const timestamp = includeTimestamps ? formatMessageTimestamp(m?.timestamp) : null;
           const dateSuffix = timestamp
             ? ` <span class="toc-date">${escapeHtml(timestamp)}</span>`
             : '';
@@ -87,8 +86,7 @@ export class HtmlFormatter extends ExportFormatter {
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
             const msgNumber = messageNumbers[idx];
             const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
-            const timestamp =
-              includeTimestamps && msg?.timestamp ? formatMessageTimestamp(msg.timestamp) : null;
+            const timestamp = includeTimestamps ? formatMessageTimestamp(msg?.timestamp) : null;
             const dateBadge = timestamp
               ? `<span class="message-timestamp">${escapeHtml(timestamp)}</span>`
               : '';
