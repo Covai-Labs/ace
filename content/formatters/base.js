@@ -77,34 +77,23 @@ export function shouldIncludeTimestamps(options = {}) {
  * @returns {string|null}
  */
 export function getMessageTimestamp(message) {
-  const raw = message?.timestamp;
-  if (typeof raw === 'number' && Number.isFinite(raw)) {
-    try {
-      return new Date(raw).toISOString();
-    } catch {
-      return String(raw);
-    }
-  }
-  if (typeof raw === 'string') {
-    const trimmed = raw.trim();
-    return trimmed ? trimmed : null;
-  }
-  return null;
+  return formatMessageTimestamp(message?.timestamp);
 }
 
-/**
- * Formats a raw timestamp for display. Preserves parser-provided strings
- * (locale or ISO) and normalizes numeric epochs to ISO.
- * @param {unknown} timestamp
- * @returns {string|null}
- */
+function formatNumericTimestamp(timestamp) {
+  // Unix timestamps below this threshold are conventionally expressed in seconds;
+  // larger values are expressed in milliseconds.
+  const milliseconds = Math.abs(timestamp) < 1e12 ? timestamp * 1000 : timestamp;
+  try {
+    return new Date(milliseconds).toISOString();
+  } catch {
+    return String(timestamp);
+  }
+}
+
 export function formatMessageTimestamp(timestamp) {
   if (typeof timestamp === 'number' && Number.isFinite(timestamp)) {
-    try {
-      return new Date(timestamp).toISOString();
-    } catch {
-      return String(timestamp);
-    }
+    return formatNumericTimestamp(timestamp);
   }
   if (typeof timestamp === 'string') {
     const trimmed = timestamp.trim();
