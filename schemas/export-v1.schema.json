@@ -44,6 +44,10 @@
         "content": {
           "type": "string",
           "description": "Message content as markdown-compatible text."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Per-message timestamp when the parser provided one (ISO 8601, epoch-derived ISO, or platform locale string). Omitted when unavailable."
         }
       },
       "required": ["index", "role", "displayRole", "content"],

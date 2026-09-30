@@ -628,5 +628,13 @@
   "transferCopyClipboardHelp": {
     "message": "啟用後，轉移時還會將提示詞複製到剪貼簿作為備份，以便在自動填充失敗時手動貼上 (Ctrl+V)。",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeTimestamps": {
+    "message": "Include Dates",
+    "description": "Checkbox label for including per-message timestamps"
+  },
+  "includeTimestampsDefault": {
+    "message": "Include per-message date / time when available",
+    "description": "Label for default include timestamps checkbox"
   }
 }

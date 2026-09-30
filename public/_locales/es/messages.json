@@ -629,5 +629,13 @@
   "transferCopyClipboardHelp": {
     "message": "Cuando está activado, también copia el mensaje transferido al portapapeles como respaldo para que puedas pegarlo manualmente (Ctrl+V) si la inyección falla.",
     "description": "Help for transfer copy to clipboard checkbox"
+  },
+  "includeTimestamps": {
+    "message": "Include Dates",
+    "description": "Checkbox label for including per-message timestamps"
+  },
+  "includeTimestampsDefault": {
+    "message": "Include per-message date / time when available",
+    "description": "Label for default include timestamps checkbox"
   }
 }

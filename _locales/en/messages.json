@@ -135,6 +135,10 @@
     "message": "Include Thoughts",
     "description": "Checkbox label for including thinking process"
   },
+  "includeTimestamps": {
+    "message": "Include Dates",
+    "description": "Checkbox label for including per-message timestamps"
+  },
   "highQualityPng": {
     "message": "High Quality PNG (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -242,6 +246,10 @@
   "includeThinkingDefault": {
     "message": "Include thinking process in exported chats",
     "description": "Label for default include thinking checkbox"
+  },
+  "includeTimestampsDefault": {
+    "message": "Include per-message date / time when available",
+    "description": "Label for default include timestamps checkbox"
   },
   "messageNumberingLabel": {
     "message": "Message Numbering",

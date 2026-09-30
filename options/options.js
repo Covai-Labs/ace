@@ -38,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const defaultIncludeImages = document.getElementById('default-include-images');
   const includeAttribution = document.getElementById('include-attribution');
   const defaultIncludeThinking = document.getElementById('default-include-thinking');
+  const defaultIncludeTimestamps = document.getElementById('default-include-timestamps');
   const messageNumberingSelect = document.getElementById('message-numbering-select');
   const filenameTemplateInput = document.getElementById('filename-template-input');
   const filenamePreview = document.getElementById('filename-preview');
@@ -97,6 +98,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'includeImages',
     'includeAttribution',
     'includeThinking',
+    'includeTimestamps',
     'messageNumbering',
     'filenameTemplate',
     'parserMode',
@@ -129,6 +131,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     includeAttribution.checked = stored.includeAttribution;
   if (stored.includeThinking !== undefined && defaultIncludeThinking)
     defaultIncludeThinking.checked = stored.includeThinking !== false;
+  if (defaultIncludeTimestamps)
+    defaultIncludeTimestamps.checked = stored.includeTimestamps === true;
   if (messageNumberingSelect) {
     messageNumberingSelect.value = normalizeMessageNumbering(stored.messageNumbering);
   }
@@ -182,6 +186,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (defaultIncludeThinking) {
     defaultIncludeThinking.addEventListener('change', () => {
       chrome.storage.sync.set({ includeThinking: defaultIncludeThinking.checked });
+      showToast();
+    });
+  }
+
+  if (defaultIncludeTimestamps) {
+    defaultIncludeTimestamps.addEventListener('change', () => {
+      chrome.storage.sync.set({ includeTimestamps: defaultIncludeTimestamps.checked });
       showToast();
     });
   }

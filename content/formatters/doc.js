@@ -1,4 +1,10 @@
-import { ExportFormatter, getMessageNumbers, shouldIncludeAttribution } from './base.js';
+import {
+  ExportFormatter,
+  getMessageNumbers,
+  shouldIncludeAttribution,
+  shouldIncludeTimestamps,
+  formatMessageTimestamp,
+} from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
 
 export class DocFormatter extends ExportFormatter {
@@ -30,6 +36,7 @@ export class DocFormatter extends ExportFormatter {
 
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
     const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
+    const includeTimestamps = shouldIncludeTimestamps(options);
 
     const formattedMessages = isWebArticle
       ? messages
@@ -60,6 +67,9 @@ export class DocFormatter extends ExportFormatter {
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
             const msgNumber = messageNumbers[idx];
             const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
+            const timestamp =
+              includeTimestamps && msg?.timestamp ? formatMessageTimestamp(msg.timestamp) : null;
+            const dateSuffix = timestamp ? ` • ${escapeHtml(timestamp)}` : '';
             const rawHtmlContent = markdownToHtml(msg.content);
             // Strip copy buttons and inline SVGs which cause LibreOffice HTML import filter errors
             const htmlContent = rawHtmlContent
@@ -70,7 +80,7 @@ export class DocFormatter extends ExportFormatter {
         <div class="message-card ${roleClass}">
           <div class="message-header">
             <span class="message-avatar">${avatarText}</span>
-            <span>${escapeHtml(displayName)}</span>
+            <span>${escapeHtml(displayName)}${dateSuffix}</span>
           </div>
           <div class="message-content">
             ${htmlContent}

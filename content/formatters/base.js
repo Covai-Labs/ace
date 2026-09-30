@@ -60,6 +60,59 @@ export function shouldIncludeAttribution(options = {}) {
   return options.includeAttribution !== false;
 }
 
+/**
+ * Determines whether per-message timestamps should be included based on formatter options.
+ * Timestamps are opt-in and only rendered when the parser provided one.
+ * @param {{ includeTimestamps?: boolean }} [options]
+ * @returns {boolean}
+ */
+export function shouldIncludeTimestamps(options = {}) {
+  return options.includeTimestamps === true;
+}
+
+/**
+ * Returns the raw timestamp string for a message, if present.
+ * Parsers (via decant-core) attach `timestamp` as ISO, epoch, or locale strings.
+ * @param {{ timestamp?: unknown }} [message]
+ * @returns {string|null}
+ */
+export function getMessageTimestamp(message) {
+  const raw = message?.timestamp;
+  if (typeof raw === 'number' && Number.isFinite(raw)) {
+    try {
+      return new Date(raw).toISOString();
+    } catch {
+      return String(raw);
+    }
+  }
+  if (typeof raw === 'string') {
+    const trimmed = raw.trim();
+    return trimmed ? trimmed : null;
+  }
+  return null;
+}
+
+/**
+ * Formats a raw timestamp for display. Preserves parser-provided strings
+ * (locale or ISO) and normalizes numeric epochs to ISO.
+ * @param {unknown} timestamp
+ * @returns {string|null}
+ */
+export function formatMessageTimestamp(timestamp) {
+  if (typeof timestamp === 'number' && Number.isFinite(timestamp)) {
+    try {
+      return new Date(timestamp).toISOString();
+    } catch {
+      return String(timestamp);
+    }
+  }
+  if (typeof timestamp === 'string') {
+    const trimmed = timestamp.trim();
+    return trimmed ? trimmed : null;
+  }
+  return null;
+}
+
 export class ExportFormatter {
   constructor() {}
 

@@ -56,12 +56,28 @@ export class JsonFormatter extends ExportFormatter {
         title: conversation.title || 'AI Chat Export',
       },
       messages: (conversation.messages || []).map((message, index) => {
-        return {
+        const entry = {
           index,
           role: normalizeRole(message.role),
           displayRole: message.role || 'Unknown',
           content: message.content || '',
         };
+        const timestamp =
+          typeof message.timestamp === 'number' && Number.isFinite(message.timestamp)
+            ? (() => {
+                try {
+                  return new Date(message.timestamp).toISOString();
+                } catch {
+                  return String(message.timestamp);
+                }
+              })()
+            : typeof message.timestamp === 'string' && message.timestamp.trim()
+              ? message.timestamp.trim()
+              : null;
+        if (timestamp) {
+          entry.timestamp = timestamp;
+        }
+        return entry;
       }),
       metadata,
     };
