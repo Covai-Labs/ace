@@ -94,19 +94,33 @@ export function getMessageTimestamp(message) {
 }
 
 /**
- * Formats a raw timestamp for display. Preserves parser-provided strings
- * (locale or ISO) and normalizes numeric epochs to ISO (seconds or ms).
+ * Formats a raw timestamp for display as ISO 8601 (UTC).
+ *
+ * Documented contract (deliberate, not an oversight):
+ * - Numeric epochs (seconds or ms) and ISO-8601 strings → ISO via Date.
+ * - ChatGPT-style en-US locale strings (`M/D/YYYY[, ]H:mm[:ss][ AM/PM]`,
+ *   exactly what its parser emits via `toLocaleString()`) → parsed with an
+ *   explicit M/D field map → ISO. No `new Date()` guessing, so `05/09/2026`
+ *   can never silently become 9 May and output never varies by browser.
+ * - Anything else (other locales, relative phrases, garbage) → returned as
+ *   cleaned single-line text so information is never blanked. Callers hide
+ *   the date row when this returns null only.
  * Strips line breaks so the value is safe to embed in Markdown headings
- * and HTML attributes. Returns null when absent/blank/unsupported.
+ * and HTML attributes. Returns null when absent/blank/undatable numeric.
  * @param {unknown} timestamp
  * @returns {string|null}
  */
+const ISO_LIKE =
+  /^(\d{4})-(\d{2})-(\d{2})(?:[T ](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d+))?)?)?(?:\s*(Z|[+-]\d{2}:?\d{2}))?$/i;
+const EN_US_LOCALE =
+  /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AP]M)?)?$/i;
+
 export function formatMessageTimestamp(timestamp) {
   if (typeof timestamp === 'number' && Number.isFinite(timestamp)) {
     try {
       return new Date(normalizeEpochToMs(timestamp)).toISOString();
     } catch {
-      return String(timestamp);
+      return null;
     }
   }
   if (typeof timestamp === 'string') {
@@ -119,18 +133,215 @@ export function formatMessageTimestamp(timestamp) {
         try {
           return new Date(normalizeEpochToMs(numeric)).toISOString();
         } catch {
-          return trimmed;
+          return null;
         }
       }
+      return null;
     }
     // Collapse line breaks/tabs to single spaces and cap length.
     const singleLine = trimmed
       .replace(/[\r\n\t]+/g, ' ')
       .replace(/\s{2,}/g, ' ')
-      .trim();
-    return singleLine ? singleLine.slice(0, 200) : null;
+      .trim()
+      .slice(0, 200);
+    if (!singleLine) return null;
+
+    // ISO-8601 strings: validate calendar and time fields.
+    const isoMatch = singleLine.match(ISO_LIKE);
+    if (isoMatch) {
+      const year = Number(isoMatch[1]);
+      const month = Number(isoMatch[2]);
+      const day = Number(isoMatch[3]);
+      const hour = isoMatch[4] !== undefined ? Number(isoMatch[4]) : 0;
+      const minute = isoMatch[5] !== undefined ? Number(isoMatch[5]) : 0;
+      const second = isoMatch[6] !== undefined ? Number(isoMatch[6]) : 0;
+      const ms = isoMatch[7] !== undefined ? Number(isoMatch[7].slice(0, 3).padEnd(3, '0')) : 0;
+      const tz = isoMatch[8];
+
+      if (month < 1 || month > 12) return singleLine;
+      if (day < 1 || day > 31) return singleLine;
+      if (hour < 0 || hour > 23) return singleLine;
+      if (minute < 0 || minute > 59) return singleLine;
+      if (second < 0 || second > 59) return singleLine;
+
+      const testUtc = new Date(Date.UTC(year, month - 1, day));
+      if (
+        testUtc.getUTCFullYear() !== year ||
+        testUtc.getUTCMonth() !== month - 1 ||
+        testUtc.getUTCDate() !== day
+      ) {
+        return singleLine;
+      }
+
+      if (!tz) {
+        const local = new Date(year, month - 1, day, hour, minute, second, ms);
+        if (!Number.isNaN(local.getTime())) {
+          try {
+            return local.toISOString();
+          } catch {
+            return singleLine;
+          }
+        }
+        return singleLine;
+      }
+
+      const parsed = new Date(singleLine);
+      if (!Number.isNaN(parsed.getTime())) {
+        try {
+          return parsed.toISOString();
+        } catch {
+          return singleLine;
+        }
+      }
+      return singleLine;
+    }
+
+    // ChatGPT en-US locale strings: explicit M/D field map, never guessed.
+    const locale = singleLine.match(EN_US_LOCALE);
+    if (locale) {
+      const month = Number(locale[1]);
+      const day = Number(locale[2]);
+      const year = Number(locale[3]);
+      let hour = locale[4] !== undefined ? Number(locale[4]) : 0;
+      const minute = locale[5] !== undefined ? Number(locale[5]) : 0;
+      const second = locale[6] !== undefined ? Number(locale[6]) : 0;
+      const meridiem = locale[7] ? locale[7].toUpperCase() : null;
+
+      if (month < 1 || month > 12) return singleLine;
+      if (day < 1 || day > 31) return singleLine;
+      if (minute < 0 || minute > 59) return singleLine;
+      if (second < 0 || second > 59) return singleLine;
+
+      if (meridiem) {
+        if (hour < 1 || hour > 12) return singleLine;
+        if (meridiem === 'PM' && hour < 12) hour += 12;
+        if (meridiem === 'AM' && hour === 12) hour = 0;
+      } else {
+        if (hour < 0 || hour > 23) return singleLine;
+      }
+
+      const parsed = new Date(year, month - 1, day, hour, minute, second);
+      const valid =
+        parsed.getFullYear() === year &&
+        parsed.getMonth() === month - 1 &&
+        parsed.getDate() === day &&
+        parsed.getHours() === hour &&
+        parsed.getMinutes() === minute &&
+        parsed.getSeconds() === second;
+      if (valid) {
+        try {
+          return parsed.toISOString();
+        } catch {
+          return singleLine;
+        }
+      }
+      return singleLine;
+    }
+    return singleLine;
   }
   return null;
+}
+
+/**
+ * Strips HTML tags and comments while preserving literal angle-bracket
+ * comparisons (e.g. `1 < 2 and 3 > 1` or `x < pivot`) and code syntax.
+ * Only well-formed HTML tags (`<tag...>`, `</tag>`, `<tag/>`) and comments
+ * (`<!--...-->`) are removed; unclosed or literal `<` are preserved.
+ * @param {unknown} text
+ * @returns {string}
+ */
+export function stripTags(text) {
+  const input = String(text || '');
+  let output = '';
+  let i = 0;
+  while (i < input.length) {
+    const open = input.indexOf('<', i);
+    if (open === -1) {
+      output += input.slice(i);
+      break;
+    }
+    output += input.slice(i, open);
+    const rest = input.slice(open);
+    const tagMatch = rest.match(
+      /^<(?:\/?[a-zA-Z][a-zA-Z0-9:-]*(?:\s+[^"'>]*(?:(?:"[^"]*"|'[^']*')[^"'>]*)*)?\s*\/?>|!--[\s\S]*?-->|![a-zA-Z][^>]*>)/,
+    );
+    if (tagMatch) {
+      i = open + tagMatch[0].length;
+    } else {
+      output += '<';
+      i = open + 1;
+    }
+  }
+  return output;
+}
+
+/**
+ * Builds one Table of Contents entry per message.
+ * Snippets are plain single-line text (tags, checkboxes, markdown links and
+ * markers stripped) capped at 60 characters; timestamps are ISO when enabled
+ * and available.
+ * @param {Array<{role?: string, content?: string, timestamp?: unknown}>} messages
+ * @param {{ messageNumbering?: string, includeTimestamps?: boolean, platform?: string }} [options]
+ * @returns {Array<{index: number, label: string, number: number|null, snippet: string, timestamp: string|null}>}
+ */
+export function getTocItems(messages, options = {}) {
+  if (!Array.isArray(messages)) return [];
+  const numbers = getMessageNumbers(messages, options.messageNumbering);
+  const includeTimestamps = shouldIncludeTimestamps(options);
+  const platform = options.platform || 'Assistant';
+  return messages.map((m, i) => {
+    const isUser = m?.role === 'User';
+    const label = isUser ? 'User' : m?.role && m.role !== 'Assistant' ? m.role : platform;
+    const snippet = stripTags(m?.content || '')
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[([^\]]*)\]\[[^\]]*\]/g, '$1')
+      .replace(/\[(?:x|X|\s)\]/g, '')
+      .replace(/[`#*_~]/g, '')
+      .replace(/\s+/g, ' ')
+      .trim()
+      .substring(0, 60);
+    return {
+      index: i,
+      label,
+      number: numbers[i],
+      snippet: snippet || 'Message',
+      timestamp: includeTimestamps && m ? formatMessageTimestamp(m.timestamp) : null,
+    };
+  });
+}
+
+/**
+ * True when the export is a generic web article rather than a chat.
+ * ArticleParser reports the site name in Source/platform, so the check
+ * covers metadata, the parser's platform tag, and the dedicated-AI flag.
+ * @param {object} conversation
+ * @returns {boolean}
+ */
+export function isArticleConversation(conversation) {
+  if (!conversation) return false;
+  const source = conversation.metadata?.Source;
+  if (source === 'Web Article' || source === 'WebArticle') return true;
+  const platform = conversation.platform;
+  if (platform === 'Article' || platform === 'WebArticle' || platform === 'Web Article')
+    return true;
+  if (conversation.isDedicatedAi === false) return true;
+  return false;
+}
+
+/**
+ * GitHub-style heading slug used for Markdown ToC anchors.
+ * Lowercases, drops punctuation, turns each space into a hyphen
+ * (no collapsing — matches GitHub's anchor generation).
+ * @param {string} text
+ * @returns {string}
+ */
+export function slugifyHeading(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/ /g, '-');
 }
 
 export class ExportFormatter {

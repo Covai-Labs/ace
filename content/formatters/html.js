@@ -1,6 +1,8 @@
 import {
   ExportFormatter,
   getMessageNumbers,
+  getTocItems,
+  isArticleConversation,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -24,30 +26,24 @@ export class HtmlFormatter extends ExportFormatter {
         ? ` data-theme="${escapeHtml(selectedTheme)}"`
         : '';
 
-    const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const isWebArticle = isArticleConversation(conversation);
     const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
     const includeTimestamps = shouldIncludeTimestamps(options);
 
     // Table of Contents
     let tocHtml = '';
-    if (options?.includeToc && messages && messages.length > 0) {
-      const tocItems = messages
-        .map((m, i) => {
-          const isUser = m.role === 'User';
-          const label = isUser ? 'User' : m.role && m.role !== 'Assistant' ? m.role : platform;
-          const msgNumber = messageNumbers[i];
-          const numberPrefix = msgNumber !== null ? `[${msgNumber}] ` : '';
-          const timestamp = includeTimestamps ? formatMessageTimestamp(m?.timestamp) : null;
-          const dateSuffix = timestamp
-            ? ` <span class="toc-date">${escapeHtml(timestamp)}</span>`
+    if (options?.includeToc && !isWebArticle && messages && messages.length > 0) {
+      const tocItems = getTocItems(messages, {
+        messageNumbering: options?.messageNumbering,
+        includeTimestamps,
+        platform,
+      })
+        .map((item) => {
+          const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
+          const dateSuffix = item.timestamp
+            ? ` <span class="toc-date">${escapeHtml(item.timestamp)}</span>`
             : '';
-          const snippet = (m.content || '')
-            .replace(/<[^>]*>/g, '')
-            .replace(/\[(?:x|X|\s)\]/g, '')
-            .replace(/[`#*_~]/g, '')
-            .trim()
-            .substring(0, 60);
-          return `<li><a href="#msg-card-${i}"><strong>${escapeHtml(numberPrefix + label)}:</strong> ${escapeHtml(snippet || 'Message')}${dateSuffix}</a></li>`;
+          return `<li><a href="#msg-card-${item.index}"><strong>${escapeHtml(numberPrefix + item.label)}:</strong> ${escapeHtml(item.snippet)}${dateSuffix}</a></li>`;
         })
         .join('\n');
       tocHtml = `

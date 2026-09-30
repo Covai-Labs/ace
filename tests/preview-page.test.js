@@ -65,13 +65,15 @@ test('preview page and script include Transfer Chat option and ContinuationForma
   assert.match(previewJs, /TRANSFER_CHAT/);
 });
 
-test('preview page and script handle PNG warning banner, options bar, and autoDownloadPng', () => {
+test('preview page and script handle PNG warning banner, options menu, and autoDownloadPng', () => {
   assert.match(previewHtml, /id="png-warning-banner"/);
-  assert.match(previewHtml, /id="png-options-bar"/);
+  assert.match(previewHtml, /id="options-menu-btn"/);
+  assert.match(previewHtml, /id="options-menu"/);
+  assert.match(previewHtml, /id="png-quality-container"/);
   assert.match(previewHtml, /id="png-quality-checkbox"/);
   assert.match(previewHtml, /id="include-images-checkbox"/);
   assert.match(previewJs, /pngWarningBanner/);
-  assert.match(previewJs, /pngOptionsBar/);
+  assert.match(previewJs, /optionsMenu/);
   assert.match(previewJs, /autoDownloadPng/);
 });
 
@@ -92,23 +94,27 @@ test('preview script contextually toggles copy button on png, pdf, and doc tabs'
   );
 });
 
-test('preview page has global include-images control and recalculates content on toggle', () => {
-  assert.match(previewHtml, /class="[^"]*image-control-group[^"]*"/);
+test('preview page has global include-images control in options menu and recalculates on toggle', () => {
+  assert.match(previewHtml, /id="options-menu"/);
+  assert.match(previewHtml, /id="include-images-checkbox"/);
   assert.match(previewJs, /recalculateContent/);
   assert.match(previewJs, /stripImages/);
   assert.match(previewJs, /includeImagesCheckbox\.addEventListener\('change'/);
 });
 
-test('preview page has global include-thinking control and recalculates content on toggle', () => {
+test('preview page has global include-thinking control in options menu and recalculates on toggle', () => {
   assert.match(previewHtml, /id="include-thinking-checkbox"/);
-  assert.match(previewHtml, /class="[^"]*thinking-control-group[^"]*"/);
+  assert.match(previewHtml, /id="options-menu"/);
   assert.match(previewJs, /stripThinking/);
   assert.match(previewJs, /includeThinkingCheckbox\.addEventListener\('change'/);
 });
 
-test('preview page has message-numbering control and recalculates content on change', () => {
+test('preview page has timestamps, ToC, and message-numbering controls in options menu', () => {
+  assert.match(previewHtml, /id="include-timestamps-checkbox"/);
+  assert.match(previewHtml, /id="include-toc-checkbox"/);
   assert.match(previewHtml, /id="preview-numbering-select"/);
-  assert.match(previewHtml, /class="[^"]*numbering-control-group[^"]*"/);
+  assert.match(previewJs, /includeTimestampsCheckbox\.addEventListener\('change'/);
+  assert.match(previewJs, /includeTocCheckbox\.addEventListener\('change'/);
   assert.match(previewJs, /previewNumberingSelect\.addEventListener\('change'/);
   assert.match(previewJs, /exportOptions\.messageNumbering\s*=/);
 });

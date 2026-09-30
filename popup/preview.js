@@ -37,12 +37,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   const formatTabsContainer = document.getElementById('format-tabs');
 
   const pngWarningBanner = document.getElementById('png-warning-banner');
-  const pngOptionsBar = document.getElementById('png-options-bar');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
   const includeThinkingCheckbox = document.getElementById('include-thinking-checkbox');
   const includeTimestampsCheckbox = document.getElementById('include-timestamps-checkbox');
+  const includeTocCheckbox = document.getElementById('include-toc-checkbox');
   const previewNumberingSelect = document.getElementById('preview-numbering-select');
+  const optionsMenuBtn = document.getElementById('options-menu-btn');
+  const optionsMenu = document.getElementById('options-menu');
 
   if (pngQualityCheckbox) {
     pngQualityCheckbox.addEventListener('change', () => {
@@ -73,6 +75,35 @@ document.addEventListener('DOMContentLoaded', async () => {
       exportOptions.messageNumbering = previewNumberingSelect.value;
       cachedPngBlob = null;
       recalculateContent();
+    });
+  }
+  if (includeTocCheckbox) {
+    includeTocCheckbox.addEventListener('change', () => {
+      cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+
+  // Single Options menu: toggle on button, close on outside click / Escape.
+  // Interacting with items inside keeps it open for multi-toggle flows.
+  if (optionsMenuBtn && optionsMenu) {
+    optionsMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = optionsMenu.classList.contains('hidden');
+      optionsMenu.classList.toggle('hidden');
+      optionsMenuBtn.setAttribute('aria-expanded', String(willOpen));
+    });
+    document.addEventListener('click', (e) => {
+      if (!optionsMenu.classList.contains('hidden') && !optionsMenu.contains(e.target)) {
+        optionsMenu.classList.add('hidden');
+        optionsMenuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !optionsMenu.classList.contains('hidden')) {
+        optionsMenu.classList.add('hidden');
+        optionsMenuBtn.setAttribute('aria-expanded', 'false');
+      }
     });
   }
 
@@ -381,8 +412,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (pngWarningBanner) {
       pngWarningBanner.classList.toggle('hidden', tabName !== 'png');
     }
-    if (pngOptionsBar) {
-      pngOptionsBar.classList.toggle('hidden', tabName !== 'png');
+    const pngQualityContainer = document.getElementById('png-quality-container');
+    if (pngQualityContainer) {
+      pngQualityContainer.classList.toggle('hidden', tabName !== 'png');
     }
 
     if (tabName === 'html-render' || tabName === 'png') {
@@ -453,13 +485,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
       const activeConv = { ...conversation, messages: filteredMessages };
 
+      const shouldIncludeToc = Boolean(includeTocCheckbox && includeTocCheckbox.checked);
+
       htmlContent = htmlFormatter.format(activeConv, {
         ...exportOptions,
         theme: currentSyncTheme,
+        includeToc: shouldIncludeToc,
       });
-      markdownContent = markdownFormatter.format(activeConv, exportOptions);
+      markdownContent = markdownFormatter.format(activeConv, {
+        ...exportOptions,
+        includeToc: shouldIncludeToc,
+      });
       jsonContent = jsonFormatter.format(activeConv);
-      docContent = docFormatter.format(activeConv, exportOptions);
+      docContent = docFormatter.format(activeConv, {
+        ...exportOptions,
+        includeToc: shouldIncludeToc,
+      });
     } else {
       htmlContent = sanitizeHtml(fallbackPreviewContent);
       markdownContent = fallbackPreviewContent;
@@ -764,6 +805,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               ...exportOptions,
               highQuality: isHighQuality,
               includeImages,
+              includeToc: Boolean(includeTocCheckbox && includeTocCheckbox.checked),
               theme: activeTheme,
             });
           }

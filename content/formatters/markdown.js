@@ -1,9 +1,12 @@
 import {
   ExportFormatter,
   getMessageNumbers,
+  getTocItems,
+  isArticleConversation,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
+  slugifyHeading,
 } from './base.js';
 
 function cleanLatexMath(latex) {
@@ -101,6 +104,45 @@ export function extractBase64ImagesToReference(
   return { text: processed, definitions };
 }
 
+/**
+ * Extracts ATX heading text from markdown content, ignoring lines inside
+ * fenced code blocks and supporting CommonMark 0-3 space indentation.
+ * @param {string} content
+ * @returns {string[]}
+ */
+export function extractContentHeadings(content) {
+  const headings = [];
+  const lines = String(content || '').split(/\r?\n/);
+  let inFence = false;
+  let fenceChar = '';
+  let fenceLen = 0;
+
+  for (const line of lines) {
+    const trimmedLead = line.replace(/^[ ]{0,3}/, '');
+    const fenceMatch = trimmedLead.match(/^(`{3,}|~{3,})/);
+    if (fenceMatch) {
+      const char = fenceMatch[1][0];
+      const len = fenceMatch[1].length;
+      if (!inFence) {
+        inFence = true;
+        fenceChar = char;
+        fenceLen = len;
+        continue;
+      } else if (char === fenceChar && len >= fenceLen) {
+        inFence = false;
+        continue;
+      }
+    }
+    if (inFence) continue;
+
+    const headingMatch = line.match(/^[ ]{0,3}#{1,6}[ \t]+(.+?)(?:[ \t]+#+[ \t]*)?$/);
+    if (headingMatch) {
+      headings.push(headingMatch[1].trim());
+    }
+  }
+  return headings;
+}
+
 export class MarkdownFormatter extends ExportFormatter {
   format(conversation, options = {}) {
     const { title, messages } = conversation;
@@ -148,8 +190,60 @@ export class MarkdownFormatter extends ExportFormatter {
 
     output += `\n`;
 
-    const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const isWebArticle = isArticleConversation(conversation);
     const messageNumbers = getMessageNumbers(messages, options.messageNumbering);
+    const showToc = Boolean(options?.includeToc) && !isWebArticle && messages.length > 0;
+    const tocItems = showToc
+      ? getTocItems(messages, {
+          messageNumbering: options.messageNumbering,
+          includeTimestamps: shouldIncludeTimestamps(options),
+          platform,
+        })
+      : [];
+
+    const headingTextFor = (msg, msgIndex) => {
+      const msgNumber = messageNumbers[msgIndex];
+      const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
+      const timestamp = shouldIncludeTimestamps(options)
+        ? formatMessageTimestamp(msg?.timestamp)
+        : null;
+      const dateSuffix = timestamp ? ` — ${timestamp}` : '';
+      return msg?.role === 'User'
+        ? `Prompt${numberSuffix}${dateSuffix}`
+        : `Response${numberSuffix}${dateSuffix}`;
+    };
+
+    if (showToc) {
+      // Unique anchors, GitHub-style: first use bare, repeats get -1, -2.
+      // Content headings consume slugs too (renderers number every heading
+      // in document order), so register them interleaved with ours.
+      const slugCounts = new Map();
+      const uniqueSlug = (text) => {
+        const base = slugifyHeading(text);
+        const seen = slugCounts.get(base) || 0;
+        slugCounts.set(base, seen + 1);
+        return seen === 0 ? base : `${base}-${seen}`;
+      };
+      uniqueSlug('Table of Contents');
+      const anchors = tocItems.map((item) => {
+        const anchor = uniqueSlug(headingTextFor(messages[item.index], item.index));
+        const content = messages[item.index]?.content || '';
+        for (const heading of extractContentHeadings(content)) {
+          uniqueSlug(heading);
+        }
+        return anchor;
+      });
+      output += `## Table of Contents\n\n`;
+      tocItems.forEach((item, tocIdx) => {
+        const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
+        const dateSuffix = item.timestamp ? ` — ${item.timestamp}` : '';
+        const linkText = `${numberPrefix}${item.label}: ${item.snippet}${dateSuffix}`
+          .replace(/\s+/g, ' ')
+          .replace(/[\\[\]]/g, '\\$&');
+        output += `- [${linkText}](#${anchors[tocIdx]})\n`;
+      });
+      output += `\n`;
+    }
     const imageCounter = { count: 1 };
     const imageDefinitions = [];
     const occupiedLabels = new Set();
@@ -179,17 +273,7 @@ export class MarkdownFormatter extends ExportFormatter {
       if (isWebArticle || isArticleRole) {
         output += `${processedContent}\n\n`;
       } else {
-        const msgNumber = messageNumbers[msgIndex];
-        const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
-        const timestamp = shouldIncludeTimestamps(options)
-          ? formatMessageTimestamp(msg?.timestamp)
-          : null;
-        const dateSuffix = timestamp ? ` — ${timestamp}` : '';
-        const heading =
-          msg.role === 'User'
-            ? `## Prompt${numberSuffix}${dateSuffix}:`
-            : `## Response${numberSuffix}${dateSuffix}:`;
-        output += `${heading}\n`;
+        output += `## ${headingTextFor(msg, msgIndex)}:\n`;
         output += `${processedContent}\n\n`;
       }
     });

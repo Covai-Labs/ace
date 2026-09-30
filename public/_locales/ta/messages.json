@@ -135,6 +135,10 @@
     "message": "உயர் தர PNG (2x)",
     "description": "Checkbox label for high quality PNG"
   },
+  "exportOptions": {
+    "message": "விருப்பங்கள்",
+    "description": "Export options menu button in preview toolbar"
+  },
   "exportChat": {
     "message": "📥 அரட்டையை ஏற்றுமதி செய்",
     "description": "Primary button to export chat"

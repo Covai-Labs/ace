@@ -393,6 +393,60 @@ h1 {
   border-radius: 8px;
 }
 
+.options-menu-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.options-menu-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  padding: 7px 12px;
+  border-radius: 8px;
+}
+
+.options-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 50;
+  min-width: 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 6px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+
+.options-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  padding: 7px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.options-menu-item:hover {
+  background-color: rgba(125, 125, 125, 0.12);
+}
+
+.options-menu-item .transfer-label {
+  margin-right: auto;
+}
+
+.options-menu-item.hidden {
+  display: none;
+}
+
 .transfer-select {
   background: transparent;
   border: none;

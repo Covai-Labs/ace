@@ -131,36 +131,64 @@
             </select>
           </div>
 
-          <div class="image-control-group">
-            <label class="checkbox-label" style="margin: 0; cursor: pointer">
-              <input type="checkbox" id="include-images-checkbox" checked />
-              <span data-i18n="includeImages">Include Images</span>
-            </label>
-          </div>
-
-          <div class="thinking-control-group">
-            <label class="checkbox-label" style="margin: 0; cursor: pointer">
-              <input type="checkbox" id="include-thinking-checkbox" checked />
-              <span data-i18n="includeThinking">Include Thoughts</span>
-            </label>
-          </div>
-
-          <div class="timestamps-control-group">
-            <label class="checkbox-label" style="margin: 0; cursor: pointer">
-              <input type="checkbox" id="include-timestamps-checkbox" />
-              <span data-i18n="includeTimestamps">Include Dates</span>
-            </label>
-          </div>
-
-          <div class="numbering-control-group">
-            <span class="transfer-label" data-i18n="messageNumberingLabel">Numbering:</span>
-            <select id="preview-numbering-select" class="transfer-select" title="Message Numbering">
-              <option value="off" data-i18n="messageNumberingOff">Off</option>
-              <option value="per-message" data-i18n="messageNumberingPerMessage">
-                Per Message
-              </option>
-              <option value="per-turn" data-i18n="messageNumberingPerTurn">Per Turn</option>
-            </select>
+          <div class="options-menu-group">
+            <button
+              id="options-menu-btn"
+              class="transfer-select options-menu-btn"
+              title="Export Options"
+              aria-haspopup="true"
+              aria-expanded="false"
+            >
+              ⚙️ <span data-i18n="exportOptions">Options</span>
+            </button>
+            <div id="options-menu" class="options-menu hidden" role="menu">
+              <label class="options-menu-item checkbox-label" style="cursor: pointer">
+                <input type="checkbox" id="include-images-checkbox" checked />
+                <span data-i18n="includeImages">Include Images</span>
+              </label>
+              <label class="options-menu-item checkbox-label" style="cursor: pointer">
+                <input type="checkbox" id="include-thinking-checkbox" checked />
+                <span data-i18n="includeThinking">Include Thoughts</span>
+              </label>
+              <label class="options-menu-item checkbox-label" style="cursor: pointer">
+                <input type="checkbox" id="include-timestamps-checkbox" />
+                <span data-i18n="includeTimestamps">Include Dates</span>
+              </label>
+              <label class="options-menu-item checkbox-label" style="cursor: pointer">
+                <input type="checkbox" id="include-toc-checkbox" />
+                <span data-i18n="includeToc">Include Table of Contents</span>
+              </label>
+              <label
+                class="options-menu-item checkbox-label"
+                id="page-break-container"
+                style="cursor: pointer"
+              >
+                <input type="checkbox" id="page-break-prompt-checkbox" />
+                <span data-i18n="pageBreakPerPrompt">Page Break Per Prompt</span>
+              </label>
+              <label
+                class="options-menu-item checkbox-label"
+                id="png-quality-container"
+                style="cursor: pointer"
+              >
+                <input type="checkbox" id="png-quality-checkbox" checked />
+                <span data-i18n="highQualityPng">High Quality PNG (2x)</span>
+              </label>
+              <div class="options-menu-item options-menu-numbering">
+                <span class="transfer-label" data-i18n="messageNumberingLabel">Numbering:</span>
+                <select
+                  id="preview-numbering-select"
+                  class="transfer-select"
+                  title="Message Numbering"
+                >
+                  <option value="off" data-i18n="messageNumberingOff">Off</option>
+                  <option value="per-message" data-i18n="messageNumberingPerMessage">
+                    Per Message
+                  </option>
+                  <option value="per-turn" data-i18n="messageNumberingPerTurn">Per Turn</option>
+                </select>
+              </div>
+            </div>
           </div>
 
           <div class="transfer-control-group">
@@ -211,29 +239,12 @@
           export.
         </div>
 
-        <div id="print-options-bar" class="print-options-bar hidden">
-          <label class="checkbox-label" id="include-toc-container">
-            <input type="checkbox" id="include-toc-checkbox" />
-            <span data-i18n="includeToc">Include Table of Contents</span>
-          </label>
-          <label class="checkbox-label" id="page-break-container">
-            <input type="checkbox" id="page-break-prompt-checkbox" />
-            <span data-i18n="pageBreakPerPrompt">Page Break Per Prompt</span>
-          </label>
-          <span
-            id="print-hint"
-            class="print-hint hidden"
-            style="font-size: 11.5px; color: var(--text-muted); margin-left: auto"
-            >💡 Tip: Check "Background graphics" in the print dialog for dark/colored themes</span
-          >
-        </div>
-
-        <div id="png-options-bar" class="png-options-bar hidden">
-          <label class="checkbox-label">
-            <input type="checkbox" id="png-quality-checkbox" checked />
-            <span data-i18n="highQualityPng">High Quality PNG (2x)</span>
-          </label>
-        </div>
+        <span
+          id="print-hint"
+          class="print-hint hidden"
+          style="font-size: 11.5px; color: var(--text-muted); margin-left: auto"
+          >💡 Tip: Check "Background graphics" in the print dialog for dark/colored themes</span
+        >
       </header>
 
       <main class="preview-main">
