@@ -4,6 +4,7 @@ import {
   ExportFormatter,
   getMessageNumbers,
   getTocItems,
+  isArticleConversation,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -377,8 +378,9 @@ export class ImageFormatter extends ExportFormatter {
     `;
 
     const includeTimestamps = shouldIncludeTimestamps(options);
+    const isArticle = isArticleConversation(conversation);
     const tocItems =
-      options?.includeToc && (messages || []).length > 0
+      options?.includeToc && !isArticle && (messages || []).length > 0
         ? getTocItems(messages, {
             messageNumbering: options?.messageNumbering,
             includeTimestamps,

@@ -95,14 +95,26 @@ export function getMessageTimestamp(message) {
 
 /**
  * Formats a raw timestamp for display as ISO 8601 (UTC).
- * Numeric epochs (seconds or ms) are normalized to ISO; ISO and locale
- * date strings are parsed and re-emitted as ISO so every platform renders
- * the same sortable format. Strips line breaks so the value is safe to
- * embed in Markdown headings and HTML attributes. Returns null when
- * absent/blank/unparseable.
+ *
+ * Documented contract (deliberate, not an oversight):
+ * - Numeric epochs (seconds or ms) and ISO-8601 strings → ISO via Date.
+ * - ChatGPT-style en-US locale strings (`M/D/YYYY[, ]H:mm[:ss][ AM/PM]`,
+ *   exactly what its parser emits via `toLocaleString()`) → parsed with an
+ *   explicit M/D field map → ISO. No `new Date()` guessing, so `05/09/2026`
+ *   can never silently become 9 May and output never varies by browser.
+ * - Anything else (other locales, relative phrases, garbage) → returned as
+ *   cleaned single-line text so information is never blanked. Callers hide
+ *   the date row when this returns null only.
+ * Strips line breaks so the value is safe to embed in Markdown headings
+ * and HTML attributes. Returns null when absent/blank/undatable numeric.
  * @param {unknown} timestamp
  * @returns {string|null}
  */
+const ISO_LIKE =
+  /^\d{4}-\d{2}-\d{2}(?:[T ]\d{2}:\d{2}(?::\d{2}(?:\.\d+)?)?(?:\s*(?:Z|[+-]\d{2}:?\d{2}))?)?/;
+const EN_US_LOCALE =
+  /^(\d{1,2})\/(\d{1,2})\/(\d{4})(?:[ ,]+(\d{1,2}):(\d{2})(?::(\d{2}))?\s*([AP]M)?)?/i;
+
 export function formatMessageTimestamp(timestamp) {
   if (typeof timestamp === 'number' && Number.isFinite(timestamp)) {
     try {
@@ -126,30 +138,86 @@ export function formatMessageTimestamp(timestamp) {
       }
       return null;
     }
-    // Collapse line breaks/tabs to single spaces and cap length, then
-    // standardize parseable dates to ISO; keep raw text as last resort.
+    // Collapse line breaks/tabs to single spaces and cap length.
     const singleLine = trimmed
       .replace(/[\r\n\t]+/g, ' ')
       .replace(/\s{2,}/g, ' ')
-      .trim();
+      .trim()
+      .slice(0, 200);
     if (!singleLine) return null;
-    const parsed = new Date(singleLine.slice(0, 200));
-    if (!Number.isNaN(parsed.getTime())) {
-      try {
-        return parsed.toISOString();
-      } catch {
-        return singleLine.slice(0, 200);
+    // ISO-8601 strings: safe for the Date constructor everywhere.
+    if (ISO_LIKE.test(singleLine)) {
+      const parsed = new Date(singleLine);
+      if (!Number.isNaN(parsed.getTime())) {
+        try {
+          return parsed.toISOString();
+        } catch {
+          return singleLine;
+        }
       }
+      return singleLine;
     }
-    return singleLine.slice(0, 200);
+    // ChatGPT en-US locale strings: explicit M/D field map, never guessed.
+    const locale = singleLine.match(EN_US_LOCALE);
+    if (locale) {
+      const month = Number(locale[1]);
+      const day = Number(locale[2]);
+      const year = Number(locale[3]);
+      let hour = locale[4] !== undefined ? Number(locale[4]) : 0;
+      const minute = locale[5] !== undefined ? Number(locale[5]) : 0;
+      const second = locale[6] !== undefined ? Number(locale[6]) : 0;
+      const meridiem = locale[7] ? locale[7].toUpperCase() : null;
+      if (meridiem === 'PM' && hour < 12) hour += 12;
+      if (meridiem === 'AM' && hour === 12) hour = 0;
+      const parsed = new Date(year, month - 1, day, hour, minute, second);
+      const valid =
+        parsed.getFullYear() === year &&
+        parsed.getMonth() === month - 1 &&
+        parsed.getDate() === day;
+      if (valid) {
+        try {
+          return parsed.toISOString();
+        } catch {
+          return singleLine;
+        }
+      }
+      return singleLine;
+    }
+    return singleLine;
   }
   return null;
 }
 
 /**
+ * Strips HTML tags without regex sanitization (keeps CodeQL's
+ * incomplete-sanitization query quiet and can't leave `<script` fragments).
+ * Drops `<...>` spans; a `<` never closed by `>` is dropped with the tail.
+ * @param {unknown} text
+ * @returns {string}
+ */
+export function stripTags(text) {
+  const input = String(text || '');
+  let output = '';
+  let i = 0;
+  while (i < input.length) {
+    const open = input.indexOf('<', i);
+    if (open === -1) {
+      output += input.slice(i);
+      break;
+    }
+    output += input.slice(i, open);
+    const close = input.indexOf('>', open + 1);
+    if (close === -1) break;
+    i = close + 1;
+  }
+  return output;
+}
+
+/**
  * Builds one Table of Contents entry per message.
- * Snippets are plain text (tags, checkboxes, and markdown markers stripped)
- * capped at 60 characters; timestamps are ISO when enabled and available.
+ * Snippets are plain single-line text (tags, checkboxes, markdown links and
+ * markers stripped) capped at 60 characters; timestamps are ISO when enabled
+ * and available.
  * @param {Array<{role?: string, content?: string, timestamp?: unknown}>} messages
  * @param {{ messageNumbering?: string, includeTimestamps?: boolean, platform?: string }} [options]
  * @returns {Array<{index: number, label: string, number: number|null, snippet: string, timestamp: string|null}>}
@@ -162,10 +230,13 @@ export function getTocItems(messages, options = {}) {
   return messages.map((m, i) => {
     const isUser = m?.role === 'User';
     const label = isUser ? 'User' : m?.role && m.role !== 'Assistant' ? m.role : platform;
-    const snippet = (m?.content || '')
-      .replace(/<[^>]*>/g, '')
+    const snippet = stripTags(m?.content || '')
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[([^\]]*)\]\[[^\]]*\]/g, '$1')
       .replace(/\[(?:x|X|\s)\]/g, '')
       .replace(/[`#*_~]/g, '')
+      .replace(/\s+/g, ' ')
       .trim()
       .substring(0, 60);
     return {
@@ -176,6 +247,24 @@ export function getTocItems(messages, options = {}) {
       timestamp: includeTimestamps && m ? formatMessageTimestamp(m.timestamp) : null,
     };
   });
+}
+
+/**
+ * True when the export is a generic web article rather than a chat.
+ * ArticleParser reports the site name in Source/platform, so the check
+ * covers metadata, the parser's platform tag, and the dedicated-AI flag.
+ * @param {object} conversation
+ * @returns {boolean}
+ */
+export function isArticleConversation(conversation) {
+  if (!conversation) return false;
+  const source = conversation.metadata?.Source;
+  if (source === 'Web Article' || source === 'WebArticle') return true;
+  const platform = conversation.platform;
+  if (platform === 'Article' || platform === 'WebArticle' || platform === 'Web Article')
+    return true;
+  if (conversation.isDedicatedAi === false) return true;
+  return false;
 }
 
 /**

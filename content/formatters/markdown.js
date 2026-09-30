@@ -2,6 +2,7 @@ import {
   ExportFormatter,
   getMessageNumbers,
   getTocItems,
+  isArticleConversation,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -150,7 +151,7 @@ export class MarkdownFormatter extends ExportFormatter {
 
     output += `\n`;
 
-    const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const isWebArticle = isArticleConversation(conversation);
     const messageNumbers = getMessageNumbers(messages, options.messageNumbering);
     const showToc = Boolean(options?.includeToc) && !isWebArticle && messages.length > 0;
     const tocItems = showToc
@@ -174,12 +175,33 @@ export class MarkdownFormatter extends ExportFormatter {
     };
 
     if (showToc) {
+      // Unique anchors, GitHub-style: first use bare, repeats get -1, -2.
+      // Content headings consume slugs too (renderers number every heading
+      // in document order), so register them interleaved with ours.
+      const slugCounts = new Map();
+      const uniqueSlug = (text) => {
+        const base = slugifyHeading(text);
+        const seen = slugCounts.get(base) || 0;
+        slugCounts.set(base, seen + 1);
+        return seen === 0 ? base : `${base}-${seen}`;
+      };
+      uniqueSlug('Table of Contents');
+      const anchors = tocItems.map((item) => {
+        const anchor = uniqueSlug(headingTextFor(messages[item.index], item.index));
+        const content = messages[item.index]?.content || '';
+        for (const match of String(content).matchAll(/^#{1,6}\s+(.+)$/gm)) {
+          uniqueSlug(match[1]);
+        }
+        return anchor;
+      });
       output += `## Table of Contents\n\n`;
-      tocItems.forEach((item) => {
-        const anchor = slugifyHeading(headingTextFor(messages[item.index], item.index));
+      tocItems.forEach((item, tocIdx) => {
         const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
         const dateSuffix = item.timestamp ? ` — ${item.timestamp}` : '';
-        output += `- [${numberPrefix}${item.label}: ${item.snippet}${dateSuffix}](#${anchor})\n`;
+        const linkText = `${numberPrefix}${item.label}: ${item.snippet}${dateSuffix}`
+          .replace(/\s+/g, ' ')
+          .replace(/[\\[\]]/g, '\\$&');
+        output += `- [${linkText}](#${anchors[tocIdx]})\n`;
       });
       output += `\n`;
     }

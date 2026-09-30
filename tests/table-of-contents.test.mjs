@@ -64,10 +64,10 @@ test('MarkdownFormatter emits a linked ToC with dates when enabled', () => {
     messageNumbering: 'per-message',
   });
   assert.ok(output.includes('## Table of Contents'));
-  assert.ok(output.includes('- [[1] User: What is the capital of France?](#prompt-1)'));
+  assert.ok(output.includes('- [\\[1\\] User: What is the capital of France?](#prompt-1)'));
   assert.ok(
     output.includes(
-      '- [[2] ChatGPT: Paris. — 2026-09-14T09:20:53.385Z](#response-2--2026-09-14t092053385z)',
+      '- [\\[2\\] ChatGPT: Paris. — 2026-09-14T09:20:53.385Z](#response-2--2026-09-14t092053385z)',
     ),
   );
   // Every ToC anchor resolves to a slug of an emitted heading.
@@ -87,6 +87,71 @@ test('MarkdownFormatter emits a linked ToC with dates when enabled', () => {
     { includeToc: true },
   );
   assert.ok(!article.includes('## Table of Contents'));
+});
+
+test('MarkdownFormatter deduplicates anchors with numbering off', () => {
+  const multi = {
+    title: 'Multi',
+    messages: [
+      { role: 'User', content: 'First?' },
+      { role: 'ChatGPT', content: '## Prompt\n\nNot a real prompt heading.' },
+      { role: 'User', content: 'Second?' },
+      { role: 'ChatGPT', content: 'Done.' },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+  const output = new MarkdownFormatter().format(multi, { includeToc: true });
+  const anchors = Array.from(output.matchAll(/\]\(#([^)]+)\)/g), (m) => m[1]);
+  // Four message links, all unique, GitHub-style -1/-2 suffixes. The content
+  // `## Prompt` consumes prompt-1 exactly as renderers number it, so the
+  // third message correctly lands on prompt-2…
+  assert.equal(anchors.length, 4);
+  assert.equal(new Set(anchors).size, 4);
+  assert.deepEqual(anchors, ['prompt', 'response', 'prompt-2', 'response-1']);
+  // …and the content heading consumed its own slug without stealing a link.
+  assert.ok(output.includes('## Prompt\n\nNot a real prompt heading.'));
+});
+
+test('MarkdownFormatter flattens links and escapes brackets in ToC text', () => {
+  const tricky = {
+    title: 'Tricky',
+    messages: [
+      {
+        role: 'User',
+        content: 'See [the docs](https://example.com) and ![pic](https://example.com/p.png)',
+      },
+      { role: 'ChatGPT', content: 'Use ] here\n\nSecond paragraph.' },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+  const output = new MarkdownFormatter().format(tricky, {
+    includeToc: true,
+    messageNumbering: 'per-message',
+  });
+  const tocSection = output.split('## Table of Contents')[1].split('## Prompt')[0];
+  assert.ok(!tocSection.includes('](https://'), 'no raw URLs in ToC links');
+  assert.ok(!tocSection.includes('!['), 'no image markup in ToC links');
+  assert.ok(tocSection.includes('\\]'), 'stray brackets are escaped');
+  assert.ok(!/\)\n[^-\s]/.test(tocSection), 'no bare newlines inside ToC links');
+});
+
+test('Article conversations skip the ToC however they are tagged', () => {
+  const articleMsg = [{ role: 'Article', content: 'Body text.' }];
+  for (const conversation of [
+    { title: 'A', messages: articleMsg, metadata: { Source: 'Web Article' } },
+    { title: 'A', messages: articleMsg, metadata: { Source: 'Example Blog' }, platform: 'Article' },
+    {
+      title: 'A',
+      messages: articleMsg,
+      metadata: { Source: 'Example Blog' },
+      isDedicatedAi: false,
+    },
+  ]) {
+    const md = new MarkdownFormatter().format(conversation, { includeToc: true });
+    assert.ok(!md.includes('## Table of Contents'), JSON.stringify(conversation.platform));
+    const doc = new DocFormatter().format(conversation, { includeToc: true });
+    assert.ok(!doc.includes('Table of Contents'));
+  }
 });
 
 test('HtmlFormatter ToC keeps dates via shared helper', async () => {

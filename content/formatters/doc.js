@@ -2,6 +2,7 @@ import {
   ExportFormatter,
   getMessageNumbers,
   getTocItems,
+  isArticleConversation,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -35,7 +36,7 @@ export class DocFormatter extends ExportFormatter {
       metaParts.push(`Method: ${escapeHtml(method)}`);
     }
 
-    const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const isWebArticle = isArticleConversation(conversation);
     const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
     const includeTimestamps = shouldIncludeTimestamps(options);
 

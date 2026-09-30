@@ -2,6 +2,7 @@ import {
   ExportFormatter,
   getMessageNumbers,
   getTocItems,
+  isArticleConversation,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -25,13 +26,13 @@ export class HtmlFormatter extends ExportFormatter {
         ? ` data-theme="${escapeHtml(selectedTheme)}"`
         : '';
 
-    const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const isWebArticle = isArticleConversation(conversation);
     const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
     const includeTimestamps = shouldIncludeTimestamps(options);
 
     // Table of Contents
     let tocHtml = '';
-    if (options?.includeToc && messages && messages.length > 0) {
+    if (options?.includeToc && !isWebArticle && messages && messages.length > 0) {
       const tocItems = getTocItems(messages, {
         messageNumbering: options?.messageNumbering,
         includeTimestamps,

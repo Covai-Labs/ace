@@ -31,6 +31,15 @@ test('formatMessageTimestamp standardizes date strings to ISO', () => {
   assert.match(formatMessageTimestamp('9/30/2026 08:48:07'), /^\d{4}-\d{2}-\d{2}T/);
 });
 
+test('formatMessageTimestamp never silently swaps day and month', () => {
+  // Explicit M/D contract for en-US producer strings (May 9, never Sept 5;
+  // UTC conversion may land on the 8th past midnight east of Greenwich)…
+  assert.match(formatMessageTimestamp('05/09/2026'), /^2026-05-0[89]T/);
+  // …while anything outside the known formats passes through untouched.
+  assert.equal(formatMessageTimestamp('30.09.2026'), '30.09.2026');
+  assert.equal(formatMessageTimestamp('not a date'), 'not a date');
+});
+
 test('formatMessageTimestamp rejects blank and undatable values', () => {
   assert.equal(formatMessageTimestamp(null), null);
   assert.equal(formatMessageTimestamp(undefined), null);
@@ -43,7 +52,7 @@ test('formatMessageTimestamp rejects blank and undatable values', () => {
 });
 
 test('formatMessageTimestamp collapses newlines but keeps unparseable text', () => {
-  assert.equal(formatMessageTimestamp('2026-09-20\n## Hacked'), '2026-09-20 ## Hacked');
+  assert.equal(formatMessageTimestamp('Sept 20\n## Hacked'), 'Sept 20 ## Hacked');
   assert.equal(formatMessageTimestamp('not a date'), 'not a date');
 });
 
