@@ -38,7 +38,9 @@ export class HtmlFormatter extends ExportFormatter {
           const msgNumber = messageNumbers[i];
           const numberPrefix = msgNumber !== null ? `[${msgNumber}] ` : '';
           const timestamp =
-            includeTimestamps && m?.timestamp ? formatMessageTimestamp(m.timestamp) : null;
+            includeTimestamps && m?.timestamp !== null && m?.timestamp !== undefined
+              ? formatMessageTimestamp(m.timestamp)
+              : null;
           const dateSuffix = timestamp
             ? ` <span class="toc-date">${escapeHtml(timestamp)}</span>`
             : '';

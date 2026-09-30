@@ -182,10 +182,13 @@ export class MarkdownFormatter extends ExportFormatter {
         const msgNumber = messageNumbers[msgIndex];
         const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
         const timestamp =
-          shouldIncludeTimestamps(options) && msg?.timestamp
+          shouldIncludeTimestamps(options) && msg?.timestamp !== null && msg?.timestamp !== undefined
             ? formatMessageTimestamp(msg.timestamp)
             : null;
-        const dateSuffix = timestamp ? ` — ${timestamp}` : '';
+        const safeTimestamp = timestamp
+          ? timestamp.replace(/[\r\n]+/g, ' ').replace(/[\\`*_[\]#<>]/g, '\\$&')
+          : '';
+        const dateSuffix = safeTimestamp ? ` — ${safeTimestamp}` : '';
         const heading =
           msg.role === 'User'
             ? `## Prompt${numberSuffix}${dateSuffix}:`

@@ -384,7 +384,7 @@ export class ImageFormatter extends ExportFormatter {
         const avatarBg = isUser ? palette.accent : '#0ea5e9';
         const avatarText = isUser ? 'U' : platform[0] || 'A';
         const timestamp =
-          shouldIncludeTimestamps(options) && msg?.timestamp
+          shouldIncludeTimestamps(options) && msg?.timestamp !== null && msg?.timestamp !== undefined
             ? formatMessageTimestamp(msg.timestamp)
             : null;
         const dateSuffix = timestamp ? ` • ${escapeHtml(timestamp)}` : '';
