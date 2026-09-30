@@ -99,7 +99,7 @@ export function getMessageTimestamp(message) {
  * date strings are parsed and re-emitted as ISO so every platform renders
  * the same sortable format. Strips line breaks so the value is safe to
  * embed in Markdown headings and HTML attributes. Returns null when
- * absent/blank/unparseable.
+ * absent or blank; unparseable non-ISO text is returned as single-line text.
  * @param {unknown} timestamp
  * @returns {string|null}
  */
@@ -133,6 +133,7 @@ export function formatMessageTimestamp(timestamp) {
       .replace(/\s{2,}/g, ' ')
       .trim();
     if (!singleLine) return null;
+    if (!/^\d{4}-\d{2}-\d{2}T/.test(singleLine)) return singleLine.slice(0, 200);
     const parsed = new Date(singleLine.slice(0, 200));
     if (!Number.isNaN(parsed.getTime())) {
       try {
@@ -165,7 +166,10 @@ export function getTocItems(messages, options = {}) {
     const snippet = (m?.content || '')
       .replace(/<[^>]*>/g, '')
       .replace(/\[(?:x|X|\s)\]/g, '')
+      .replace(/!\[([^\]]*)\]\([^)]*\)/g, '$1')
+      .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
       .replace(/[`#*_~]/g, '')
+      .replace(/\s+/g, ' ')
       .trim()
       .substring(0, 60);
     return {

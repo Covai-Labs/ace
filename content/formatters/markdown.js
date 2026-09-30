@@ -150,7 +150,8 @@ export class MarkdownFormatter extends ExportFormatter {
 
     output += `\n`;
 
-    const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const isWebArticle =
+      conversation.metadata?.isArticle === true || platform === 'Web Article' || platform === 'WebArticle';
     const messageNumbers = getMessageNumbers(messages, options.messageNumbering);
     const showToc = Boolean(options?.includeToc) && !isWebArticle && messages.length > 0;
     const tocItems = showToc
@@ -175,11 +176,16 @@ export class MarkdownFormatter extends ExportFormatter {
 
     if (showToc) {
       output += `## Table of Contents\n\n`;
+      const anchorCounts = new Map();
       tocItems.forEach((item) => {
-        const anchor = slugifyHeading(headingTextFor(messages[item.index], item.index));
+        const baseAnchor = slugifyHeading(headingTextFor(messages[item.index], item.index));
+        const count = anchorCounts.get(baseAnchor) || 0;
+        anchorCounts.set(baseAnchor, count + 1);
+        const anchor = count ? `${baseAnchor}-${count}` : baseAnchor;
         const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
         const dateSuffix = item.timestamp ? ` — ${item.timestamp}` : '';
-        output += `- [${numberPrefix}${item.label}: ${item.snippet}${dateSuffix}](#${anchor})\n`;
+        const snippet = item.snippet.replace(/[\\[\\]\\(\\)]/g, '\\$&');
+        output += `- [${numberPrefix}${item.label}: ${snippet}${dateSuffix}](#${anchor})\n`;
       });
       output += `\n`;
     }

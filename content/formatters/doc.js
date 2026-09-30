@@ -35,7 +35,8 @@ export class DocFormatter extends ExportFormatter {
       metaParts.push(`Method: ${escapeHtml(method)}`);
     }
 
-    const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
+    const isWebArticle =
+      conversation.metadata?.isArticle === true || platform === 'Web Article' || platform === 'WebArticle';
     const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
     const includeTimestamps = shouldIncludeTimestamps(options);
 

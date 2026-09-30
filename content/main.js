@@ -55,6 +55,10 @@ function enrichConversation(conversation) {
     typeof activeParser?.getPlatformName === 'function'
       ? activeParser.getPlatformName()
       : activeParser?.name || activeParser?.constructor?.name?.replace('Parser', '') || 'AI';
+  conversation.metadata = {
+    ...(conversation.metadata || {}),
+    isArticle: conversation.metadata?.isArticle === true || activeParser?.constructor?.name === 'ArticleParser',
+  };
   conversation.title = resolveConversationTitle(
     conversation.title,
     platformName,
