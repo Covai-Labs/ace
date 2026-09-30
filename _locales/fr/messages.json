@@ -135,6 +135,10 @@
     "message": "PNG haute qualité (2x)",
     "description": "Checkbox label for high quality PNG"
   },
+  "exportOptions": {
+    "message": "Options",
+    "description": "Export options menu button in preview toolbar"
+  },
   "exportChat": {
     "message": "📥 Exporter la discussion",
     "description": "Primary button to export chat"

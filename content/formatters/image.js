@@ -3,6 +3,7 @@ import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import {
   ExportFormatter,
   getMessageNumbers,
+  getTocItems,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -375,6 +376,31 @@ export class ImageFormatter extends ExportFormatter {
       line-height: 1.6;
     `;
 
+    const includeTimestamps = shouldIncludeTimestamps(options);
+    const tocItems =
+      options?.includeToc && (messages || []).length > 0
+        ? getTocItems(messages, {
+            messageNumbering: options?.messageNumbering,
+            includeTimestamps,
+            platform,
+          })
+        : [];
+    const tocHtml =
+      tocItems.length > 0
+        ? `<div style="border: 1px solid ${palette.borderColor}; border-radius: 12px; padding: 14px 18px; margin-bottom: 28px; background-color: ${palette.assistantBg};">
+          <div style="font-size: 14px; font-weight: 700; color: ${palette.textColor}; margin-bottom: 8px;">📑 Table of Contents</div>
+          <ol style="margin: 0; padding-left: 20px; font-size: 12px; color: ${palette.subtitleColor};">
+            ${tocItems
+              .map((item) => {
+                const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
+                const dateSuffix = item.timestamp ? ` • ${escapeHtml(item.timestamp)}` : '';
+                return `<li style="margin: 3px 0;"><strong>${escapeHtml(numberPrefix + item.label)}:</strong> ${escapeHtml(item.snippet)}${dateSuffix}</li>`;
+              })
+              .join('\n')}
+          </ol>
+        </div>`
+        : '';
+
     const formattedMessages = (messages || [])
       .map((msg, idx) => {
         const isUser = msg.role === 'User';
@@ -450,6 +476,7 @@ export class ImageFormatter extends ExportFormatter {
 
       <!-- Messages Body -->
       <div>
+        ${tocHtml}
         ${formattedMessages}
       </div>
 

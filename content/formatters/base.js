@@ -94,10 +94,12 @@ export function getMessageTimestamp(message) {
 }
 
 /**
- * Formats a raw timestamp for display. Preserves parser-provided strings
- * (locale or ISO) and normalizes numeric epochs to ISO (seconds or ms).
- * Strips line breaks so the value is safe to embed in Markdown headings
- * and HTML attributes. Returns null when absent/blank/unsupported.
+ * Formats a raw timestamp for display as ISO 8601 (UTC).
+ * Numeric epochs (seconds or ms) are normalized to ISO; ISO and locale
+ * date strings are parsed and re-emitted as ISO so every platform renders
+ * the same sortable format. Strips line breaks so the value is safe to
+ * embed in Markdown headings and HTML attributes. Returns null when
+ * absent/blank/unparseable.
  * @param {unknown} timestamp
  * @returns {string|null}
  */
@@ -106,7 +108,7 @@ export function formatMessageTimestamp(timestamp) {
     try {
       return new Date(normalizeEpochToMs(timestamp)).toISOString();
     } catch {
-      return String(timestamp);
+      return null;
     }
   }
   if (typeof timestamp === 'string') {
@@ -119,18 +121,76 @@ export function formatMessageTimestamp(timestamp) {
         try {
           return new Date(normalizeEpochToMs(numeric)).toISOString();
         } catch {
-          return trimmed;
+          return null;
         }
       }
+      return null;
     }
-    // Collapse line breaks/tabs to single spaces and cap length.
+    // Collapse line breaks/tabs to single spaces and cap length, then
+    // standardize parseable dates to ISO; keep raw text as last resort.
     const singleLine = trimmed
       .replace(/[\r\n\t]+/g, ' ')
       .replace(/\s{2,}/g, ' ')
       .trim();
-    return singleLine ? singleLine.slice(0, 200) : null;
+    if (!singleLine) return null;
+    const parsed = new Date(singleLine.slice(0, 200));
+    if (!Number.isNaN(parsed.getTime())) {
+      try {
+        return parsed.toISOString();
+      } catch {
+        return singleLine.slice(0, 200);
+      }
+    }
+    return singleLine.slice(0, 200);
   }
   return null;
+}
+
+/**
+ * Builds one Table of Contents entry per message.
+ * Snippets are plain text (tags, checkboxes, and markdown markers stripped)
+ * capped at 60 characters; timestamps are ISO when enabled and available.
+ * @param {Array<{role?: string, content?: string, timestamp?: unknown}>} messages
+ * @param {{ messageNumbering?: string, includeTimestamps?: boolean, platform?: string }} [options]
+ * @returns {Array<{index: number, label: string, number: number|null, snippet: string, timestamp: string|null}>}
+ */
+export function getTocItems(messages, options = {}) {
+  if (!Array.isArray(messages)) return [];
+  const numbers = getMessageNumbers(messages, options.messageNumbering);
+  const includeTimestamps = shouldIncludeTimestamps(options);
+  const platform = options.platform || 'Assistant';
+  return messages.map((m, i) => {
+    const isUser = m?.role === 'User';
+    const label = isUser ? 'User' : m?.role && m.role !== 'Assistant' ? m.role : platform;
+    const snippet = (m?.content || '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/\[(?:x|X|\s)\]/g, '')
+      .replace(/[`#*_~]/g, '')
+      .trim()
+      .substring(0, 60);
+    return {
+      index: i,
+      label,
+      number: numbers[i],
+      snippet: snippet || 'Message',
+      timestamp: includeTimestamps && m ? formatMessageTimestamp(m.timestamp) : null,
+    };
+  });
+}
+
+/**
+ * GitHub-style heading slug used for Markdown ToC anchors.
+ * Lowercases, drops punctuation, turns each space into a hyphen
+ * (no collapsing — matches GitHub's anchor generation).
+ * @param {string} text
+ * @returns {string}
+ */
+export function slugifyHeading(text) {
+  return String(text || '')
+    .toLowerCase()
+    .replace(/[^\w\s-]/g, '')
+    .trim()
+    .replace(/ /g, '-');
 }
 
 export class ExportFormatter {

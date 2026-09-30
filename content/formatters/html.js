@@ -1,6 +1,7 @@
 import {
   ExportFormatter,
   getMessageNumbers,
+  getTocItems,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -31,23 +32,17 @@ export class HtmlFormatter extends ExportFormatter {
     // Table of Contents
     let tocHtml = '';
     if (options?.includeToc && messages && messages.length > 0) {
-      const tocItems = messages
-        .map((m, i) => {
-          const isUser = m.role === 'User';
-          const label = isUser ? 'User' : m.role && m.role !== 'Assistant' ? m.role : platform;
-          const msgNumber = messageNumbers[i];
-          const numberPrefix = msgNumber !== null ? `[${msgNumber}] ` : '';
-          const timestamp = includeTimestamps ? formatMessageTimestamp(m?.timestamp) : null;
-          const dateSuffix = timestamp
-            ? ` <span class="toc-date">${escapeHtml(timestamp)}</span>`
+      const tocItems = getTocItems(messages, {
+        messageNumbering: options?.messageNumbering,
+        includeTimestamps,
+        platform,
+      })
+        .map((item) => {
+          const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
+          const dateSuffix = item.timestamp
+            ? ` <span class="toc-date">${escapeHtml(item.timestamp)}</span>`
             : '';
-          const snippet = (m.content || '')
-            .replace(/<[^>]*>/g, '')
-            .replace(/\[(?:x|X|\s)\]/g, '')
-            .replace(/[`#*_~]/g, '')
-            .trim()
-            .substring(0, 60);
-          return `<li><a href="#msg-card-${i}"><strong>${escapeHtml(numberPrefix + label)}:</strong> ${escapeHtml(snippet || 'Message')}${dateSuffix}</a></li>`;
+          return `<li><a href="#msg-card-${item.index}"><strong>${escapeHtml(numberPrefix + item.label)}:</strong> ${escapeHtml(item.snippet)}${dateSuffix}</a></li>`;
         })
         .join('\n');
       tocHtml = `

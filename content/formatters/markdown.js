@@ -1,9 +1,11 @@
 import {
   ExportFormatter,
   getMessageNumbers,
+  getTocItems,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
+  slugifyHeading,
 } from './base.js';
 
 function cleanLatexMath(latex) {
@@ -150,6 +152,37 @@ export class MarkdownFormatter extends ExportFormatter {
 
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
     const messageNumbers = getMessageNumbers(messages, options.messageNumbering);
+    const showToc = Boolean(options?.includeToc) && !isWebArticle && messages.length > 0;
+    const tocItems = showToc
+      ? getTocItems(messages, {
+          messageNumbering: options.messageNumbering,
+          includeTimestamps: shouldIncludeTimestamps(options),
+          platform,
+        })
+      : [];
+
+    const headingTextFor = (msg, msgIndex) => {
+      const msgNumber = messageNumbers[msgIndex];
+      const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
+      const timestamp = shouldIncludeTimestamps(options)
+        ? formatMessageTimestamp(msg?.timestamp)
+        : null;
+      const dateSuffix = timestamp ? ` — ${timestamp}` : '';
+      return msg?.role === 'User'
+        ? `Prompt${numberSuffix}${dateSuffix}`
+        : `Response${numberSuffix}${dateSuffix}`;
+    };
+
+    if (showToc) {
+      output += `## Table of Contents\n\n`;
+      tocItems.forEach((item) => {
+        const anchor = slugifyHeading(headingTextFor(messages[item.index], item.index));
+        const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
+        const dateSuffix = item.timestamp ? ` — ${item.timestamp}` : '';
+        output += `- [${numberPrefix}${item.label}: ${item.snippet}${dateSuffix}](#${anchor})\n`;
+      });
+      output += `\n`;
+    }
     const imageCounter = { count: 1 };
     const imageDefinitions = [];
     const occupiedLabels = new Set();
@@ -179,17 +212,7 @@ export class MarkdownFormatter extends ExportFormatter {
       if (isWebArticle || isArticleRole) {
         output += `${processedContent}\n\n`;
       } else {
-        const msgNumber = messageNumbers[msgIndex];
-        const numberSuffix = msgNumber !== null ? ` [${msgNumber}]` : '';
-        const timestamp = shouldIncludeTimestamps(options)
-          ? formatMessageTimestamp(msg?.timestamp)
-          : null;
-        const dateSuffix = timestamp ? ` — ${timestamp}` : '';
-        const heading =
-          msg.role === 'User'
-            ? `## Prompt${numberSuffix}${dateSuffix}:`
-            : `## Response${numberSuffix}${dateSuffix}:`;
-        output += `${heading}\n`;
+        output += `## ${headingTextFor(msg, msgIndex)}:\n`;
         output += `${processedContent}\n\n`;
       }
     });

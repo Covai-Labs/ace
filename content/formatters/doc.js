@@ -1,6 +1,7 @@
 import {
   ExportFormatter,
   getMessageNumbers,
+  getTocItems,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -37,6 +38,23 @@ export class DocFormatter extends ExportFormatter {
     const isWebArticle = platform === 'Web Article' || platform === 'WebArticle';
     const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
     const includeTimestamps = shouldIncludeTimestamps(options);
+
+    // Table of Contents (Word honors same-document #anchors on import)
+    let tocHtml = '';
+    if (options?.includeToc && !isWebArticle && messages && messages.length > 0) {
+      const tocItems = getTocItems(messages, {
+        messageNumbering: options?.messageNumbering,
+        includeTimestamps,
+        platform,
+      })
+        .map((item) => {
+          const numberPrefix = item.number !== null ? `[${item.number}] ` : '';
+          const dateSuffix = item.timestamp ? ` • ${escapeHtml(item.timestamp)}` : '';
+          return `<li><a href="#msg-card-${item.index}">${escapeHtml(numberPrefix + item.label)}: ${escapeHtml(item.snippet)}${dateSuffix}</a></li>`;
+        })
+        .join('\n');
+      tocHtml = `<div class="toc-card"><div class="toc-title">📑 Table of Contents</div><ol>${tocItems}</ol></div>\n`;
+    }
 
     const formattedMessages = isWebArticle
       ? messages
@@ -76,7 +94,7 @@ export class DocFormatter extends ExportFormatter {
               .replace(/<svg[^>]*>[\s\S]*?<\/svg>/gi, '');
 
             return `
-        <div class="message-card ${roleClass}">
+        <div id="msg-card-${idx}" class="message-card ${roleClass}">
           <div class="message-header">
             <span class="message-avatar">${avatarText}</span>
             <span>${escapeHtml(displayName)}${dateSuffix}</span>
@@ -160,6 +178,18 @@ export class DocFormatter extends ExportFormatter {
       text-align: center;
       font-weight: bold;
       margin-right: 6px;
+    }
+    .toc-card {
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border: 1pt solid #cbd5e1;
+      background-color: #f8fafc;
+    }
+    .toc-title {
+      font-weight: bold;
+      font-size: 11pt;
+      color: #1e293b;
+      margin-bottom: 8px;
     }
     .message-content {
       font-size: 10.5pt;
@@ -257,7 +287,7 @@ export class DocFormatter extends ExportFormatter {
     <div class="chat-title">${escapeHtml(title || 'AI Chat Export')}</div>
     <div class="meta-info">${metaParts.join(' • ')}</div>
   </div>
-  ${formattedMessages}
+  ${tocHtml}${formattedMessages}
 </body>
 </html>`;
   }
