@@ -81,40 +81,49 @@ export function markdownToPlainText(markdown) {
   }
 
   // 2b. Protect CommonMark indented code blocks (4-space or tab indent after a blank line).
-  // Processes lines not already protected by fenced code block placeholders.
+  // Distinguishes code indentation from list item continuations and mixed space/tab indentations.
   const postFenceLines = processedLines.join('\n').split('\n');
   const finalLines = [];
   let prevWasBlank = true; // treat start-of-input as blank
+  let inList = false;
+
+  const isIndent = (l) => /^(?: {4}|\t| {1,3}\t)/.test(l);
+  const isListMarker = (l) => /^[ ]{0,3}(?:[*+-]|\d+[.)])[ \t]+/.test(l);
 
   for (let i = 0; i < postFenceLines.length; i++) {
     const line = postFenceLines[i];
     const isBlank = /^\s*$/.test(line);
-    const isIndented = /^(?: {4}|\t)/.test(line);
+    const isIndented = isIndent(line);
     const isPlaceholder = /^@@CODE_BLOCK_\d+@@$/.test(line);
+    const isList = isListMarker(line);
 
-    if (isIndented && prevWasBlank && !isPlaceholder) {
-      // Collect contiguous indented lines (internal blank lines are part of the block)
-      const blockLines = [line];
-      let j = i + 1;
-      while (j < postFenceLines.length) {
-        const next = postFenceLines[j];
-        if (/^(?: {4}|\t)/.test(next) || /^\s*$/.test(next)) {
-          blockLines.push(next);
-          j++;
+    if (isList) {
+      inList = true;
+      finalLines.push(line);
+      prevWasBlank = false;
+    } else if (!isBlank && !isIndented) {
+      inList = false;
+      finalLines.push(line);
+      prevWasBlank = false;
+    } else if (isIndented && prevWasBlank && !isPlaceholder && !inList) {
+      // Find contiguous indented lines, preserving any trailing blank lines for outer prose
+      let lastIndented = i;
+      for (let k = i + 1; k < postFenceLines.length; k++) {
+        if (isIndent(postFenceLines[k])) {
+          lastIndented = k;
+        } else if (/^\s*$/.test(postFenceLines[k])) {
+          continue;
         } else {
           break;
         }
       }
-      // Trim trailing blank lines from the indented block
-      while (blockLines.length > 0 && /^\s*$/.test(blockLines[blockLines.length - 1])) {
-        blockLines.pop();
-      }
+      const blockLines = postFenceLines.slice(i, lastIndented + 1);
       const id = `@@CODE_BLOCK_${codeBlocks.length}@@`;
-      const blockContent = blockLines.map((l) => l.replace(/^(?: {4}|\t)/, '')).join('\n');
+      const blockContent = blockLines.map((l) => l.replace(/^(?: {4}|\t| {1,3}\t)/, '')).join('\n');
       codeBlocks.push({ lines: blockContent, closed: true, indented: true });
       finalLines.push(id);
-      i = j - 1;
-      prevWasBlank = true;
+      i = lastIndented;
+      prevWasBlank = false;
     } else {
       finalLines.push(line);
       prevWasBlank = isBlank;
@@ -125,10 +134,9 @@ export function markdownToPlainText(markdown) {
 
   const inlineCode = [];
   // Match CommonMark inline code spans: must not cross a blank line (paragraph boundary).
-  // Uses matching runs of backticks; prevents a stray backtick in one paragraph from
-  // accidentally consuming content across a blank line into the next paragraph.
+  // Supports both LF and CRLF line endings.
   text = text.replace(
-    /(?<!`)(`+)(?!`)((?:(?!\n[ \t]*\n)[\s\S])+?)(?<!`)\1(?!`)/g,
+    /(?<!`)(`+)(?!`)((?:(?!\r?\n[ \t]*\r?\n)[\s\S])+?)(?<!`)\1(?!`)/g,
     (match, delim, rawContent) => {
       let content = rawContent.replace(/\r?\n/g, ' ');
       if (content.startsWith(' ') && content.endsWith(' ') && content.trim().length > 0) {
@@ -140,41 +148,42 @@ export function markdownToPlainText(markdown) {
     },
   );
 
-  // 3. Strip well-formed HTML tags and comments
-  text = stripTags(text);
-
-  // Destination pattern: angle-bracketed <url with spaces> OR bare URL with up to 4 levels of
-  // nested balanced parentheses. p0 excludes backslash from the bare-char class so only the \\.
-  // alternative can consume a backslash, preventing exponential backtracking on malformed input.
+  // 3. Normalize links and images BEFORE stripTags to protect angle-bracketed destinations
+  // (e.g. [manual](<guide>)) from being removed as HTML tags.
+  // Destination pattern: angle-bracketed <url with spaces and escapes> OR bare URL with up to 4 levels of
+  // nested balanced parentheses. p0 excludes backslash from the bare-char class so only \\. consumes it.
   const p0 = '(?:\\\\.|[^()\\s\\\\])';
   const p1 = `(?:${p0}|\\(${p0}*\\))`;
   const p2 = `(?:${p0}|\\(${p1}*\\))`;
   const p3 = `(?:${p0}|\\(${p2}*\\))`;
   const p4 = `(?:${p0}|\\(${p3}*\\))`;
-  const ANGLE_DEST = '<([^>]*)>';
+  const ANGLE_DEST = '<((?:\\\\.|[^<>\\r\\n\\\\])*)>';
   const BARE_DEST = `(${p4}*)`;
   const destPattern = `\\((?:${ANGLE_DEST}|${BARE_DEST})(?:\\s+["'][^"']*["'])?\\)`;
   const imgRe = new RegExp(`!\\[([^\\]]*)\\]${destPattern}`, 'g');
   const linkRe = new RegExp(`\\[([^\\]]+)\\]${destPattern}`, 'g');
 
-  // 4. Normalize images: ![alt](url) -> [Image: alt]
+  // Normalize images: ![alt](url) -> [Image: alt]
   text = text.replace(imgRe, (match, alt) => {
     const label = alt && alt.trim() ? alt.trim() : 'Image';
     return `[${label.startsWith('Image') ? label : `Image: ${label}`}]`;
   });
 
-  // 5. Normalize links: [text](url) -> text (url) if text != url, else url
+  // Normalize links: [text](url) -> text (url) if text != url, else url
   // angleDest captures <url> destinations; bareDest captures bare URL destinations.
   text = text.replace(linkRe, (match, linkText, angleDest, bareDest) => {
     const t = linkText.trim();
     const rawUrl = angleDest != null ? angleDest : bareDest || '';
-    const u = rawUrl.trim().replace(/\\([()\\])/g, '$1');
+    const u = rawUrl.trim().replace(/\\([()<>\\])/g, '$1');
     if (!t || t === u) return u;
     return `${t} (${u})`;
   });
 
-  // 6. Normalize reference-style links [text][ref] -> text
-  text = text.replace(/\[([^\]]+)\]\[[^\]]*\]/g, '$1');
+  // Normalize reference-style links [text][ref] -> text
+  text = text.replace(/\[([^\\]]+)\]\[[^\\]]*\]/g, '$1');
+
+  // 4. Strip well-formed HTML tags and comments from remaining prose
+  text = stripTags(text);
 
   // 7. Strip ATX headings prefixes (e.g., "# Heading" -> "Heading")
   text = text.replace(/^[ ]{0,3}#{1,6}[ \t]+(.+?)(?:[ \t]+#+[ \t]*)?$/gm, '$1');

@@ -330,3 +330,42 @@ test('markdownToPlainText handles malformed links with many backslash-letter pai
   assert.ok(elapsed < 500, `should complete in <500ms, took ${elapsed}ms`);
   assert.ok(typeof output === 'string');
 });
+
+test('markdownToPlainText protects angle-bracketed relative destinations from stripTags', () => {
+  const input = 'Check [manual](<guide>) before using [api](<endpoint>).';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Check manual (guide) before using api (endpoint).');
+});
+
+test('markdownToPlainText handles escaped angle brackets in link destinations', () => {
+  const input = 'See [symbol](<a\\>b>) for details.';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'See symbol (a>b) for details.');
+});
+
+test('markdownToPlainText distinguishes list continuation paragraphs from indented code blocks', () => {
+  const input = '- Item\n\n    **Details** [guide](https://example.com)';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('Details guide (https://example.com)'));
+  assert.ok(!output.includes('**Details**'));
+});
+
+test('markdownToPlainText preserves paragraph separation between indented code and following prose', () => {
+  const input = 'Intro\n\n    code\n\nOutro';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Intro\n\ncode\n\nOutro');
+});
+
+test('markdownToPlainText preserves mixed tab and space indented code blocks', () => {
+  const input = 'Paragraph:\n\n   \tconst x = "**literal**";\n\nNext.';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('const x = "**literal**";'));
+  assert.ok(output.includes('Next.'));
+});
+
+test('markdownToPlainText handles CRLF paragraph boundaries when checking inline code spans', () => {
+  const input = 'Press ` to open.\r\n\r\nUse `foo` to configure.';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('foo'));
+  assert.ok(output.includes('Press `'));
+});
