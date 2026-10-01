@@ -17,14 +17,14 @@ import {
 export function stripEncodedImages(text) {
   if (!text || typeof text !== 'string') return '';
   let cleaned = text.replace(
-    /!\[([\s\S]*?)\]\((?:data:image(?:\/|\\\/)[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=\s\\]+)\)/gi,
+    /!\[([^\]]*)\]\((?:data:image(?:\/|\\\/)[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=\s\\]+)\)/gi,
     (match, alt) => {
       const label = alt && alt.trim() ? alt.trim() : 'Image';
       return `[Image: ${label}]`;
     },
   );
   cleaned = cleaned.replace(
-    /data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=\s\\]+/gi,
+    /data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+/gi,
     '[Image Data]',
   );
   return cleaned;
@@ -43,11 +43,17 @@ export function markdownToPlainText(markdown) {
   // 1. Strip encoded base64 images first to prevent huge payloads
   let text = stripEncodedImages(markdown);
 
-  // 2. Protect fenced code blocks (``` ... ``` or ~~~ ... ~~~)
+  // 2. Protect fenced and inline code before stripping HTML-like text.
   const codeBlocks = [];
   text = text.replace(/(```[\s\S]*?```|~~~[\s\S]*?~~~)/g, (match) => {
     const id = `@@CODE_BLOCK_${codeBlocks.length}@@`;
     codeBlocks.push(match);
+    return id;
+  });
+  const inlineCode = [];
+  text = text.replace(/`([^`\n]+)`/g, (match, content) => {
+    const id = `@@INLINE_CODE_${inlineCode.length}@@`;
+    inlineCode.push(content);
     return id;
   });
 
@@ -55,15 +61,15 @@ export function markdownToPlainText(markdown) {
   text = stripTags(text);
 
   // 4. Normalize images: ![alt](url) -> [Image: alt]
-  text = text.replace(/!\[([^\]]*)\]\([^)]*\)/g, (match, alt) => {
+  text = text.replace(/!\[([^\]]*)\]\(((?:\\.|[^()\\]|\([^()]*\))*)\)/g, (match, alt) => {
     const label = alt && alt.trim() ? alt.trim() : 'Image';
     return `[${label.startsWith('Image') ? label : `Image: ${label}`}]`;
   });
 
   // 5. Normalize links: [text](url) -> text (url) if text != url, else url
-  text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (match, linkText, url) => {
+  text = text.replace(/\[([^\]]+)\]\(((?:\\.|[^()\\]|\([^()]*\))+)\)/g, (match, linkText, url) => {
     const t = linkText.trim();
-    const u = url.trim();
+    const u = url.trim().replace(/\\([()\\])/g, '$1');
     if (!t || t === u) return u;
     return `${t} (${u})`;
   });
@@ -87,8 +93,10 @@ export function markdownToPlainText(markdown) {
   text = text.replace(/(^|[^\w_])_([^\s_](?:[^_]*[^\s_])?)_(?=[^\w_]|$)/g, '$1$2');
   // Strikethrough (~~text~~)
   text = text.replace(/~~(?!\s)(.+?)(?<!\s)~~/g, '$1');
-  // Inline code (`text`)
-  text = text.replace(/`([^`\n]+)`/g, '$1');
+  // Inline code was protected before HTML stripping; restore its literal contents.
+  inlineCode.forEach((content, i) => {
+    text = text.replace(`@@INLINE_CODE_${i}@@`, () => content);
+  });
 
   // 9. Convert horizontal rules to simple plain divider line
   text = text.replace(
