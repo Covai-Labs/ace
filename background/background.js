@@ -120,9 +120,7 @@ async function syncSidePanelBehavior() {
   const sidePanelApi = typeof chrome !== 'undefined' ? chrome['sidePanel'] : undefined;
   if (sidePanelApi && typeof sidePanelApi['setPanelBehavior'] === 'function') {
     try {
-      const data = await chrome.storage.sync.get('launchMode');
-      const openPanelOnActionClick = data.launchMode === 'sidepanel';
-      await sidePanelApi['setPanelBehavior']({ openPanelOnActionClick });
+      await sidePanelApi['setPanelBehavior']({ openPanelOnActionClick: false });
     } catch (err) {
       console.warn('[AI Exporter Background] Failed to set side panel behavior:', err);
     }
@@ -137,9 +135,7 @@ if (chrome.runtime.onStartup) {
 }
 
 chrome.storage.onChanged.addListener((changes, areaName) => {
-  if (areaName === 'sync' && changes.launchMode) {
-    syncSidePanelBehavior();
-  }
+
 });
 
 chrome.runtime.onInstalled.addListener(async (details) => {
@@ -153,6 +149,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
     }
   }
 
+  await chrome.storage.sync.remove('launchMode');
   await syncSidePanelBehavior();
   setupContextMenus();
 });
