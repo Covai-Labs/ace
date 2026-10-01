@@ -40,7 +40,7 @@ export function markdownToPlainText(markdown) {
   // 1. Strip encoded base64 images first to prevent huge payloads
   let text = stripEncodedImages(markdown);
 
-  // 2. Protect fenced and inline code before stripping HTML-like text.
+  // 2. Protect fenced code blocks before stripping HTML-like text.
   const codeBlocks = [];
   const lines = text.split('\n');
   const processedLines = [];
@@ -63,11 +63,11 @@ export function markdownToPlainText(markdown) {
       processedLines.push(line);
     } else {
       currentBlockLines.push(line);
-      const closeMatch = line.match(/^[ ]{0,3}(`{3,}|~{3,})\s*$/);
+      const closeMatch = line.match(/^[ ]{0,3}(`{3,}|~{3,})[ \t]*$/);
       if (closeMatch && closeMatch[1][0] === fenceChar && closeMatch[1].length >= fenceLength) {
         inFence = false;
         const id = `@@CODE_BLOCK_${codeBlocks.length}@@`;
-        codeBlocks.push(currentBlockLines.join('\n'));
+        codeBlocks.push({ lines: currentBlockLines.join('\n'), closed: true });
         currentBlockLines = [];
         processedLines.push(id);
       }
@@ -76,34 +76,84 @@ export function markdownToPlainText(markdown) {
 
   if (inFence && currentBlockLines.length > 0) {
     const id = `@@CODE_BLOCK_${codeBlocks.length}@@`;
-    codeBlocks.push(currentBlockLines.join('\n'));
+    codeBlocks.push({ lines: currentBlockLines.join('\n'), closed: false });
     processedLines.push(id);
   }
 
-  text = processedLines.join('\n');
+  // 2b. Protect CommonMark indented code blocks (4-space or tab indent after a blank line).
+  // Processes lines not already protected by fenced code block placeholders.
+  const postFenceLines = processedLines.join('\n').split('\n');
+  const finalLines = [];
+  let prevWasBlank = true; // treat start-of-input as blank
+
+  for (let i = 0; i < postFenceLines.length; i++) {
+    const line = postFenceLines[i];
+    const isBlank = /^\s*$/.test(line);
+    const isIndented = /^(?: {4}|\t)/.test(line);
+    const isPlaceholder = /^@@CODE_BLOCK_\d+@@$/.test(line);
+
+    if (isIndented && prevWasBlank && !isPlaceholder) {
+      // Collect contiguous indented lines (internal blank lines are part of the block)
+      const blockLines = [line];
+      let j = i + 1;
+      while (j < postFenceLines.length) {
+        const next = postFenceLines[j];
+        if (/^(?: {4}|\t)/.test(next) || /^\s*$/.test(next)) {
+          blockLines.push(next);
+          j++;
+        } else {
+          break;
+        }
+      }
+      // Trim trailing blank lines from the indented block
+      while (blockLines.length > 0 && /^\s*$/.test(blockLines[blockLines.length - 1])) {
+        blockLines.pop();
+      }
+      const id = `@@CODE_BLOCK_${codeBlocks.length}@@`;
+      const blockContent = blockLines.map((l) => l.replace(/^(?: {4}|\t)/, '')).join('\n');
+      codeBlocks.push({ lines: blockContent, closed: true, indented: true });
+      finalLines.push(id);
+      i = j - 1;
+      prevWasBlank = true;
+    } else {
+      finalLines.push(line);
+      prevWasBlank = isBlank;
+    }
+  }
+
+  text = finalLines.join('\n');
 
   const inlineCode = [];
-  // Match CommonMark inline code spans delimited by matching runs of backticks
-  text = text.replace(/(?<!`)(`+)(?!`)([\s\S]+?)(?<!`)\1(?!`)/g, (match, delim, rawContent) => {
-    let content = rawContent.replace(/\r?\n/g, ' ');
-    if (content.startsWith(' ') && content.endsWith(' ') && content.trim().length > 0) {
-      content = content.slice(1, -1);
-    }
-    const id = `@@INLINE_CODE_${inlineCode.length}@@`;
-    inlineCode.push(content);
-    return id;
-  });
+  // Match CommonMark inline code spans: must not cross a blank line (paragraph boundary).
+  // Uses matching runs of backticks; prevents a stray backtick in one paragraph from
+  // accidentally consuming content across a blank line into the next paragraph.
+  text = text.replace(
+    /(?<!`)(`+)(?!`)((?:(?!\n[ \t]*\n)[\s\S])+?)(?<!`)\1(?!`)/g,
+    (match, delim, rawContent) => {
+      let content = rawContent.replace(/\r?\n/g, ' ');
+      if (content.startsWith(' ') && content.endsWith(' ') && content.trim().length > 0) {
+        content = content.slice(1, -1);
+      }
+      const id = `@@INLINE_CODE_${inlineCode.length}@@`;
+      inlineCode.push(content);
+      return id;
+    },
+  );
 
   // 3. Strip well-formed HTML tags and comments
   text = stripTags(text);
 
-  // Destination pattern supporting up to 4 levels of nested balanced parentheses and escapes
-  const p0 = '(?:\\\\.|[^()\\s])';
+  // Destination pattern: angle-bracketed <url with spaces> OR bare URL with up to 4 levels of
+  // nested balanced parentheses. p0 excludes backslash from the bare-char class so only the \\.
+  // alternative can consume a backslash, preventing exponential backtracking on malformed input.
+  const p0 = '(?:\\\\.|[^()\\s\\\\])';
   const p1 = `(?:${p0}|\\(${p0}*\\))`;
   const p2 = `(?:${p0}|\\(${p1}*\\))`;
   const p3 = `(?:${p0}|\\(${p2}*\\))`;
   const p4 = `(?:${p0}|\\(${p3}*\\))`;
-  const destPattern = `\\((${p4}*)(?:\\s+["'][^"']*["'])?\\)`;
+  const ANGLE_DEST = '<([^>]*)>';
+  const BARE_DEST = `(${p4}*)`;
+  const destPattern = `\\((?:${ANGLE_DEST}|${BARE_DEST})(?:\\s+["'][^"']*["'])?\\)`;
   const imgRe = new RegExp(`!\\[([^\\]]*)\\]${destPattern}`, 'g');
   const linkRe = new RegExp(`\\[([^\\]]+)\\]${destPattern}`, 'g');
 
@@ -114,9 +164,11 @@ export function markdownToPlainText(markdown) {
   });
 
   // 5. Normalize links: [text](url) -> text (url) if text != url, else url
-  text = text.replace(linkRe, (match, linkText, url) => {
+  // angleDest captures <url> destinations; bareDest captures bare URL destinations.
+  text = text.replace(linkRe, (match, linkText, angleDest, bareDest) => {
     const t = linkText.trim();
-    const u = url.trim().replace(/\\([()\\])/g, '$1');
+    const rawUrl = angleDest != null ? angleDest : bareDest || '';
+    const u = rawUrl.trim().replace(/\\([()\\])/g, '$1');
     if (!t || t === u) return u;
     return `${t} (${u})`;
   });
@@ -150,18 +202,27 @@ export function markdownToPlainText(markdown) {
   // 10. Normalize excessive blank lines and trim surrounding prose before restoring code
   text = text.replace(/\n{3,}/g, '\n\n').trim();
 
-  // 11. Restore code blocks (stripping outer markdown backtick fences while preserving indented code content and internal newlines)
-  for (let i = 0; i < codeBlocks.length; i++) {
-    const rawBlock = codeBlocks[i];
-    const strippedBlock = rawBlock
-      .replace(/^[ ]{0,3}(?:`{3,}|~{3,})[^\n]*\r?\n?/, '')
-      .replace(/\r?\n?[ ]{0,3}(?:`{3,}|~{3,})\s*$/, '');
-    text = text.replace(`@@CODE_BLOCK_${i}@@`, () => strippedBlock);
-  }
-
-  // 12. Restore inline code contents
+  // 11. Restore inline code first so its placeholders inside fenced blocks are not substituted
   for (let i = 0; i < inlineCode.length; i++) {
     text = text.replace(`@@INLINE_CODE_${i}@@`, () => inlineCode[i]);
+  }
+
+  // 12. Restore code blocks; only strip closing fence when the block was properly closed
+  for (let i = 0; i < codeBlocks.length; i++) {
+    const block = codeBlocks[i];
+    let blockContent;
+    if (block.indented) {
+      // Indented blocks: leading indent already stripped during collection
+      blockContent = block.lines;
+    } else {
+      // Fenced blocks: remove opening fence line
+      blockContent = block.lines.replace(/^[ ]{0,3}(?:`{3,}|~{3,})[^\n]*\r?\n?/, '');
+      // Only remove the closing fence line when the block was actually closed
+      if (block.closed) {
+        blockContent = blockContent.replace(/\r?\n?[ ]{0,3}(?:`{3,}|~{3,})[ \t]*$/, '');
+      }
+    }
+    text = text.replace(`@@CODE_BLOCK_${i}@@`, () => blockContent);
   }
 
   return text;

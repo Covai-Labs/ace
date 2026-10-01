@@ -285,3 +285,48 @@ test('TextFormatter recognizes decant rawArticle and skips chat headings', () =>
   assert.ok(!output.includes('Table of Contents'));
   assert.ok(output.includes('Article content from web page'));
 });
+
+test('markdownToPlainText preserves indented code blocks without applying emphasis replacements', () => {
+  const input =
+    'Normal paragraph.\n\n    const pattern = "**bold**";\n    const y = 42;\n\nMore prose.';
+  const output = markdownToPlainText(input);
+  assert.ok(
+    output.includes('const pattern = "**bold**";'),
+    'bold markers inside indented code must be literal',
+  );
+  assert.ok(output.includes('const y = 42;'));
+  assert.ok(output.includes('More prose.'));
+});
+
+test('markdownToPlainText retains last line of unclosed fenced block instead of stripping it', () => {
+  // An unclosed 4-backtick block ending with a 3-backtick line: the 3-backtick line is content, not a fence
+  const input = '````js\nconst x = 1;\n```\nstill code';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('```'), 'the 3-backtick line is code content and must be preserved');
+  assert.ok(output.includes('still code'));
+});
+
+test('markdownToPlainText does not let a stray backtick absorb content across paragraph boundaries', () => {
+  const input = 'Press ` to open.\n\nUse `foo` to configure.';
+  const output = markdownToPlainText(input);
+  // The stray backtick must not consume "to open.\n\nUse " into a code span
+  assert.ok(output.includes('foo'), 'foo from the second paragraph must appear');
+  assert.ok(output.includes('Press `'), 'stray backtick must remain literal');
+});
+
+test('markdownToPlainText handles angle-bracketed link destinations containing spaces', () => {
+  const input =
+    'See [the page](<https://example.com/a b>) and ![img](<https://example.com/c d.png>).';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'See the page (https://example.com/a b) and [Image: img].');
+});
+
+test('markdownToPlainText handles malformed links with many backslash-letter pairs without hanging', () => {
+  // This would cause exponential backtracking with the old p0 = [^()\s]
+  const input = '[foo](incomplete' + '\\a'.repeat(30);
+  const start = Date.now();
+  const output = markdownToPlainText(input);
+  const elapsed = Date.now() - start;
+  assert.ok(elapsed < 500, `should complete in <500ms, took ${elapsed}ms`);
+  assert.ok(typeof output === 'string');
+});
