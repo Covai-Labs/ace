@@ -25,6 +25,7 @@ import { HtmlFormatter } from '../content/formatters/html.js';
 import { ImageFormatter } from '../content/formatters/image.js';
 import { ContinuationFormatter } from '../content/formatters/continuation.js';
 import { DocFormatter } from '../content/formatters/doc.js';
+import { TextFormatter } from '../content/formatters/text.js';
 import {
   formatFilename,
   resolveConversationTitle,
@@ -209,6 +210,7 @@ export default defineContentScript({
       html: new HtmlFormatter(),
       png: new ImageFormatter(),
       doc: new DocFormatter(),
+      text: new TextFormatter(),
     };
 
     async function ensureHtml2CanvasLoaded() {
@@ -711,9 +713,10 @@ export default defineContentScript({
               }
               const primaryContent = formatter.format(conversation, formatOptions);
               const htmlFormatter = formatters.html;
-              const richHtmlContent = htmlFormatter
-                ? htmlFormatter.format(conversation, formatOptions)
-                : null;
+              const richHtmlContent =
+                request.format !== 'text' && htmlFormatter
+                  ? htmlFormatter.format(conversation, formatOptions)
+                  : null;
 
               sendResponse({
                 success: true,

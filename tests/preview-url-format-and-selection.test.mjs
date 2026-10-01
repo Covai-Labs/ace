@@ -67,3 +67,15 @@ test('popup preview script parses URL export_format parameter and synchronizes o
   assert.match(popupPreviewJs, /searchParams\.get\(['"]export_format['"]\)/);
   assert.match(popupPreviewJs, /history\.replaceState/);
 });
+
+test('preview HTML and scripts wire plain text tab and format mappings', () => {
+  assert.match(previewHtml, /data-tab="text"/);
+  assert.match(popupPreviewHtml, /data-tab="text"/);
+  assert.match(previewJs, /case 'text':\s*return 'text';/);
+  assert.match(popupPreviewJs, /case 'text':\s*return 'text';/);
+  assert.match(previewJs, /p === 'txt' \|\| p === 'text'/);
+  assert.match(popupPreviewJs, /p === 'txt' \|\| p === 'text'/);
+  assert.equal(messagesJson.textTab.message, '📄 Plain Text');
+  assert.equal(messagesJson.downloadPlainText.message, 'Download Plain Text');
+  assert.equal(messagesJson.formatText.message, '📄 Plain Text (.txt)');
+});

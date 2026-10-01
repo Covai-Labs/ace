@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 プレーンテキスト (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -429,6 +433,10 @@
     "message": "Markdownをダウンロード",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "プレーンテキストをダウンロード",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "JSONをダウンロード",
     "description": "Download JSON button label"
@@ -448,6 +456,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 プレーンテキスト",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",
@@ -660,5 +672,69 @@
   "includeTimestampsDefault": {
     "message": "Include per-message date / time when available",
     "description": "Label for default include timestamps checkbox"
+  },
+  "supportLove": {
+    "message": "サポートと応援",
+    "description": "Tooltip and aria-label for support and love button in popup header"
+  },
+  "loveSectionTitle": {
+    "message": "サポートと応援",
+    "description": "Section title and navigation item for Support & Love section in options"
+  },
+  "loveIntro": {
+    "message": "AI Chat Exporter は無料、オープンソース、100% ローカル完結です — 外部サーバー、テレメトリ、有料機能はありません。この拡張機能を気に入っていただけたら、ぜひ応援をお願いします:",
+    "description": "Introductory text for Support and Love section in options"
+  },
+  "loveSponsorTitle": {
+    "message": "コーヒーや食事をおごる",
+    "description": "Title for sponsorship card in Support and Love section"
+  },
+  "loveSponsorDesc": {
+    "message": "少額のスポンサーシップで、個人の独立した開発、プラットフォーム対応、メンテナンスを支援できます。",
+    "description": "Description for sponsorship card in Support and Love section"
+  },
+  "loveSponsorBtn": {
+    "message": "GitHub でスポンサーになる ↗",
+    "description": "Button label for GitHub Sponsors link in options"
+  },
+  "loveRateTitle": {
+    "message": "評価とレビュー",
+    "description": "Title for rating card in Support and Love section"
+  },
+  "loveRateDesc": {
+    "message": "星5つのレビューは他の人が拡張機能を見つける助けとなり、開発の励みになります。",
+    "description": "Description for rating card in Support and Love section"
+  },
+  "loveRateChrome": {
+    "message": "Chrome ウェブストア ↗",
+    "description": "Button label for Chrome Web Store link in options"
+  },
+  "loveRateFirefox": {
+    "message": "Firefox Add-ons ↗",
+    "description": "Button label for Firefox Add-ons link in options"
+  },
+  "loveTranslateTitle": {
+    "message": "翻訳に貢献する",
+    "description": "Title for translations contribution card in options"
+  },
+  "loveTranslateDesc": {
+    "message": "AI Chat Exporter を世界中の人々に母国語で届ける手助けをしてください。",
+    "description": "Description for translations contribution card in options"
+  },
+  "loveTranslateBtn": {
+    "message": "GitHub で翻訳する ↗",
+    "description": "Button label for GitHub translations directory link in options"
+  },
+  "loveGitHubTitle": {
+    "message": "コード・テスト・Issue",
+    "description": "Title for code contributions card in options"
+  },
+  "loveGitHubDesc": {
+    "message": "パーサーのバグ報告、新しい AI プラットフォーム対応の提案、テスト作成、プルリクエストを歓迎します。",
+    "description": "Description for code contributions card in options"
+  },
+  "loveGitHubBtn": {
+    "message": "GitHub リポジトリ ↗",
+    "description": "Button label for GitHub repository link in options"
   }
 }

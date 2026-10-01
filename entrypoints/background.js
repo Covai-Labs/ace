@@ -119,9 +119,7 @@ export default defineBackground(() => {
     const sidePanelApi = typeof chrome !== 'undefined' ? chrome['sidePanel'] : undefined;
     if (sidePanelApi && typeof sidePanelApi['setPanelBehavior'] === 'function') {
       try {
-        const data = await chrome.storage.sync.get('launchMode');
-        const openPanelOnActionClick = data.launchMode === 'sidepanel';
-        await sidePanelApi['setPanelBehavior']({ openPanelOnActionClick });
+        await sidePanelApi['setPanelBehavior']({ openPanelOnActionClick: false });
       } catch (err) {
         console.warn('[AI Exporter Background] Failed to set side panel behavior:', err);
       }
@@ -132,14 +130,6 @@ export default defineBackground(() => {
     chrome.runtime.onStartup.addListener(() => {
       syncSidePanelBehavior();
       setupContextMenus();
-    });
-  }
-
-  if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
-    chrome.storage.onChanged.addListener((changes, areaName) => {
-      if (areaName === 'sync' && changes.launchMode) {
-        syncSidePanelBehavior();
-      }
     });
   }
 
@@ -155,6 +145,11 @@ export default defineBackground(() => {
         }
       }
 
+      try {
+        await chrome.storage.sync.remove('launchMode');
+      } catch (e) {
+        console.warn('[AI Exporter Background] Failed to remove obsolete launchMode setting:', e);
+      }
       await syncSidePanelBehavior();
       setupContextMenus();
 

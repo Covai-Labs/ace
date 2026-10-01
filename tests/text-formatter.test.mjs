@@ -1,0 +1,371 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { TextFormatter, markdownToPlainText } from '../content/formatters/text.js';
+
+test('markdownToPlainText strips markdown formatting to clean plain text', () => {
+  const md = `# Main Heading
+## Sub Heading
+This is **bold text** and *italic text* and ***both***.
+Here is a [link to Google](https://google.com).
+Inline \`const x = 10;\` code.
+
+\`\`\`javascript
+function add(a, b) {
+  return a + b;
+}
+\`\`\`
+
+> This is a blockquote.
+> Second line of quote.
+
+- Item 1
+- Item 2
+  - Subitem A
+
+1. First
+2. Second
+
+| Header 1 | Header 2 |
+| --- | --- |
+| Cell 1 | Cell 2 |
+
+---
+~~strikethrough~~ text.
+`;
+
+  const plain = markdownToPlainText(md);
+
+  assert.ok(!plain.includes('# Main Heading'));
+  assert.ok(plain.includes('Main Heading'));
+  assert.ok(!plain.includes('**bold text**'));
+  assert.ok(plain.includes('bold text and italic text and both'));
+  assert.ok(!plain.includes('[link to Google]'));
+  assert.ok(plain.includes('link to Google (https://google.com)'));
+  assert.ok(!plain.includes('```javascript'));
+  assert.ok(plain.includes('function add(a, b)'));
+  assert.ok(!plain.includes('> This is a blockquote'));
+  assert.ok(plain.includes('This is a blockquote'));
+  assert.ok(!plain.includes('~~strikethrough~~'));
+  assert.ok(plain.includes('strikethrough text'));
+  assert.ok(plain.includes('Item 1'));
+  assert.ok(plain.includes('First'));
+  assert.ok(plain.includes('Cell 1 | Cell 2'));
+});
+
+test('TextFormatter formats AI chat conversation with metadata and messages', () => {
+  const formatter = new TextFormatter();
+
+  const conversation = {
+    title: 'Chat with Claude',
+    messages: [
+      { role: 'User', content: 'What is 2+2?' },
+      { role: 'Assistant', content: '2+2 is **4**.' },
+    ],
+    metadata: {
+      Source: 'Claude',
+      Date: '10/1/2026 10:00:00',
+      Link: 'https://claude.ai/chat/abc',
+      Model: 'Claude 3.7 Sonnet',
+      Method: 'DOM',
+    },
+  };
+
+  const output = formatter.format(conversation);
+
+  assert.ok(output.startsWith('Chat with Claude\n\n'));
+  assert.ok(output.includes('Exported with: AI Chat Exporter (https://ace.covai.org)'));
+  assert.ok(output.includes('Source: Claude'));
+  assert.ok(output.includes('Date: 10/1/2026 10:00:00'));
+  assert.ok(output.includes('Link: https://claude.ai/chat/abc'));
+  assert.ok(output.includes('Model: Claude 3.7 Sonnet'));
+  assert.ok(output.includes('Method: DOM'));
+  assert.ok(output.includes('Prompt:'));
+  assert.ok(output.includes('What is 2+2?'));
+  assert.ok(output.includes('Response:'));
+  assert.ok(output.includes('2+2 is 4.'));
+});
+
+test('TextFormatter omits attribution when includeAttribution is false', () => {
+  const formatter = new TextFormatter();
+
+  const conversation = {
+    title: 'Private Export',
+    messages: [{ role: 'User', content: 'Hello' }],
+    metadata: {
+      Source: 'ChatGPT',
+      Date: '10/1/2026 10:00:00',
+    },
+  };
+
+  const output = formatter.format(conversation, { includeAttribution: false });
+
+  assert.ok(!output.includes('Exported with:'));
+  assert.ok(output.includes('Source: ChatGPT'));
+  assert.ok(output.includes('Hello'));
+});
+
+test('TextFormatter supports message numbering: per-message, per-turn, and off', () => {
+  const formatter = new TextFormatter();
+
+  const conversation = {
+    title: 'Numbering Test',
+    messages: [
+      { role: 'User', content: 'Q1' },
+      { role: 'Assistant', content: 'A1' },
+      { role: 'User', content: 'Q2' },
+      { role: 'Assistant', content: 'A2' },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+
+  const outputPerMessage = formatter.format(conversation, { messageNumbering: 'per-message' });
+  assert.ok(outputPerMessage.includes('Prompt [1]:'));
+  assert.ok(outputPerMessage.includes('Response [2]:'));
+  assert.ok(outputPerMessage.includes('Prompt [3]:'));
+  assert.ok(outputPerMessage.includes('Response [4]:'));
+
+  const outputPerTurn = formatter.format(conversation, { messageNumbering: 'per-turn' });
+  assert.ok(outputPerTurn.includes('Prompt [1]:'));
+  assert.ok(outputPerTurn.includes('Response [1]:'));
+  assert.ok(outputPerTurn.includes('Prompt [2]:'));
+  assert.ok(outputPerTurn.includes('Response [2]:'));
+
+  const outputOff = formatter.format(conversation, { messageNumbering: 'off' });
+  assert.ok(outputOff.includes('Prompt:'));
+  assert.ok(outputOff.includes('Response:'));
+});
+
+test('TextFormatter includes timestamps when enabled and present', () => {
+  const formatter = new TextFormatter();
+
+  const conversation = {
+    title: 'Timestamp Test',
+    messages: [
+      { role: 'User', content: 'Hello', timestamp: '10:00 AM' },
+      { role: 'Assistant', content: 'Hi', timestamp: '10:01 AM' },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+
+  const output = formatter.format(conversation, { includeTimestamps: true });
+  assert.ok(output.includes('Prompt — 10:00 AM:'));
+  assert.ok(output.includes('Response — 10:01 AM:'));
+});
+
+test('TextFormatter generates Table of Contents for AI chats and omits for articles', () => {
+  const formatter = new TextFormatter();
+
+  const chatConversation = {
+    title: 'ToC Chat',
+    messages: [
+      { role: 'User', content: 'Explain quantum computing' },
+      { role: 'Assistant', content: 'Quantum computing uses qubits...' },
+    ],
+    metadata: { Source: 'Claude' },
+  };
+
+  const chatOutput = formatter.format(chatConversation, { includeToc: true });
+  assert.ok(chatOutput.includes('Table of Contents'));
+  assert.ok(chatOutput.includes('User'));
+  assert.ok(chatOutput.includes('Claude'));
+
+  const articleConversation = {
+    title: 'Sample Article',
+    platform: 'WebArticle',
+    messages: [
+      { role: 'User', content: 'Saved web page' },
+      { role: 'Assistant', content: 'Article body...' },
+    ],
+    metadata: { Source: 'WebArticle' },
+  };
+
+  const articleOutput = formatter.format(articleConversation, { includeToc: true });
+  assert.ok(!articleOutput.includes('Table of Contents'));
+});
+
+test('TextFormatter replaces base64 encoded images with clean text placeholder', () => {
+  const formatter = new TextFormatter();
+
+  const conversation = {
+    title: 'Image Test',
+    messages: [
+      {
+        role: 'Assistant',
+        content:
+          'Check this out: ![Diagram](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=)',
+      },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+
+  const output = formatter.format(conversation);
+  assert.ok(!output.includes('data:image/png;base64'));
+  assert.ok(output.includes('[Image: Diagram]'));
+});
+
+test('markdownToPlainText preserves tags inside inline code and literal formatting', () => {
+  const input = 'Use `<div>**literal**</div>` and `List<T>` to configure.';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Use <div>**literal**</div> and List<T> to configure.');
+});
+
+test('markdownToPlainText handles URLs with balanced and escaped parentheses', () => {
+  const input =
+    'See [Wiki Entry](https://en.wikipedia.org/wiki/Function_\\(mathematics\\)) for details.';
+  const output = markdownToPlainText(input);
+  assert.equal(
+    output,
+    'See Wiki Entry (https://en.wikipedia.org/wiki/Function_(mathematics)) for details.',
+  );
+});
+
+test('markdownToPlainText handles multi-backtick code spans and backtick inside', () => {
+  const input = 'Use ``a ` b`` here and `normal` code.';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Use a ` b here and normal code.');
+});
+
+test('markdownToPlainText preserves inline code containing hyphens without expanding to horizontal divider', () => {
+  const input = '`---`';
+  const output = markdownToPlainText(input);
+  assert.equal(output, '---');
+});
+
+test('markdownToPlainText handles URLs with nested balanced parentheses in links and images', () => {
+  const input =
+    'See [nested link](https://example.com/a(b(c)d)) and ![nested img](https://example.com/img(a(b(c)d)).png)';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'See nested link (https://example.com/a(b(c)d)) and [Image: nested img]');
+});
+
+test('markdownToPlainText handles bare base64 without eating subsequent prose', () => {
+  const input =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=\n\nNext paragraph of prose.';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('[Image Data]'));
+  assert.ok(output.includes('Next paragraph of prose.'));
+});
+
+test('markdownToPlainText preserves CommonMark nested code blocks and indentation', () => {
+  const input = `Explanation:
+
+\`\`\`\`markdown
+Here is an example with three backticks:
+\`\`\`javascript
+const marker = "\`\`\`";
+\`\`\`
+Done.
+\`\`\`\`
+
+Next section.`;
+
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('const marker = "```";'));
+  assert.ok(output.includes('Next section.'));
+});
+
+test('TextFormatter recognizes decant rawArticle and skips chat headings', () => {
+  const formatter = new TextFormatter();
+
+  const articleConversation = {
+    title: 'Decant Parsed Article',
+    rawArticle: { content: 'Full text' },
+    messages: [
+      {
+        role: 'Assistant',
+        content: 'Article content from web page without prompt/response structure.',
+      },
+    ],
+    metadata: { Source: 'New York Times' },
+  };
+
+  const output = formatter.format(articleConversation, { includeToc: true });
+  assert.ok(!output.includes('Response:'));
+  assert.ok(!output.includes('Prompt:'));
+  assert.ok(!output.includes('Table of Contents'));
+  assert.ok(output.includes('Article content from web page'));
+});
+
+test('markdownToPlainText preserves indented code blocks without applying emphasis replacements', () => {
+  const input =
+    'Normal paragraph.\n\n    const pattern = "**bold**";\n    const y = 42;\n\nMore prose.';
+  const output = markdownToPlainText(input);
+  assert.ok(
+    output.includes('const pattern = "**bold**";'),
+    'bold markers inside indented code must be literal',
+  );
+  assert.ok(output.includes('const y = 42;'));
+  assert.ok(output.includes('More prose.'));
+});
+
+test('markdownToPlainText retains last line of unclosed fenced block instead of stripping it', () => {
+  // An unclosed 4-backtick block ending with a 3-backtick line: the 3-backtick line is content, not a fence
+  const input = '````js\nconst x = 1;\n```\nstill code';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('```'), 'the 3-backtick line is code content and must be preserved');
+  assert.ok(output.includes('still code'));
+});
+
+test('markdownToPlainText does not let a stray backtick absorb content across paragraph boundaries', () => {
+  const input = 'Press ` to open.\n\nUse `foo` to configure.';
+  const output = markdownToPlainText(input);
+  // The stray backtick must not consume "to open.\n\nUse " into a code span
+  assert.ok(output.includes('foo'), 'foo from the second paragraph must appear');
+  assert.ok(output.includes('Press `'), 'stray backtick must remain literal');
+});
+
+test('markdownToPlainText handles angle-bracketed link destinations containing spaces', () => {
+  const input =
+    'See [the page](<https://example.com/a b>) and ![img](<https://example.com/c d.png>).';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'See the page (https://example.com/a b) and [Image: img].');
+});
+
+test('markdownToPlainText handles malformed links with many backslash-letter pairs without hanging', () => {
+  // This would cause exponential backtracking with the old p0 = [^()\s]
+  const input = '[foo](incomplete' + '\\a'.repeat(30);
+  const start = Date.now();
+  const output = markdownToPlainText(input);
+  const elapsed = Date.now() - start;
+  assert.ok(elapsed < 500, `should complete in <500ms, took ${elapsed}ms`);
+  assert.ok(typeof output === 'string');
+});
+
+test('markdownToPlainText protects angle-bracketed relative destinations from stripTags', () => {
+  const input = 'Check [manual](<guide>) before using [api](<endpoint>).';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Check manual (guide) before using api (endpoint).');
+});
+
+test('markdownToPlainText handles escaped angle brackets in link destinations', () => {
+  const input = 'See [symbol](<a\\>b>) for details.';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'See symbol (a>b) for details.');
+});
+
+test('markdownToPlainText distinguishes list continuation paragraphs from indented code blocks', () => {
+  const input = '- Item\n\n    **Details** [guide](https://example.com)';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('Details guide (https://example.com)'));
+  assert.ok(!output.includes('**Details**'));
+});
+
+test('markdownToPlainText preserves paragraph separation between indented code and following prose', () => {
+  const input = 'Intro\n\n    code\n\nOutro';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Intro\n\ncode\n\nOutro');
+});
+
+test('markdownToPlainText preserves mixed tab and space indented code blocks', () => {
+  const input = 'Paragraph:\n\n   \tconst x = "**literal**";\n\nNext.';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('const x = "**literal**";'));
+  assert.ok(output.includes('Next.'));
+});
+
+test('markdownToPlainText handles CRLF paragraph boundaries when checking inline code spans', () => {
+  const input = 'Press ` to open.\r\n\r\nUse `foo` to configure.';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('foo'));
+  assert.ok(output.includes('Press `'));
+});

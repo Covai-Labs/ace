@@ -44,9 +44,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filenamePreview = document.getElementById('filename-preview');
   const parserModeSelect = document.getElementById('parser-mode-select');
   const defaultTransferSelect = document.getElementById('default-transfer-select');
-  const launchModeSection = document.getElementById('launch-mode-section');
-  const launchModeRadios = document.querySelectorAll('input[name="launch-mode"]');
-  const firefoxSidebarSection = document.getElementById('firefox-sidebar-section');
   const toast = document.getElementById('toast');
 
   let toastTimer = null;
@@ -75,19 +72,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     (typeof browser !== 'undefined' &&
       typeof browser.runtime !== 'undefined' &&
       Boolean(browser.runtime.getBrowserInfo));
-  const navLaunchMode = document.getElementById('nav-launch-mode');
-  const navFirefoxSidebar = document.getElementById('nav-firefox-sidebar');
-  if (isFirefox) {
-    if (launchModeSection) launchModeSection.classList.add('hidden');
-    if (navLaunchMode) navLaunchMode.classList.add('hidden');
-    if (firefoxSidebarSection) firefoxSidebarSection.classList.remove('hidden');
-    if (navFirefoxSidebar) navFirefoxSidebar.classList.remove('hidden');
-  } else {
-    if (launchModeSection) launchModeSection.classList.remove('hidden');
-    if (navLaunchMode) navLaunchMode.classList.remove('hidden');
-    if (firefoxSidebarSection) firefoxSidebarSection.classList.add('hidden');
-    if (navFirefoxSidebar) navFirefoxSidebar.classList.add('hidden');
-  }
 
   const obsidianVaultInput = document.getElementById('obsidian-vault-input');
 
@@ -144,10 +128,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (stored.defaultTransferTarget) defaultTransferSelect.value = stored.defaultTransferTarget;
   if (stored.obsidianVaultName && obsidianVaultInput)
     obsidianVaultInput.value = stored.obsidianVaultName;
-  if (stored.launchMode && !isFirefox) {
-    const radio = document.querySelector(`input[name="launch-mode"][value="${stored.launchMode}"]`);
-    if (radio) radio.checked = true;
-  }
 
   if (themeSelect) {
     themeSelect.addEventListener('change', () => {
@@ -272,15 +252,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       showToast();
     });
   }
-
-  launchModeRadios.forEach((radio) => {
-    radio.addEventListener('change', () => {
-      if (radio.checked && !isFirefox) {
-        chrome.storage.sync.set({ launchMode: radio.value });
-        showToast();
-      }
-    });
-  });
 
   const chromeShortcutsAction = document.getElementById('chrome-shortcuts-action');
   const firefoxShortcutsAction = document.getElementById('firefox-shortcuts-action');

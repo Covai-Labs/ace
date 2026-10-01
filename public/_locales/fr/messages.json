@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 Texte brut (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -437,6 +441,10 @@
     "message": "Télécharger le Markdown",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "Télécharger en texte brut",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "Télécharger le JSON",
     "description": "Download JSON button label"
@@ -456,6 +464,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 Texte brut",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",
@@ -640,5 +652,69 @@
   "includeTimestampsDefault": {
     "message": "Include per-message date / time when available",
     "description": "Label for default include timestamps checkbox"
+  },
+  "supportLove": {
+    "message": "Soutien et amour",
+    "description": "Tooltip and aria-label for support and love button in popup header"
+  },
+  "loveSectionTitle": {
+    "message": "Soutien et amour",
+    "description": "Section title and navigation item for Support & Love section in options"
+  },
+  "loveIntro": {
+    "message": "AI Chat Exporter est gratuit, open source et 100 % local — aucun serveur externe, aucune télémétrie, aucun péage. Si vous aimez utiliser cette extension, voici des manières concrètes de nous soutenir :",
+    "description": "Introductory text for Support and Love section in options"
+  },
+  "loveSponsorTitle": {
+    "message": "Offrir un café ou un repas",
+    "description": "Title for sponsorship card in Support and Love section"
+  },
+  "loveSponsorDesc": {
+    "message": "Soutenez le développement indépendant, l'adaptation continue aux plateformes et la maintenance avec un petit don.",
+    "description": "Description for sponsorship card in Support and Love section"
+  },
+  "loveSponsorBtn": {
+    "message": "Sponsoriser sur GitHub ↗",
+    "description": "Button label for GitHub Sponsors link in options"
+  },
+  "loveRateTitle": {
+    "message": "Noter et donner un avis",
+    "description": "Title for rating card in Support and Love section"
+  },
+  "loveRateDesc": {
+    "message": "Votre avis 5 étoiles aide d'autres utilisateurs à découvrir l'extension et nous encourage à continuer.",
+    "description": "Description for rating card in Support and Love section"
+  },
+  "loveRateChrome": {
+    "message": "Chrome Web Store ↗",
+    "description": "Button label for Chrome Web Store link in options"
+  },
+  "loveRateFirefox": {
+    "message": "Firefox Add-ons ↗",
+    "description": "Button label for Firefox Add-ons link in options"
+  },
+  "loveTranslateTitle": {
+    "message": "Contribuer aux traductions",
+    "description": "Title for translations contribution card in options"
+  },
+  "loveTranslateDesc": {
+    "message": "Aidez à rendre AI Chat Exporter accessible à tous dans leur langue maternelle.",
+    "description": "Description for translations contribution card in options"
+  },
+  "loveTranslateBtn": {
+    "message": "Traduire sur GitHub ↗",
+    "description": "Button label for GitHub translations directory link in options"
+  },
+  "loveGitHubTitle": {
+    "message": "Code, tests et signalements",
+    "description": "Title for code contributions card in options"
+  },
+  "loveGitHubDesc": {
+    "message": "Signalez des bugs de parseurs, proposez de nouvelles plateformes d'IA, rédigez des tests ou ouvrez des pull requests.",
+    "description": "Description for code contributions card in options"
+  },
+  "loveGitHubBtn": {
+    "message": "Dépôt GitHub ↗",
+    "description": "Button label for GitHub repository link in options"
   }
 }

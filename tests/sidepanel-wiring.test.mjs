@@ -37,12 +37,6 @@ test('sidepanel.html includes export and settings iframe tabs and excludes embed
   assert.match(sidepanelHtml, /id="sp-settings-iframe"/);
 });
 
-test('options.js synchronizes launch mode preferences with chrome.storage.sync', () => {
-  const optionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
-  assert.match(optionsJs, /chrome\.storage\.sync\.get\([^)]*launchMode[^)]*\)/);
-  assert.match(optionsJs, /chrome\.storage\.sync\.set\(\{\s*launchMode:/);
-});
-
 test('popup.html and popup.js do not provide a side panel button in popup UI', () => {
   assert.doesNotMatch(popupHtml, /id="open-sidepanel-btn"/);
   assert.doesNotMatch(popupJs, /open-sidepanel-btn/);

@@ -41,18 +41,7 @@
               <span class="nav-icon">↗️</span>
               <span class="nav-label" data-i18n="transferDefaultsTitle">AI Transfer</span>
             </a>
-            <a href="#launch-mode-section" class="nav-item" id="nav-launch-mode">
-              <span class="nav-icon">🚀</span>
-              <span class="nav-label" data-i18n="launchModeTitle">Launch Mode</span>
-            </a>
-            <a
-              href="#firefox-sidebar-section"
-              class="nav-item firefox-only-nav hidden"
-              id="nav-firefox-sidebar"
-            >
-              <span class="nav-icon">🗂️</span>
-              <span class="nav-label">Firefox Sidebar</span>
-            </a>
+
             <a href="#shortcuts-section" class="nav-item" id="nav-shortcuts">
               <span class="nav-icon">⌨️</span>
               <span class="nav-label" data-i18n="shortcutsSectionTitle">Shortcuts</span>
@@ -60,6 +49,10 @@
             <a href="#feedback-section" class="nav-item" id="nav-feedback">
               <span class="nav-icon">💬</span>
               <span class="nav-label" data-i18n="feedbackTitle">Feedback</span>
+            </a>
+            <a href="#love" class="nav-item" id="nav-love">
+              <span class="nav-icon">❤️</span>
+              <span class="nav-label" data-i18n="loveSectionTitle">Support &amp; Love</span>
             </a>
           </nav>
         </aside>
@@ -175,6 +168,7 @@
                 >
                 <select id="default-format-select" class="select-input">
                   <option value="markdown">Markdown (.md)</option>
+                  <option value="text">Plain Text (.txt)</option>
                   <option value="json">JSON (.json)</option>
                   <option value="html">HTML (.html)</option>
                   <option value="png">Shareable Image (.png)</option>
@@ -417,52 +411,6 @@
             </div>
           </section>
 
-          <!-- Section 4: Chrome Launch Action (Chrome Only) -->
-          <section class="card chrome-only-section" id="launch-mode-section">
-            <div class="card-header">
-              <span class="card-icon">📌</span>
-              <h2 data-i18n="launchModeTitle">Extension Toolbar Click Action</h2>
-            </div>
-            <div class="card-body">
-              <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="launch-mode" value="popup" checked />
-                  <div>
-                    <strong data-i18n="launchModePopup">Extension Popup</strong>
-                    <span class="sub-text" data-i18n="launchModePopupDesc"
-                      >Opens a compact popup window on click</span
-                    >
-                  </div>
-                </label>
-
-                <label class="radio-label">
-                  <input type="radio" name="launch-mode" value="sidepanel" />
-                  <div>
-                    <strong data-i18n="launchModeSidepanel">Persistent Side Panel</strong>
-                    <span class="sub-text" data-i18n="launchModeSidepanelDesc"
-                      >Opens side panel pinned to the browser window</span
-                    >
-                  </div>
-                </label>
-              </div>
-            </div>
-          </section>
-
-          <!-- Section 4-FF: Firefox Sidebar Integration (Firefox Only) -->
-          <section class="card firefox-only-section hidden" id="firefox-sidebar-section">
-            <div class="card-header">
-              <span class="card-icon">🗂️</span>
-              <h2 data-i18n="firefoxSidebarTitle">Firefox Browser Sidebar</h2>
-            </div>
-            <div class="card-body">
-              <p class="sub-text">
-                The browser sidebar can be opened or closed natively using your browser's sidebar
-                toggle, by clicking the ✕ button in the sidebar header, or by searching your
-                browser's sidebar keyboard shortcut.
-              </p>
-            </div>
-          </section>
-
           <!-- Section 4.5: Keyboard Shortcuts -->
           <section class="card" id="shortcuts-section">
             <div class="card-header">
@@ -647,6 +595,312 @@
                   >
                     <span data-i18n="copySystemInfo">📋 Copy System Info for Issues</span>
                   </button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 6: Support & Love -->
+          <section class="card" id="love">
+            <div class="card-header">
+              <span class="card-icon">❤️</span>
+              <h2 data-i18n="loveSectionTitle">Support &amp; Love</h2>
+            </div>
+            <div class="card-body">
+              <span
+                class="field-help"
+                style="margin-bottom: 16px; display: block"
+                data-i18n="loveIntro"
+              >
+                AI Chat Exporter is free, open source, and 100% local-first — no external servers,
+                no telemetry, no paywalls. If you love using this extension, here are meaningful
+                ways you can give back:
+              </span>
+
+              <div
+                class="love-grid"
+                style="
+                  display: grid;
+                  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+                  gap: 16px;
+                  margin-top: 14px;
+                "
+              >
+                <div
+                  class="love-card"
+                  style="
+                    padding: 16px;
+                    border-radius: 8px;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                  "
+                >
+                  <div>
+                    <strong
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 14px;
+                        margin-bottom: 6px;
+                      "
+                    >
+                      ☕ <span data-i18n="loveSponsorTitle">Sponsor a Coffee or Meal</span>
+                    </strong>
+                    <span
+                      class="sub-text"
+                      style="
+                        display: block;
+                        font-size: 12px;
+                        line-height: 1.5;
+                        color: var(--text-secondary);
+                      "
+                    >
+                      <span data-i18n="loveSponsorDesc"
+                        >Fuel independent development, ongoing platform support, and maintenance
+                        with a small sponsorship.</span
+                      >
+                    </span>
+                  </div>
+                  <div style="margin-top: 14px">
+                    <a
+                      href="https://github.com/sponsors/deadrat-in"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="secondary-btn"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        text-decoration: none;
+                        padding: 6px 14px;
+                        font-size: 12px;
+                        border-radius: 6px;
+                        background: rgba(236, 72, 153, 0.15);
+                        color: #f472b6;
+                        border: 1px solid rgba(236, 72, 153, 0.3);
+                        font-weight: 500;
+                      "
+                    >
+                      💖 <span data-i18n="loveSponsorBtn">Sponsor on GitHub ↗</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div
+                  class="love-card"
+                  style="
+                    padding: 16px;
+                    border-radius: 8px;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                  "
+                >
+                  <div>
+                    <strong
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 14px;
+                        margin-bottom: 6px;
+                      "
+                    >
+                      ⭐ <span data-i18n="loveRateTitle">Rate &amp; Review</span>
+                    </strong>
+                    <span
+                      class="sub-text"
+                      style="
+                        display: block;
+                        font-size: 12px;
+                        line-height: 1.5;
+                        color: var(--text-secondary);
+                      "
+                    >
+                      <span data-i18n="loveRateDesc"
+                        >Your 5-star review helps others discover the extension and keeps our
+                        momentum going.</span
+                      >
+                    </span>
+                  </div>
+                  <div style="margin-top: 14px; display: flex; gap: 8px; flex-wrap: wrap">
+                    <a
+                      href="https://chromewebstore.google.com/detail/cgakhbhkplndjjknhgegfcipffflcaoj"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="secondary-btn"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        text-decoration: none;
+                        padding: 6px 12px;
+                        font-size: 12px;
+                        border-radius: 6px;
+                        background: rgba(255, 255, 255, 0.08);
+                        color: var(--text-primary);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        font-weight: 500;
+                      "
+                    >
+                      <span data-i18n="loveRateChrome">Chrome Web Store ↗</span>
+                    </a>
+                    <a
+                      href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="secondary-btn"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        text-decoration: none;
+                        padding: 6px 12px;
+                        font-size: 12px;
+                        border-radius: 6px;
+                        background: rgba(255, 255, 255, 0.08);
+                        color: var(--text-primary);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        font-weight: 500;
+                      "
+                    >
+                      <span data-i18n="loveRateFirefox">Firefox Add-ons ↗</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div
+                  class="love-card"
+                  style="
+                    padding: 16px;
+                    border-radius: 8px;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                  "
+                >
+                  <div>
+                    <strong
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 14px;
+                        margin-bottom: 6px;
+                      "
+                    >
+                      🌐 <span data-i18n="loveTranslateTitle">Contribute Translations</span>
+                    </strong>
+                    <span
+                      class="sub-text"
+                      style="
+                        display: block;
+                        font-size: 12px;
+                        line-height: 1.5;
+                        color: var(--text-secondary);
+                      "
+                    >
+                      <span data-i18n="loveTranslateDesc"
+                        >Help make AI Chat Exporter accessible to people worldwide in their native
+                        language.</span
+                      >
+                    </span>
+                  </div>
+                  <div style="margin-top: 14px">
+                    <a
+                      href="https://github.com/Covai-Labs/ace/tree/main/_locales"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="secondary-btn"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        text-decoration: none;
+                        padding: 6px 14px;
+                        font-size: 12px;
+                        border-radius: 6px;
+                        background: rgba(255, 255, 255, 0.08);
+                        color: var(--text-primary);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        font-weight: 500;
+                      "
+                    >
+                      <span data-i18n="loveTranslateBtn">Translate on GitHub ↗</span>
+                    </a>
+                  </div>
+                </div>
+
+                <div
+                  class="love-card"
+                  style="
+                    padding: 16px;
+                    border-radius: 8px;
+                    background: rgba(255, 255, 255, 0.04);
+                    border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: space-between;
+                  "
+                >
+                  <div>
+                    <strong
+                      style="
+                        display: flex;
+                        align-items: center;
+                        gap: 8px;
+                        font-size: 14px;
+                        margin-bottom: 6px;
+                      "
+                    >
+                      💻 <span data-i18n="loveGitHubTitle">Code, Tests &amp; Issues</span>
+                    </strong>
+                    <span
+                      class="sub-text"
+                      style="
+                        display: block;
+                        font-size: 12px;
+                        line-height: 1.5;
+                        color: var(--text-secondary);
+                      "
+                    >
+                      <span data-i18n="loveGitHubDesc"
+                        >Report parser bugs, propose new AI platform support, write tests, or open
+                        pull requests.</span
+                      >
+                    </span>
+                  </div>
+                  <div style="margin-top: 14px">
+                    <a
+                      href="https://github.com/Covai-Labs/ace"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="secondary-btn"
+                      style="
+                        display: inline-flex;
+                        align-items: center;
+                        gap: 6px;
+                        text-decoration: none;
+                        padding: 6px 14px;
+                        font-size: 12px;
+                        border-radius: 6px;
+                        background: rgba(255, 255, 255, 0.08);
+                        color: var(--text-primary);
+                        border: 1px solid rgba(255, 255, 255, 0.2);
+                        font-weight: 500;
+                      "
+                    >
+                      <span data-i18n="loveGitHubBtn">GitHub Repository ↗</span>
+                    </a>
+                  </div>
                 </div>
               </div>
             </div>

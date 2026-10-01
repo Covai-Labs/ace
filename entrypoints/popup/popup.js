@@ -57,8 +57,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const continueTargetSelect = document.getElementById('continue-target-select');
   const unsupportedBanner = document.getElementById('unsupported-warning-banner');
   const requestSupportBtn = document.getElementById('request-support-btn');
-  const previewableFormats = new Set(['markdown', 'json', 'html', 'doc', 'png', 'pdf']);
-  const copyableFormats = new Set(['markdown', 'json', 'html']);
+  const previewableFormats = new Set(['markdown', 'text', 'json', 'html', 'doc', 'png', 'pdf']);
+  const copyableFormats = new Set(['markdown', 'text', 'json', 'html']);
 
   function updateUnsupportedWarning(report, pageUrl) {
     if (!unsupportedBanner) return;
@@ -109,6 +109,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Ignore
       }
     }
+  }
+
+  const supportBtn = document.getElementById('support-btn');
+  if (supportBtn) {
+    supportBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('options.html#love') });
+    });
   }
 
   const openOptionsBtn = document.getElementById('open-options-btn');

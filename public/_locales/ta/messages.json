@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 வெற்று உரை (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -437,6 +441,10 @@
     "message": "Markdown பதிவிறக்கு",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "வெற்று உரை பதிவிறக்கு",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "JSON பதிவிறக்கு",
     "description": "Download JSON button label"
@@ -456,6 +464,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 வெற்று உரை",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",
@@ -641,5 +653,69 @@
   "includeTimestampsDefault": {
     "message": "Include per-message date / time when available",
     "description": "Label for default include timestamps checkbox"
+  },
+  "supportLove": {
+    "message": "ஆதரவு மற்றும் அன்பு",
+    "description": "Tooltip and aria-label for support and love button in popup header"
+  },
+  "loveSectionTitle": {
+    "message": "ஆதரவு மற்றும் அன்பு",
+    "description": "Section title and navigation item for Support & Love section in options"
+  },
+  "loveIntro": {
+    "message": "AI Chat Exporter முற்றிலும் இலவசமானது, திறந்த மூலமானது மற்றும் 100% உள்முகமானது (local-first) — வெளிப்புற சேவையகங்கள், கண்காணிப்பு அல்லது கட்டணங்கள் எதுவும் இல்லை. இந்த நீட்டிப்பு உங்களுக்குப் பிடித்திருந்தால், நீங்கள் ஆதரவளிக்க சில வழிகள்:",
+    "description": "Introductory text for Support and Love section in options"
+  },
+  "loveSponsorTitle": {
+    "message": "காபி அல்லது உணவுக்கு ஆதரவளிக்கவும்",
+    "description": "Title for sponsorship card in Support and Love section"
+  },
+  "loveSponsorDesc": {
+    "message": "ஒரு சிறிய ஆதரவின் மூலம் சுயாதீன வளர்ச்சி, தொடர்ச்சியான தள ஆதரவு மற்றும் பராமரிப்புக்கு உதவுங்கள்.",
+    "description": "Description for sponsorship card in Support and Love section"
+  },
+  "loveSponsorBtn": {
+    "message": "GitHub இல் ஆதரவளிக்கவும் ↗",
+    "description": "Button label for GitHub Sponsors link in options"
+  },
+  "loveRateTitle": {
+    "message": "மதிப்பீடு & கருத்துரை",
+    "description": "Title for rating card in Support and Love section"
+  },
+  "loveRateDesc": {
+    "message": "உங்கள் 5-நட்சத்திர மதிப்பீடு மற்றவர்கள் இந்த நீட்டிப்பைக் கண்டறிய உதவும் மற்றும் எங்களை உற்சாகப்படுத்தும்.",
+    "description": "Description for rating card in Support and Love section"
+  },
+  "loveRateChrome": {
+    "message": "Chrome Web Store ↗",
+    "description": "Button label for Chrome Web Store link in options"
+  },
+  "loveRateFirefox": {
+    "message": "Firefox Add-ons ↗",
+    "description": "Button label for Firefox Add-ons link in options"
+  },
+  "loveTranslateTitle": {
+    "message": "மொழிபெயர்ப்பில் பங்களிக்கவும்",
+    "description": "Title for translations contribution card in options"
+  },
+  "loveTranslateDesc": {
+    "message": "உலகெங்கிலும் உள்ள மக்களுக்கு அவர்களின் தாய்மொழியில் AI Chat Exporter கிடைக்க உதவிடுங்கள்.",
+    "description": "Description for translations contribution card in options"
+  },
+  "loveTranslateBtn": {
+    "message": "GitHub இல் மொழிபெயர்க்க ↗",
+    "description": "Button label for GitHub translations directory link in options"
+  },
+  "loveGitHubTitle": {
+    "message": "குறியீடு, சோதனைகள் & பிழைகள்",
+    "description": "Title for code contributions card in options"
+  },
+  "loveGitHubDesc": {
+    "message": "பார்ஸர் பிழைகளைப் புகாரளிக்கவும், புதிய AI தள ஆதரவைப் பரிந்துரைக்கவும், சோதனைகளை எழுதவும் அல்லது PR உருவாக்கவும்.",
+    "description": "Description for code contributions card in options"
+  },
+  "loveGitHubBtn": {
+    "message": "GitHub களஞ்சியம் ↗",
+    "description": "Button label for GitHub repository link in options"
   }
 }

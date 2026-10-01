@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 일반 텍스트 (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -429,6 +433,10 @@
     "message": "Markdown 다운로드",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "일반 텍스트 다운로드",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "JSON 다운로드",
     "description": "Download JSON button label"
@@ -448,6 +456,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 일반 텍스트",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",
@@ -660,5 +672,69 @@
   "includeTimestampsDefault": {
     "message": "Include per-message date / time when available",
     "description": "Label for default include timestamps checkbox"
+  },
+  "supportLove": {
+    "message": "후원 및 응원",
+    "description": "Tooltip and aria-label for support and love button in popup header"
+  },
+  "loveSectionTitle": {
+    "message": "후원 및 응원",
+    "description": "Section title and navigation item for Support & Love section in options"
+  },
+  "loveIntro": {
+    "message": "AI Chat Exporter는 무료 오픈소스이며 100% 로컬에서 동작합니다. 외부 서버, 원격 분석, 유료 결제가 없습니다. 이 확장 프로그램이 마음에 드신다면 후원과 기여로 응원해 주세요:",
+    "description": "Introductory text for Support and Love section in options"
+  },
+  "loveSponsorTitle": {
+    "message": "커피나 식사 한 끼 후원하기",
+    "description": "Title for sponsorship card in Support and Love section"
+  },
+  "loveSponsorDesc": {
+    "message": "작은 후원으로 독립적인 개발, 지속적인 플랫폼 지원 및 유지 관리에 큰 힘이 됩니다.",
+    "description": "Description for sponsorship card in Support and Love section"
+  },
+  "loveSponsorBtn": {
+    "message": "GitHub에서 후원하기 ↗",
+    "description": "Button label for GitHub Sponsors link in options"
+  },
+  "loveRateTitle": {
+    "message": "평가 및 리뷰 남기기",
+    "description": "Title for rating card in Support and Love section"
+  },
+  "loveRateDesc": {
+    "message": "별 5개 리뷰는 다른 사용자가 확장 프로그램을 발견하는 데 큰 도움이 됩니다.",
+    "description": "Description for rating card in Support and Love section"
+  },
+  "loveRateChrome": {
+    "message": "Chrome 웹 스토어 ↗",
+    "description": "Button label for Chrome Web Store link in options"
+  },
+  "loveRateFirefox": {
+    "message": "Firefox Add-ons ↗",
+    "description": "Button label for Firefox Add-ons link in options"
+  },
+  "loveTranslateTitle": {
+    "message": "번역 기여하기",
+    "description": "Title for translations contribution card in options"
+  },
+  "loveTranslateDesc": {
+    "message": "AI Chat Exporter를 전 세계 사용자가 모국어로 편리하게 사용할 수 있도록 도와주세요.",
+    "description": "Description for translations contribution card in options"
+  },
+  "loveTranslateBtn": {
+    "message": "GitHub에서 번역하기 ↗",
+    "description": "Button label for GitHub translations directory link in options"
+  },
+  "loveGitHubTitle": {
+    "message": "코드, 테스트 및 이슈",
+    "description": "Title for code contributions card in options"
+  },
+  "loveGitHubDesc": {
+    "message": "파서 버그 제보, 새로운 AI 플랫폼 지원 제안, 테스트 작성, 풀 리퀘스트를 환영합니다.",
+    "description": "Description for code contributions card in options"
+  },
+  "loveGitHubBtn": {
+    "message": "GitHub 저장소 ↗",
+    "description": "Button label for GitHub repository link in options"
   }
 }

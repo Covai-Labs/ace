@@ -228,6 +228,7 @@ export function applyI18n(root = document) {
     .forEach((opt) => {
       const formatKey = {
         markdown: 'formatMarkdown',
+        text: 'formatText',
         json: 'formatJson',
         html: 'formatHtml',
         doc: 'formatDoc',
