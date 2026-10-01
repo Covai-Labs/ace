@@ -159,3 +159,32 @@ test('options scripts wire includeThinking storage setting', () => {
   assert.match(entrypointsOptionsJs, /'includeThinking'/);
   assert.match(entrypointsOptionsJs, /defaultIncludeThinking/);
 });
+
+test('options HTML pages define #love section and #nav-love link', () => {
+  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+  const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+
+  assert.match(optionsHtml, /id="nav-love"/);
+  assert.match(optionsHtml, /href="#love"/);
+  assert.match(optionsHtml, /id="love"/);
+  assert.match(optionsHtml, /https:\/\/github\.com\/sponsors\/deadrat-in/);
+
+  assert.match(entrypointsOptionsHtml, /id="nav-love"/);
+  assert.match(entrypointsOptionsHtml, /href="#love"/);
+  assert.match(entrypointsOptionsHtml, /id="love"/);
+  assert.match(entrypointsOptionsHtml, /https:\/\/github\.com\/sponsors\/deadrat-in/);
+});
+
+test('popup header includes #support-btn opening options.html#love', () => {
+  const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
+  const entrypointsPopupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
+  const popupJs = fs.readFileSync('popup/popup.js', 'utf8');
+  const entrypointsPopupJs = fs.readFileSync('entrypoints/popup/popup.js', 'utf8');
+
+  assert.match(popupHtml, /id="support-btn"/);
+  assert.match(entrypointsPopupHtml, /id="support-btn"/);
+  assert.match(popupJs, /supportBtn/);
+  assert.match(popupJs, /options\.html#love/);
+  assert.match(entrypointsPopupJs, /supportBtn/);
+  assert.match(entrypointsPopupJs, /options\.html#love/);
+});

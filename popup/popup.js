@@ -111,6 +111,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  const supportBtn = document.getElementById('support-btn');
+  if (supportBtn) {
+    supportBtn.addEventListener('click', () => {
+      chrome.tabs.create({ url: chrome.runtime.getURL('options/options.html#love') });
+    });
+  }
+
   const openOptionsBtn = document.getElementById('open-options-btn');
   if (openOptionsBtn) {
     openOptionsBtn.addEventListener('click', () => {

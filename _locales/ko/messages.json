@@ -660,5 +660,13 @@
   "includeTimestampsDefault": {
     "message": "Include per-message date / time when available",
     "description": "Label for default include timestamps checkbox"
+  },
+  "supportLove": {
+    "message": "후원 및 응원",
+    "description": "Tooltip and aria-label for support and love button in popup header"
+  },
+  "loveSectionTitle": {
+    "message": "후원 및 응원",
+    "description": "Section title and navigation item for Support & Love section in options"
   }
 }

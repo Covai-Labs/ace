@@ -641,5 +641,13 @@
   "includeTimestamps": {
     "message": "Include Dates",
     "description": "Checkbox label for including per-message timestamps"
+  },
+  "supportLove": {
+    "message": "Support & Love",
+    "description": "Tooltip and aria-label for support and love button in popup header"
+  },
+  "loveSectionTitle": {
+    "message": "Support & Love",
+    "description": "Section title and navigation item for Support & Love section in options"
   }
 }
