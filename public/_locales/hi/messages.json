@@ -662,27 +662,27 @@
     "description": "Section title and navigation item for Support & Love section in options"
   },
   "loveIntro": {
-    "message": "AI Chat Exporter is free, open source, and 100% local-first — no external servers, no telemetry, no paywalls. If you love using this extension, here are meaningful ways you can give back:",
+    "message": "AI Chat Exporter पूरी तरह से मुफ़्त, ओपन सोर्स और 100% स्थानीय है — कोई बाहरी सर्वर नहीं, कोई टेलीमेट्री नहीं, कोई भुगतान दीवार नहीं। यदि आपको यह एक्सटेंशन पसंद है, तो आप इस प्रकार समर्थन कर सकते हैं:",
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Sponsor a Coffee or Meal",
+    "message": "एक कॉफ़ी या भोजन प्रायोजित करें",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
-    "message": "Fuel independent development, ongoing platform support, and maintenance with a small sponsorship.",
+    "message": "एक छोटे प्रायोजन के साथ स्वतंत्र विकास, निरंतर प्लेटफ़ॉर्म समर्थन और रखरखाव को बढ़ावा दें।",
     "description": "Description for sponsorship card in Support and Love section"
   },
   "loveSponsorBtn": {
-    "message": "Sponsor on GitHub ↗",
+    "message": "GitHub पर प्रायोजित करें ↗",
     "description": "Button label for GitHub Sponsors link in options"
   },
   "loveRateTitle": {
-    "message": "Rate & Review",
+    "message": "रेटिंग और समीक्षा दें",
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Your 5-star review helps others discover the extension and keeps our momentum going.",
+    "message": "आपकी 5-स्टार समीक्षा दूसरों को इस एक्सटेंशन को खोजने में मदद करती है और हमारे उत्साह को बनाए रखती है।",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -694,27 +694,27 @@
     "description": "Button label for Firefox Add-ons link in options"
   },
   "loveTranslateTitle": {
-    "message": "Contribute Translations",
+    "message": "अनुवाद में योगदान दें",
     "description": "Title for translations contribution card in options"
   },
   "loveTranslateDesc": {
-    "message": "Help make AI Chat Exporter accessible to people worldwide in their native language.",
+    "message": "AI Chat Exporter को दुनिया भर के लोगों के लिए उनकी मातृभाषा में सुलभ बनाने में मदद करें।",
     "description": "Description for translations contribution card in options"
   },
   "loveTranslateBtn": {
-    "message": "Translate on GitHub ↗",
+    "message": "GitHub पर अनुवाद करें ↗",
     "description": "Button label for GitHub translations directory link in options"
   },
   "loveGitHubTitle": {
-    "message": "Code, Tests & Issues",
+    "message": "कोड, परीक्षण और मुद्दे",
     "description": "Title for code contributions card in options"
   },
   "loveGitHubDesc": {
-    "message": "Report parser bugs, propose new AI platform support, write tests, or open pull requests.",
+    "message": "पार्सर बग की रिपोर्ट करें, नए AI प्लेटफ़ॉर्म समर्थन का प्रस्ताव दें, परीक्षण लिखें या पुल रिक्वेस्ट खोलें।",
     "description": "Description for code contributions card in options"
   },
   "loveGitHubBtn": {
-    "message": "GitHub Repository ↗",
+    "message": "GitHub रिपॉजिटरी ↗",
     "description": "Button label for GitHub repository link in options"
   }
 }

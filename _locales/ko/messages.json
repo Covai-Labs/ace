@@ -682,31 +682,31 @@
     "description": "Section title and navigation item for Support & Love section in options"
   },
   "loveIntro": {
-    "message": "AI Chat Exporter is free, open source, and 100% local-first — no external servers, no telemetry, no paywalls. If you love using this extension, here are meaningful ways you can give back:",
+    "message": "AI Chat Exporter는 무료 오픈소스이며 100% 로컬에서 동작합니다. 외부 서버, 원격 분석, 유료 결제가 없습니다. 이 확장 프로그램이 마음에 드신다면 후원과 기여로 응원해 주세요:",
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Sponsor a Coffee or Meal",
+    "message": "커피나 식사 한 끼 후원하기",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
-    "message": "Fuel independent development, ongoing platform support, and maintenance with a small sponsorship.",
+    "message": "작은 후원으로 독립적인 개발, 지속적인 플랫폼 지원 및 유지 관리에 큰 힘이 됩니다.",
     "description": "Description for sponsorship card in Support and Love section"
   },
   "loveSponsorBtn": {
-    "message": "Sponsor on GitHub ↗",
+    "message": "GitHub에서 후원하기 ↗",
     "description": "Button label for GitHub Sponsors link in options"
   },
   "loveRateTitle": {
-    "message": "Rate & Review",
+    "message": "평가 및 리뷰 남기기",
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Your 5-star review helps others discover the extension and keeps our momentum going.",
+    "message": "별 5개 리뷰는 다른 사용자가 확장 프로그램을 발견하는 데 큰 도움이 됩니다.",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
-    "message": "Chrome Web Store ↗",
+    "message": "Chrome 웹 스토어 ↗",
     "description": "Button label for Chrome Web Store link in options"
   },
   "loveRateFirefox": {
@@ -714,27 +714,27 @@
     "description": "Button label for Firefox Add-ons link in options"
   },
   "loveTranslateTitle": {
-    "message": "Contribute Translations",
+    "message": "번역 기여하기",
     "description": "Title for translations contribution card in options"
   },
   "loveTranslateDesc": {
-    "message": "Help make AI Chat Exporter accessible to people worldwide in their native language.",
+    "message": "AI Chat Exporter를 전 세계 사용자가 모국어로 편리하게 사용할 수 있도록 도와주세요.",
     "description": "Description for translations contribution card in options"
   },
   "loveTranslateBtn": {
-    "message": "Translate on GitHub ↗",
+    "message": "GitHub에서 번역하기 ↗",
     "description": "Button label for GitHub translations directory link in options"
   },
   "loveGitHubTitle": {
-    "message": "Code, Tests & Issues",
+    "message": "코드, 테스트 및 이슈",
     "description": "Title for code contributions card in options"
   },
   "loveGitHubDesc": {
-    "message": "Report parser bugs, propose new AI platform support, write tests, or open pull requests.",
+    "message": "파서 버그 제보, 새로운 AI 플랫폼 지원 제안, 테스트 작성, 풀 리퀘스트를 환영합니다.",
     "description": "Description for code contributions card in options"
   },
   "loveGitHubBtn": {
-    "message": "GitHub Repository ↗",
+    "message": "GitHub 저장소 ↗",
     "description": "Button label for GitHub repository link in options"
   }
 }

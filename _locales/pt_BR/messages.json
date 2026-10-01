@@ -682,27 +682,27 @@
     "description": "Section title and navigation item for Support & Love section in options"
   },
   "loveIntro": {
-    "message": "AI Chat Exporter is free, open source, and 100% local-first — no external servers, no telemetry, no paywalls. If you love using this extension, here are meaningful ways you can give back:",
+    "message": "O AI Chat Exporter é gratuito, de código aberto e 100% local — sem servidores externos, telemetria ou restrições pagas. Se você gosta de usar esta extensão, veja formas significativas de retribuir:",
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Sponsor a Coffee or Meal",
+    "message": "Pague um café ou refeição",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
-    "message": "Fuel independent development, ongoing platform support, and maintenance with a small sponsorship.",
+    "message": "Apoie o desenvolvimento independente, a manutenção contínua e o suporte a novas plataformas com um pequeno patrocínio.",
     "description": "Description for sponsorship card in Support and Love section"
   },
   "loveSponsorBtn": {
-    "message": "Sponsor on GitHub ↗",
+    "message": "Patrocinar no GitHub ↗",
     "description": "Button label for GitHub Sponsors link in options"
   },
   "loveRateTitle": {
-    "message": "Rate & Review",
+    "message": "Avaliar e comentar",
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Your 5-star review helps others discover the extension and keeps our momentum going.",
+    "message": "Sua avaliação de 5 estrelas ajuda outros usuários a descobrir a extensão e mantém nosso projeto ativo.",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -714,27 +714,27 @@
     "description": "Button label for Firefox Add-ons link in options"
   },
   "loveTranslateTitle": {
-    "message": "Contribute Translations",
+    "message": "Contribuir com traduções",
     "description": "Title for translations contribution card in options"
   },
   "loveTranslateDesc": {
-    "message": "Help make AI Chat Exporter accessible to people worldwide in their native language.",
+    "message": "Ajude a tornar o AI Chat Exporter acessível para pessoas do mundo todo em seu idioma nativo.",
     "description": "Description for translations contribution card in options"
   },
   "loveTranslateBtn": {
-    "message": "Translate on GitHub ↗",
+    "message": "Traduzir no GitHub ↗",
     "description": "Button label for GitHub translations directory link in options"
   },
   "loveGitHubTitle": {
-    "message": "Code, Tests & Issues",
+    "message": "Código, testes e problemas",
     "description": "Title for code contributions card in options"
   },
   "loveGitHubDesc": {
-    "message": "Report parser bugs, propose new AI platform support, write tests, or open pull requests.",
+    "message": "Reporte falhas nos analisadores, sugira suporte a novas plataformas de IA, crie testes ou abra pull requests.",
     "description": "Description for code contributions card in options"
   },
   "loveGitHubBtn": {
-    "message": "GitHub Repository ↗",
+    "message": "Repositório no GitHub ↗",
     "description": "Button label for GitHub repository link in options"
   }
 }

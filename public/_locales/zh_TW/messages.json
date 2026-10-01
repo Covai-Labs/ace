@@ -662,31 +662,31 @@
     "description": "Section title and navigation item for Support & Love section in options"
   },
   "loveIntro": {
-    "message": "AI Chat Exporter is free, open source, and 100% local-first — no external servers, no telemetry, no paywalls. If you love using this extension, here are meaningful ways you can give back:",
+    "message": "AI Chat Exporter 免費、開源且 100% 本地運作 — 無外部伺服器、無遙測數據、無付費牆。如果您喜歡這款擴充功能，歡迎透過以下方式支持我們：",
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Sponsor a Coffee or Meal",
+    "message": "請開發者喝杯咖啡或吃頓飯",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
-    "message": "Fuel independent development, ongoing platform support, and maintenance with a small sponsorship.",
+    "message": "透過小額贊助支持獨立開發、持續的平台適配與維護。",
     "description": "Description for sponsorship card in Support and Love section"
   },
   "loveSponsorBtn": {
-    "message": "Sponsor on GitHub ↗",
+    "message": "在 GitHub 上贊助 ↗",
     "description": "Button label for GitHub Sponsors link in options"
   },
   "loveRateTitle": {
-    "message": "Rate & Review",
+    "message": "評分與評論",
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Your 5-star review helps others discover the extension and keeps our momentum going.",
+    "message": "您的五星好評能幫助更多人發現這款擴充功能，並激勵我們持續改進。",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
-    "message": "Chrome Web Store ↗",
+    "message": "Chrome 線上應用程式商店 ↗",
     "description": "Button label for Chrome Web Store link in options"
   },
   "loveRateFirefox": {
@@ -694,27 +694,27 @@
     "description": "Button label for Firefox Add-ons link in options"
   },
   "loveTranslateTitle": {
-    "message": "Contribute Translations",
+    "message": "參與多語言翻譯",
     "description": "Title for translations contribution card in options"
   },
   "loveTranslateDesc": {
-    "message": "Help make AI Chat Exporter accessible to people worldwide in their native language.",
+    "message": "幫助我們將 AI Chat Exporter 翻譯為全球更多母語，讓更多人輕鬆使用。",
     "description": "Description for translations contribution card in options"
   },
   "loveTranslateBtn": {
-    "message": "Translate on GitHub ↗",
+    "message": "在 GitHub 上參與翻譯 ↗",
     "description": "Button label for GitHub translations directory link in options"
   },
   "loveGitHubTitle": {
-    "message": "Code, Tests & Issues",
+    "message": "程式碼、測試與問題反饋",
     "description": "Title for code contributions card in options"
   },
   "loveGitHubDesc": {
-    "message": "Report parser bugs, propose new AI platform support, write tests, or open pull requests.",
+    "message": "回報解析器錯誤、建議支援新的 AI 平台、編寫測試或提交 Pull Request。",
     "description": "Description for code contributions card in options"
   },
   "loveGitHubBtn": {
-    "message": "GitHub Repository ↗",
+    "message": "GitHub 儲存庫 ↗",
     "description": "Button label for GitHub repository link in options"
   }
 }
