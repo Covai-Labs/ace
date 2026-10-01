@@ -133,12 +133,6 @@ export default defineBackground(() => {
     });
   }
 
-  if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
-    chrome.storage.onChanged.addListener((changes, areaName) => {
-
-    });
-  }
-
   if (typeof chrome !== 'undefined' && chrome.runtime?.onInstalled) {
     chrome.runtime.onInstalled.addListener(async (details) => {
       console.log('AI Chat Exporter installed/updated:', details?.reason);

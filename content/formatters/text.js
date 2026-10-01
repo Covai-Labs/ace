@@ -23,10 +23,7 @@ export function stripEncodedImages(text) {
       return `[Image: ${label}]`;
     },
   );
-  cleaned = cleaned.replace(
-    /data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+/gi,
-    '[Image Data]',
-  );
+  cleaned = cleaned.replace(/data:image\/[a-zA-Z0-9+.-]+;base64,[A-Za-z0-9+/=]+/gi, '[Image Data]');
   return cleaned;
 }
 
@@ -45,11 +42,46 @@ export function markdownToPlainText(markdown) {
 
   // 2. Protect fenced and inline code before stripping HTML-like text.
   const codeBlocks = [];
-  text = text.replace(/(```[\s\S]*?```|~~~[\s\S]*?~~~)/g, (match) => {
+  const lines = text.split('\n');
+  const processedLines = [];
+  let inFence = false;
+  let fenceChar = '';
+  let fenceLength = 0;
+  let currentBlockLines = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i];
+    if (!inFence) {
+      const match = line.match(/^[ ]{0,3}(`{3,}|~{3,})(.*)$/);
+      if (match) {
+        inFence = true;
+        fenceChar = match[1][0];
+        fenceLength = match[1].length;
+        currentBlockLines = [line];
+        continue;
+      }
+      processedLines.push(line);
+    } else {
+      currentBlockLines.push(line);
+      const closeMatch = line.match(/^[ ]{0,3}(`{3,}|~{3,})\s*$/);
+      if (closeMatch && closeMatch[1][0] === fenceChar && closeMatch[1].length >= fenceLength) {
+        inFence = false;
+        const id = `@@CODE_BLOCK_${codeBlocks.length}@@`;
+        codeBlocks.push(currentBlockLines.join('\n'));
+        currentBlockLines = [];
+        processedLines.push(id);
+      }
+    }
+  }
+
+  if (inFence && currentBlockLines.length > 0) {
     const id = `@@CODE_BLOCK_${codeBlocks.length}@@`;
-    codeBlocks.push(match);
-    return id;
-  });
+    codeBlocks.push(currentBlockLines.join('\n'));
+    processedLines.push(id);
+  }
+
+  text = processedLines.join('\n');
+
   const inlineCode = [];
   text = text.replace(/`([^`\n]+)`/g, (match, content) => {
     const id = `@@INLINE_CODE_${inlineCode.length}@@`;
@@ -104,19 +136,19 @@ export function markdownToPlainText(markdown) {
     '--------------------------------------------------',
   );
 
-  // 10. Restore code blocks (stripping outer markdown backtick fences while preserving indented code content)
+  // 10. Normalize excessive blank lines and trim surrounding prose before restoring code blocks
+  text = text.replace(/\n{3,}/g, '\n\n').trim();
+
+  // 11. Restore code blocks (stripping outer markdown backtick fences while preserving indented code content and internal newlines)
   for (let i = 0; i < codeBlocks.length; i++) {
     const rawBlock = codeBlocks[i];
     const strippedBlock = rawBlock
-      .replace(/^(?:```|~~~)[^\n]*\r?\n?/, '')
-      .replace(/\r?\n?(?:```|~~~)$/, '');
+      .replace(/^[ ]{0,3}(?:`{3,}|~{3,})[^\n]*\r?\n?/, '')
+      .replace(/\r?\n?[ ]{0,3}(?:`{3,}|~{3,})\s*$/, '');
     text = text.replace(`@@CODE_BLOCK_${i}@@`, () => strippedBlock);
   }
 
-  // 11. Normalize excessive blank lines
-  text = text.replace(/\n{3,}/g, '\n\n');
-
-  return text.trim();
+  return text;
 }
 
 export class TextFormatter extends ExportFormatter {

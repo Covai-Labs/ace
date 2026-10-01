@@ -134,10 +134,6 @@ if (chrome.runtime.onStartup) {
   });
 }
 
-chrome.storage.onChanged.addListener((changes, areaName) => {
-
-});
-
 chrome.runtime.onInstalled.addListener(async (details) => {
   console.log('AI Chat Exporter installed/updated:', details?.reason);
 

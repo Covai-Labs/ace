@@ -202,3 +202,67 @@ test('TextFormatter replaces base64 encoded images with clean text placeholder',
   assert.ok(!output.includes('data:image/png;base64'));
   assert.ok(output.includes('[Image: Diagram]'));
 });
+
+test('markdownToPlainText preserves tags inside inline code and literal formatting', () => {
+  const input = 'Use `<div>**literal**</div>` and `List<T>` to configure.';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Use <div>**literal**</div> and List<T> to configure.');
+});
+
+test('markdownToPlainText handles URLs with balanced and escaped parentheses', () => {
+  const input =
+    'See [Wiki Entry](https://en.wikipedia.org/wiki/Function_\\(mathematics\\)) for details.';
+  const output = markdownToPlainText(input);
+  assert.equal(
+    output,
+    'See Wiki Entry (https://en.wikipedia.org/wiki/Function_(mathematics)) for details.',
+  );
+});
+
+test('markdownToPlainText handles bare base64 without eating subsequent prose', () => {
+  const input =
+    'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=\n\nNext paragraph of prose.';
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('[Image Data]'));
+  assert.ok(output.includes('Next paragraph of prose.'));
+});
+
+test('markdownToPlainText preserves CommonMark nested code blocks and indentation', () => {
+  const input = `Explanation:
+
+\`\`\`\`markdown
+Here is an example with three backticks:
+\`\`\`javascript
+const marker = "\`\`\`";
+\`\`\`
+Done.
+\`\`\`\`
+
+Next section.`;
+
+  const output = markdownToPlainText(input);
+  assert.ok(output.includes('const marker = "```";'));
+  assert.ok(output.includes('Next section.'));
+});
+
+test('TextFormatter recognizes decant rawArticle and skips chat headings', () => {
+  const formatter = new TextFormatter();
+
+  const articleConversation = {
+    title: 'Decant Parsed Article',
+    rawArticle: { content: 'Full text' },
+    messages: [
+      {
+        role: 'Assistant',
+        content: 'Article content from web page without prompt/response structure.',
+      },
+    ],
+    metadata: { Source: 'New York Times' },
+  };
+
+  const output = formatter.format(articleConversation, { includeToc: true });
+  assert.ok(!output.includes('Response:'));
+  assert.ok(!output.includes('Prompt:'));
+  assert.ok(!output.includes('Table of Contents'));
+  assert.ok(output.includes('Article content from web page'));
+});

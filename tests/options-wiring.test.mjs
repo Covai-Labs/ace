@@ -167,12 +167,12 @@ test('options HTML pages define #love section and #nav-love link', () => {
   assert.match(optionsHtml, /id="nav-love"/);
   assert.match(optionsHtml, /href="#love"/);
   assert.match(optionsHtml, /id="love"/);
-  assert.match(optionsHtml, /https:\/\/github\.com\/sponsors\/deadrat-in/);
+  assert.ok(optionsHtml.includes('https://github.com/sponsors/deadrat-in'));
 
   assert.match(entrypointsOptionsHtml, /id="nav-love"/);
   assert.match(entrypointsOptionsHtml, /href="#love"/);
   assert.match(entrypointsOptionsHtml, /id="love"/);
-  assert.match(entrypointsOptionsHtml, /https:\/\/github\.com\/sponsors\/deadrat-in/);
+  assert.ok(entrypointsOptionsHtml.includes('https://github.com/sponsors/deadrat-in'));
 });
 
 test('popup header includes #support-btn opening options.html#love', () => {
