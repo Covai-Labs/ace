@@ -83,7 +83,12 @@ export function markdownToPlainText(markdown) {
   text = processedLines.join('\n');
 
   const inlineCode = [];
-  text = text.replace(/`([^`\n]+)`/g, (match, content) => {
+  // Match CommonMark inline code spans delimited by matching runs of backticks
+  text = text.replace(/(?<!`)(`+)(?!`)([\s\S]+?)(?<!`)\1(?!`)/g, (match, delim, rawContent) => {
+    let content = rawContent.replace(/\r?\n/g, ' ');
+    if (content.startsWith(' ') && content.endsWith(' ') && content.trim().length > 0) {
+      content = content.slice(1, -1);
+    }
     const id = `@@INLINE_CODE_${inlineCode.length}@@`;
     inlineCode.push(content);
     return id;
@@ -92,14 +97,24 @@ export function markdownToPlainText(markdown) {
   // 3. Strip well-formed HTML tags and comments
   text = stripTags(text);
 
+  // Destination pattern supporting up to 4 levels of nested balanced parentheses and escapes
+  const p0 = '(?:\\\\.|[^()\\s])';
+  const p1 = `(?:${p0}|\\(${p0}*\\))`;
+  const p2 = `(?:${p0}|\\(${p1}*\\))`;
+  const p3 = `(?:${p0}|\\(${p2}*\\))`;
+  const p4 = `(?:${p0}|\\(${p3}*\\))`;
+  const destPattern = `\\((${p4}*)(?:\\s+["'][^"']*["'])?\\)`;
+  const imgRe = new RegExp(`!\\[([^\\]]*)\\]${destPattern}`, 'g');
+  const linkRe = new RegExp(`\\[([^\\]]+)\\]${destPattern}`, 'g');
+
   // 4. Normalize images: ![alt](url) -> [Image: alt]
-  text = text.replace(/!\[([^\]]*)\]\(((?:\\.|[^()\\]|\([^()]*\))*)\)/g, (match, alt) => {
+  text = text.replace(imgRe, (match, alt) => {
     const label = alt && alt.trim() ? alt.trim() : 'Image';
     return `[${label.startsWith('Image') ? label : `Image: ${label}`}]`;
   });
 
   // 5. Normalize links: [text](url) -> text (url) if text != url, else url
-  text = text.replace(/\[([^\]]+)\]\(((?:\\.|[^()\\]|\([^()]*\))+)\)/g, (match, linkText, url) => {
+  text = text.replace(linkRe, (match, linkText, url) => {
     const t = linkText.trim();
     const u = url.trim().replace(/\\([()\\])/g, '$1');
     if (!t || t === u) return u;
@@ -125,18 +140,14 @@ export function markdownToPlainText(markdown) {
   text = text.replace(/(^|[^\w_])_([^\s_](?:[^_]*[^\s_])?)_(?=[^\w_]|$)/g, '$1$2');
   // Strikethrough (~~text~~)
   text = text.replace(/~~(?!\s)(.+?)(?<!\s)~~/g, '$1');
-  // Inline code was protected before HTML stripping; restore its literal contents.
-  inlineCode.forEach((content, i) => {
-    text = text.replace(`@@INLINE_CODE_${i}@@`, () => content);
-  });
 
-  // 9. Convert horizontal rules to simple plain divider line
+  // 9. Convert horizontal rules to simple plain divider line (before restoring inline code)
   text = text.replace(
     /^[ ]{0,3}([-*_]){3,}[ \t]*$/gm,
     '--------------------------------------------------',
   );
 
-  // 10. Normalize excessive blank lines and trim surrounding prose before restoring code blocks
+  // 10. Normalize excessive blank lines and trim surrounding prose before restoring code
   text = text.replace(/\n{3,}/g, '\n\n').trim();
 
   // 11. Restore code blocks (stripping outer markdown backtick fences while preserving indented code content and internal newlines)
@@ -146,6 +157,11 @@ export function markdownToPlainText(markdown) {
       .replace(/^[ ]{0,3}(?:`{3,}|~{3,})[^\n]*\r?\n?/, '')
       .replace(/\r?\n?[ ]{0,3}(?:`{3,}|~{3,})\s*$/, '');
     text = text.replace(`@@CODE_BLOCK_${i}@@`, () => strippedBlock);
+  }
+
+  // 12. Restore inline code contents
+  for (let i = 0; i < inlineCode.length; i++) {
+    text = text.replace(`@@INLINE_CODE_${i}@@`, () => inlineCode[i]);
   }
 
   return text;

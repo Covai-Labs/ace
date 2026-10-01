@@ -219,6 +219,25 @@ test('markdownToPlainText handles URLs with balanced and escaped parentheses', (
   );
 });
 
+test('markdownToPlainText handles multi-backtick code spans and backtick inside', () => {
+  const input = 'Use ``a ` b`` here and `normal` code.';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'Use a ` b here and normal code.');
+});
+
+test('markdownToPlainText preserves inline code containing hyphens without expanding to horizontal divider', () => {
+  const input = '`---`';
+  const output = markdownToPlainText(input);
+  assert.equal(output, '---');
+});
+
+test('markdownToPlainText handles URLs with nested balanced parentheses in links and images', () => {
+  const input =
+    'See [nested link](https://example.com/a(b(c)d)) and ![nested img](https://example.com/img(a(b(c)d)).png)';
+  const output = markdownToPlainText(input);
+  assert.equal(output, 'See nested link (https://example.com/a(b(c)d)) and [Image: nested img]');
+});
+
 test('markdownToPlainText handles bare base64 without eating subsequent prose', () => {
   const input =
     'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=\n\nNext paragraph of prose.';

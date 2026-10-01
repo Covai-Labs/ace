@@ -145,7 +145,11 @@ export default defineBackground(() => {
         }
       }
 
-      await chrome.storage.sync.remove('launchMode');
+      try {
+        await chrome.storage.sync.remove('launchMode');
+      } catch (e) {
+        console.warn('[AI Exporter Background] Failed to remove obsolete launchMode setting:', e);
+      }
       await syncSidePanelBehavior();
       setupContextMenus();
 
