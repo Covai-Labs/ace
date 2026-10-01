@@ -320,6 +320,7 @@ export function getTocItems(messages, options = {}) {
  */
 export function isArticleConversation(conversation) {
   if (!conversation) return false;
+  if (conversation.rawArticle) return true;
   const source = conversation.metadata?.Source;
   if (source === 'Web Article' || source === 'WebArticle') return true;
   const platform = conversation.platform;
