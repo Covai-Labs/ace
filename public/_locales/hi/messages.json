@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 सादा पाठ (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -437,6 +441,10 @@
     "message": "Markdown डाउनलोड करें",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "सादा पाठ डाउनलोड करें",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "JSON डाउनलोड करें",
     "description": "Download JSON button label"
@@ -456,6 +464,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 सादा पाठ",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",

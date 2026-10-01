@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 纯文本 (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -437,6 +441,10 @@
     "message": "下载 Markdown",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "下载纯文本",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "下载 JSON",
     "description": "Download JSON button label"
@@ -456,6 +464,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 纯文本",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",

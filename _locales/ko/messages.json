@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 일반 텍스트 (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -429,6 +433,10 @@
     "message": "Markdown 다운로드",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "일반 텍스트 다운로드",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "JSON 다운로드",
     "description": "Download JSON button label"
@@ -448,6 +456,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 일반 텍스트",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",

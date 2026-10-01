@@ -1,4 +1,5 @@
 import { MarkdownFormatter } from '../content/formatters/markdown.js';
+import { TextFormatter } from '../content/formatters/text.js';
 import { JsonFormatter } from '../content/formatters/json.js';
 import { HtmlFormatter } from '../content/formatters/html.js';
 import { DocFormatter } from '../content/formatters/doc.js';
@@ -112,6 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const previewRendered = document.getElementById('preview-rendered');
 
   const markdownFormatter = new MarkdownFormatter();
+  const textFormatter = new TextFormatter();
   const jsonFormatter = new JsonFormatter();
   const htmlFormatter = new HtmlFormatter();
   const docFormatter = new DocFormatter();
@@ -216,6 +218,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   let htmlContent = '';
   let markdownContent = '';
+  let textContent = '';
   let jsonContent = '';
   let docContent = '';
 
@@ -341,6 +344,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       label = t('downloadHtml') || 'Download HTML';
     } else if (extension === 'md') {
       label = t('downloadMarkdown') || 'Download Markdown';
+    } else if (extension === 'txt') {
+      label = t('downloadPlainText') || 'Download Plain Text';
     } else if (extension === 'json') {
       label = t('downloadJson') || 'Download JSON';
     } else if (extension === 'doc') {
@@ -353,6 +358,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     switch (tabName) {
       case 'markdown':
         return 'md';
+      case 'text':
+        return 'text';
       case 'json':
         return 'json';
       case 'html-render':
@@ -372,6 +379,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!param) return null;
     const p = String(param).trim().toLowerCase();
     if (p === 'md' || p === 'markdown') return 'markdown';
+    if (p === 'txt' || p === 'text') return 'text';
     if (p === 'json') return 'json';
     if (p === 'html' || p === 'live' || p === 'html-render') return 'html-render';
     if (p === 'source' || p === 'html-source') return 'html-source';
@@ -446,6 +454,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (tabName === 'markdown') {
         activeContent = markdownContent;
         activeExtension = 'md';
+      } else if (tabName === 'text') {
+        activeContent = textContent;
+        activeExtension = 'txt';
       } else if (tabName === 'json') {
         activeContent = jsonContent;
         activeExtension = 'json';
@@ -496,6 +507,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         ...exportOptions,
         includeToc: shouldIncludeToc,
       });
+      textContent = textFormatter.format(activeConv, {
+        ...exportOptions,
+        includeToc: shouldIncludeToc,
+      });
       jsonContent = jsonFormatter.format(activeConv);
       docContent = docFormatter.format(activeConv, {
         ...exportOptions,
@@ -504,6 +519,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       htmlContent = sanitizeHtml(fallbackPreviewContent);
       markdownContent = fallbackPreviewContent;
+      textContent = fallbackPreviewContent;
       jsonContent = fallbackPreviewContent;
       docContent = fallbackPreviewContent;
     }
@@ -631,6 +647,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       initialTab = 'json';
     } else if (initialFormat === 'markdown') {
       initialTab = 'markdown';
+    } else if (initialFormat === 'text' || initialFormat === 'txt') {
+      initialTab = 'text';
     } else if (initialFormat === 'doc') {
       initialTab = 'doc';
     } else if (initialFormat === 'png') {

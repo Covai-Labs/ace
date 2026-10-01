@@ -188,3 +188,15 @@ test('popup header includes #support-btn opening options.html#love', () => {
   assert.match(entrypointsPopupJs, /supportBtn/);
   assert.match(entrypointsPopupJs, /options\.html#love/);
 });
+
+test('options HTML and popup HTML include text format in format selects', () => {
+  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+  const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+  const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
+  const entrypointsPopupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
+
+  assert.match(optionsHtml, /<option value="text">Plain Text \(\.txt\)<\/option>/);
+  assert.match(entrypointsOptionsHtml, /<option value="text">Plain Text \(\.txt\)<\/option>/);
+  assert.match(popupHtml, /<option value="text"[^>]*>📄 Plain Text \(\.txt\)<\/option>/);
+  assert.match(entrypointsPopupHtml, /<option value="text"[^>]*>📄 Plain Text \(\.txt\)<\/option>/);
+});

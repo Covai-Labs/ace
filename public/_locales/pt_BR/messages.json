@@ -103,6 +103,10 @@
     "message": "📝 Markdown (.md)",
     "description": "Markdown format dropdown option"
   },
+  "formatText": {
+    "message": "📄 Texto simples (.txt)",
+    "description": "Plain text format dropdown option"
+  },
   "formatJson": {
     "message": "⚙️ JSON (.json)",
     "description": "JSON format dropdown option"
@@ -437,6 +441,10 @@
     "message": "Baixar Markdown",
     "description": "Download Markdown button label"
   },
+  "downloadPlainText": {
+    "message": "Baixar texto simples",
+    "description": "Download Plain Text button label"
+  },
   "downloadJson": {
     "message": "Baixar JSON",
     "description": "Download JSON button label"
@@ -456,6 +464,10 @@
   "markdownTab": {
     "message": "📝 Markdown",
     "description": "Markdown preview tab"
+  },
+  "textTab": {
+    "message": "📄 Texto simples",
+    "description": "Plain Text preview tab"
   },
   "jsonTab": {
     "message": "⚙️ JSON",
