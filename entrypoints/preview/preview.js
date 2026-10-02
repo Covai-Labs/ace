@@ -973,15 +973,33 @@ document.addEventListener('DOMContentLoaded', async () => {
     const genericArticleNotice = document.getElementById('generic-article-notice');
     const previewRequestSupportBtn = document.getElementById('preview-request-support-btn');
 
+    function openFeedbackOptions() {
+      const url =
+        typeof chrome !== 'undefined' && chrome.runtime?.getURL
+          ? chrome.runtime.getURL('options.html#feedback-section')
+          : 'options.html#feedback-section';
+      if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
+        chrome.tabs.create({ url });
+      } else {
+        window.open(url, '_blank');
+      }
+    }
+
     function openFeedbackIssue(convo) {
+      const pageUrl =
+        convo?.url ||
+        convo?.metadata?.Link ||
+        convo?.metadata?.url ||
+        convo?.metadata?.sourceUrl ||
+        '';
       let domain = '';
-      let pageUrl = convo?.url || convo?.metadata?.url || convo?.metadata?.sourceUrl || '';
       try {
         if (pageUrl) domain = new URL(pageUrl).hostname;
       } catch {
         // Ignore invalid URL
       }
 
+      const platform = convo?.platform || convo?.metadata?.Source || 'Chat Export';
       const isGeneric =
         convo?.isDedicatedAi === false ||
         convo?.platform === 'WebArticle' ||
@@ -990,8 +1008,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (isGeneric) {
         issueUrl = buildPlatformSupportIssueUrl(pageUrl || '');
       } else {
-        const issueTitle = `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
-        const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
+        const issueTitle = `[Feedback] Issue with ${platform}`;
+        const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${platform === 'Chat Export' ? 'Unknown' : platform}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
         issueUrl = `https://github.com/Covai-Labs/ace/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
       }
       if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
@@ -1015,7 +1033,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (feedbackBtn) {
-      feedbackBtn.addEventListener('click', () => openFeedbackIssue(conversation));
+      feedbackBtn.addEventListener('click', () => openFeedbackOptions());
+    }
+    const githubIssueBtn = document.getElementById('github-issue-btn');
+    if (githubIssueBtn) {
+      githubIssueBtn.addEventListener('click', () => openFeedbackIssue(conversation));
     }
     if (previewRequestSupportBtn) {
       previewRequestSupportBtn.addEventListener('click', () => openFeedbackIssue(conversation));
