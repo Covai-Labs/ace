@@ -737,5 +737,13 @@
   "loveGitHubBtn": {
     "message": "Репозиторий на GitHub ↗",
     "description": "Button label for GitHub repository link in options"
+  },
+  "showContextMenuLabel": {
+    "message": "Показывать контекстное меню правой кнопки мыши",
+    "description": "Label for show context menu checkbox"
+  },
+  "showContextMenuHelp": {
+    "message": "Добавляет действия экспорта и переноса в контекстное меню браузера.",
+    "description": "Help text for show context menu setting"
   }
 }

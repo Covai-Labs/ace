@@ -716,5 +716,13 @@
   "loveGitHubBtn": {
     "message": "GitHub रिपॉजिटरी ↗",
     "description": "Button label for GitHub repository link in options"
+  },
+  "showContextMenuLabel": {
+    "message": "दायाँ-क्लिक संदर्भ मेनू दिखाएं",
+    "description": "Label for show context menu checkbox"
+  },
+  "showContextMenuHelp": {
+    "message": "ब्राउज़र के राइट-क्लिक मेनू में निर्यात और स्थानांतरण क्रियाएं जोड़ता है।",
+    "description": "Help text for show context menu setting"
   }
 }

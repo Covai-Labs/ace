@@ -716,5 +716,13 @@
   "loveGitHubBtn": {
     "message": "GitHub リポジトリ ↗",
     "description": "Button label for GitHub repository link in options"
+  },
+  "showContextMenuLabel": {
+    "message": "右クリックのコンテキストメニューを表示",
+    "description": "Label for show context menu checkbox"
+  },
+  "showContextMenuHelp": {
+    "message": "ブラウザの右クリックメニューにエクスポートと転送のアクションを追加します。",
+    "description": "Help text for show context menu setting"
   }
 }

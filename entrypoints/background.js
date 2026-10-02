@@ -47,10 +47,33 @@ export default defineBackground(() => {
 
   const SUPPORTED_DOCUMENT_URL_PATTERNS = ['<all_urls>'];
 
-  function setupContextMenus() {
+  let setupContextMenusSeq = 0;
+
+  async function setupContextMenus() {
     if (typeof chrome === 'undefined' || !chrome.contextMenus) return;
 
+    const currentSeq = ++setupContextMenusSeq;
+
+    let showContextMenu = true;
+    try {
+      const syncData = await chrome.storage.sync.get('showContextMenu');
+      if (syncData?.showContextMenu === false) {
+        showContextMenu = false;
+      }
+    } catch {
+      // Fall back to default menu registration if storage read fails
+    }
+
+    if (currentSeq !== setupContextMenusSeq) return;
+
+    if (!showContextMenu) {
+      chrome.contextMenus.removeAll();
+      return;
+    }
+
     chrome.contextMenus.removeAll(() => {
+      if (currentSeq !== setupContextMenusSeq) return;
+
       const parentTitle = chrome.i18n?.getMessage('contextMenuParent') || 'Export AI Chat';
       const copyTitle = chrome.i18n?.getMessage('contextMenuCopyMarkdown') || 'Copy Markdown';
       const downloadTitle =
@@ -170,6 +193,14 @@ export default defineBackground(() => {
         } catch (e) {
           console.warn('[AI Exporter Background] Failed to inject content script on install:', e);
         }
+      }
+    });
+  }
+
+  if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+    chrome.storage.onChanged.addListener((changes, areaName) => {
+      if (areaName === 'sync' && 'showContextMenu' in changes) {
+        setupContextMenus();
       }
     });
   }
