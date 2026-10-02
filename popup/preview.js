@@ -591,11 +591,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     const genericArticleNotice = document.getElementById('generic-article-notice');
     const previewRequestSupportBtn = document.getElementById('preview-request-support-btn');
 
-    function openFeedbackOptions() {
+    function openFeedbackOptions(context) {
+      const sourceUrl = context?.url || context?.metadata?.Link || '';
+      const platform = context?.metadata?.Source || context?.platform || '';
+      const query = new URLSearchParams({
+        ...(sourceUrl ? { source_url: sourceUrl } : {}),
+        ...(platform ? { platform } : {}),
+      }).toString();
+      const hash = `#feedback-section`;
+      const path = `options/options.html${query ? `?${query}` : ''}${hash}`;
       const url =
         typeof chrome !== 'undefined' && chrome.runtime?.getURL
-          ? chrome.runtime.getURL('options.html#feedback-section')
-          : 'options.html#feedback-section';
+          ? chrome.runtime.getURL(path)
+          : path;
       if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
         chrome.tabs.create({ url });
       } else {
@@ -620,7 +628,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       feedbackBtn.addEventListener('click', () => openFeedbackOptions());
     }
     if (previewRequestSupportBtn) {
-      previewRequestSupportBtn.addEventListener('click', () => openFeedbackOptions());
+      previewRequestSupportBtn.addEventListener('click', () => openFeedbackOptions(conversation));
     }
 
     fallbackPreviewContent = data.previewContent || '';

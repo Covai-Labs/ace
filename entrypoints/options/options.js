@@ -360,11 +360,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     else if (userAgent.includes('Safari/')) browser = 'Safari';
 
     const os = navigator.platform || '';
+    const optionsParams = new URLSearchParams(window.location.search);
     const params = new URLSearchParams({
       v: manifest.version || '1.12.1',
       app_version: manifest.version || '1.12.1',
       browser: browser,
       os: os,
+      ...(optionsParams.get('source_url')
+        ? { source_url: optionsParams.get('source_url') }
+        : {}),
+      ...(optionsParams.get('platform') ? { platform: optionsParams.get('platform') } : {}),
     });
     feedbackLink.href = `https://ace.covai.org/feedback.html?${params.toString()}`;
   }
