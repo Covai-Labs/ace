@@ -594,8 +594,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     function openFeedbackOptions() {
       const url =
         typeof chrome !== 'undefined' && chrome.runtime?.getURL
-          ? chrome.runtime.getURL('options.html#feedback-section')
-          : 'options.html#feedback-section';
+          ? chrome.runtime.getURL('options/options.html#feedback-section')
+          : 'options/options.html#feedback-section';
       if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
         chrome.tabs.create({ url });
       } else {
