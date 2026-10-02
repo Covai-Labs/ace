@@ -29,6 +29,8 @@ test('locales define all context menu messages across all catalogs', () => {
         `Missing contextMenuOpenPreview in ${dir}`,
       );
       assert.ok(messages.contextMenuSendToAI?.message, `Missing contextMenuSendToAI in ${dir}`);
+      assert.ok(messages.showContextMenuLabel?.message, `Missing showContextMenuLabel in ${dir}`);
+      assert.ok(messages.showContextMenuHelp?.message, `Missing showContextMenuHelp in ${dir}`);
     }
   }
 });
@@ -66,5 +68,16 @@ test('content scripts handle GET_CURRENT_SELECTION and COPY_TO_CLIPBOARD', () =>
   for (const content of [contentEntry, contentClassic]) {
     assert.match(content, /request\.action === 'GET_CURRENT_SELECTION'/);
     assert.match(content, /request\.action === 'COPY_TO_CLIPBOARD'/);
+  }
+});
+
+test('background scripts check showContextMenu preference and listen for storage changes', () => {
+  const bgEntry = fs.readFileSync('entrypoints/background.js', 'utf8');
+  const bgClassic = fs.readFileSync('background/background.js', 'utf8');
+
+  for (const bg of [bgEntry, bgClassic]) {
+    assert.match(bg, /showContextMenu/);
+    assert.match(bg, /chrome\.storage\.sync\.get\(['"]showContextMenu['"]\)/);
+    assert.match(bg, /chrome\.storage\.onChanged\.addListener/);
   }
 });

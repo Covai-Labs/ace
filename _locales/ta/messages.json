@@ -737,5 +737,13 @@
   "loveGitHubBtn": {
     "message": "GitHub களஞ்சியம் ↗",
     "description": "Button label for GitHub repository link in options"
+  },
+  "showContextMenuLabel": {
+    "message": "வலது-கிளிக் சூழல் மெனுவைக் காட்டு",
+    "description": "Label for show context menu checkbox"
+  },
+  "showContextMenuHelp": {
+    "message": "உலாவியின் வலது கிளிக் மெனுவில் ஏற்றுமதி மற்றும் பரிமாற்ற செயல்களைச் சேர்க்கிறது.",
+    "description": "Help text for show context menu setting"
   }
 }

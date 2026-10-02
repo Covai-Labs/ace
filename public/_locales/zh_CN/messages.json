@@ -716,5 +716,13 @@
   "loveGitHubBtn": {
     "message": "GitHub 仓库 ↗",
     "description": "Button label for GitHub repository link in options"
+  },
+  "showContextMenuLabel": {
+    "message": "显示右键上下文菜单",
+    "description": "Label for show context menu checkbox"
+  },
+  "showContextMenuHelp": {
+    "message": "向浏览器右键菜单添加导出与传输操作。",
+    "description": "Help text for show context menu setting"
   }
 }

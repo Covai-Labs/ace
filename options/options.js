@@ -39,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const includeAttribution = document.getElementById('include-attribution');
   const defaultIncludeThinking = document.getElementById('default-include-thinking');
   const defaultIncludeTimestamps = document.getElementById('default-include-timestamps');
+  const showContextMenuCheckbox = document.getElementById('show-context-menu-checkbox');
   const messageNumberingSelect = document.getElementById('message-numbering-select');
   const filenameTemplateInput = document.getElementById('filename-template-input');
   const filenamePreview = document.getElementById('filename-preview');
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'includeAttribution',
     'includeThinking',
     'includeTimestamps',
+    'showContextMenu',
     'messageNumbering',
     'filenameTemplate',
     'parserMode',
@@ -117,6 +119,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     defaultIncludeThinking.checked = stored.includeThinking !== false;
   if (defaultIncludeTimestamps)
     defaultIncludeTimestamps.checked = stored.includeTimestamps === true;
+  if (showContextMenuCheckbox) showContextMenuCheckbox.checked = stored.showContextMenu !== false;
   if (messageNumberingSelect) {
     messageNumberingSelect.value = normalizeMessageNumbering(stored.messageNumbering);
   }
@@ -173,6 +176,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (defaultIncludeTimestamps) {
     defaultIncludeTimestamps.addEventListener('change', () => {
       chrome.storage.sync.set({ includeTimestamps: defaultIncludeTimestamps.checked });
+      showToast();
+    });
+  }
+
+  if (showContextMenuCheckbox) {
+    showContextMenuCheckbox.addEventListener('change', () => {
+      chrome.storage.sync.set({ showContextMenu: showContextMenuCheckbox.checked });
       showToast();
     });
   }
@@ -374,6 +384,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           if (languageSelect) languageSelect.value = newLang;
           await initI18n(newLang);
           applyI18n();
+        }
+        if (changes.showContextMenu && showContextMenuCheckbox) {
+          showContextMenuCheckbox.checked = changes.showContextMenu.newValue !== false;
         }
       }
     });

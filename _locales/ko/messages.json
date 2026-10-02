@@ -736,5 +736,13 @@
   "loveGitHubBtn": {
     "message": "GitHub 저장소 ↗",
     "description": "Button label for GitHub repository link in options"
+  },
+  "showContextMenuLabel": {
+    "message": "우클릭 컨텍스트 메뉴 표시",
+    "description": "Label for show context menu checkbox"
+  },
+  "showContextMenuHelp": {
+    "message": "브라우저 우클릭 메뉴에 내보내기 및 전송 동작을 추가합니다.",
+    "description": "Help text for show context menu setting"
   }
 }

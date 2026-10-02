@@ -11,6 +11,7 @@ test('chrome.storage.sync schema defaults for options system', () => {
     defaultTransferTarget: 'claude',
     launchMode: 'popup',
     theme: 'system',
+    showContextMenu: true,
   };
 
   assert.equal(defaultOptions.defaultFormat, 'markdown');
@@ -20,6 +21,7 @@ test('chrome.storage.sync schema defaults for options system', () => {
   assert.equal(defaultOptions.defaultTransferTarget, 'claude');
   assert.equal(defaultOptions.launchMode, 'popup');
   assert.equal(defaultOptions.theme, 'system');
+  assert.equal(defaultOptions.showContextMenu, true);
 });
 
 test('smart transfer target logic defaults away from current platform', () => {
@@ -158,6 +160,26 @@ test('options scripts wire includeThinking storage setting', () => {
   assert.match(optionsJs, /defaultIncludeThinking/);
   assert.match(entrypointsOptionsJs, /'includeThinking'/);
   assert.match(entrypointsOptionsJs, /defaultIncludeThinking/);
+});
+
+test('options HTML pages define show-context-menu-checkbox', () => {
+  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+  const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+
+  assert.match(optionsHtml, /id="show-context-menu-checkbox"/);
+  assert.match(optionsHtml, /data-i18n="showContextMenuLabel"/);
+  assert.match(entrypointsOptionsHtml, /id="show-context-menu-checkbox"/);
+  assert.match(entrypointsOptionsHtml, /data-i18n="showContextMenuLabel"/);
+});
+
+test('options scripts wire showContextMenu storage setting', () => {
+  const optionsJs = fs.readFileSync('options/options.js', 'utf8');
+  const entrypointsOptionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+
+  assert.match(optionsJs, /'showContextMenu'/);
+  assert.match(optionsJs, /showContextMenuCheckbox/);
+  assert.match(entrypointsOptionsJs, /'showContextMenu'/);
+  assert.match(entrypointsOptionsJs, /showContextMenuCheckbox/);
 });
 
 test('options HTML pages define #love section and #nav-love link', () => {

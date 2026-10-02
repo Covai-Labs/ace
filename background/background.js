@@ -49,10 +49,36 @@ const PLATFORM_URLS = {
 
 const SUPPORTED_DOCUMENT_URL_PATTERNS = ['<all_urls>'];
 
-function setupContextMenus() {
+let setupContextMenusSeq = 0;
+let lastKnownShowContextMenu;
+
+async function setupContextMenus() {
   if (typeof chrome === 'undefined' || !chrome.contextMenus) return;
 
+  const currentSeq = ++setupContextMenusSeq;
+
+  let showContextMenu;
+  try {
+    const syncData = await chrome.storage.sync.get('showContextMenu');
+    if (currentSeq !== setupContextMenusSeq) return;
+    showContextMenu = syncData?.showContextMenu !== false;
+    lastKnownShowContextMenu = showContextMenu;
+  } catch {
+    if (currentSeq !== setupContextMenusSeq) return;
+    // Preserve last-known user preference if available; otherwise fall back to default (true)
+    showContextMenu = lastKnownShowContextMenu !== undefined ? lastKnownShowContextMenu : true;
+  }
+
+  if (currentSeq !== setupContextMenusSeq) return;
+
+  if (!showContextMenu) {
+    chrome.contextMenus.removeAll();
+    return;
+  }
+
   chrome.contextMenus.removeAll(() => {
+    if (currentSeq !== setupContextMenusSeq) return;
+
     const parentTitle = chrome.i18n?.getMessage('contextMenuParent') || 'Export AI Chat';
     const copyTitle = chrome.i18n?.getMessage('contextMenuCopyMarkdown') || 'Copy Markdown';
     const downloadTitle =
@@ -153,6 +179,14 @@ chrome.runtime.onInstalled.addListener(async (details) => {
   await syncSidePanelBehavior();
   setupContextMenus();
 });
+
+if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
+  chrome.storage.onChanged.addListener((changes, areaName) => {
+    if (areaName === 'sync' && 'showContextMenu' in changes) {
+      setupContextMenus();
+    }
+  });
+}
 
 async function performTransfer(target, payload = '', title = 'AI Conversation', autoSend = true) {
   const uriAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
