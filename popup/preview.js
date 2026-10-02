@@ -10,6 +10,7 @@ import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { stripImages } from '../content/utils/strip-images.js';
 import { stripThinking } from '../content/utils/strip-thinking.js';
+import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
 import { getExportOptions, applyExportOptionChanges } from '../content/utils/preferences.js';
 
 function applyTheme(theme, targetDoc = document) {
@@ -603,6 +604,40 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
+    function openFeedbackIssue(convo) {
+      const pageUrl =
+        convo?.url ||
+        convo?.metadata?.Link ||
+        convo?.metadata?.url ||
+        convo?.metadata?.sourceUrl ||
+        '';
+      let domain = '';
+      try {
+        if (pageUrl) domain = new URL(pageUrl).hostname;
+      } catch {
+        // Ignore invalid URL
+      }
+
+      const platform = convo?.platform || convo?.metadata?.Source || 'Chat Export';
+      const isGeneric =
+        convo?.isDedicatedAi === false ||
+        convo?.platform === 'WebArticle' ||
+        convo?.platform === 'Article';
+      let issueUrl;
+      if (isGeneric) {
+        issueUrl = buildPlatformSupportIssueUrl(pageUrl || '');
+      } else {
+        const issueTitle = `[Feedback] Issue with ${platform}`;
+        const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${platform === 'Chat Export' ? 'Unknown' : platform}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
+        issueUrl = `https://github.com/Covai-Labs/ace/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
+      }
+      if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
+        chrome.tabs.create({ url: issueUrl });
+      } else {
+        window.open(issueUrl, '_blank');
+      }
+    }
+
     if (genericArticleNotice) {
       if (
         conversation &&
@@ -619,8 +654,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (feedbackBtn) {
       feedbackBtn.addEventListener('click', () => openFeedbackOptions());
     }
+    const githubIssueBtn = document.getElementById('github-issue-btn');
+    if (githubIssueBtn) {
+      githubIssueBtn.addEventListener('click', () => openFeedbackIssue(conversation));
+    }
     if (previewRequestSupportBtn) {
-      previewRequestSupportBtn.addEventListener('click', () => openFeedbackOptions());
+      previewRequestSupportBtn.addEventListener('click', () => openFeedbackIssue(conversation));
     }
 
     fallbackPreviewContent = data.previewContent || '';
