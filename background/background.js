@@ -50,20 +50,21 @@ const PLATFORM_URLS = {
 const SUPPORTED_DOCUMENT_URL_PATTERNS = ['<all_urls>'];
 
 let setupContextMenusSeq = 0;
+let lastKnownShowContextMenu;
 
 async function setupContextMenus() {
   if (typeof chrome === 'undefined' || !chrome.contextMenus) return;
 
   const currentSeq = ++setupContextMenusSeq;
 
-  let showContextMenu = true;
+  let showContextMenu;
   try {
     const syncData = await chrome.storage.sync.get('showContextMenu');
-    if (syncData?.showContextMenu === false) {
-      showContextMenu = false;
-    }
+    showContextMenu = syncData?.showContextMenu !== false;
+    lastKnownShowContextMenu = showContextMenu;
   } catch {
-    // Fall back to default menu registration if storage read fails
+    // Preserve last-known user preference if available; otherwise fall back to default (true)
+    showContextMenu = lastKnownShowContextMenu !== undefined ? lastKnownShowContextMenu : true;
   }
 
   if (currentSeq !== setupContextMenusSeq) return;
