@@ -48,6 +48,7 @@ export default defineBackground(() => {
   const SUPPORTED_DOCUMENT_URL_PATTERNS = ['<all_urls>'];
 
   let setupContextMenusSeq = 0;
+  let lastKnownShowContextMenu;
 
   async function setupContextMenus() {
     if (typeof chrome === 'undefined' || !chrome.contextMenus) return;
@@ -57,11 +58,14 @@ export default defineBackground(() => {
     let showContextMenu = true;
     try {
       const syncData = await chrome.storage.sync.get('showContextMenu');
-      if (syncData?.showContextMenu === false) {
-        showContextMenu = false;
-      }
+      showContextMenu = syncData?.showContextMenu !== false;
+      lastKnownShowContextMenu = showContextMenu;
     } catch {
-      // Fall back to default menu registration if storage read fails
+      // Never re-enable menus when the preference cannot be read.
+      showContextMenu = lastKnownShowContextMenu ?? false;
+      chrome.contextMenus.removeAll();
+      setTimeout(() => setupContextMenus(), 1000);
+      return;
     }
 
     if (currentSeq !== setupContextMenusSeq) return;
