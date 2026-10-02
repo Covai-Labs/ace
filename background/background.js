@@ -60,9 +60,11 @@ async function setupContextMenus() {
   let showContextMenu;
   try {
     const syncData = await chrome.storage.sync.get('showContextMenu');
+    if (currentSeq !== setupContextMenusSeq) return;
     showContextMenu = syncData?.showContextMenu !== false;
     lastKnownShowContextMenu = showContextMenu;
   } catch {
+    if (currentSeq !== setupContextMenusSeq) return;
     // Preserve last-known user preference if available; otherwise fall back to default (true)
     showContextMenu = lastKnownShowContextMenu !== undefined ? lastKnownShowContextMenu : true;
   }
