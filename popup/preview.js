@@ -10,7 +10,6 @@ import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { stripImages } from '../content/utils/strip-images.js';
 import { stripThinking } from '../content/utils/strip-thinking.js';
-import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
 import { getExportOptions, applyExportOptionChanges } from '../content/utils/preferences.js';
 
 function applyTheme(theme, targetDoc = document) {
@@ -592,31 +591,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const genericArticleNotice = document.getElementById('generic-article-notice');
     const previewRequestSupportBtn = document.getElementById('preview-request-support-btn');
 
-    function openFeedbackIssue(convo) {
-      let domain = '';
-      let pageUrl = convo?.url || convo?.metadata?.url || convo?.metadata?.sourceUrl || '';
-      try {
-        if (pageUrl) domain = new URL(pageUrl).hostname;
-      } catch {
-        // Ignore invalid URL
-      }
-
-      const isGeneric =
-        convo?.isDedicatedAi === false ||
-        convo?.platform === 'WebArticle' ||
-        convo?.platform === 'Article';
-      let issueUrl;
-      if (isGeneric) {
-        issueUrl = buildPlatformSupportIssueUrl(pageUrl || '');
-      } else {
-        const issueTitle = `[Feedback] Issue with ${convo?.platform || 'Chat Export'}`;
-        const issueBody = `### Feedback / Platform Request\n\n- **Platform**: ${convo?.platform || 'Unknown'}\n- **Website Domain**: ${domain || 'N/A'}\n- **Messages Extracted**: ${convo?.messages?.length || 0}\n- **Extracted as Generic Web Article**: No\n\n### Description\nPlease describe what is not working or what feature/platform support you are requesting:\n\n- **Page URL (optional)**: `;
-        issueUrl = `https://github.com/Covai-Labs/ace/issues/new?title=${encodeURIComponent(issueTitle)}&body=${encodeURIComponent(issueBody)}`;
-      }
+    function openFeedbackOptions() {
+      const url =
+        typeof chrome !== 'undefined' && chrome.runtime?.getURL
+          ? chrome.runtime.getURL('options.html#feedback-section')
+          : 'options.html#feedback-section';
       if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
-        chrome.tabs.create({ url: issueUrl });
+        chrome.tabs.create({ url });
       } else {
-        window.open(issueUrl, '_blank');
+        window.open(url, '_blank');
       }
     }
 
@@ -634,10 +617,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (feedbackBtn) {
-      feedbackBtn.addEventListener('click', () => openFeedbackIssue(conversation));
+      feedbackBtn.addEventListener('click', () => openFeedbackOptions());
     }
     if (previewRequestSupportBtn) {
-      previewRequestSupportBtn.addEventListener('click', () => openFeedbackIssue(conversation));
+      previewRequestSupportBtn.addEventListener('click', () => openFeedbackOptions());
     }
 
     fallbackPreviewContent = data.previewContent || '';
