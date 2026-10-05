@@ -368,7 +368,7 @@
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
-    "message": "💬 提交反馈或问题报告",
+    "message": "💬 提交反馈",
     "description": "Button to submit feedback"
   },
   "toastSaved": {
@@ -682,7 +682,7 @@
     "description": "Section title and navigation item for Support & Love section in options"
   },
   "loveIntro": {
-    "message": "AI Chat Exporter 免费、开源且 100% 本地运行 — 无外部服务器、无遥测数据、无付费墙。如果您喜欢这款扩展，可以通过以下方式支持我们：",
+    "message": "AI Chat Exporter 免费、开源且 100% 本地运行，无外部服务器、无遥测数据、无付费墙。如果您喜欢这款扩展，可以通过以下方式支持：",
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
@@ -746,11 +746,11 @@
     "description": "Help text for show context menu setting"
   },
   "feedbackMaintenanceHelp": {
-    "message": "ChatGPT、Claude 和 Gemini 等平台经常更新其网页，这可能会导致导出失效。我独自维护此扩展。如果导出出现异常，请向我反馈——您的报告有助于我快速修复问题。",
+    "message": "ChatGPT、Claude 和 Gemini 等平台经常更新其网页，这可能会导致导出失效。我独自维护此扩展。如果导出出现异常，请向我反馈。您的报告有助于我快速修复问题。",
     "description": "Explanation of ongoing parser maintenance by solo developer"
   },
-  "feedbackStoryHelp": {
-    "message": "我最初开发 AI Chat Exporter 是为了自己使用，因为其他很多工具不开源且会将对话数据发送到远程服务器。我始终坚持 100% 本地运行、免费、开源且无任何遥测追踪。如果它为您节省了时间，您的反馈、好评和赞助支持将帮助我持续维护它。",
-    "description": "Origin story and motivation behind keeping the extension local-first and open source"
+  "openGithubIssue": {
+    "message": "在 GitHub 上反馈",
+    "description": "Button label for opening GitHub issues in options feedback section"
   }
 }

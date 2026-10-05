@@ -368,7 +368,7 @@
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
-    "message": "💬 Отправить отзыв или отчет об ошибке",
+    "message": "💬 Оставить отзыв",
     "description": "Button to submit feedback"
   },
   "toastSaved": {
@@ -683,7 +683,7 @@
     "description": "Section title and navigation item for Support & Love section in options"
   },
   "loveIntro": {
-    "message": "AI Chat Exporter — бесплатное приложение с открытым исходным кодом, работающее на 100% локально: без внешних серверов, телеметрии и платных функций. Если вам нравится расширение, вот как вы можете поддержать проект:",
+    "message": "AI Chat Exporter является бесплатным приложением с открытым исходным кодом и работает на 100% локально: без внешних серверов, телеметрии и платных функций. Если вам нравится расширение, вот как вы можете поддержать проект:",
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
@@ -747,11 +747,11 @@
     "description": "Help text for show context menu setting"
   },
   "feedbackMaintenanceHelp": {
-    "message": "Платформы вроде ChatGPT, Claude и Gemini часто обновляют свои сайты, что может ломать экспорт. Я поддерживаю это расширение в одиночку. Если экспорт перестал работать, пожалуйста, сообщите об этом—ваши отзывы помогают мне быстро выпускать исправления.",
+    "message": "Платформы вроде ChatGPT, Claude и Gemini часто обновляют свои сайты, что может ломать экспорт. Я поддерживаю это расширение в одиночку. Если экспорт перестал работать, пожалуйста, сообщите об этом. Ваши отзывы помогают мне быстро выпускать исправления.",
     "description": "Explanation of ongoing parser maintenance by solo developer"
   },
-  "feedbackStoryHelp": {
-    "message": "Изначально я создал AI Chat Exporter для себя, так как другие инструменты были с закрытым исходным кодом и отправляли чаты на удаленные серверы. Я сохраняю расширение на 100% локальным, бесплатным и открытым, без телеметрии. Если оно экономит ваше время, ваши отзывы, оценки и поддержка помогают мне продолжать работу над проектом.",
-    "description": "Origin story and motivation behind keeping the extension local-first and open source"
+  "openGithubIssue": {
+    "message": "Сообщить на GitHub",
+    "description": "Button label for opening GitHub issues in options feedback section"
   }
 }
