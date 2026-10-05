@@ -44,12 +44,20 @@ test('GrokParser correctly matches URLs (including projects) and extracts conver
   assert.match(result.messages[1].content, /Baiji/);
 });
 
-test('entrypoints/content.js imports and registers GrokParser', () => {
-  const contentCode = fs.readFileSync(path.join(__dirname, '../entrypoints/content.js'), 'utf8');
-  assert.match(contentCode, /\bGrokParser\b/, 'content.js must import GrokParser from decant-core');
-  assert.match(
-    contentCode,
-    /new\s+GrokParser\(\)/,
-    'content.js must instantiate GrokParser in parsers array',
-  );
+test('content scripts import and register GrokParser', () => {
+  const contentScriptPaths = ['../entrypoints/content.js', '../content/main.js'];
+
+  for (const contentScriptPath of contentScriptPaths) {
+    const contentCode = fs.readFileSync(path.join(__dirname, contentScriptPath), 'utf8');
+    assert.match(
+      contentCode,
+      /\bGrokParser\b/,
+      `${contentScriptPath} must import GrokParser from decant-core`,
+    );
+    assert.match(
+      contentCode,
+      /new\s+GrokParser\(\)/,
+      `${contentScriptPath} must instantiate GrokParser in parsers array`,
+    );
+  }
 });
