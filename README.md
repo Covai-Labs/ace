@@ -187,7 +187,7 @@ Platform web layouts evolve frequently. If an exporter encounters issues on a mo
 
 ## ☕ Back Independent Development
 
-AI Chat Exporter is developed and maintained by an independent solo developer. Unlike cloud scrapers, it runs 100% locally in your browser with zero tracking, telemetry, or remote servers.
+AI Chat Exporter is developed and maintained by an independent solo developer. Unlike cloud scrapers, its chat processing runs 100% locally in your browser. The extension itself does not use tracking or telemetry; its website and uninstall feedback page are separate services.
 
 Because AI platforms constantly push layout updates that break DOM extraction, keeping parsers working requires continuous maintenance and rapid patching. If ACE saves you time in your daily workflow, consider [sponsoring on GitHub](https://github.com/sponsors/deadrat-in) to help keep this project alive and actively maintained.
 
