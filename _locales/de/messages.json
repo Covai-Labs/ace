@@ -364,7 +364,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "Fehler gefunden, neue Parser-Funktion gewünscht oder Feedback? Wir freuen uns über deine Nachricht.",
+    "message": "Fehler gefunden, Export funktioniert nicht oder hast du eine Idee? Ich freue mich über deine Nachricht.",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -686,7 +686,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Einen Kaffee oder ein Essen spendieren",
+    "message": "Solo-Entwicklung unterstützen",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -702,7 +702,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Ihre 5-Sterne-Bewertung hilft anderen, die Erweiterung zu entdecken, und hält unseren Schwung aufrecht.",
+    "message": "Ihre 5-Sterne-Bewertung hilft anderen, die Erweiterung zu entdecken, und hält meinen Schwung aufrecht.",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -744,5 +744,13 @@
   "showContextMenuHelp": {
     "message": "Fügt Export- und Übertragungsaktionen zum Rechtsklickmenü des Browsers hinzu.",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "Platforms like ChatGPT, Claude, and Gemini push unannounced frontend updates almost weekly that can silently break exports. Keeping up with these changes is a constant cat-and-mouse battle that I handle entirely solo. If an export stops working, please report it—your bug reports are my early warning system and help me ship fixes before others get stuck.",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "I originally built AI Chat Exporter for myself because virtually every existing tool was closed-source and sent private chats to remote servers. I keep it 100% local-first, free, and open source with zero telemetry or paywalls. Keeping this project alive and up-to-date takes real time and dedication—if it saves you hours of manual busywork, your feedback, reviews, and sponsorships genuinely keep this extension running.",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

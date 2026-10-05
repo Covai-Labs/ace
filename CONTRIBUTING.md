@@ -1,6 +1,6 @@
 # Contributing to AI Chat Exporter
 
-Thank you for your interest in contributing to AI Chat Exporter! We welcome bug reports, feature suggestions, and code contributions.
+Thank you for your interest in contributing to AI Chat Exporter! I welcome bug reports, feature suggestions, and code contributions.
 
 ## Getting Started
 

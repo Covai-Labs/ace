@@ -372,7 +372,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "कोई बग मिला या नया सुझाव है? हम आपकी राय का स्वागत करते हैं।",
+    "message": "कोई बग मिला, एक्सपोर्ट में समस्या आई या कोई सुझाव है? मैं आपकी राय का स्वागत करता हूँ।",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -666,7 +666,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "एक कॉफ़ी या भोजन प्रायोजित करें",
+    "message": "स्वतंत्र विकास का समर्थन करें",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -682,7 +682,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "आपकी 5-स्टार समीक्षा दूसरों को इस एक्सटेंशन को खोजने में मदद करती है और हमारे उत्साह को बनाए रखती है।",
+    "message": "आपकी 5-स्टार समीक्षा दूसरों को इस एक्सटेंशन को खोजने में मदद करती है और मेरे उत्साह को बनाए रखती है।",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -724,5 +724,13 @@
   "showContextMenuHelp": {
     "message": "ब्राउज़र के राइट-क्लिक मेनू में निर्यात और स्थानांतरण क्रियाएं जोड़ता है।",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "Platforms like ChatGPT, Claude, and Gemini push unannounced frontend updates almost weekly that can silently break exports. Keeping up with these changes is a constant cat-and-mouse battle that I handle entirely solo. If an export stops working, please report it—your bug reports are my early warning system and help me ship fixes before others get stuck.",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "I originally built AI Chat Exporter for myself because virtually every existing tool was closed-source and sent private chats to remote servers. I keep it 100% local-first, free, and open source with zero telemetry or paywalls. Keeping this project alive and up-to-date takes real time and dedication—if it saves you hours of manual busywork, your feedback, reviews, and sponsorships genuinely keep this extension running.",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }
