@@ -231,7 +231,7 @@ test('options HTML pages define #feedback-section with feedback and GitHub issue
     assert.match(html, /id="feedback-section"/);
     assert.match(html, /id="feedback-link"/);
     assert.match(html, /id="github-issues-link"/);
-    assert.ok(html.includes('https://github.com/Covai-Labs/ace/issues/new/choose'));
+    assert.match(html, /href="https:\/\/github\.com\/Covai-Labs\/ace\/issues\/new\/choose"/);
     assert.match(html, /id="copy-system-info-btn"/);
     assert.doesNotMatch(html, /data-i18n="feedbackStoryHelp"/);
   }
