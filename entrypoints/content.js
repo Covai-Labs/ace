@@ -16,6 +16,7 @@ import {
   LumoParser,
   JoylandParser,
   ChubParser,
+  GrokParser,
   ArticleParser,
 } from 'decant-core';
 
@@ -201,6 +202,7 @@ export default defineContentScript({
       new LumoParser(),
       new JoylandParser(),
       new ChubParser(),
+      new GrokParser(),
       new ArticleParser(),
     ];
 
