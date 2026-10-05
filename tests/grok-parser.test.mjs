@@ -49,7 +49,7 @@ test('entrypoints/content.js imports and registers GrokParser', () => {
   assert.match(contentCode, /\bGrokParser\b/, 'content.js must import GrokParser from decant-core');
   assert.match(
     contentCode,
-    /new\s+GrokParser\(\)/,
+    /const\s+parsers\s*=\s*\[[\s\S]*?new\s+GrokParser\(\)[\s\S]*?\]/,
     'content.js must instantiate GrokParser in parsers array',
   );
 });
@@ -63,7 +63,7 @@ test('content/main.js imports and registers GrokParser', () => {
   );
   assert.match(
     mainCode,
-    /new\s+GrokParser\(\)/,
+    /const\s+parsers\s*=\s*\[[\s\S]*?new\s+GrokParser\(\)[\s\S]*?\]/,
     'content/main.js must instantiate GrokParser in parsers array',
   );
 });
