@@ -33,7 +33,7 @@
     "decant-core": "^1.14.0",
     "dompurify": "^3.4.14",
     "html2canvas": "^1.4.1",
-    "katex": "^0.18.5",
+    "katex": "^0.19.0",
     "loglevel": "^1.9.2",
     "prismjs": "^1.30.0"
   }
