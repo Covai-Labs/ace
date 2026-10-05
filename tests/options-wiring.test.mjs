@@ -222,3 +222,17 @@ test('options HTML and popup HTML include text format in format selects', () => 
   assert.match(popupHtml, /<option value="text"[^>]*>📄 Plain Text \(\.txt\)<\/option>/);
   assert.match(entrypointsPopupHtml, /<option value="text"[^>]*>📄 Plain Text \(\.txt\)<\/option>/);
 });
+
+test('options HTML pages define #feedback-section with feedback and GitHub issues links', () => {
+  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+  const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+
+  for (const html of [optionsHtml, entrypointsOptionsHtml]) {
+    assert.match(html, /id="feedback-section"/);
+    assert.match(html, /id="feedback-link"/);
+    assert.match(html, /id="github-issues-link"/);
+    assert.match(html, /href="https:\/\/github\.com\/Covai-Labs\/ace\/issues\/new\/choose"/);
+    assert.match(html, /id="copy-system-info-btn"/);
+    assert.doesNotMatch(html, /data-i18n="feedbackStoryHelp"/);
+  }
+});

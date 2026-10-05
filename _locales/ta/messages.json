@@ -368,7 +368,7 @@
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
-    "message": "💬 கருத்து அல்லது சிக்கல் அறிக்கையைச் சமர்ப்பிக்கவும்",
+    "message": "💬 கருத்து அனுப்பவும்",
     "description": "Button to submit feedback"
   },
   "toastSaved": {
@@ -683,7 +683,7 @@
     "description": "Section title and navigation item for Support & Love section in options"
   },
   "loveIntro": {
-    "message": "AI Chat Exporter முற்றிலும் இலவசமானது, திறந்த மூலமானது மற்றும் 100% உள்முகமானது (local-first) — வெளிப்புற சேவையகங்கள், கண்காணிப்பு அல்லது கட்டணங்கள் எதுவும் இல்லை. இந்த நீட்டிப்பு உங்களுக்குப் பிடித்திருந்தால், நீங்கள் ஆதரவளிக்க சில வழிகள்:",
+    "message": "AI Chat Exporter முற்றிலும் இலவசமானது, திறந்த மூலமானது மற்றும் 100% உள்முகமானது (local-first). வெளிப்புற சேவையகங்கள், கண்காணிப்பு அல்லது கட்டணங்கள் எதுவும் இல்லை. இந்த நீட்டிப்பு உங்களுக்குப் பிடித்திருந்தால், நீங்கள் ஆதரவளிக்க சில வழிகள்:",
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
@@ -747,11 +747,11 @@
     "description": "Help text for show context menu setting"
   },
   "feedbackMaintenanceHelp": {
-    "message": "ChatGPT, Claude, Gemini போன்ற தளங்கள் அடிக்கடி புதுப்பிக்கப்படுவதால் ஏற்றுமதிகள் பாதிக்கப்படலாம். இந்த நீட்டிப்பை நான் தனியாகவே பராமரிக்கிறேன். ஏதேனும் ஏற்றுமதி வேலை செய்யவில்லை என்றால், தயவுசெய்து புகாரளிக்கவும்—உங்கள் அறிக்கைகள் விரைவாகச் சரிசெய்ய எனக்கு உதவுகின்றன.",
+    "message": "ChatGPT, Claude, Gemini போன்ற தளங்கள் அடிக்கடி புதுப்பிக்கப்படுவதால் ஏற்றுமதிகள் பாதிக்கப்படலாம். இந்த நீட்டிப்பை நான் தனியாகவே பராமரிக்கிறேன். ஏதேனும் ஏற்றுமதி வேலை செய்யவில்லை என்றால், தயவுசெய்து புகாரளிக்கவும். உங்கள் அறிக்கைகள் விரைவாகச் சரிசெய்ய எனக்கு உதவுகின்றன.",
     "description": "Explanation of ongoing parser maintenance by solo developer"
   },
-  "feedbackStoryHelp": {
-    "message": "பிற கருவிகள் தனியுரிமை அற்றவையாகவும் உரையாடல்களை வெளியக சேவையகங்களுக்கு அனுப்பியதாலும், எனக்காகவே AI Chat Exporter-ஐ உருவாக்கினேன். எந்தவொரு கண்காணிப்பும் இன்றி இதை 100% சாதனத்திலேயே இயங்கும், இலவச, திறந்த மூல மென்பொருளாக வைத்திருக்கிறேன். இது உங்கள் நேரத்தை மிச்சப்படுத்தினால், உங்கள் கருத்துகளும் ஆதரவும் இதைத் தொடர்ந்து இயக்க எனக்கு உதவுகின்றன.",
-    "description": "Origin story and motivation behind keeping the extension local-first and open source"
+  "openGithubIssue": {
+    "message": "GitHub-இல் புகாரளிக்கவும்",
+    "description": "Button label for opening GitHub issues in options feedback section"
   }
 }
