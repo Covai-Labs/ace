@@ -730,7 +730,7 @@
     "description": "Explanation of ongoing parser maintenance by solo developer"
   },
   "feedbackStoryHelp": {
-    "message": "I originally built AI Chat Exporter for myself because virtually every existing tool was closed-source and sent private chats to remote servers. I keep it 100% local-first, free, and open source with zero telemetry or paywalls. Keeping this project alive and up-to-date takes real time and dedication—if it saves you hours of manual busywork, your feedback, reviews, and sponsorships genuinely keep this extension running.",
+    "message": "Ho creato AI Chat Exporter per me. Rimane locale, gratuito e open source, senza telemetria. Feedback e supporto aiutano a mantenerlo aggiornato.",
     "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

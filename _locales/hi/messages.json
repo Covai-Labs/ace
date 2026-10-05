@@ -746,7 +746,7 @@
     "description": "Help text for show context menu setting"
   },
   "feedbackMaintenanceHelp": {
-    "message": "Platforms like ChatGPT, Claude, and Gemini push unannounced frontend updates almost weekly that can silently break exports. Keeping up with these changes is a constant cat-and-mouse battle that I handle entirely solo. If an export stops working, please report it—your bug reports are my early warning system and help me ship fixes before others get stuck.",
+    "message": "ChatGPT, Claude और Gemini जैसे प्लेटफ़ॉर्म लगभग हर सप्ताह ऐसे अपडेट जारी करते हैं जो एक्सपोर्ट को प्रभावित कर सकते हैं। मैं इन बदलावों को अकेले संभालता हूँ। एक्सपोर्ट काम न करे तो कृपया रिपोर्ट करें—आपकी रिपोर्ट मुझे जल्दी सुधार जारी करने में मदद करती है।",
     "description": "Explanation of ongoing parser maintenance by solo developer"
   },
   "feedbackStoryHelp": {
