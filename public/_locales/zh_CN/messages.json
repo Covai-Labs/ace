@@ -726,11 +726,11 @@
     "description": "Help text for show context menu setting"
   },
   "feedbackMaintenanceHelp": {
-    "message": "Platforms like ChatGPT, Claude, and Gemini push unannounced frontend updates almost weekly that can silently break exports. Keeping up with these changes is a constant cat-and-mouse battle that I handle entirely solo. If an export stops working, please report it—your bug reports are my early warning system and help me ship fixes before others get stuck.",
+    "message": "ChatGPT、Claude 和 Gemini 等平台经常更新其网页，这可能会导致导出失效。我独自维护此扩展。如果导出出现异常，请向我反馈——您的报告有助于我快速修复问题。",
     "description": "Explanation of ongoing parser maintenance by solo developer"
   },
   "feedbackStoryHelp": {
-    "message": "I originally built AI Chat Exporter for myself because virtually every existing tool was closed-source and sent private chats to remote servers. I keep it 100% local-first, free, and open source with zero telemetry or paywalls. Keeping this project alive and up-to-date takes real time and dedication—if it saves you hours of manual busywork, your feedback, reviews, and sponsorships genuinely keep this extension running.",
+    "message": "我最初开发 AI Chat Exporter 是为了自己使用，因为其他很多工具不开源且会将对话数据发送到远程服务器。我始终坚持 100% 本地运行、免费、开源且无任何遥测追踪。如果它为您节省了时间，您的反馈、好评和赞助支持将帮助我持续维护它。",
     "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

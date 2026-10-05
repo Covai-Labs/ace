@@ -726,11 +726,11 @@
     "description": "Help text for show context menu setting"
   },
   "feedbackMaintenanceHelp": {
-    "message": "Platforms like ChatGPT, Claude, and Gemini push unannounced frontend updates almost weekly that can silently break exports. Keeping up with these changes is a constant cat-and-mouse battle that I handle entirely solo. If an export stops working, please report it—your bug reports are my early warning system and help me ship fixes before others get stuck.",
+    "message": "ChatGPT, Claude, Gemini 같은 플랫폼은 웹사이트를 자주 업데이트하기 때문에 내보내기가 중단될 수 있습니다. 저는 이 확장 프로그램을 혼자서 유지 관리하고 있습니다. 내보내기가 작동하지 않으면 알려주세요. 여러분의 제보 덕분에 빠르게 문제를 해결할 수 있습니다.",
     "description": "Explanation of ongoing parser maintenance by solo developer"
   },
   "feedbackStoryHelp": {
-    "message": "I originally built AI Chat Exporter for myself because virtually every existing tool was closed-source and sent private chats to remote servers. I keep it 100% local-first, free, and open source with zero telemetry or paywalls. Keeping this project alive and up-to-date takes real time and dedication—if it saves you hours of manual busywork, your feedback, reviews, and sponsorships genuinely keep this extension running.",
+    "message": "다른 도구들이 비공개 소스이고 채팅 데이터를 외부 서버로 전송했기 때문에, 저는 처음에 AI Chat Exporter를 직접 쓰려고 만들었습니다. 원격 측정 없이 100% 로컬, 무료, 오픈 소스로 유지하고 있습니다. 이 프로그램이 도움이 되었다면 피드백, 리뷰, 후원이 프로젝트를 계속 유지하는 데 큰 힘이 됩니다.",
     "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }
