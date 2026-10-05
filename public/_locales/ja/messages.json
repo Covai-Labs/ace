@@ -372,7 +372,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "バグを発見した場合や新しいパーサー機能のリクエスト、ご意見がございましたらお気軽にお知らせください。",
+    "message": "バグを発見した場合やエクスポートの不具合、アイデアがございましたらお気軽にお知らせください。",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -666,7 +666,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "コーヒーや食事をおごる",
+    "message": "個人開発を支援する",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -724,5 +724,13 @@
   "showContextMenuHelp": {
     "message": "ブラウザの右クリックメニューにエクスポートと転送のアクションを追加します。",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "ChatGPT、Claude、Geminiなどのプラットフォームは頻繁にサイトを更新するため、エクスポートが動作しなくなることがあります。私はこの拡張機能を一人でメンテナンスしています。もしエクスポートが動かなくなった場合は、ぜひご報告ください。皆様からの報告のおかげで迅速に修正できます。",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "他のツールがクローズドソースでチャットデータを外部サーバーに送信していたため、私は当初このAI Chat Exporterを自分用に開発しました。テレメトリなし、100%ローカル、無料、オープンソースを維持しています。このツールが役立っているなら、皆様のフィードバック、レビュー、ご支援が開発を継続する力になります。",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

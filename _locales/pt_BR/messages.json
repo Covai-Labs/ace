@@ -364,7 +364,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "Encontrou um erro ou quer sugerir um novo recurso? Adoraríamos ouvir você.",
+    "message": "Encontrou um erro, uma exportação falhou ou tem uma ideia? Adoraria ouvir você.",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -686,7 +686,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Pague um café ou refeição",
+    "message": "Apoiar o desenvolvimento solo",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -702,7 +702,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Sua avaliação de 5 estrelas ajuda outros usuários a descobrir a extensão e mantém nosso projeto ativo.",
+    "message": "Sua avaliação de 5 estrelas ajuda outros usuários a descobrir a extensão e mantém o projeto ativo.",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -744,5 +744,13 @@
   "showContextMenuHelp": {
     "message": "Adiciona ações de exportação e transferência ao menu de clique direito do navegador.",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "Plataformas como ChatGPT, Claude e Gemini atualizam seus sites frequentemente, o que pode quebrar as exportações. Mantenho esta extensão sozinho. Se uma exportação parar de funcionar, por favor relate—seus relatórios me ajudam a corrigir problemas rapidamente.",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "Criei o AI Chat Exporter originalmente para mim porque outras ferramentas tinham código fechado e enviavam dados para servidores remotos. Mantenho esta extensão 100% local, gratuita e de código aberto, sem telemetria. Se ela economiza seu tempo, seus comentários, avaliações e apoios me ajudam a mantê-la ativa.",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

@@ -364,7 +364,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "发现问题、想要请求新平台支持或有任何建议？欢迎联系我们。",
+    "message": "发现问题、导出出现异常或有任何建议？欢迎随时与我联系。",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -686,7 +686,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "请开发者喝杯咖啡或吃顿饭",
+    "message": "支持独立开发",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -702,7 +702,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "您的五星好评能帮助更多人发现这款扩展，并激励我们持续改进。",
+    "message": "您的五星好评能帮助更多人发现这款扩展，并激励我持续改进。",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -744,5 +744,13 @@
   "showContextMenuHelp": {
     "message": "向浏览器右键菜单添加导出与传输操作。",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "ChatGPT、Claude 和 Gemini 等平台经常更新其网页，这可能会导致导出失效。我独自维护此扩展。如果导出出现异常，请向我反馈——您的报告有助于我快速修复问题。",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "我最初开发 AI Chat Exporter 是为了自己使用，因为其他很多工具不开源且会将对话数据发送到远程服务器。我始终坚持 100% 本地运行、免费、开源且无任何遥测追踪。如果它为您节省了时间，您的反馈、好评和赞助支持将帮助我持续维护它。",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

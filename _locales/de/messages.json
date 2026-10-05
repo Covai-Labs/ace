@@ -364,7 +364,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "Fehler gefunden, neue Parser-Funktion gewünscht oder Feedback? Wir freuen uns über deine Nachricht.",
+    "message": "Fehler gefunden, Export funktioniert nicht oder hast du eine Idee? Ich freue mich über deine Nachricht.",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -686,7 +686,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Einen Kaffee oder ein Essen spendieren",
+    "message": "Solo-Entwicklung unterstützen",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -702,7 +702,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Ihre 5-Sterne-Bewertung hilft anderen, die Erweiterung zu entdecken, und hält unseren Schwung aufrecht.",
+    "message": "Ihre 5-Sterne-Bewertung hilft anderen, die Erweiterung zu entdecken, und hält meinen Schwung aufrecht.",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -744,5 +744,13 @@
   "showContextMenuHelp": {
     "message": "Fügt Export- und Übertragungsaktionen zum Rechtsklickmenü des Browsers hinzu.",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "Plattformen wie ChatGPT, Claude und Gemini aktualisieren ihre Websites häufig, was Exporte beeinträchtigen kann. Ich pflege diese Erweiterung allein. Wenn ein Export nicht mehr funktioniert, melde dies bitte—deine Rückmeldungen helfen mir, Fehler schnell zu beheben.",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "Ich habe AI Chat Exporter ursprünglich für mich selbst entwickelt, da andere Tools nicht quelloffen waren und Chat-Daten an Server sendeten. Ich halte diese Erweiterung zu 100 % lokal, kostenlos und quelloffen ohne Telemetrie. Wenn sie dir Zeit spart, helfen mir dein Feedback, deine Bewertungen und deine Unterstützung, sie am Laufen zu halten.",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

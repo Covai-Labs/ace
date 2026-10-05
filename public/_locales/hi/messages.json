@@ -372,7 +372,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "कोई बग मिला या नया सुझाव है? हम आपकी राय का स्वागत करते हैं।",
+    "message": "कोई बग मिला, एक्सपोर्ट में समस्या आई या कोई सुझाव है? मैं आपकी राय का स्वागत करता हूँ।",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -666,7 +666,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "एक कॉफ़ी या भोजन प्रायोजित करें",
+    "message": "स्वतंत्र विकास का समर्थन करें",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -682,7 +682,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "आपकी 5-स्टार समीक्षा दूसरों को इस एक्सटेंशन को खोजने में मदद करती है और हमारे उत्साह को बनाए रखती है।",
+    "message": "आपकी 5-स्टार समीक्षा दूसरों को इस एक्सटेंशन को खोजने में मदद करती है और मेरे उत्साह को बनाए रखती है।",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -724,5 +724,13 @@
   "showContextMenuHelp": {
     "message": "ब्राउज़र के राइट-क्लिक मेनू में निर्यात और स्थानांतरण क्रियाएं जोड़ता है।",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "ChatGPT, Claude और Gemini जैसे प्लेटफ़ॉर्म अपनी वेबसाइट को बार-बार अपडेट करते हैं, जिससे एक्सपोर्ट रुक सकता है। मैं इस एक्सटेंशन का रखरखाव अकेले करता हूँ। अगर कोई एक्सपोर्ट काम न करे, तो कृपया रिपोर्ट करें—आपकी रिपोर्ट मुझे समस्याओं को जल्दी ठीक करने में मदद करती है।",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "मैंने AI Chat Exporter को मूल रूप से अपने लिए बनाया था क्योंकि अन्य टूल्स ओपन-सोर्स नहीं थे और चैट डेटा को सर्वर पर भेजते थे। मैं इसे 100% लोकल, मुफ़्त और ओपन-सोर्स रखता हूँ जिसमें कोई ट्रैकिंग नहीं है। अगर इससे आपका समय बचता है, तो आपकी प्रतिक्रिया और सहयोग इसे चालू रखने में मेरी मदद करते हैं।",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

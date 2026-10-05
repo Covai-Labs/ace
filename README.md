@@ -14,8 +14,9 @@
 [![Chrome Users](https://img.shields.io/chrome-web-store/users/cgakhbhkplndjjknhgegfcipffflcaoj?logo=google-chrome&logoColor=white&label=Chrome%20Users&color=blue)](https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj)
 [![Firefox Users](https://img.shields.io/amo/users/ai-chat-export?logo=firefox-browser&logoColor=white&label=Firefox%20Users&color=orange)](https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/)
 [![GitHub Stars](https://img.shields.io/github/stars/Covai-Labs/ace?logo=github&logoColor=white&color=yellow&label=Stars)](https://github.com/Covai-Labs/ace/stargazers)
+[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub_Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/deadrat-in)
 
-[Quick Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#key-features) • [Chat Continuation](#cross-model-chat-continuation)
+[Quick Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#key-features) • [Chat Continuation](#cross-model-chat-continuation) • [Sponsor](#-back-independent-development)
 
 ---
 
@@ -180,7 +181,15 @@ the test harness.
 Platform web layouts evolve frequently. If an exporter encounters issues on a modified layout:
 
 1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues) or open a new one with the platform name and DOM context.
-2. Submit a Pull Request following our [Contribution Guidelines](CONTRIBUTING.md).
+2. Submit a Pull Request following the [Contribution Guidelines](CONTRIBUTING.md).
+
+---
+
+## ☕ Back Independent Development
+
+AI Chat Exporter is developed and maintained by an independent solo developer. Unlike cloud scrapers, the extension and its chat processing run 100% locally in your browser with zero tracking, telemetry, or remote servers.
+
+Because AI platforms constantly push layout updates that break DOM extraction, keeping parsers working requires continuous maintenance and rapid patching. If ACE saves you time in your daily workflow, consider [sponsoring on GitHub](https://github.com/sponsors/deadrat-in) to help keep this project alive and actively maintained.
 
 ---
 

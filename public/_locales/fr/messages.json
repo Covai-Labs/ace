@@ -372,7 +372,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "Un bug, une idée de parseur ou un avis ? N'hésitez pas à nous en faire part.",
+    "message": "Un bug, un problème d'exportation ou une idée ? N'hésitez pas à m'en faire part.",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -666,7 +666,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "Offrir un café ou un repas",
+    "message": "Soutenir le développement indépendant",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -682,7 +682,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "Votre avis 5 étoiles aide d'autres utilisateurs à découvrir l'extension et nous encourage à continuer.",
+    "message": "Votre avis 5 étoiles aide d'autres utilisateurs à découvrir l'extension et m'encourage à continuer.",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -724,5 +724,13 @@
   "showContextMenuHelp": {
     "message": "Ajoute des actions d'exportation et de transfert au menu contextuel du navigateur.",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "Des plateformes comme ChatGPT, Claude et Gemini mettent souvent à jour leurs sites, ce qui peut bloquer les exportations. Je maintiens cette extension seul. Si une exportation ne fonctionne plus, signalez-le : vos retours m'aident à corriger les problèmes rapidement.",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "J'ai initialement créé AI Chat Exporter pour moi-même, car les autres outils étaient fermés et envoyaient les données à des serveurs distants. Je garde cette extension 100 % locale, gratuite et open source, sans télémétrie. Si elle vous fait gagner du temps, vos avis et votre soutien m'aident à la maintenir en vie.",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }

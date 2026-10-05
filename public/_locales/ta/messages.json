@@ -372,7 +372,7 @@
     "description": "Title for feedback section"
   },
   "feedbackHelp": {
-    "message": "பிழையைக் கண்டறிந்தீர்களா அல்லது புதிய அம்சத்தைப் பரிந்துரைக்க விரும்புகிறீர்களா? உங்களிடமிருந்து கேட்க விரும்புகிறோம்.",
+    "message": "பிழையைக் கண்டறிந்தீர்களா, ஏற்றுமதி வேலை செய்யவில்லையா அல்லது புதிய யோசனை உள்ளதா? உங்களிடமிருந்து கேட்க விரும்புகிறேன்.",
     "description": "Help text for feedback section"
   },
   "submitFeedback": {
@@ -667,7 +667,7 @@
     "description": "Introductory text for Support and Love section in options"
   },
   "loveSponsorTitle": {
-    "message": "காபி அல்லது உணவுக்கு ஆதரவளிக்கவும்",
+    "message": "தனிநபர் மேம்பாட்டை ஆதரிக்கவும்",
     "description": "Title for sponsorship card in Support and Love section"
   },
   "loveSponsorDesc": {
@@ -683,7 +683,7 @@
     "description": "Title for rating card in Support and Love section"
   },
   "loveRateDesc": {
-    "message": "உங்கள் 5-நட்சத்திர மதிப்பீடு மற்றவர்கள் இந்த நீட்டிப்பைக் கண்டறிய உதவும் மற்றும் எங்களை உற்சாகப்படுத்தும்.",
+    "message": "உங்கள் 5-நட்சத்திர மதிப்பீடு மற்றவர்கள் இந்த நீட்டிப்பைக் கண்டறிய உதவும் மற்றும் என்னை உற்சாகப்படுத்தும்.",
     "description": "Description for rating card in Support and Love section"
   },
   "loveRateChrome": {
@@ -725,5 +725,13 @@
   "showContextMenuHelp": {
     "message": "உலாவியின் வலது கிளிக் மெனுவில் ஏற்றுமதி மற்றும் பரிமாற்ற செயல்களைச் சேர்க்கிறது.",
     "description": "Help text for show context menu setting"
+  },
+  "feedbackMaintenanceHelp": {
+    "message": "ChatGPT, Claude, Gemini போன்ற தளங்கள் அடிக்கடி புதுப்பிக்கப்படுவதால் ஏற்றுமதிகள் பாதிக்கப்படலாம். இந்த நீட்டிப்பை நான் தனியாகவே பராமரிக்கிறேன். ஏதேனும் ஏற்றுமதி வேலை செய்யவில்லை என்றால், தயவுசெய்து புகாரளிக்கவும்—உங்கள் அறிக்கைகள் விரைவாகச் சரிசெய்ய எனக்கு உதவுகின்றன.",
+    "description": "Explanation of ongoing parser maintenance by solo developer"
+  },
+  "feedbackStoryHelp": {
+    "message": "பிற கருவிகள் தனியுரிமை அற்றவையாகவும் உரையாடல்களை வெளியக சேவையகங்களுக்கு அனுப்பியதாலும், எனக்காகவே AI Chat Exporter-ஐ உருவாக்கினேன். எந்தவொரு கண்காணிப்பும் இன்றி இதை 100% சாதனத்திலேயே இயங்கும், இலவச, திறந்த மூல மென்பொருளாக வைத்திருக்கிறேன். இது உங்கள் நேரத்தை மிச்சப்படுத்தினால், உங்கள் கருத்துகளும் ஆதரவும் இதைத் தொடர்ந்து இயக்க எனக்கு உதவுகின்றன.",
+    "description": "Origin story and motivation behind keeping the extension local-first and open source"
   }
 }
