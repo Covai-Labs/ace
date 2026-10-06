@@ -16,7 +16,7 @@ global.HTMLElement = HTMLElement;
 global.Node = Node;
 global.DOMParser = DOMParser;
 
-test('CopilotParser detects copilot.microsoft.com, copilot.com, copilot.cloud.microsoft, m365.cloud.microsoft, bing.com, and edgeservices.bing.com URLs', async () => {
+test('CopilotParser detects copilot.microsoft.com, copilot.com, copilot.cloud.microsoft, m365.cloud.microsoft, cloud app subdomains, bing.com, and edgeservices.bing.com URLs', async () => {
   const { CopilotParser } = await import('decant-core');
   const parser = new CopilotParser();
 
@@ -32,6 +32,11 @@ test('CopilotParser detects copilot.microsoft.com, copilot.com, copilot.cloud.mi
   assert.equal(parser.isAvailable('https://copilot.cloud.microsoft/chats'), true);
   assert.equal(parser.isAvailable('https://m365.cloud.microsoft/chat'), true);
   assert.equal(parser.isAvailable('https://m365.microsoft.com/chat'), true);
+  assert.equal(parser.isAvailable('https://onenote.cloud.microsoft/chat'), true);
+  assert.equal(parser.isAvailable('https://word.cloud.microsoft/copilot'), true);
+  assert.equal(parser.isAvailable('https://excel.cloud.microsoft/projects'), true);
+  assert.equal(parser.isAvailable('https://teams.cloud.microsoft/chat'), true);
+  assert.equal(parser.isAvailable('https://word.cloud.microsoft/document'), false);
   assert.equal(parser.isAvailable('https://www.bing.com/chat'), true);
   assert.equal(parser.isAvailable('https://www.bing.com/copilot'), true);
   assert.equal(parser.isAvailable('https://www.bing.com/copilotsearch?q=test'), true);
