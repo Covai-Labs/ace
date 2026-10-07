@@ -1,0 +1,297 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+---
+
+<BaseLayout
+  title="Featured On & Directory Listings — AI Chat Exporter"
+  description="Verified backlinks and directory listings for AI Chat Exporter."
+  canonicalPath="/featured-on.html"
+  noindex={true}
+  includeAnalytics={false}
+>
+  <Header />
+  <main class="featured-page">
+    <div class="featured-container">
+      <header class="brand-bar">
+        <div class="brand-left">
+          <img
+            src="/icons/icon48.png"
+            alt="AI Chat Exporter"
+            width="28"
+            height="28"
+            class="brand-icon"
+          />
+          <div class="brand-info">
+            <span class="brand-name">AI Chat Exporter</span>
+            <span class="brand-desc">Directory Verifications & Badges</span>
+          </div>
+        </div>
+        <span class="site-badge">Verified Listings</span>
+      </header>
+
+      <div class="featured-card">
+        <div class="card-header">
+          <h1 class="card-title">External Listings & Directory Badges</h1>
+          <p class="card-subtitle">
+            Verified backlinks and directory listings for external startup registries, developer
+            tool catalogs, and platform aggregators.
+          </p>
+        </div>
+
+        <div class="listings-grid">
+          <!--
+            Add a new backlink block below following this structure:
+
+            <article class="listing-item">
+              <div class="item-header">
+                <div class="item-title-group">
+                  <span class="platform-title">DirectoryName</span>
+                  <span class="platform-tag">Startup Directory</span>
+                </div>
+                <span class="status-indicator">Active Listing</span>
+              </div>
+              <div class="badge-display">
+                <a
+                  href="https://example.com/listing/ai-chat-exporter?ref=badge"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="badge-link"
+                >
+                  Proudly listed on DirectoryName
+                </a>
+              </div>
+            </article>
+          -->
+
+          <!-- Launchpadly Listing -->
+          <article class="listing-item">
+            <div class="item-header">
+              <div class="item-title-group">
+                <span class="platform-title">Launchpadly</span>
+                <span class="platform-tag">Startup Directory</span>
+              </div>
+              <span class="status-indicator">Active Listing</span>
+            </div>
+
+            <div class="badge-display">
+              <!-- Launchpadly — AI Chat Exporter (text) -->
+              <a
+                href="https://launchpadly.co/startup/ai-chat-exporter?ref=badge"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-launchpadly-badge="ai-chat-exporter"
+                class="badge-link"
+              >
+                Proudly listed on Launchpadly Startup Directory
+              </a>
+            </div>
+          </article>
+
+          <p class="empty-state">
+            No public listings yet. Paste a new <code>listing-item</code> block above to satisfy a
+            directory backlink requirement.
+          </p>
+        </div>
+      </div>
+
+      <footer class="featured-footer">
+        <span>AI Chat Exporter &bull; Local-First AI Conversation Export</span>
+      </footer>
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
+
+<style>
+  .featured-page {
+    position: relative;
+    z-index: 1;
+    min-height: 60vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 3rem 1.5rem;
+  }
+  .featured-container {
+    width: 100%;
+    max-width: 680px;
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+  .brand-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.75rem 1rem;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+  }
+  .brand-left {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand-icon {
+    border-radius: 6px;
+    display: block;
+  }
+  .brand-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+  }
+  .brand-name {
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: var(--text-primary);
+    line-height: 1.2;
+  }
+  .brand-desc {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+  }
+  .site-badge {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.25rem 0.6rem;
+    border-radius: 999px;
+    background: var(--primary-tint-strong);
+    border: 1px solid var(--border-color);
+    color: var(--text-btn-primary);
+  }
+  .featured-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    padding: 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+  }
+  .card-header {
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 1.25rem;
+  }
+  .card-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: var(--text-primary);
+  }
+  .card-subtitle {
+    font-size: 0.925rem;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+  .listings-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+  }
+  .listing-item {
+    background: var(--bg-soft);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    padding: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .item-title-group {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+  .platform-title {
+    font-weight: 600;
+    font-size: 1rem;
+    color: var(--text-primary);
+  }
+  .platform-tag {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 6px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-color);
+    color: var(--text-muted);
+  }
+  .status-indicator {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--color-success);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .status-indicator::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--color-success);
+  }
+  .badge-display {
+    padding: 0.85rem 1rem;
+    background: var(--bg-base);
+    border: 1px dashed var(--border-hover);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+  }
+  .badge-link {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--text-btn-primary);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+  }
+  .badge-link:hover {
+    text-decoration: underline;
+  }
+  .empty-state {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    margin: 0;
+    line-height: 1.6;
+  }
+  .empty-state code {
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+  .featured-footer {
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    padding: 0.5rem;
+  }
+  @media (max-width: 640px) {
+    .featured-page {
+      padding: 1.5rem 1rem;
+    }
+    .featured-card {
+      padding: 1.25rem;
+    }
+    .brand-bar {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.75rem;
+    }
+  }
+</style>
