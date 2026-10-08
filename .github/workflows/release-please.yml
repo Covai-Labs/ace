@@ -1,8 +1,9 @@
-name: Release & Publish Extensions
+name: Release Please & Publish
 
 on:
   push:
-    tags: ['v*']
+    branches:
+      - main
   workflow_dispatch:
     inputs:
       target:
@@ -17,14 +18,39 @@ on:
           - firefox
           - none
 
+permissions:
+  contents: read
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
 
 jobs:
-  build:
+  release-please:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      release_created: ${{ steps.release.outputs.release_created }}
+      tag_name: ${{ steps.release.outputs.tag_name }}
+    steps:
+      - uses: googleapis/release-please-action@v4
+        id: release
+        with:
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json
+
+  build-and-release:
+    needs: release-please
+    if: needs.release-please.outputs.release_created == 'true' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name || github.ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -68,38 +94,31 @@ jobs:
           path: .output/
           include-hidden-files: true
 
-  release:
-    needs: build
-    runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v')
-    permissions:
-      contents: write
-    steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v8
-        with:
-          name: extensions
-          path: .output/
-
-      - name: Create Release
+      - name: Attach Extension Zips to GitHub Release
+        if: needs.release-please.outputs.release_created == 'true'
         uses: softprops/action-gh-release@v3
         with:
+          tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
             .output/ai-chat-exporter-chromium.zip
             .output/ai-chat-exporter-edge.zip
             .output/ai-chat-exporter-firefox.zip
             .output/SHA256SUMS.txt
-          generate_release_notes: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-firefox:
-    needs: build
+    needs: [release-please, build-and-release]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'firefox'))
+    if: |
+      (github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'firefox'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name || github.ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -124,12 +143,17 @@ jobs:
             --source-dir=".output/firefox-mv3"
 
   publish-edge:
-    needs: build
+    needs: [release-please, build-and-release]
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'edge'))
+    if: |
+      (github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'edge'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name || github.ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -151,17 +175,20 @@ jobs:
           EDGE_ZIP_PATH: .output/*-edge.zip
 
   publish-chrome:
-    needs: build
+    needs: [release-please, build-and-release]
     runs-on: ubuntu-latest
-    # fetchStatus observes item-wide upload state, so serialize Chrome
-    # publish runs to avoid one run publishing another run's draft.
     concurrency:
       group: publish-chrome-store
       cancel-in-progress: false
-    if: startsWith(github.ref, 'refs/tags/v') || (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'chrome'))
+    if: |
+      (github.event_name == 'push' && needs.release-please.outputs.release_created == 'true') ||
+      (github.event_name == 'workflow_dispatch' && (inputs.target == 'all' || inputs.target == 'chrome'))
     steps:
       - name: Checkout code
         uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.release-please.outputs.tag_name || github.ref }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
