@@ -580,6 +580,8 @@ async function handleCommand(command, previewPath = 'popup/preview.html') {
     try {
       const response = await chrome.tabs.sendMessage(tab.id, {
         action: 'COPY_CHAT',
+        // The preview applies the attachments option itself, so it needs them all.
+        includeAttachments: true,
         format: 'markdown',
       });
       if (response && response.success) {

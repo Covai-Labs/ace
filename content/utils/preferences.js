@@ -2,6 +2,7 @@ import { normalizeMessageNumbering } from '../formatters/base.js';
 
 export const DEFAULT_INCLUDE_ATTRIBUTION = true;
 export const DEFAULT_INCLUDE_THINKING = true;
+export const DEFAULT_INCLUDE_ATTACHMENTS = true;
 export const DEFAULT_INCLUDE_TIMESTAMPS = false;
 export const DEFAULT_MESSAGE_NUMBERING = 'off';
 export const DEFAULT_THEME = 'system';
@@ -39,6 +40,7 @@ export async function getExportOptions(overrides = {}) {
   let theme = DEFAULT_THEME;
   let includeAttribution = DEFAULT_INCLUDE_ATTRIBUTION;
   let includeThinking = DEFAULT_INCLUDE_THINKING;
+  let includeAttachments = DEFAULT_INCLUDE_ATTACHMENTS;
   let includeTimestamps = DEFAULT_INCLUDE_TIMESTAMPS;
   let messageNumbering = DEFAULT_MESSAGE_NUMBERING;
 
@@ -48,6 +50,7 @@ export async function getExportOptions(overrides = {}) {
         'theme',
         'includeAttribution',
         'includeThinking',
+        'includeAttachments',
         'includeTimestamps',
         'messageNumbering',
       ]);
@@ -58,6 +61,9 @@ export async function getExportOptions(overrides = {}) {
         }
         if (syncData.includeThinking !== undefined) {
           includeThinking = syncData.includeThinking !== false;
+        }
+        if (syncData.includeAttachments !== undefined) {
+          includeAttachments = syncData.includeAttachments !== false;
         }
         if (syncData.includeTimestamps !== undefined) {
           includeTimestamps = syncData.includeTimestamps === true;
@@ -79,6 +85,7 @@ export async function getExportOptions(overrides = {}) {
     theme,
     includeAttribution,
     includeThinking,
+    includeAttachments,
     includeTimestamps,
     messageNumbering,
     ...cleanOverrides,
@@ -105,6 +112,10 @@ export function applyExportOptionChanges(currentOptions, changes) {
   }
   if (changes.includeThinking) {
     currentOptions.includeThinking = changes.includeThinking.newValue !== false;
+    changed = true;
+  }
+  if (changes.includeAttachments) {
+    currentOptions.includeAttachments = changes.includeAttachments.newValue !== false;
     changed = true;
   }
   if (changes.includeTimestamps) {

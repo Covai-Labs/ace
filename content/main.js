@@ -36,6 +36,7 @@ import {
 import { createLogger } from './utils/logger.js';
 import { getExportOptions } from './utils/preferences.js';
 import { stripThinking } from './utils/strip-thinking.js';
+import { applyAttachmentOption } from './utils/strip-attachments.js';
 import { pollTransferInject } from './transfer/injector.js';
 import { getTransferTarget } from './transfer/targets.js';
 import {
@@ -606,6 +607,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             highQuality: request.highQualityPng !== false,
             theme: request.theme,
             includeThinking: request.includeThinking,
+            includeAttachments: request.includeAttachments,
           });
           if (options.includeThinking === false) {
             conversation.messages.forEach((msg) => {
@@ -614,6 +616,11 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               }
             });
           }
+          conversation.messages.forEach((msg) => {
+            if (msg.content) {
+              msg.content = applyAttachmentOption(msg, options);
+            }
+          });
           const formattedResult = await formatter.format(conversation, options);
           const mimeType = formatter.getMimeType();
           const blob =
@@ -708,6 +715,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           const formatOptions = await getExportOptions({
             theme: request.theme,
             includeThinking: request.includeThinking,
+            includeAttachments: request.includeAttachments,
           });
           if (formatOptions.includeThinking === false) {
             conversation.messages.forEach((msg) => {
@@ -716,6 +724,11 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               }
             });
           }
+          conversation.messages.forEach((msg) => {
+            if (msg.content) {
+              msg.content = applyAttachmentOption(msg, formatOptions);
+            }
+          });
           const primaryContent = formatter.format(conversation, formatOptions);
           const htmlFormatter = formatters.html;
           const richHtmlContent =
@@ -867,6 +880,11 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               }
             });
           }
+          conversation.messages.forEach((msg) => {
+            if (msg.content) {
+              msg.content = applyAttachmentOption(msg, exportOptions);
+            }
+          });
           const markdownContent = formatter.format(conversation, exportOptions);
 
           if (shortcut === 'copy_markdown') {

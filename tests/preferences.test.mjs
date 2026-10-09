@@ -3,6 +3,7 @@ import test from 'node:test';
 import {
   DEFAULT_INCLUDE_ATTRIBUTION,
   DEFAULT_INCLUDE_THINKING,
+  DEFAULT_INCLUDE_ATTACHMENTS,
   DEFAULT_MESSAGE_NUMBERING,
   DEFAULT_THEME,
   getExportOptions,
@@ -22,6 +23,7 @@ test('getExportOptions returns defaults when storage is empty or throws', async 
   assert.equal(options.theme, DEFAULT_THEME);
   assert.equal(options.includeAttribution, DEFAULT_INCLUDE_ATTRIBUTION);
   assert.equal(options.includeThinking, DEFAULT_INCLUDE_THINKING);
+  assert.equal(options.includeAttachments, DEFAULT_INCLUDE_ATTACHMENTS);
   assert.equal(options.messageNumbering, DEFAULT_MESSAGE_NUMBERING);
 });
 
@@ -114,6 +116,12 @@ test('applyExportOptionChanges updates options and returns true on changes', () 
   assert.equal(changedThinking, true);
   assert.equal(current.includeThinking, false);
 
+  const changedAttachments = applyExportOptionChanges(current, {
+    includeAttachments: { newValue: false },
+  });
+  assert.equal(changedAttachments, true);
+  assert.equal(current.includeAttachments, false);
+
   const changedNumbering = applyExportOptionChanges(current, {
     messageNumbering: { newValue: 'per-message' },
   });
@@ -124,4 +132,17 @@ test('applyExportOptionChanges updates options and returns true on changes', () 
     unrelatedSetting: { newValue: 'xyz' },
   });
   assert.equal(noChanges, false);
+});
+
+test('getExportOptions reads the stored include-attachments value and honours overrides', async () => {
+  globalThis.chrome = {
+    storage: {
+      sync: {
+        get: async () => ({ includeAttachments: false }),
+      },
+    },
+  };
+
+  assert.equal((await getExportOptions()).includeAttachments, false);
+  assert.equal((await getExportOptions({ includeAttachments: true })).includeAttachments, true);
 });

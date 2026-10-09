@@ -36,6 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const languageSelect = document.getElementById('language-select');
   const defaultFormatSelect = document.getElementById('default-format-select');
   const defaultIncludeImages = document.getElementById('default-include-images');
+  const defaultIncludeAttachments = document.getElementById('default-include-attachments');
   const includeAttribution = document.getElementById('include-attribution');
   const defaultIncludeThinking = document.getElementById('default-include-thinking');
   const defaultIncludeTimestamps = document.getElementById('default-include-timestamps');
@@ -83,6 +84,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'includeImages',
     'includeAttribution',
     'includeThinking',
+    'includeAttachments',
     'includeTimestamps',
     'showContextMenu',
     'messageNumbering',
@@ -117,6 +119,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     includeAttribution.checked = stored.includeAttribution;
   if (stored.includeThinking !== undefined && defaultIncludeThinking)
     defaultIncludeThinking.checked = stored.includeThinking !== false;
+  if (stored.includeAttachments !== undefined && defaultIncludeAttachments)
+    defaultIncludeAttachments.checked = stored.includeAttachments !== false;
   if (defaultIncludeTimestamps)
     defaultIncludeTimestamps.checked = stored.includeTimestamps === true;
   if (showContextMenuCheckbox) showContextMenuCheckbox.checked = stored.showContextMenu !== false;
@@ -169,6 +173,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (defaultIncludeThinking) {
     defaultIncludeThinking.addEventListener('change', () => {
       chrome.storage.sync.set({ includeThinking: defaultIncludeThinking.checked });
+      showToast();
+    });
+  }
+
+  if (defaultIncludeAttachments) {
+    defaultIncludeAttachments.addEventListener('change', () => {
+      chrome.storage.sync.set({ includeAttachments: defaultIncludeAttachments.checked });
       showToast();
     });
   }
