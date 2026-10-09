@@ -6,6 +6,7 @@ import {
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
+  getOmittedAttachmentsSuffix,
 } from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
 
@@ -85,7 +86,9 @@ export class DocFormatter extends ExportFormatter {
                 : platform;
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
             const msgNumber = messageNumbers[idx];
-            const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
+            const displayName =
+              (msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName) +
+              getOmittedAttachmentsSuffix(msg);
             const timestamp = includeTimestamps ? formatMessageTimestamp(msg?.timestamp) : null;
             const dateSuffix = timestamp ? ` • ${escapeHtml(timestamp)}` : '';
             const rawHtmlContent = markdownToHtml(msg.content);

@@ -7,6 +7,7 @@ import {
   shouldIncludeTimestamps,
   formatMessageTimestamp,
   stripTags,
+  getOmittedAttachmentsSuffix,
 } from './base.js';
 
 /**
@@ -309,7 +310,7 @@ export class TextFormatter extends ExportFormatter {
         : null;
       const dateSuffix = timestamp ? ` — ${timestamp}` : '';
       return msg?.role === 'User'
-        ? `Prompt${numberSuffix}${dateSuffix}`
+        ? `Prompt${numberSuffix}${getOmittedAttachmentsSuffix(msg)}${dateSuffix}`
         : `Response${numberSuffix}${dateSuffix}`;
     };
 

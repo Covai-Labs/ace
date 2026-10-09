@@ -7,6 +7,7 @@ import {
   shouldIncludeTimestamps,
   formatMessageTimestamp,
   slugifyHeading,
+  getOmittedAttachmentsSuffix,
 } from './base.js';
 
 function cleanLatexMath(latex) {
@@ -209,7 +210,7 @@ export class MarkdownFormatter extends ExportFormatter {
         : null;
       const dateSuffix = timestamp ? ` — ${timestamp}` : '';
       return msg?.role === 'User'
-        ? `Prompt${numberSuffix}${dateSuffix}`
+        ? `Prompt${numberSuffix}${getOmittedAttachmentsSuffix(msg)}${dateSuffix}`
         : `Response${numberSuffix}${dateSuffix}`;
     };
 

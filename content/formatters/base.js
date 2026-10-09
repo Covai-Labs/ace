@@ -50,6 +50,24 @@ export function getMessageNumber(messages, index, mode) {
   if (normalized === 'per-message') return index + 1;
   return getMessageNumbers(messages, normalized)[index];
 }
+// Matches the notes written by content/utils/strip-attachments.js for files, images and
+// pasted text left out of the export (kept content is never written in brackets). Kept
+// here so this module stays free of imports.
+const OMITTED_ATTACHMENT_NOTE_RE = /^\*\*\*\[(?:File: |Image: |Pasted content)/gm;
+
+/**
+ * Title suffix for a user message whose attachments were omitted, e.g.
+ * " · 2 attachments omitted". Empty for other messages.
+ * @param {{ role?: string, content?: string }} message
+ * @returns {string}
+ */
+export function getOmittedAttachmentsSuffix(message) {
+  if (!message || message.role !== 'User' || typeof message.content !== 'string') return '';
+  const count = (message.content.match(OMITTED_ATTACHMENT_NOTE_RE) || []).length;
+  if (count === 0) return '';
+  return ` · ${count} ${count === 1 ? 'attachment' : 'attachments'} omitted`;
+}
+
 /**
  * Determines whether attribution should be included based on formatter options.
  * Attribution is included by default and only omitted when explicitly disabled.
