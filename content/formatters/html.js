@@ -1240,13 +1240,28 @@ function inlineParse(text, mathBlockPlaceholders = null, referenceDefs = null) {
   // 4. HTML escape remaining text
   text = escapeHtml(text);
 
-  // 5. Replace bold **...** or __...__
+  // 5. Replace bold **...** or __...__ (and bold italic ___...___ first)
   text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  text = text.replace(/__(.*?)__/g, '<strong>$1</strong>');
+  text = text.replace(
+    /(?<![\p{L}\p{N}_\\])___(?!\s)((?:[^_]|(?<!_)_(?!_)|(?<=[\p{L}\p{N}])__+(?=[\p{L}\p{N}]))+?)(?<!\s)___(?!_*[\p{L}\p{N}])/gu,
+    '<strong><em>$1</em></strong>',
+  );
+  text = text.replace(
+    /(?<![\p{L}\p{N}_\\])__(?!\s)((?:[^_]|(?<!_)_(?!_)|(?<=[\p{L}\p{N}])__+(?=[\p{L}\p{N}]))+?)(?<!\s)__(?!_*[\p{L}\p{N}])/gu,
+    '<strong>$1</strong>',
+  );
 
   // 6. Replace italic *...* or _..._
+  // As in CommonMark, underscores inside a word (relatorio_final_v2.pdf, snake_case)
+  // are not emphasis, and emphasis cannot span another delimiter that could open
+  // one, so `_.html and _word_` only emphasises "word". The same applies to __ above,
+  // which may still contain _italic_ words. The alternatives inside each pattern never
+  // match the same text, so an unclosed delimiter fails fast instead of backtracking.
   text = text.replace(/\*(.*?)\*/g, '<em>$1</em>');
-  text = text.replace(/_(.*?)_/g, '<em>$1</em>');
+  text = text.replace(
+    /(?<![\p{L}\p{N}_\\])_(?!\s)((?:[^_]|(?<=[\p{L}\p{N}])_(?!_)|(?<=[\p{L}\p{N}])__+(?=[\p{L}\p{N}]))+?)(?<!\s)_(?!_*[\p{L}\p{N}])/gu,
+    '<em>$1</em>',
+  );
 
   // 6.5 Replace images ![alt](url)
   text = text.replace(/!\[(.*?)\]\((.*?)\)/g, (match, altText, url) => {
