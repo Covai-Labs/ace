@@ -45,6 +45,20 @@ test('getOmittedAttachmentsSuffix ignores kept pastes, plain messages and AI res
   assert.equal(getOmittedAttachmentsSuffix(null), '');
 });
 
+test('note-shaped lines inside fenced blocks are not counted', () => {
+  // Greptile P2: a kept paste (or kept file) can literally contain a note-like
+  // line. It was not removed, so the title must not claim an omission.
+  const keptPaste = stripAttachments(
+    'Hi\n\n### Pasted content _(0.1 KB)_\n````\n***[File: example.txt]***\nshort\n````\n',
+  );
+  assert.match(keptPaste, /### Pasted content/);
+  assert.equal(getOmittedAttachmentsSuffix({ role: 'User', content: keptPaste }), '');
+
+  const fencedExample =
+    'How do I write this?\n\n```md\n***[File: example.txt]***\n***[Image: photo.png]***\n```\n';
+  assert.equal(getOmittedAttachmentsSuffix({ role: 'User', content: fencedExample }), '');
+});
+
 test('Markdown and plain-text exports flag the message title', () => {
   const options = { includeAttribution: false, messageNumbering: 'off' };
   const markdown = new MarkdownFormatter().format(conversation, options);

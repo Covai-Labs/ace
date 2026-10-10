@@ -55,6 +55,11 @@ export function getMessageNumber(messages, index, mode) {
 // here so this module stays free of imports.
 const OMITTED_ATTACHMENT_NOTE_RE = /^\*\*\*\[(?:File: |Image: |Pasted content)/gm;
 
+// Fenced code blocks can contain literal note-shaped lines from kept content
+// (a pasted example, or a kept file's own text). Those lines were not removed,
+// so they are excluded before counting.
+const FENCED_BLOCK_RE = /````[\s\S]*?````|```[\s\S]*?```|~~~[\s\S]*?~~~/g;
+
 /**
  * Title suffix for a user message whose attachments were omitted, e.g.
  * " · 2 attachments omitted". Empty for other messages.
@@ -63,7 +68,8 @@ const OMITTED_ATTACHMENT_NOTE_RE = /^\*\*\*\[(?:File: |Image: |Pasted content)/g
  */
 export function getOmittedAttachmentsSuffix(message) {
   if (!message || message.role !== 'User' || typeof message.content !== 'string') return '';
-  const count = (message.content.match(OMITTED_ATTACHMENT_NOTE_RE) || []).length;
+  const visible = message.content.replace(FENCED_BLOCK_RE, '');
+  const count = (visible.match(OMITTED_ATTACHMENT_NOTE_RE) || []).length;
   if (count === 0) return '';
   return ` · ${count} ${count === 1 ? 'attachment' : 'attachments'} omitted`;
 }

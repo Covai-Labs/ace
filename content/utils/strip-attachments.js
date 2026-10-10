@@ -50,6 +50,12 @@
  * same attachment headers, its boundaries cannot be told apart from the
  * markdown alone, so that message is left unchanged. Structured attachment
  * data from decant-core would make this exact.
+ *
+ * Two lookalikes are deliberately not treated as attachments: a detail-less
+ * "### File:" heading followed by a fenced body (real files always carry a
+ * size or page count), and an image card without its picture unless the caller
+ * confirms "Include images" removed it (via `imagesStripped`, since the parser
+ * always emits image cards with their picture).
  */
 
 /** Pasted text up to this many characters is kept even when files are omitted. */
@@ -89,9 +95,10 @@ const CARD_RE = new RegExp(
   'gm',
 );
 
-// Asterisks in a file name would end the bold italic early, so they are escaped.
+// Asterisks in a file name would end the bold italic early, and an unescaped
+// backslash would change what the next character renders as, so both are escaped.
 function safeName(name) {
-  return String(name).trim().replace(/\*/g, '\\*');
+  return String(name).trim().replace(/\\/g, '\\\\').replace(/\*/g, '\\*');
 }
 
 function withDetails(text, details) {
@@ -191,7 +198,17 @@ function onlyCardsAndNotes(text) {
  * @returns {Array<{start: number, headerEnd: number, end: number, kind: string, name?: string, details: string[], extracted: string|null, hasPicture: boolean}>|null}
  */
 function findBlocks(content) {
-  const headers = [...content.matchAll(HEADING_RE)];
+  // A user-written markdown example can mimic this module's own "### File:"
+  // headings. Real file attachments always carry a size or page count in their
+  // details, so a detail-less "### File:" heading followed by a fenced body is
+  // treated as ordinary message text rather than an attachment. Bare
+  // detail-less headings without a body are still recognised: document cards
+  // rewritten on a previous pass have no body to carry details.
+  const headers = [...content.matchAll(HEADING_RE)].filter((match) => {
+    if (match[6] === undefined) return true; // not a "### File:" heading
+    if (splitFileHeading(match[6]).details.length > 0) return true;
+    return !content.startsWith(OPEN_FENCE, match.index + match[0].length);
+  });
   const blocks = [];
 
   for (let i = 0; i < headers.length; i++) {
@@ -259,9 +276,15 @@ function rewriteImage(name, picture) {
   return heading(`Image: ${name.trim()}`) + picture.replace(/!\[[^\n]*?\]\(/, '![](');
 }
 
-function rewriteBlock(block, content, omit, pastedCharLimit) {
+function rewriteBlock(block, content, omit, pastedCharLimit, imagesStripped) {
   const body = content.slice(block.headerEnd, block.end);
-  if (block.kind === 'image') return rewriteImage(block.name, block.hasPicture ? body : '');
+  if (block.kind === 'image') {
+    // A bare "### Image:" heading without its picture is only turned into a
+    // note when "Include images" removed the picture. Otherwise it was written
+    // by the user and is kept as-is.
+    if (!block.hasPicture && !imagesStripped) return content.slice(block.start, block.end);
+    return rewriteImage(block.name, block.hasPicture ? body : '');
+  }
   if (block.kind === 'file') {
     return omit
       ? note(`File: ${safeName(block.name)}`, block.details)
@@ -275,17 +298,24 @@ function rewriteBlock(block, content, omit, pastedCharLimit) {
   return heading('Pasted content', [...block.details, ...lines]) + body;
 }
 
-function rewriteCards(segment, omit) {
-  return segment
-    .replace(DOCUMENT_RE, (_match, name, meta) =>
-      omit
-        ? note(`File: ${safeName(name)}`, usefulDetails(meta))
-        : heading(`File: ${name.trim()}`, usefulDetails(meta)),
-    )
-    .replace(IMAGE_RE, (_match, name, picture) => rewriteImage(name, picture));
+function rewriteCards(segment, omit, imagesStripped) {
+  return (
+    segment
+      .replace(DOCUMENT_RE, (_match, name, meta) =>
+        omit
+          ? note(`File: ${safeName(name)}`, usefulDetails(meta))
+          : heading(`File: ${name.trim()}`, usefulDetails(meta)),
+      )
+      // The parser always emits image cards with their picture, so a card
+      // without one only becomes a note when "Include images" removed the
+      // picture. Otherwise it was written by the user and is kept as-is.
+      .replace(IMAGE_RE, (match, name, picture) =>
+        picture || imagesStripped ? rewriteImage(name, picture) : match,
+      )
+  );
 }
 
-function rewriteAttachments(content, omit, pastedCharLimit) {
+function rewriteAttachments(content, omit, pastedCharLimit, imagesStripped) {
   if (!content || typeof content !== 'string') return '';
 
   const blocks = findBlocks(content);
@@ -294,14 +324,15 @@ function rewriteAttachments(content, omit, pastedCharLimit) {
   // Only the cards after the message text are rewritten; the text itself is kept.
   const head = blocks.length > 0 ? content.slice(0, blocks[0].start) : content;
   const cardsStart = trailingCardsStart(head);
-  let result = head.slice(0, cardsStart) + rewriteCards(head.slice(cardsStart), omit);
+  let result =
+    head.slice(0, cardsStart) + rewriteCards(head.slice(cardsStart), omit, imagesStripped);
   let cursor = head.length;
   for (const block of blocks) {
-    result += rewriteCards(content.slice(cursor, block.start), omit);
-    result += rewriteBlock(block, content, omit, pastedCharLimit);
+    result += rewriteCards(content.slice(cursor, block.start), omit, imagesStripped);
+    result += rewriteBlock(block, content, omit, pastedCharLimit, imagesStripped);
     cursor = block.end;
   }
-  return result + rewriteCards(content.slice(cursor), omit);
+  return result + rewriteCards(content.slice(cursor), omit, imagesStripped);
 }
 
 /**
@@ -310,11 +341,14 @@ function rewriteAttachments(content, omit, pastedCharLimit) {
  * under sub-headings. Messages whose attachment markdown is ambiguous are
  * returned unchanged.
  * @param {string} content - Markdown content of a single user message
- * @param {{ pastedCharLimit?: number }} [options]
+ * @param {{ pastedCharLimit?: number, imagesStripped?: boolean }} [options]
  * @returns {string}
  */
-export function stripAttachments(content, { pastedCharLimit = PASTED_CONTENT_CHAR_LIMIT } = {}) {
-  return rewriteAttachments(content, true, pastedCharLimit);
+export function stripAttachments(
+  content,
+  { pastedCharLimit = PASTED_CONTENT_CHAR_LIMIT, imagesStripped = false } = {},
+) {
+  return rewriteAttachments(content, true, pastedCharLimit, imagesStripped);
 }
 
 /**
@@ -322,10 +356,11 @@ export function stripAttachments(content, { pastedCharLimit = PASTED_CONTENT_CHA
  * Their content is never changed. Messages whose attachment markdown is
  * ambiguous are returned unchanged.
  * @param {string} content - Markdown content of a single user message
+ * @param {{ imagesStripped?: boolean }} [options]
  * @returns {string}
  */
-export function formatAttachmentHeadings(content) {
-  return rewriteAttachments(content, false, PASTED_CONTENT_CHAR_LIMIT);
+export function formatAttachmentHeadings(content, { imagesStripped = false } = {}) {
+  return rewriteAttachments(content, false, PASTED_CONTENT_CHAR_LIMIT, imagesStripped);
 }
 
 /**
@@ -342,12 +377,17 @@ export function isUserMessage(msg) {
  * message; it only changes user messages. When the option is on, the files
  * stay and only their sub-headings get the new format.
  * @param {{ role?: string, content?: string }} msg
- * @param {{ includeAttachments?: boolean, pastedCharLimit?: number }} [options]
+ * @param {{ includeAttachments?: boolean, pastedCharLimit?: number, imagesStripped?: boolean }} [options]
  * @returns {string} The message content to export
  */
 export function applyAttachmentOption(msg, options = {}) {
   const content = msg && typeof msg.content === 'string' ? msg.content : '';
   if (!content || !isUserMessage(msg)) return content;
-  if (options.includeAttachments !== false) return formatAttachmentHeadings(content);
-  return stripAttachments(content, { pastedCharLimit: options.pastedCharLimit });
+  const imagesStripped = options.imagesStripped === true;
+  if (options.includeAttachments !== false)
+    return formatAttachmentHeadings(content, { imagesStripped });
+  return stripAttachments(content, {
+    pastedCharLimit: options.pastedCharLimit,
+    imagesStripped,
+  });
 }

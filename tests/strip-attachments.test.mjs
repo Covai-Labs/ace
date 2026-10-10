@@ -124,7 +124,13 @@ test('images follow the "Include images" option in both modes', () => {
   const pictureRemoved = stripImages(withPicture);
   assert.equal(pictureRemoved, 'Look.\n\n**Attachment: photo.png**');
   for (const rewrite of [formatAttachmentHeadings, stripAttachments]) {
-    assert.equal(rewrite(pictureRemoved), 'Look.\n\n***[Image: photo.png]***');
+    // Without pictures the card only becomes a note when "Include images"
+    // removed the picture; a user-written card is kept as-is.
+    assert.equal(
+      rewrite(pictureRemoved, { imagesStripped: true }),
+      'Look.\n\n***[Image: photo.png]***',
+    );
+    assert.equal(rewrite(pictureRemoved), pictureRemoved);
   }
 });
 
@@ -151,7 +157,7 @@ test('several images keep their own pictures', () => {
     '### Image: c.png',
     '![](https://x/c.png)',
   ]);
-  assert.deepEqual(nonEmptyLines(stripAttachments(stripImages(input))), [
+  assert.deepEqual(nonEmptyLines(stripAttachments(stripImages(input), { imagesStripped: true })), [
     'Compare.',
     '***[Image: a.png]***',
     '***[Image: b.png]***',
@@ -274,8 +280,10 @@ test('re-applying the option in any order gives the same result', () => {
 
 test('the preview gives the same result when it removes the pictures itself', () => {
   for (const rewrite of [formatAttachmentHeadings, stripAttachments]) {
-    const exported = rewrite(stripImages(everything));
-    const previewed = rewrite(stripImages(formatAttachmentHeadings(everything)));
+    const exported = rewrite(stripImages(everything), { imagesStripped: true });
+    const previewed = rewrite(stripImages(formatAttachmentHeadings(everything)), {
+      imagesStripped: true,
+    });
     assert.equal(previewed, exported);
     assert.ok(exported.includes('***[Image: photo.png]***'));
   }
@@ -312,6 +320,52 @@ test('strip helpers handle empty or invalid inputs', () => {
   assert.equal(formatAttachmentHeadings(undefined), '');
   assert.equal(applyAttachmentOption(null, { includeAttachments: false }), '');
   assert.equal(applyAttachmentOption({ role: 'User' }, { includeAttachments: false }), '');
+});
+
+test('a user-written File example without details is kept, not stripped', () => {
+  // Greptile P1: "### File:" is this module's own heading format, and real file
+  // attachments always carry a size or page count, so a detail-less heading
+  // with a fenced body is ordinary message text.
+  const input = 'Here is how you document uploads:\n\n### File: example.txt\n````\nhello\n````\n';
+  assert.equal(stripAttachments(input), input);
+  assert.equal(formatAttachmentHeadings(input), input);
+});
+
+test('a File heading with details is still treated as an attachment', () => {
+  const input = 'Look.\n\n### File: page.html · 458.9 KB\n````\n<html></html>\n````\n';
+  assert.equal(stripAttachments(input).trim(), 'Look.\n\n***[File: page.html · 458.9 KB]***');
+  assert.equal(formatAttachmentHeadings(input).trim(), input.trim());
+});
+
+test('a meta-less parser attachment is still stripped', () => {
+  const input = 'See.\n\n### Attachment: mystery.bin\n````\nbinary-ish\n````\n';
+  assert.equal(stripAttachments(input).trim(), 'See.\n\n***[File: mystery.bin]***');
+});
+
+test('a trailing user-written image card is kept unless images were stripped', () => {
+  // Greptile P1: the parser always emits image cards with their picture, so a
+  // card without one is only an omission note when "Include images" removed it.
+  const input = 'Look at this line:\n\n**Attachment: photo.png**\n';
+  for (const rewrite of [formatAttachmentHeadings, stripAttachments]) {
+    assert.equal(rewrite(input), input);
+    assert.equal(
+      rewrite(input, { imagesStripped: true }),
+      'Look at this line:\n\n***[Image: photo.png]***\n',
+    );
+  }
+  const msg = { role: 'User', content: input };
+  assert.equal(applyAttachmentOption(msg, { includeAttachments: false }), input);
+  assert.equal(
+    applyAttachmentOption(msg, { includeAttachments: false, imagesStripped: true }),
+    'Look at this line:\n\n***[Image: photo.png]***\n',
+  );
+});
+
+test('stripAttachments escapes backslashes as well as asterisks in file names', () => {
+  const input = 'X' + textFile('back\\slash.txt', '1 KB, text/plain', 'body');
+  assert.ok(stripAttachments(input).includes('***[File: back\\\\slash.txt · 1 KB]***'));
+  const both = 'X' + textFile('a\\*b.txt', '1 KB, text/plain', 'body');
+  assert.ok(stripAttachments(both).includes('***[File: a\\\\\\*b.txt · 1 KB]***'));
 });
 
 test('content scripts apply the option on export, copy and shortcut paths', () => {

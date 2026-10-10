@@ -551,7 +551,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           content = stripThinking(content);
         }
         if (content) {
-          content = applyAttachmentOption({ ...msg, content }, { includeAttachments });
+          content = applyAttachmentOption(
+            { ...msg, content },
+            { includeAttachments, imagesStripped: !includeImages },
+          );
         }
         if (content !== msg.content) {
           return { ...msg, content };
@@ -1078,7 +1081,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           content = stripThinking(content);
         }
         if (content) {
-          content = applyAttachmentOption({ ...msg, content }, { includeAttachments });
+          content = applyAttachmentOption(
+            { ...msg, content },
+            { includeAttachments, imagesStripped: !includeImages },
+          );
         }
         if (content !== msg.content) {
           return { ...msg, content };
@@ -1282,7 +1288,10 @@ document.addEventListener('DOMContentLoaded', async () => {
               content = stripThinking(content);
             }
             if (content) {
-              content = applyAttachmentOption({ ...msg, content }, { includeAttachments });
+              content = applyAttachmentOption(
+                { ...msg, content },
+                { includeAttachments, imagesStripped: !includeImages },
+              );
             }
             if (content !== msg.content) {
               return { ...msg, content };

@@ -609,6 +609,9 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             includeThinking: request.includeThinking,
             includeAttachments: request.includeAttachments,
           });
+          // Imageless image cards only become omission notes when "Include
+          // images" actually removed their picture (see strip-attachments.js).
+          options.imagesStripped = request.includeImages === false;
           if (options.includeThinking === false) {
             conversation.messages.forEach((msg) => {
               if (msg.content) {
@@ -717,6 +720,9 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             includeThinking: request.includeThinking,
             includeAttachments: request.includeAttachments,
           });
+          // Imageless image cards only become omission notes when "Include
+          // images" actually removed their picture (see strip-attachments.js).
+          formatOptions.imagesStripped = request.includeImages === false;
           if (formatOptions.includeThinking === false) {
             conversation.messages.forEach((msg) => {
               if (msg.content) {
