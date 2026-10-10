@@ -412,3 +412,49 @@ test('HTML formatter sanitizes and escapes malicious reference URLs to prevent a
   assert.ok(!output.includes('onerror="alert(1)"'));
   assert.ok(output.includes('&quot;onerror=&quot;'));
 });
+
+test('HTML formatter keeps underscores inside words instead of italicising them', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'Underscore Test',
+    messages: [
+      {
+        role: 'User',
+        content:
+          'Open relatorio_final_v2.pdf, _.html - Search (09_10_2026).html and file__v2__final.txt, then rename snake_case_name.\n\n' +
+          'This is _emphasis_ and __strong__ text, and (_also_) here.\n\n' +
+          'Same line: _.html - Report (09_10_2026).html and _word_ and __bold__.\n\n' +
+          'Nested: __outer _inner_ outer__ and __.cache and __last__.',
+      },
+    ],
+  };
+
+  const output = formatter.format(conversation);
+
+  assert.ok(output.includes('relatorio_final_v2.pdf'));
+  assert.ok(output.includes('_.html - Search (09_10_2026).html'));
+  assert.ok(output.includes('file__v2__final.txt'));
+  assert.ok(output.includes('snake_case_name'));
+  assert.ok(output.includes('<em>emphasis</em>'));
+  assert.ok(output.includes('<strong>strong</strong>'));
+  assert.ok(output.includes('(<em>also</em>)'));
+  assert.ok(output.includes('_.html - Report (09_10_2026).html and <em>word</em>'));
+  assert.ok(output.includes('<strong>bold</strong>'));
+  assert.ok(output.includes('<strong>outer <em>inner</em> outer</strong>'));
+  assert.ok(output.includes('__.cache and <strong>last</strong>'));
+});
+
+test('HTML formatter handles an unclosed underscore run without slowing down', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const text = '__' + 'a_'.repeat(30) + 'z';
+  const conversation = { title: 'Unclosed', messages: [{ role: 'User', content: text }] };
+
+  const start = performance.now();
+  const output = formatter.format(conversation);
+  assert.ok(performance.now() - start < 1000, 'an unclosed __ should fail fast, not backtrack');
+  assert.ok(output.includes(text));
+});
