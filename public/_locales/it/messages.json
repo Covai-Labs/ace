@@ -135,6 +135,10 @@
     "message": "Includi immagini",
     "description": "Checkbox label for including images"
   },
+  "includeAttachments": {
+    "message": "Includi file",
+    "description": "Checkbox label for including attached files"
+  },
   "highQualityPng": {
     "message": "PNG ad alta qualità (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -246,6 +250,14 @@
   "includeImagesDefault": {
     "message": "Includi immagini nelle esportazioni per impostazione predefinita",
     "description": "Label for default include images checkbox"
+  },
+  "includeAttachmentsDefault": {
+    "message": "Includi i file allegati nelle chat esportate",
+    "description": "Label for default include attached files checkbox"
+  },
+  "includeAttachmentsHelp": {
+    "message": "Se disattivato, i file e i testi incollati lunghi diventano note di una riga. Le immagini seguono l'opzione Includi immagini.",
+    "description": "Help text for include attached files setting"
   },
   "includeAttributionDefault": {
     "message": "Includi la dicitura \"Exported with AI Chat Exporter\" nelle esportazioni",

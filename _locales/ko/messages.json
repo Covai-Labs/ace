@@ -135,6 +135,10 @@
     "message": "이미지 포함",
     "description": "Checkbox label for including images"
   },
+  "includeAttachments": {
+    "message": "파일 포함",
+    "description": "Checkbox label for including attached files"
+  },
   "highQualityPng": {
     "message": "고화질 PNG (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -238,6 +242,14 @@
   "includeImagesDefault": {
     "message": "내보낼 때 기본적으로 이미지 포함",
     "description": "Label for default include images checkbox"
+  },
+  "includeAttachmentsDefault": {
+    "message": "내보낸 대화에 첨부 파일 포함",
+    "description": "Label for default include attached files checkbox"
+  },
+  "includeAttachmentsHelp": {
+    "message": "끄면 파일과 긴 붙여넣은 텍스트가 한 줄짜리 메모로 바뀝니다. 이미지는 '이미지 포함' 옵션을 따릅니다.",
+    "description": "Help text for include attached files setting"
   },
   "includeAttributionDefault": {
     "message": "내보내기에 \"Exported with AI Chat Exporter\" 크레딧 포함",

@@ -6,6 +6,7 @@ import {
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
+  getOmittedAttachmentsSuffix,
 } from './base.js';
 import { sanitizeHtml } from '../utils/sanitizer.js';
 import { katexCss, katexJs, autoRenderJs, prismCss, prismJs } from '../lib/assets.js';
@@ -81,7 +82,9 @@ export class HtmlFormatter extends ExportFormatter {
                 : platform;
             const avatarText = isUser ? 'U' : roleName[0] || 'A';
             const msgNumber = messageNumbers[idx];
-            const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
+            const displayName =
+              (msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName) +
+              getOmittedAttachmentsSuffix(msg);
             const timestamp = includeTimestamps ? formatMessageTimestamp(msg?.timestamp) : null;
             const dateBadge = timestamp
               ? `<span class="message-timestamp">${escapeHtml(timestamp)}</span>`

@@ -135,6 +135,10 @@
     "message": "画像を含める",
     "description": "Checkbox label for including images"
   },
+  "includeAttachments": {
+    "message": "ファイルを含める",
+    "description": "Checkbox label for including attached files"
+  },
   "highQualityPng": {
     "message": "高画質 PNG (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -246,6 +250,14 @@
   "includeImagesDefault": {
     "message": "既定でエクスポートに画像を含める",
     "description": "Label for default include images checkbox"
+  },
+  "includeAttachmentsDefault": {
+    "message": "エクスポートするチャットに添付ファイルを含める",
+    "description": "Label for default include attached files checkbox"
+  },
+  "includeAttachmentsHelp": {
+    "message": "オフにすると、ファイルと長い貼り付けテキストは1行のメモになります。画像は「画像を含める」の設定に従います。",
+    "description": "Help text for include attached files setting"
   },
   "includeAttributionDefault": {
     "message": "エクスポートに「Exported with AI Chat Exporter」のクレジットを含める",
