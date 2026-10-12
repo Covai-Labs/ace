@@ -118,3 +118,18 @@ test('preview page has timestamps, ToC, and message-numbering controls in option
   assert.match(previewJs, /previewNumberingSelect\.addEventListener\('change'/);
   assert.match(previewJs, /exportOptions\.messageNumbering\s*=/);
 });
+
+test('preview page has an include-attachments control and recalculates content on toggle', () => {
+  assert.match(previewHtml, /id="include-attachments-checkbox"/);
+  assert.match(previewJs, /applyAttachmentOption/);
+  assert.match(previewJs, /includeAttachmentsCheckbox\.addEventListener\('change'/);
+});
+
+test('preview requests fetch the conversation with attachments so the preview toggle works both ways', () => {
+  const count = (file) =>
+    (fs.readFileSync(file, 'utf8').match(/includeAttachments: true,/g) || []).length;
+  assert.equal(count('entrypoints/popup/popup.js'), 2);
+  assert.equal(count('popup/popup.js'), 2);
+  assert.equal(count('entrypoints/background.js'), 1);
+  assert.equal(count('background/background.js'), 1);
+});

@@ -10,6 +10,7 @@ import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { stripImages } from '../content/utils/strip-images.js';
 import { stripThinking } from '../content/utils/strip-thinking.js';
+import { applyAttachmentOption } from '../content/utils/strip-attachments.js';
 import { buildPlatformSupportIssueUrl } from '../content/utils/feedback.js';
 import { getExportOptions, applyExportOptionChanges } from '../content/utils/preferences.js';
 
@@ -40,6 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pngWarningBanner = document.getElementById('png-warning-banner');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
+  const includeAttachmentsCheckbox = document.getElementById('include-attachments-checkbox');
   const includeThinkingCheckbox = document.getElementById('include-thinking-checkbox');
   const includeTimestampsCheckbox = document.getElementById('include-timestamps-checkbox');
   const includeTocCheckbox = document.getElementById('include-toc-checkbox');
@@ -60,6 +62,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.addEventListener('change', () => {
+      cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+  if (includeAttachmentsCheckbox) {
+    includeAttachmentsCheckbox.addEventListener('change', () => {
       cachedPngBlob = null;
       recalculateContent();
     });
@@ -155,6 +163,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
   }
+  if (includeAttachmentsCheckbox) {
+    includeAttachmentsCheckbox.checked = exportOptions.includeAttachments !== false;
+  }
   if (includeTimestampsCheckbox) {
     includeTimestampsCheckbox.checked = exportOptions.includeTimestamps === true;
   }
@@ -201,6 +212,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (changes.includeThinking && includeThinkingCheckbox) {
           includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
+        }
+        if (changes.includeAttachments && includeAttachmentsCheckbox) {
+          includeAttachmentsCheckbox.checked = exportOptions.includeAttachments !== false;
         }
         if (changes.includeTimestamps && includeTimestampsCheckbox) {
           includeTimestampsCheckbox.checked = exportOptions.includeTimestamps === true;
@@ -481,6 +495,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (conversation) {
       const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
       const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
+      const includeAttachments = includeAttachmentsCheckbox
+        ? includeAttachmentsCheckbox.checked
+        : true;
       const filteredMessages = conversation.messages.map((msg) => {
         let content = msg.content;
         if (!includeImages && content) {
@@ -488,6 +505,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (!includeThinking && content) {
           content = stripThinking(content);
+        }
+        if (content) {
+          content = applyAttachmentOption(
+            { ...msg, content },
+            { includeAttachments, imagesStripped: !includeImages },
+          );
         }
         if (content !== msg.content) {
           return { ...msg, content };
@@ -797,6 +820,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           const isHighQuality = pngQualityCheckbox ? pngQualityCheckbox.checked : true;
           const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
           const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
+          const includeAttachments = includeAttachmentsCheckbox
+            ? includeAttachmentsCheckbox.checked
+            : true;
           const activeTheme = getActiveTheme();
 
           // Directly capture the rendered HTML container from the preview iframe
@@ -833,6 +859,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     }
                     if (!includeThinking && content) {
                       content = stripThinking(content);
+                    }
+                    if (content) {
+                      content = applyAttachmentOption(
+                        { ...msg, content },
+                        { includeAttachments, imagesStripped: !includeImages },
+                      );
                     }
                     if (content !== msg.content) {
                       return { ...msg, content };

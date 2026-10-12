@@ -236,3 +236,20 @@ test('options HTML pages define #feedback-section with feedback and GitHub issue
     assert.doesNotMatch(html, /data-i18n="feedbackStoryHelp"/);
   }
 });
+
+test('options HTML pages define the include-attachments checkbox and help text', () => {
+  for (const file of ['options/options.html', 'entrypoints/options/index.html']) {
+    const html = fs.readFileSync(file, 'utf8');
+    assert.match(html, /id="default-include-attachments"/);
+    assert.match(html, /data-i18n="includeAttachmentsDefault"/);
+    assert.match(html, /data-i18n="includeAttachmentsHelp"/);
+  }
+});
+
+test('options scripts wire the includeAttachments storage setting', () => {
+  for (const file of ['options/options.js', 'entrypoints/options/options.js']) {
+    const js = fs.readFileSync(file, 'utf8');
+    assert.match(js, /'includeAttachments'/);
+    assert.match(js, /defaultIncludeAttachments/);
+  }
+});

@@ -519,6 +519,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const formatToRequest = format === 'pdf' ? 'html' : 'markdown';
         const response = await sendTabMessage({
           action: 'COPY_CHAT',
+          // The preview applies the attachments option itself, so it needs them all.
+          includeAttachments: true,
           format: formatToRequest,
           includeImages: includeImagesCheckbox.checked,
           parserMode: storedSettings.parserMode || 'auto',
@@ -640,6 +642,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       const formatToRequest = format === 'pdf' ? 'html' : format === 'png' ? 'markdown' : format;
       const response = await sendTabMessage({
         action: 'COPY_CHAT',
+        // The preview applies the attachments option itself, so it needs them all.
+        includeAttachments: true,
         format: formatToRequest,
         includeImages: includeImagesCheckbox.checked,
         parserMode: storedSettings.parserMode || 'auto',

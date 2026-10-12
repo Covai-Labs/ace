@@ -135,6 +135,10 @@
     "message": "छवियां शामिल करें",
     "description": "Checkbox label for including images"
   },
+  "includeAttachments": {
+    "message": "फ़ाइलें शामिल करें",
+    "description": "Checkbox label for including attached files"
+  },
   "highQualityPng": {
     "message": "उच्च गुणवत्ता PNG (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -238,6 +242,14 @@
   "includeImagesDefault": {
     "message": "डिफ़ॉल्ट रूप से निर्यात में छवियां शामिल करें",
     "description": "Label for default include images checkbox"
+  },
+  "includeAttachmentsDefault": {
+    "message": "निर्यात की गई चैट में संलग्न फ़ाइलें शामिल करें",
+    "description": "Label for default include attached files checkbox"
+  },
+  "includeAttachmentsHelp": {
+    "message": "बंद होने पर, फ़ाइलें और लंबे चिपकाए गए टेक्स्ट एक पंक्ति के नोट बन जाते हैं। छवियां \"छवियां शामिल करें\" विकल्प का पालन करती हैं।",
+    "description": "Help text for include attached files setting"
   },
   "includeAttributionDefault": {
     "message": "निर्यात में \"Exported with AI Chat Exporter\" क्रेडिट शामिल करें",

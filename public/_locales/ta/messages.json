@@ -135,6 +135,10 @@
     "message": "படங்களைச் சேர்க்கவும்",
     "description": "Checkbox label for including images"
   },
+  "includeAttachments": {
+    "message": "கோப்புகளைச் சேர்க்கவும்",
+    "description": "Checkbox label for including attached files"
+  },
   "highQualityPng": {
     "message": "உயர் தர PNG (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -246,6 +250,14 @@
   "includeImagesDefault": {
     "message": "இயல்புநிலையாக ஏற்றுமதியில் படங்களைச் சேர்க்கவும்",
     "description": "Label for default include images checkbox"
+  },
+  "includeAttachmentsDefault": {
+    "message": "ஏற்றுமதி செய்யப்பட்ட அரட்டைகளில் இணைக்கப்பட்ட கோப்புகளைச் சேர்க்கவும்",
+    "description": "Label for default include attached files checkbox"
+  },
+  "includeAttachmentsHelp": {
+    "message": "முடக்கினால், கோப்புகளும் நீளமாக ஒட்டப்பட்ட உரைகளும் ஒரு வரி குறிப்புகளாக மாறும். படங்கள் \"படங்களைச் சேர்க்கவும்\" விருப்பத்தைப் பின்பற்றும்.",
+    "description": "Help text for include attached files setting"
   },
   "includeAttributionDefault": {
     "message": "ஏற்றுமதிகளில் \"Exported with AI Chat Exporter\" குறிப்பைச் சேர்க்கவும்",

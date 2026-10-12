@@ -135,6 +135,10 @@
     "message": "包含图片",
     "description": "Checkbox label for including images"
   },
+  "includeAttachments": {
+    "message": "包含文件",
+    "description": "Checkbox label for including attached files"
+  },
   "highQualityPng": {
     "message": "高清 PNG (2x)",
     "description": "Checkbox label for high quality PNG"
@@ -246,6 +250,14 @@
   "includeImagesDefault": {
     "message": "默认在导出的内容中包含图片",
     "description": "Label for default include images checkbox"
+  },
+  "includeAttachmentsDefault": {
+    "message": "在导出的对话中包含附加文件",
+    "description": "Label for default include attached files checkbox"
+  },
+  "includeAttachmentsHelp": {
+    "message": "关闭后，文件和较长的粘贴文本会替换为一行说明。图片遵循“包含图片”选项。",
+    "description": "Help text for include attached files setting"
   },
   "includeAttributionDefault": {
     "message": "在导出中包含 \"Exported with AI Chat Exporter\" 署名",

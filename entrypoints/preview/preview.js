@@ -10,6 +10,7 @@ import {
 } from '../../content/formatters/continuation.js';
 import { stripImages } from '../../content/utils/strip-images.js';
 import { stripThinking } from '../../content/utils/strip-thinking.js';
+import { applyAttachmentOption } from '../../content/utils/strip-attachments.js';
 import { sanitizeHtml } from '../../content/utils/sanitizer.js';
 import { initI18n, applyI18n, t } from '../../content/utils/i18n.js';
 import {
@@ -68,6 +69,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pngWarningBanner = document.getElementById('png-warning-banner');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
+  const includeAttachmentsCheckbox = document.getElementById('include-attachments-checkbox');
   const includeThinkingCheckbox = document.getElementById('include-thinking-checkbox');
   const includeTimestampsCheckbox = document.getElementById('include-timestamps-checkbox');
   const previewNumberingSelect = document.getElementById('preview-numbering-select');
@@ -87,6 +89,12 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.addEventListener('change', () => {
+      cachedPngBlob = null;
+      recalculateContent();
+    });
+  }
+  if (includeAttachmentsCheckbox) {
+    includeAttachmentsCheckbox.addEventListener('change', () => {
       cachedPngBlob = null;
       recalculateContent();
     });
@@ -175,6 +183,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
   }
+  if (includeAttachmentsCheckbox) {
+    includeAttachmentsCheckbox.checked = exportOptions.includeAttachments !== false;
+  }
   if (includeTimestampsCheckbox) {
     includeTimestampsCheckbox.checked = exportOptions.includeTimestamps === true;
   }
@@ -221,6 +232,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (changes.includeThinking && includeThinkingCheckbox) {
           includeThinkingCheckbox.checked = exportOptions.includeThinking !== false;
+        }
+        if (changes.includeAttachments && includeAttachmentsCheckbox) {
+          includeAttachmentsCheckbox.checked = exportOptions.includeAttachments !== false;
         }
         if (changes.includeTimestamps && includeTimestampsCheckbox) {
           includeTimestampsCheckbox.checked = exportOptions.includeTimestamps === true;
@@ -523,6 +537,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
     const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
+    const includeAttachments = includeAttachmentsCheckbox
+      ? includeAttachmentsCheckbox.checked
+      : true;
     const filteredMessages = conversation.messages
       .filter((_, idx) => selectedIndices.has(idx))
       .map((msg) => {
@@ -532,6 +549,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (!includeThinking && content) {
           content = stripThinking(content);
+        }
+        if (content) {
+          content = applyAttachmentOption(
+            { ...msg, content },
+            { includeAttachments, imagesStripped: !includeImages },
+          );
         }
         if (content !== msg.content) {
           return { ...msg, content };
@@ -1046,6 +1069,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (conversation) {
       const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
       const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
+      const includeAttachments = includeAttachmentsCheckbox
+        ? includeAttachmentsCheckbox.checked
+        : true;
       const initialMessages = conversation.messages.map((msg) => {
         let content = msg.content;
         if (!includeImages && content) {
@@ -1053,6 +1079,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (!includeThinking && content) {
           content = stripThinking(content);
+        }
+        if (content) {
+          content = applyAttachmentOption(
+            { ...msg, content },
+            { includeAttachments, imagesStripped: !includeImages },
+          );
         }
         if (content !== msg.content) {
           return { ...msg, content };
@@ -1239,6 +1271,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           const isHighQuality = pngQualityCheckbox ? pngQualityCheckbox.checked : true;
           const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
           const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
+          const includeAttachments = includeAttachmentsCheckbox
+            ? includeAttachmentsCheckbox.checked
+            : true;
           const activeTheme = getActiveTheme();
           const filteredMessages =
             conversation && Array.isArray(conversation.messages) && selectedIndices
@@ -1251,6 +1286,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             }
             if (!includeThinking && content) {
               content = stripThinking(content);
+            }
+            if (content) {
+              content = applyAttachmentOption(
+                { ...msg, content },
+                { includeAttachments, imagesStripped: !includeImages },
+              );
             }
             if (content !== msg.content) {
               return { ...msg, content };

@@ -8,6 +8,7 @@ import {
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
+  getOmittedAttachmentsSuffix,
 } from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
 
@@ -408,7 +409,9 @@ export class ImageFormatter extends ExportFormatter {
         const isUser = msg.role === 'User';
         const roleName = isUser ? 'User' : platform;
         const msgNumber = messageNumbers[idx];
-        const displayName = msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName;
+        const displayName =
+          (msgNumber !== null ? `${roleName} [${msgNumber}]` : roleName) +
+          getOmittedAttachmentsSuffix(msg);
         const avatarBg = isUser ? palette.accent : '#0ea5e9';
         const avatarText = isUser ? 'U' : platform[0] || 'A';
         const timestamp = shouldIncludeTimestamps(options)
