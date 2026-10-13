@@ -35,6 +35,7 @@ import {
 import { stripImages } from '../content/utils/strip-images.js';
 import { stripThinking } from '../content/utils/strip-thinking.js';
 import { applyAttachmentOption } from '../content/utils/strip-attachments.js';
+import { inlineConversationImages } from '../content/utils/image-inliner.js';
 import { createLogger } from '../content/utils/logger.js';
 import { getExportOptions } from '../content/utils/preferences.js';
 import { pollTransferInject } from '../content/transfer/injector.js';
@@ -588,6 +589,8 @@ export default defineContentScript({
                     msg.content = stripImages(msg.content);
                   }
                 });
+              } else {
+                await inlineConversationImages(conversation);
               }
               if (request.format === 'png') {
                 await ensureHtml2CanvasLoaded();
@@ -710,6 +713,8 @@ export default defineContentScript({
                     msg.content = stripImages(msg.content);
                   }
                 });
+              } else {
+                await inlineConversationImages(conversation);
               }
               logger.debug('Parsed conversation with', conversation.messages.length, 'messages');
               const formatOptions = await getExportOptions({
@@ -891,6 +896,7 @@ export default defineContentScript({
 
               const formatter = formatters.markdown;
               const exportOptions = await getExportOptions();
+              await inlineConversationImages(conversation);
               if (exportOptions.includeThinking === false) {
                 conversation.messages.forEach((msg) => {
                   if (msg.content) {

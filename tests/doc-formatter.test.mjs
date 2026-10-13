@@ -101,7 +101,33 @@ test('DocFormatter generates Word-compliant HTML document with MSO XML headers',
   assert.ok(output.includes('.copy-code-btn'));
   assert.ok(output.includes('display: none !important'));
   assert.ok(output.includes('.code-card'));
+  assert.ok(output.includes('.code-card pre'));
+  assert.ok(output.includes('.code-card code'));
+  assert.ok(output.includes('img {'));
   assert.ok(output.includes('.thinking-block'));
   assert.equal(output.includes('<button'), false);
   assert.equal(output.includes('<svg'), false);
+});
+
+test('DocFormatter preserves embedded base64 data URI images in output', async () => {
+  const { DocFormatter } = await importFormatter();
+  const formatter = new DocFormatter();
+
+  const conversation = {
+    title: 'Word Image Test',
+    messages: [
+      {
+        role: 'User',
+        content:
+          'Check this diagram:\n\n![diagram](data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==)',
+      },
+    ],
+    metadata: {
+      Source: 'Claude',
+    },
+  };
+
+  const output = formatter.format(conversation);
+  assert.ok(output.includes('<img src="data:image/png;base64,iVBORw0KGgo'));
+  assert.ok(output.includes('alt="diagram"'));
 });

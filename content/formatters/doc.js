@@ -199,14 +199,26 @@ export class DocFormatter extends ExportFormatter {
       font-size: 10.5pt;
       color: #1e293b;
     }
+    img {
+      max-width: 100%;
+      height: auto;
+      display: block;
+      margin: 8px 0;
+    }
     pre, code {
       font-family: 'Consolas', 'Courier New', monospace;
       font-size: 9.5pt;
+    }
+    code {
       background-color: #f1f5f9;
+      color: #0f172a;
+      padding: 2px 4px;
     }
     pre {
       padding: 10px;
       border: 1pt solid #cbd5e1;
+      background-color: #f1f5f9;
+      color: #0f172a;
       white-space: pre-wrap;
       word-wrap: break-word;
     }
@@ -219,15 +231,17 @@ export class DocFormatter extends ExportFormatter {
       border: 1pt solid #cbd5e1;
       padding: 6px 10px;
       text-align: left;
+      vertical-align: top;
     }
     th {
       background-color: #f1f5f9;
       font-weight: bold;
     }
     blockquote {
-      border-left: 3pt solid #cbd5e1;
-      margin-left: 0;
-      padding-left: 10px;
+      border-left: 3pt solid #6366f1;
+      margin: 10px 0;
+      padding: 8px 12px;
+      background-color: #f8fafc;
       color: #475569;
       font-style: italic;
     }
@@ -249,6 +263,18 @@ export class DocFormatter extends ExportFormatter {
       font-size: 9pt;
       font-weight: bold;
       border-bottom: 1pt solid #334155;
+    }
+    .code-card pre {
+      background-color: #0f172a;
+      color: #f8fafc;
+      border: none;
+      margin: 0;
+      padding: 10px 12px;
+    }
+    .code-card code {
+      background-color: #0f172a;
+      color: #f8fafc;
+      padding: 0;
     }
     .code-lang {
       text-transform: lowercase;

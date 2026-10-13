@@ -37,6 +37,7 @@ import { createLogger } from './utils/logger.js';
 import { getExportOptions } from './utils/preferences.js';
 import { stripThinking } from './utils/strip-thinking.js';
 import { applyAttachmentOption } from './utils/strip-attachments.js';
+import { inlineConversationImages } from './utils/image-inliner.js';
 import { pollTransferInject } from './transfer/injector.js';
 import { getTransferTarget } from './transfer/targets.js';
 import {
@@ -599,6 +600,8 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
                 msg.content = stripImages(msg.content);
               }
             });
+          } else {
+            await inlineConversationImages(conversation);
           }
           if (request.format === 'png') {
             await ensureHtml2CanvasLoaded();
@@ -713,6 +716,8 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
                 msg.content = stripImages(msg.content);
               }
             });
+          } else {
+            await inlineConversationImages(conversation);
           }
           console.log('Parsed conversation with', conversation.messages.length, 'messages');
           const formatOptions = await getExportOptions({
@@ -879,6 +884,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 
           const formatter = formatters.markdown;
           const exportOptions = await getExportOptions();
+          await inlineConversationImages(conversation);
           if (exportOptions.includeThinking === false) {
             conversation.messages.forEach((msg) => {
               if (msg.content) {
