@@ -17,6 +17,7 @@
     "postinstall": "wxt prepare",
     "test": "node --test tests/*.test.*",
     "test:e2e": "playwright test",
+    "test:e2e:install": "playwright install --with-deps chromium",
     "test:e2e:update-snapshots": "playwright test --update-snapshots",
     "lint": "eslint .",
     "lint:ext": "web-ext lint --source-dir .output/firefox-mv3",

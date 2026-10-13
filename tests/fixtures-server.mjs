@@ -29,7 +29,6 @@ const server = http.createServer((req, res) => {
     const ext = path.extname(filePath).toLowerCase();
     res.writeHead(200, {
       'Content-Type': MIME_TYPES[ext] || 'text/html',
-      'Access-Control-Allow-Origin': '*',
     });
     fs.createReadStream(filePath).pipe(res);
   } else {

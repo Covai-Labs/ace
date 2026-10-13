@@ -51,7 +51,7 @@ jobs:
         run: npm run lint:ext
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npm run test:e2e:install
 
       - name: Run E2E tests
         run: npm run test:e2e
