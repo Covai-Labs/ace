@@ -858,6 +858,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       }
 
       const shortcut = request.shortcutAction;
+      const targetFormat = request.format || 'markdown';
 
       (async () => {
         try {
@@ -877,7 +878,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             return;
           }
 
-          const formatter = formatters.markdown;
+          const formatter = formatters[targetFormat] || formatters.markdown;
           const exportOptions = await getExportOptions();
           if (exportOptions.includeThinking === false) {
             conversation.messages.forEach((msg) => {
@@ -891,17 +892,28 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               msg.content = applyAttachmentOption(msg, exportOptions);
             }
           });
-          const markdownContent = formatter.format(conversation, exportOptions);
+          const formattedResult = await formatter.format(conversation, exportOptions);
 
-          if (shortcut === 'copy_markdown') {
-            const copied = await copyToClipboard(markdownContent);
+          if (shortcut === 'copy_markdown' || shortcut === 'copy_format') {
+            const textToCopy = typeof formattedResult === 'string' ? formattedResult : '';
+            const copied = await copyToClipboard(textToCopy);
             if (copied && isTopFrame) {
-              showExporterToast('📋 Markdown copied to clipboard!');
+              const formatLabel =
+                targetFormat === 'markdown' ? 'Markdown' : targetFormat.toUpperCase();
+              showExporterToast(`📋 ${formatLabel} copied to clipboard!`);
             }
             sendResponse({ success: copied });
-          } else if (shortcut === 'download_markdown') {
+          } else if (shortcut === 'download_markdown' || shortcut === 'download_format') {
             const mimeType = formatter.getMimeType();
-            const blob = new Blob([markdownContent], { type: `${mimeType};charset=utf-8` });
+            const blob =
+              formattedResult instanceof Blob
+                ? formattedResult
+                : new Blob(
+                    formatter.getFileExtension() === 'doc'
+                      ? ['\ufeff', formattedResult]
+                      : [formattedResult],
+                    { type: `${mimeType};charset=utf-8` },
+                  );
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
@@ -931,7 +943,9 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             URL.revokeObjectURL(url);
 
             if (isTopFrame) {
-              showExporterToast('📥 Markdown file downloaded!');
+              const formatLabel =
+                targetFormat === 'markdown' ? 'Markdown' : targetFormat.toUpperCase();
+              showExporterToast(`📥 ${formatLabel} file downloaded!`);
             }
             sendResponse({ success: true });
           } else {

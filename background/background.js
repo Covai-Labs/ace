@@ -51,6 +51,41 @@ const SUPPORTED_DOCUMENT_URL_PATTERNS = ['<all_urls>'];
 
 let setupContextMenusSeq = 0;
 let lastKnownShowContextMenu;
+let lastKnownDefaultFormat = 'markdown';
+
+function getFormatDownloadTitle(format) {
+  if (format === 'markdown') {
+    const downloadTitle =
+      chrome.i18n?.getMessage('contextMenuDownloadMarkdown') || 'Download Markdown';
+    return `${downloadTitle} (Alt+Shift+D)`;
+  }
+  const titles = {
+    text: 'Download Plain Text',
+    json: 'Download JSON',
+    html: 'Download HTML',
+    doc: 'Download Word (.doc)',
+    png: 'Download PNG',
+    pdf: 'Download PDF',
+  };
+  return titles[format] || `Download ${(format || 'markdown').toUpperCase()}`;
+}
+
+function getFormatCopyTitle(format) {
+  if (format === 'markdown') {
+    const copyTitle = chrome.i18n?.getMessage('contextMenuCopyMarkdown') || 'Copy Markdown';
+    return `${copyTitle} (Alt+Shift+C)`;
+  }
+  const titles = {
+    text: 'Copy Plain Text',
+    json: 'Copy JSON',
+    html: 'Copy HTML',
+  };
+  if (titles[format]) {
+    return titles[format];
+  }
+  const copyTitle = chrome.i18n?.getMessage('contextMenuCopyMarkdown') || 'Copy Markdown';
+  return `${copyTitle} (Alt+Shift+C)`;
+}
 
 async function setupContextMenus() {
   if (typeof chrome === 'undefined' || !chrome.contextMenus) return;
@@ -58,15 +93,27 @@ async function setupContextMenus() {
   const currentSeq = ++setupContextMenusSeq;
 
   let showContextMenu;
+  let defaultFormat = 'markdown';
   try {
     const syncData = await chrome.storage.sync.get('showContextMenu');
     if (currentSeq !== setupContextMenusSeq) return;
     showContextMenu = syncData?.showContextMenu !== false;
     lastKnownShowContextMenu = showContextMenu;
+    try {
+      const formatData = await chrome.storage.sync.get('defaultFormat');
+      if (currentSeq !== setupContextMenusSeq) return;
+      if (formatData?.defaultFormat) {
+        defaultFormat = formatData.defaultFormat;
+      }
+    } catch {
+      // Fallback to default
+    }
+    lastKnownDefaultFormat = defaultFormat;
   } catch {
     if (currentSeq !== setupContextMenusSeq) return;
     // Preserve last-known user preference if available; otherwise fall back to default (true)
     showContextMenu = lastKnownShowContextMenu !== undefined ? lastKnownShowContextMenu : true;
+    defaultFormat = lastKnownDefaultFormat || 'markdown';
   }
 
   if (currentSeq !== setupContextMenusSeq) return;
@@ -80,9 +127,8 @@ async function setupContextMenus() {
     if (currentSeq !== setupContextMenusSeq) return;
 
     const parentTitle = chrome.i18n?.getMessage('contextMenuParent') || 'Export AI Chat';
-    const copyTitle = chrome.i18n?.getMessage('contextMenuCopyMarkdown') || 'Copy Markdown';
-    const downloadTitle =
-      chrome.i18n?.getMessage('contextMenuDownloadMarkdown') || 'Download Markdown';
+    const copyTitle = getFormatCopyTitle(defaultFormat);
+    const downloadTitle = getFormatDownloadTitle(defaultFormat);
     const previewTitle = chrome.i18n?.getMessage('contextMenuOpenPreview') || 'Open in Preview Tab';
     const sendToAITitle = chrome.i18n?.getMessage('contextMenuSendToAI') || 'Send to AI';
 
@@ -94,20 +140,20 @@ async function setupContextMenus() {
       documentUrlPatterns: SUPPORTED_DOCUMENT_URL_PATTERNS,
     });
 
-    // Sub-item: Copy Markdown
+    // Sub-item: Copy (reflects defaultFormat when copyable)
     chrome.contextMenus.create({
       id: 'ai-exporter-copy-markdown',
       parentId: 'ai-exporter-root',
-      title: `${copyTitle} (Alt+Shift+C)`,
+      title: copyTitle,
       contexts: ['page', 'selection'],
       documentUrlPatterns: SUPPORTED_DOCUMENT_URL_PATTERNS,
     });
 
-    // Sub-item: Download Markdown
+    // Sub-item: Download (reflects defaultFormat)
     chrome.contextMenus.create({
       id: 'ai-exporter-download-markdown',
       parentId: 'ai-exporter-root',
-      title: `${downloadTitle} (Alt+Shift+D)`,
+      title: downloadTitle,
       contexts: ['page', 'selection'],
       documentUrlPatterns: SUPPORTED_DOCUMENT_URL_PATTERNS,
     });
@@ -182,7 +228,7 @@ chrome.runtime.onInstalled.addListener(async (details) => {
 
 if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
   chrome.storage.onChanged.addListener((changes, areaName) => {
-    if (areaName === 'sync' && 'showContextMenu' in changes) {
+    if (areaName === 'sync' && ('showContextMenu' in changes || 'defaultFormat' in changes)) {
       setupContextMenus();
     }
   });
@@ -563,15 +609,31 @@ async function getActiveTab() {
   }
 }
 
-async function handleCommand(command, previewPath = 'popup/preview.html') {
+async function handleCommand(command, previewPath = 'popup/preview.html', format = 'markdown') {
   const tab = await getActiveTab();
   if (!tab || !tab.id) return;
 
-  if (command === 'copy_markdown' || command === 'download_markdown') {
+  if (command === 'copy_markdown' || command === 'copy_format') {
     try {
       await chrome.tabs.sendMessage(tab.id, {
         action: 'EXECUTE_SHORTCUT',
         shortcutAction: command,
+        format,
+      });
+    } catch (err) {
+      console.warn(`[AI Exporter Background] Shortcut ${command} failed:`, err);
+    }
+  } else if (command === 'download_markdown' || command === 'download_format') {
+    if (format === 'pdf' || format === 'png') {
+      await handleCommand('open_preview', previewPath, format);
+      return;
+    }
+
+    try {
+      await chrome.tabs.sendMessage(tab.id, {
+        action: 'EXECUTE_SHORTCUT',
+        shortcutAction: command,
+        format,
       });
     } catch (err) {
       console.warn(`[AI Exporter Background] Shortcut ${command} failed:`, err);
@@ -582,14 +644,16 @@ async function handleCommand(command, previewPath = 'popup/preview.html') {
         action: 'COPY_CHAT',
         // The preview applies the attachments option itself, so it needs them all.
         includeAttachments: true,
-        format: 'markdown',
+        format: format === 'pdf' ? 'html' : 'markdown',
       });
       if (response && response.success) {
         await chrome.storage.local.set({
           previewConversation: response.conversation || null,
           previewContent: response.content,
           previewTitle: tab.title || 'AI Conversation',
-          previewFormat: 'markdown',
+          previewFormat: format,
+          autoPrint: format === 'pdf',
+          autoDownloadPng: format === 'png',
         });
         await chrome.tabs.create({
           url: chrome.runtime.getURL(previewPath),
@@ -603,16 +667,33 @@ async function handleCommand(command, previewPath = 'popup/preview.html') {
 
 if (typeof chrome !== 'undefined' && chrome.commands?.onCommand) {
   chrome.commands.onCommand.addListener((command) => {
-    handleCommand(command, 'popup/preview.html');
+    handleCommand(command, 'popup/preview.html', 'markdown');
   });
 }
 
 if (typeof chrome !== 'undefined' && chrome.contextMenus?.onClicked) {
   chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     if (info.menuItemId === 'ai-exporter-copy-markdown') {
-      handleCommand('copy_markdown', 'popup/preview.html');
+      let format = lastKnownDefaultFormat || 'markdown';
+      try {
+        const syncData = await chrome.storage.sync.get('defaultFormat');
+        if (syncData?.defaultFormat) format = syncData.defaultFormat;
+      } catch {
+        // Use last known format
+      }
+      const copyFormat = ['markdown', 'text', 'json', 'html'].includes(format)
+        ? format
+        : 'markdown';
+      handleCommand('copy_format', 'popup/preview.html', copyFormat);
     } else if (info.menuItemId === 'ai-exporter-download-markdown') {
-      handleCommand('download_markdown', 'popup/preview.html');
+      let format = lastKnownDefaultFormat || 'markdown';
+      try {
+        const syncData = await chrome.storage.sync.get('defaultFormat');
+        if (syncData?.defaultFormat) format = syncData.defaultFormat;
+      } catch {
+        // Use last known format
+      }
+      handleCommand('download_format', 'popup/preview.html', format);
     } else if (info.menuItemId === 'ai-exporter-open-preview') {
       handleCommand('open_preview', 'popup/preview.html');
     } else if (
