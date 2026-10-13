@@ -32,14 +32,19 @@ test.describe('Options Page', () => {
     // Change theme to dark
     await themeSelect.selectOption('dark');
 
-    // Verify storage was updated
-    const savedTheme = await serviceWorker.evaluate(() => {
-      return new Promise<string>((resolve) => {
-        chrome.storage.sync.get('theme', (res) => resolve(res.theme));
-      });
-    });
-
-    expect(savedTheme).toBe('dark');
+    // Verify storage was updated without race condition
+    await expect
+      .poll(
+        () =>
+          serviceWorker.evaluate(
+            () =>
+              new Promise<string>((resolve) =>
+                chrome.storage.sync.get('theme', (res) => resolve(res.theme)),
+              ),
+          ),
+        { timeout: 5000 },
+      )
+      .toBe('dark');
   });
 
   test('updates default export format setting and persists to storage', async ({
@@ -54,13 +59,18 @@ test.describe('Options Page', () => {
     // Change format to json
     await formatSelect.selectOption('json');
 
-    // Verify storage was updated
-    const savedFormat = await serviceWorker.evaluate(() => {
-      return new Promise<string>((resolve) => {
-        chrome.storage.sync.get('defaultFormat', (res) => resolve(res.defaultFormat));
-      });
-    });
-
-    expect(savedFormat).toBe('json');
+    // Verify storage was updated without race condition
+    await expect
+      .poll(
+        () =>
+          serviceWorker.evaluate(
+            () =>
+              new Promise<string>((resolve) =>
+                chrome.storage.sync.get('defaultFormat', (res) => resolve(res.defaultFormat)),
+              ),
+          ),
+        { timeout: 5000 },
+      )
+      .toBe('json');
   });
 });
