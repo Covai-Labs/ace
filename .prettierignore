@@ -13,3 +13,7 @@ coverage/
 .nyc_output/
 publish/
 web-ext-artifacts/
+playwright-report/
+test-results/
+*-snapshots/
+*.png

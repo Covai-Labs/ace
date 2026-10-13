@@ -46,3 +46,12 @@ jobs:
 
       - name: Run tests (including manifest version check)
         run: npm test
+
+      - name: Validate Firefox extension package
+        run: npm run lint:ext
+
+      - name: Install Playwright browsers
+        run: npm run test:e2e:install
+
+      - name: Run E2E tests
+        run: npm run test:e2e
