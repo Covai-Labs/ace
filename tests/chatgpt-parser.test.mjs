@@ -378,7 +378,7 @@ test('ChatGPTParser parses signed-out / anonymous session from real HTML fixture
 
     assert.equal(result.messages.length, 4, 'Should extract all 4 turns');
     assert.equal(result.messages[0].role, 'User');
-    assert.match(result.messages[0].content, /https:\/\/ace\.covai\.org\//);
+    assert.ok(result.messages[0].content.includes('https://ace.covai.org/'));
     assert.doesNotMatch(result.messages[0].content, /You said:/);
 
     assert.equal(result.messages[1].role, 'ChatGPT');
