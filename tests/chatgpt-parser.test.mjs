@@ -355,3 +355,44 @@ test('extractSharedConversationFromDom extracts mapping from embedded SSR script
   assert.equal(convo.current_node, 'node2');
   assert.ok(convo.mapping.node1);
 });
+
+test('ChatGPTParser parses signed-out / anonymous session from real HTML fixture', async () => {
+  const html = fs.readFileSync(
+    path.join(__dirname, 'fixtures/chatgpt-anonymous-octane.html'),
+    'utf8',
+  );
+  const { window: chatWindow, document: chatDocument } = parseHTML(html);
+
+  const oldWindow = global.window;
+  const oldDocument = global.document;
+
+  global.window = chatWindow;
+  global.document = chatDocument;
+
+  chatWindow.location = { href: 'https://chatgpt.com/' };
+  chatWindow.HTMLElement.prototype.scrollIntoView = function () {};
+
+  try {
+    const parser = new ChatGPTParser();
+    const result = await parser.parse();
+
+    assert.equal(result.messages.length, 4, 'Should extract all 4 turns');
+    assert.equal(result.messages[0].role, 'User');
+    assert.match(result.messages[0].content, /https:\/\/ace\.covai\.org\//);
+    assert.doesNotMatch(result.messages[0].content, /You said:/);
+
+    assert.equal(result.messages[1].role, 'ChatGPT');
+    assert.match(result.messages[1].content, /Covai/);
+    assert.doesNotMatch(result.messages[1].content, /ChatGPT said:/);
+
+    assert.equal(result.messages[2].role, 'User');
+    assert.equal(result.messages[2].content, 'both');
+    assert.doesNotMatch(result.messages[2].content, /You said:/);
+
+    assert.equal(result.messages[3].role, 'ChatGPT');
+    assert.doesNotMatch(result.messages[3].content, /ChatGPT said:/);
+  } finally {
+    global.window = oldWindow;
+    global.document = oldDocument;
+  }
+});
