@@ -390,6 +390,10 @@ test('ChatGPTParser parses signed-out / anonymous session from real HTML fixture
     assert.doesNotMatch(result.messages[2].content, /You said:/);
 
     assert.equal(result.messages[3].role, 'ChatGPT');
+    assert.ok(
+      result.messages[3].content.length > 50,
+      'Turn 4 assistant message should have non-empty content',
+    );
     assert.doesNotMatch(result.messages[3].content, /ChatGPT said:/);
   } finally {
     global.window = oldWindow;
