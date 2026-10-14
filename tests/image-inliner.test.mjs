@@ -109,3 +109,34 @@ test('inlineImagesInContent safely handles URLs that share a prefix', async () =
   assert.ok(result.includes('<img src="data:image/png;base64,DATA10" />'));
   assert.ok(!result.includes('DATA10?'));
 });
+
+test('inlineImagesInContent matches src attribute and not data-src', async () => {
+  const mockFetcher = async (url) => {
+    if (url === 'https://example.com/real') {
+      return 'data:image/png;base64,REAL_DATA';
+    }
+    return null;
+  };
+
+  const input = '<img data-src="https://example.com/lazy" src="https://example.com/real" />';
+  const result = await inlineImagesInContent(input, mockFetcher);
+
+  assert.ok(result.includes('data-src="https://example.com/lazy"'));
+  assert.ok(result.includes('src="data:image/png;base64,REAL_DATA"'));
+});
+
+test('fetchUrlAsDataUri rejects non-image Content-Type', async () => {
+  const originalFetch = globalThis.fetch;
+  try {
+    globalThis.fetch = async () => ({
+      ok: true,
+      headers: new Headers({ 'content-type': 'text/html; charset=utf-8' }),
+      blob: async () => new Blob(['<html>Login</html>'], { type: 'text/html' }),
+    });
+
+    const res = await fetchUrlAsDataUri('https://example.com/fake-image');
+    assert.equal(res, null);
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});

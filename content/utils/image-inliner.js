@@ -48,23 +48,33 @@ export async function fetchUrlAsDataUri(url, timeoutMs = 4000) {
     return null;
   }
 
-  try {
-    const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
-    const timeoutId = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
+  const controller = typeof AbortController !== 'undefined' ? new AbortController() : null;
+  const timeoutId = controller ? setTimeout(() => controller.abort(), timeoutMs) : null;
 
+  try {
     const response = await fetch(trimmed, {
       credentials: 'include',
       signal: controller ? controller.signal : undefined,
     });
-    if (timeoutId) clearTimeout(timeoutId);
 
     if (!response.ok) return null;
 
+    const contentType = response.headers.get('content-type');
+    if (contentType && !contentType.startsWith('image/')) {
+      return null;
+    }
+
     const blob = await response.blob();
+    if (blob && blob.type && !blob.type.startsWith('image/')) {
+      return null;
+    }
+
     return await blobToDataUri(blob);
   } catch {
     // Graceful fallback: return null so caller keeps original URL
     return null;
+  } finally {
+    if (timeoutId) clearTimeout(timeoutId);
   }
 }
 
@@ -89,8 +99,8 @@ export async function inlineImagesInContent(content, fetcher = fetchUrlAsDataUri
     }
   }
 
-  // 2. HTML <img> tags: <img src="url">
-  const htmlImgRegex = /<img\b[^>]*?\bsrc=["']([^"']+)["'][^>]*>/gi;
+  // 2. HTML <img> tags: <img ... src="url" ...> (requires whitespace before src to avoid matching data-src)
+  const htmlImgRegex = /<img\b[^>]*?\s+src=["']([^"']+)["'][^>]*>/gi;
   while ((match = htmlImgRegex.exec(content)) !== null) {
     const url = match[1];
     if (url && !url.startsWith('data:image')) {
@@ -135,7 +145,7 @@ export async function inlineImagesInContent(content, fetcher = fetchUrlAsDataUri
 
   // 2. Replace HTML <img> tags: <img src="url">
   updated = updated.replace(
-    /(<img\b[^>]*?\bsrc=["'])([^"']+)(["'][^>]*>)/gi,
+    /(<img\b[^>]*?\s+src=["'])([^"']+)(["'][^>]*>)/gi,
     (match, prefix, src, suffix) => {
       const dataUri = urlMap.get(src);
       if (dataUri) {
