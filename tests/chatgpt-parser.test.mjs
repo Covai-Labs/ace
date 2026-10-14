@@ -376,25 +376,28 @@ test('ChatGPTParser parses signed-out / anonymous session from real HTML fixture
     const parser = new ChatGPTParser();
     const result = await parser.parse();
 
-    assert.equal(result.messages.length, 4, 'Should extract all 4 turns');
+    assert.equal(result.messages.length, 10, 'Should extract all 10 turns');
     assert.equal(result.messages[0].role, 'User');
-    assert.ok(result.messages[0].content.includes('https://ace.covai.org/'));
+    assert.ok(result.messages[0].content.includes('Which of these has any potential'));
     assert.doesNotMatch(result.messages[0].content, /You said:/);
 
     assert.equal(result.messages[1].role, 'ChatGPT');
-    assert.match(result.messages[1].content, /Covai/);
+    assert.match(result.messages[1].content, /Decant/);
     assert.doesNotMatch(result.messages[1].content, /ChatGPT said:/);
 
     assert.equal(result.messages[2].role, 'User');
-    assert.equal(result.messages[2].content, 'both');
+    assert.ok(result.messages[2].content.includes('decant-core'));
     assert.doesNotMatch(result.messages[2].content, /You said:/);
 
     assert.equal(result.messages[3].role, 'ChatGPT');
-    assert.ok(
-      result.messages[3].content.length > 50,
-      'Turn 4 assistant message should have non-empty content',
-    );
     assert.doesNotMatch(result.messages[3].content, /ChatGPT said:/);
+
+    assert.equal(result.messages[4].role, 'User');
+    assert.match(result.messages[4].content, /!\[.*?\]\(blob:https:\/\/chatgpt\.com\/.*?\)/);
+    assert.ok(result.messages[4].content.includes('**Attachments & Images:**'));
+
+    assert.equal(result.messages[9].role, 'ChatGPT');
+    assert.doesNotMatch(result.messages[9].content, /ChatGPT said:/);
   } finally {
     global.window = oldWindow;
     global.document = oldDocument;
