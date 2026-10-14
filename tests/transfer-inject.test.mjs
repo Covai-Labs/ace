@@ -494,11 +494,12 @@ test('transfer records: chunk join and expiry prune', async () => {
 test('transfer records: load joins chunks and clear removes exactly its keys', async () => {
   const { loadTransferRecord, clearTransferRecord } =
     await import('../content/transfer/records.js');
+  const now = 4_000_000;
   const store = {
     xfer_5: {
       targetPlatform: 'z_ai',
       url: 'https://chat.z.ai/',
-      timestamp: Date.now(),
+      timestamp: now,
       chunked: true,
       count: 2,
     },
@@ -507,7 +508,7 @@ test('transfer records: load joins chunks and clear removes exactly its keys', a
     xfer_6: {
       targetPlatform: 'z_ai',
       url: 'https://chat.z.ai/',
-      timestamp: Date.now(),
+      timestamp: now - 100,
       payload: 'other-tab',
     },
   };
@@ -521,7 +522,7 @@ test('transfer records: load joins chunks and clear removes exactly its keys', a
       for (const k of keys) delete store[k];
     },
   };
-  const loaded = await loadTransferRecord(storage, { origin: 'https://chat.z.ai' }, Date.now());
+  const loaded = await loadTransferRecord(storage, { origin: 'https://chat.z.ai' }, now);
   assert.ok(loaded);
   assert.equal(loaded.payload, 'part-one part-two');
   await clearTransferRecord(storage, loaded.keys);

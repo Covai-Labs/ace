@@ -106,7 +106,7 @@ async function setupContextMenus() {
         defaultFormat = formatData.defaultFormat;
       }
     } catch {
-      // Fallback to default
+      defaultFormat = lastKnownDefaultFormat || 'markdown';
     }
     lastKnownDefaultFormat = defaultFormat;
   } catch {
@@ -609,8 +609,13 @@ async function getActiveTab() {
   }
 }
 
-async function handleCommand(command, previewPath = 'popup/preview.html', format = 'markdown') {
-  const tab = await getActiveTab();
+async function handleCommand(
+  command,
+  previewPath = 'popup/preview.html',
+  format = 'markdown',
+  targetTab = null,
+) {
+  const tab = targetTab || (await getActiveTab());
   if (!tab || !tab.id) return;
 
   if (command === 'copy_markdown' || command === 'copy_format') {
@@ -625,7 +630,7 @@ async function handleCommand(command, previewPath = 'popup/preview.html', format
     }
   } else if (command === 'download_markdown' || command === 'download_format') {
     if (format === 'pdf' || format === 'png') {
-      await handleCommand('open_preview', previewPath, format);
+      await handleCommand('open_preview', previewPath, format, tab);
       return;
     }
 
@@ -652,6 +657,7 @@ async function handleCommand(command, previewPath = 'popup/preview.html', format
           previewContent: response.content,
           previewTitle: tab.title || 'AI Conversation',
           previewFormat: format,
+          previewFilename: null,
           autoPrint: format === 'pdf',
           autoDownloadPng: format === 'png',
         });
@@ -684,7 +690,7 @@ if (typeof chrome !== 'undefined' && chrome.contextMenus?.onClicked) {
       const copyFormat = ['markdown', 'text', 'json', 'html'].includes(format)
         ? format
         : 'markdown';
-      handleCommand('copy_format', 'popup/preview.html', copyFormat);
+      handleCommand('copy_format', 'popup/preview.html', copyFormat, tab);
     } else if (info.menuItemId === 'ai-exporter-download-markdown') {
       let format = lastKnownDefaultFormat || 'markdown';
       try {
@@ -693,9 +699,9 @@ if (typeof chrome !== 'undefined' && chrome.contextMenus?.onClicked) {
       } catch {
         // Use last known format
       }
-      handleCommand('download_format', 'popup/preview.html', format);
+      handleCommand('download_format', 'popup/preview.html', format, tab);
     } else if (info.menuItemId === 'ai-exporter-open-preview') {
-      handleCommand('open_preview', 'popup/preview.html');
+      handleCommand('open_preview', 'popup/preview.html', 'markdown', tab);
     } else if (
       typeof info.menuItemId === 'string' &&
       info.menuItemId.startsWith('ai-exporter-transfer-')

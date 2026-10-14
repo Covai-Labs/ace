@@ -61,3 +61,17 @@ test('content scripts handle targetFormat in EXECUTE_SHORTCUT', () => {
     assert.match(content, /shortcut === 'download_markdown' \|\| shortcut === 'download_format'/);
   }
 });
+
+test('background scripts pass tab and clear previewFilename in handleCommand', () => {
+  const bgEntry = fs.readFileSync('entrypoints/background.js', 'utf8');
+  const bgClassic = fs.readFileSync('background/background.js', 'utf8');
+
+  for (const bg of [bgEntry, bgClassic]) {
+    assert.match(bg, /targetTab\s*=\s*null/);
+    assert.match(bg, /targetTab\s*\|\|\s*\(await getActiveTab\(\)\)/);
+    assert.match(bg, /previewFilename:\s*null/);
+    assert.match(bg, /handleCommand\('copy_format',.*,\s*tab\)/);
+    assert.match(bg, /handleCommand\('download_format',.*,\s*tab\)/);
+    assert.match(bg, /handleCommand\('open_preview',.*,\s*tab\)/);
+  }
+});

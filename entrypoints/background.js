@@ -104,7 +104,7 @@ export default defineBackground(() => {
           defaultFormat = formatData.defaultFormat;
         }
       } catch {
-        // Fallback to default
+        defaultFormat = lastKnownDefaultFormat || 'markdown';
       }
       lastKnownDefaultFormat = defaultFormat;
     } catch {
@@ -561,8 +561,13 @@ export default defineBackground(() => {
     }
   }
 
-  async function handleCommand(command, previewPath = 'preview.html', format = 'markdown') {
-    const tab = await getActiveTab();
+  async function handleCommand(
+    command,
+    previewPath = 'preview.html',
+    format = 'markdown',
+    targetTab = null,
+  ) {
+    const tab = targetTab || (await getActiveTab());
     if (!tab || !tab.id) return;
 
     if (command === 'copy_markdown' || command === 'copy_format') {
@@ -577,7 +582,7 @@ export default defineBackground(() => {
       }
     } else if (command === 'download_markdown' || command === 'download_format') {
       if (format === 'pdf' || format === 'png') {
-        await handleCommand('open_preview', previewPath, format);
+        await handleCommand('open_preview', previewPath, format, tab);
         return;
       }
 
@@ -604,6 +609,7 @@ export default defineBackground(() => {
             previewContent: response.content,
             previewTitle: tab.title || 'AI Conversation',
             previewFormat: format,
+            previewFilename: null,
             autoPrint: format === 'pdf',
             autoDownloadPng: format === 'png',
           });
@@ -636,7 +642,7 @@ export default defineBackground(() => {
         const copyFormat = ['markdown', 'text', 'json', 'html'].includes(format)
           ? format
           : 'markdown';
-        handleCommand('copy_format', 'preview.html', copyFormat);
+        handleCommand('copy_format', 'preview.html', copyFormat, tab);
       } else if (info.menuItemId === 'ai-exporter-download-markdown') {
         let format = lastKnownDefaultFormat || 'markdown';
         try {
@@ -645,9 +651,9 @@ export default defineBackground(() => {
         } catch {
           // Use last known format
         }
-        handleCommand('download_format', 'preview.html', format);
+        handleCommand('download_format', 'preview.html', format, tab);
       } else if (info.menuItemId === 'ai-exporter-open-preview') {
-        handleCommand('open_preview', 'preview.html');
+        handleCommand('open_preview', 'preview.html', 'markdown', tab);
       } else if (
         typeof info.menuItemId === 'string' &&
         info.menuItemId.startsWith('ai-exporter-transfer-')
