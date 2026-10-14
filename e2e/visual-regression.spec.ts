@@ -54,6 +54,12 @@ test.describe('Visual Regression', () => {
     const messageCard = iframe.locator('.message-card').last();
     await expect(messageCard).toBeVisible({ timeout: 10000 });
 
+    // Lock dimensions across environments to eliminate headless subpixel/scrollbar width variances
+    await messageCard.evaluate((el) => {
+      el.style.width = '496px';
+      el.style.boxSizing = 'border-box';
+    });
+
     // Snapshot the message card containing the KaTeX formula and code block
     await expect(messageCard).toHaveScreenshot('rendered-math-card.png', {
       maxDiffPixelRatio: 0.05,
