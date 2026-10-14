@@ -83,3 +83,29 @@ test('inlineConversationImages processes all messages in conversation', async ()
   assert.ok(updated.messages[0].content.includes('data:image/png;base64,mock_preview1'));
   assert.ok(updated.messages[1].content.includes('data:image/png;base64,mock_preview2'));
 });
+
+test('inlineImagesInContent safely handles URLs that share a prefix', async () => {
+  const mockFetcher = async (url) => {
+    if (url === 'https://example.com/image/1') {
+      return 'data:image/png;base64,DATA1';
+    }
+    if (url === 'https://example.com/image/10') {
+      return 'data:image/png;base64,DATA10';
+    }
+    return null;
+  };
+
+  const input =
+    '![one](https://example.com/image/1)\n' +
+    '![ten](https://example.com/image/10)\n' +
+    '<img src="https://example.com/image/1" />\n' +
+    '<img src="https://example.com/image/10" />';
+
+  const result = await inlineImagesInContent(input, mockFetcher);
+
+  assert.ok(result.includes('![one](data:image/png;base64,DATA1)'));
+  assert.ok(result.includes('![ten](data:image/png;base64,DATA10)'));
+  assert.ok(result.includes('<img src="data:image/png;base64,DATA1" />'));
+  assert.ok(result.includes('<img src="data:image/png;base64,DATA10" />'));
+  assert.ok(!result.includes('DATA10?'));
+});

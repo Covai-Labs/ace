@@ -112,12 +112,38 @@ export async function inlineImagesInContent(content, fetcher = fetchUrlAsDataUri
     }),
   );
 
-  let updated = content;
+  const urlMap = new Map();
   for (const { url, dataUri } of dataUris) {
     if (dataUri) {
-      updated = updated.split(url).join(dataUri);
+      urlMap.set(url, dataUri);
     }
   }
+
+  if (urlMap.size === 0) return content;
+
+  // 1. Replace markdown images: ![alt](url)
+  let updated = content.replace(
+    /!\[([^\]]*)\]\(\s*<?([^\s)>]+)>?((?:\s+["'][^"']*["'])?)\s*\)/g,
+    (match, alt, url, title) => {
+      const dataUri = urlMap.get(url);
+      if (dataUri) {
+        return `![${alt}](${dataUri}${title || ''})`;
+      }
+      return match;
+    },
+  );
+
+  // 2. Replace HTML <img> tags: <img src="url">
+  updated = updated.replace(
+    /(<img\b[^>]*?\bsrc=["'])([^"']+)(["'][^>]*>)/gi,
+    (match, prefix, src, suffix) => {
+      const dataUri = urlMap.get(src);
+      if (dataUri) {
+        return `${prefix}${dataUri}${suffix}`;
+      }
+      return match;
+    },
+  );
 
   return updated;
 }

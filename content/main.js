@@ -600,7 +600,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
                 msg.content = stripImages(msg.content);
               }
             });
-          } else {
+          } else if (['doc', 'html'].includes(request.format)) {
             await inlineConversationImages(conversation);
           }
           if (request.format === 'png') {
@@ -716,7 +716,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
                 msg.content = stripImages(msg.content);
               }
             });
-          } else {
+          } else if (['doc', 'html'].includes(request.format)) {
             await inlineConversationImages(conversation);
           }
           console.log('Parsed conversation with', conversation.messages.length, 'messages');
@@ -884,7 +884,6 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 
           const formatter = formatters.markdown;
           const exportOptions = await getExportOptions();
-          await inlineConversationImages(conversation);
           if (exportOptions.includeThinking === false) {
             conversation.messages.forEach((msg) => {
               if (msg.content) {

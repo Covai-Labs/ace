@@ -589,7 +589,7 @@ export default defineContentScript({
                     msg.content = stripImages(msg.content);
                   }
                 });
-              } else {
+              } else if (['doc', 'html'].includes(request.format)) {
                 await inlineConversationImages(conversation);
               }
               if (request.format === 'png') {
@@ -713,7 +713,7 @@ export default defineContentScript({
                     msg.content = stripImages(msg.content);
                   }
                 });
-              } else {
+              } else if (['doc', 'html'].includes(request.format)) {
                 await inlineConversationImages(conversation);
               }
               logger.debug('Parsed conversation with', conversation.messages.length, 'messages');
@@ -896,7 +896,6 @@ export default defineContentScript({
 
               const formatter = formatters.markdown;
               const exportOptions = await getExportOptions();
-              await inlineConversationImages(conversation);
               if (exportOptions.includeThinking === false) {
                 conversation.messages.forEach((msg) => {
                   if (msg.content) {
