@@ -17,3 +17,4 @@ playwright-report/
 test-results/
 *-snapshots/
 *.png
+CHANGELOG.md
