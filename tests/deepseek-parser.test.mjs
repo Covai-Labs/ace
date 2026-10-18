@@ -193,10 +193,12 @@ test('DeepSeekParser extracts attachment content and works with applyAttachmentO
   assert.ok(on.includes('Your thought on pasted content. ?'));
   assert.ok(on.includes('### File: # Exploring Ilaiyaraaja\x27s How to Name It.txt · 9.0 KB'));
   assert.ok(on.includes('Exported with AI Chat Exporter'));
+  assert.ok(on.includes('# Exploring Ilaiyaraaja\x27s How to Name It?'));
 
   // Test applyAttachmentOption with includeAttachments: false
   const off = applyAttachmentOption(userMsg, { includeAttachments: false });
   assert.ok(off.includes('Your thought on pasted content. ?'));
   assert.ok(off.includes('***[File: # Exploring Ilaiyaraaja\x27s How to Name It.txt · 9.0 KB]***'));
   assert.ok(!off.includes('Exported with AI Chat Exporter'));
+  assert.ok(!off.includes('# Exploring Ilaiyaraaja\x27s How to Name It?'));
 });
