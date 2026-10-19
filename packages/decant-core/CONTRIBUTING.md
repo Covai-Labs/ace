@@ -4,8 +4,12 @@ Thank you for your interest in contributing to decant-core! We welcome bug repor
 
 ## Getting Started
 
-1. Check existing [Issues](https://github.com/Covai-Labs/decant/issues) and [Pull Requests](https://github.com/Covai-Labs/decant/pulls) before submitting new ones to avoid duplicates.
-2. For local setup, install dependencies with `npm install`.
+`decant-core` is developed directly inside the **[Covai-Labs/ace monorepo](https://github.com/Covai-Labs/ace)** under `packages/decant-core`.
+
+To contribute, fix a platform parser, or report an issue, please visit:
+
+- **Issues & PRs:** [Covai-Labs/ace](https://github.com/Covai-Labs/ace)
+- **Local Development:** Clone `Covai-Labs/ace` and edit parsers in `packages/decant-core/ai/`. All parser tests and extension tests can be run together using `npm test`.
 
 ## Submitting Pull Requests
 

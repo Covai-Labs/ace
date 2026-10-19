@@ -22,6 +22,9 @@ Existing chat exporters often suffer from two major flaws: they break whenever p
 npm install decant-core
 ```
 
+> [!NOTE]
+> `decant-core` is actively developed as a core package in the [Covai-Labs/ace monorepo](https://github.com/Covai-Labs/ace). Issues and Pull Requests should be opened there. Releases and mirrors are published automatically to this repository.
+
 Use it as the parsing layer underneath your own:
 
 - chat exporters
