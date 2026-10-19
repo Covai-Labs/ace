@@ -39,7 +39,7 @@ jobs:
           echo "subject=${COMMIT_SUBJECT:-sync decant-core}" >> "$GITHUB_OUTPUT"
 
       - name: Push packages/decant-core to Covai-Labs/decant
-        uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2 # v1.7.2
+        uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2 # v1.7.3
         env:
           API_TOKEN_GITHUB: ${{ secrets.DECANT_SYNC_TOKEN }}
         with:
