@@ -490,9 +490,10 @@ test("GeminiParser extractActivitySources does not leak citations from alternate
 
   const sources = parser.extractActivitySources(item);
   assert.equal(sources.length, 1);
-  assert.ok(
-    sources[0].includes("https://active-source.org/paper"),
-    "Sources list contains the active candidate paper URL",
+  assert.equal(
+    sources[0],
+    "- [active-source.org](https://active-source.org/paper)",
+    "Sources list contains the expected markdown source link",
   );
   assert.ok(
     !sources.some((s) => s.includes("inactive-draft")),

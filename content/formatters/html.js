@@ -1428,7 +1428,7 @@ export function markdownToHtml(mdText) {
     const srcMatch = attrsStr.match(/src="([^"]*)"/i) || attrsStr.match(/src='([^']*)'/i);
     const src = srcMatch ? srcMatch[1] : '';
     const rawAlt = altMatch ? altMatch[1] : captionMatch ? captionMatch[1] : 'Image';
-    const alt = rawAlt.replace(/[[\]]/g, '\\$&');
+    const alt = rawAlt.replace(/\\/g, '\\\\').replace(/\[/g, '\\[').replace(/\]/g, '\\]');
     if (src && /^(?:https?:|data:image|blob:|\/|\.\/)/i.test(src)) {
       return `\n\n![${alt}](${src})\n\n`;
     }

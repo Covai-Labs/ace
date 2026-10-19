@@ -542,7 +542,10 @@ export class GeminiParser extends ChatParser {
           : capMatch
             ? capMatch[1]
             : "Image";
-        const alt = rawAlt.replace(/[[\]]/g, "\\$&");
+        const alt = rawAlt
+          .replace(/\\/g, "\\\\")
+          .replace(/\[/g, "\\[")
+          .replace(/\]/g, "\\]");
 
         const resolvedUrl =
           imageMap.get(src) || (src.startsWith("http") ? src : null);
@@ -573,7 +576,10 @@ export class GeminiParser extends ChatParser {
       const videoDetail = entry[4]?.[0]?.[0];
       if (typeof tagUrl === "string" && Array.isArray(videoDetail)) {
         const rawTitle = videoDetail[0] || "Video";
-        const title = rawTitle.replace(/[[\]]/g, "\\$&");
+        const title = rawTitle
+          .replace(/\\/g, "\\\\")
+          .replace(/\[/g, "\\[")
+          .replace(/\]/g, "\\]");
         const url = videoDetail[2];
         if (url && typeof url === "string" && url.startsWith("http")) {
           const escaped = tagUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
