@@ -321,3 +321,171 @@ test("GeminiParser DOM preserves citation chips, links inside buttons, images, a
     "Source link from .sources-list preserved",
   );
 });
+
+test("GeminiParser resolveImageTags preserves code blocks containing <Image> tags", () => {
+  const parser = new GeminiParser();
+  const cand = [
+    "c_1",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+      null,
+      [
+        [
+          [["https://example.com/resolved.png"]],
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          ["image_agent_tag_1"],
+        ],
+      ],
+    ],
+  ];
+
+  const input = [
+    'Here is an image: <Image src="image_agent_tag_1" alt="Test Diagram" />',
+    "",
+    "```jsx",
+    'import Image from "next/image";',
+    'export default function Hero() { return <Image src="/hero.png" alt="Hero" />; }',
+    "```",
+    "",
+    'And inline: `<Image src="foo" />` should remain as code.',
+  ].join("\n");
+
+  const resolved = parser.resolveImageTags(input, cand);
+
+  assert.match(
+    resolved,
+    /!\[Test Diagram\]\(https:\/\/example\.com\/resolved\.png\)/,
+    "Regular <Image> tag resolved",
+  );
+  assert.match(
+    resolved,
+    /```jsx[\s\S]*?<Image src="\/hero\.png" alt="Hero" \/>[\s\S]*?```/,
+    "JSX code block <Image> tag preserved verbatim",
+  );
+  assert.match(
+    resolved,
+    /`<Image src="foo" \/>`/,
+    "Inline code <Image> tag preserved verbatim",
+  );
+});
+
+test("GeminiParser resolveMediaPlaceholders avoids partial matching on numbered placeholders", () => {
+  const parser = new GeminiParser();
+  const cand = [
+    "c_1",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+      null,
+      null,
+      null,
+      null,
+      [
+        [
+          ["http://googleusercontent.com/youtube_content/1"],
+          null,
+          null,
+          null,
+          [[["Video 1", null, "https://youtube.com/watch?v=1"]]],
+        ],
+        [
+          ["http://googleusercontent.com/youtube_content/10"],
+          null,
+          null,
+          null,
+          [[["Video 10", null, "https://youtube.com/watch?v=10"]]],
+        ],
+      ],
+    ],
+  ];
+
+  const text =
+    "Watch http://googleusercontent.com/youtube_content/10 and http://googleusercontent.com/youtube_content/1 now.";
+  const resolved = parser.resolveMediaPlaceholders(text, cand);
+
+  assert.match(
+    resolved,
+    /\[Video 10\]\(https:\/\/youtube\.com\/watch\?v=10\)/,
+    "Placeholder /10 matched correctly without being corrupted by /1",
+  );
+  assert.match(
+    resolved,
+    /\[Video 1\]\(https:\/\/youtube\.com\/watch\?v=1\)/,
+    "Placeholder /1 matched correctly",
+  );
+});
+
+test("GeminiParser extractActivitySources does not leak citations from alternate drafts", () => {
+  const parser = new GeminiParser();
+  // Turn item with 2 candidates:
+  // Candidate 0: active candidate with text and citation A
+  // Candidate 1: alternate draft with text and citation B
+  const item = [
+    "turn_1",
+    null,
+    null,
+    [
+      [
+        [
+          "cand_0",
+          ["Visible answer text"],
+          [
+            [
+              [
+                null,
+                null,
+                ["https://active-source.org/paper", "Active Source", null],
+              ],
+            ],
+          ],
+        ],
+        [
+          "cand_1",
+          ["Draft 2 alternate text"],
+          [
+            [
+              [
+                null,
+                null,
+                ["https://inactive-draft.org/paper", "Inactive Draft", null],
+              ],
+            ],
+          ],
+        ],
+      ],
+    ],
+  ];
+
+  const sources = parser.extractActivitySources(item);
+  assert.equal(sources.length, 1);
+  assert.match(sources[0], /https:\/\/active-source\.org\/paper/);
+  assert.ok(
+    !sources.some((s) => s.includes("inactive-draft")),
+    "Citations from inactive draft 1 should not leak into sources",
+  );
+});
+

@@ -520,3 +520,44 @@ test('HTML formatter preserves Gemini images and links in output', async () => {
     'Hyperlinked text should be preserved as clickable link',
   );
 });
+
+test('HTML formatter preserves code blocks containing JSX <Image> tags without modifying them', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'JSX Code Blocks',
+    messages: [
+      {
+        role: 'Model',
+        content:
+          'Here is a Next.js component:\n\n' +
+          '```jsx\n' +
+          'import Image from "next/image";\n' +
+          'export default function Avatar() {\n' +
+          '  return <Image src="/avatar.png" alt="User avatar" width={50} height={50} />;\n' +
+          '}\n' +
+          '```\n\n' +
+          'And inline: `<Image src="test" />` is JSX.',
+      },
+    ],
+    metadata: { Source: 'Gemini' },
+  };
+
+  const output = formatter.format(conversation);
+  assert.ok(
+    output.includes(
+      '&lt;Image src=&quot;/avatar.png&quot; alt=&quot;User avatar&quot; width={50} height={50} /&gt;',
+    ) || output.includes('<Image src="/avatar.png" alt="User avatar" width={50} height={50} />'),
+    'Code block containing JSX <Image> tag should be preserved in code block',
+  );
+  assert.ok(
+    !output.includes('<img src="/avatar.png"'),
+    'Code block JSX <Image> tag must not be converted into an <img> HTML tag',
+  );
+  assert.ok(
+    output.includes('<code>&lt;Image src=&quot;test&quot; /&gt;</code>') ||
+      output.includes('<code><Image src="test" /></code>'),
+    'Inline code block should preserve <Image> tag',
+  );
+});

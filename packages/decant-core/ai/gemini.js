@@ -513,8 +513,20 @@ export class GeminiParser extends ChatParser {
     if (typeof text !== "string" || !text) return text;
     const imageMap = this.buildImageTagMap(cand);
 
-    return text.replace(
-      /<Image\s+([^>]*?)(?:\/>|>(?:<\/Image>)?)/gi,
+    // Protect fenced and inline code blocks before tag replacement
+    const codePlaceholders = [];
+    let counter = 0;
+    const protectedText = text.replace(
+      /(```[\s\S]*?```|~~~[\s\S]*?~~~|`[^`\n]+?`)/g,
+      (match) => {
+        const id = `@@ACE_CODE_${counter++}@@`;
+        codePlaceholders.push({ id, content: match });
+        return id;
+      },
+    );
+
+    let replaced = protectedText.replace(
+      /<Image\s+([^>]*?)(?:\/>|<\/Image>|>)/gi,
       (match, attrs) => {
         const altMatch =
           attrs.match(/alt="([^"]*)"/i) || attrs.match(/alt='([^']*)'/i);
@@ -539,6 +551,12 @@ export class GeminiParser extends ChatParser {
         return match;
       },
     );
+
+    for (let i = codePlaceholders.length - 1; i >= 0; i--) {
+      const { id, content } = codePlaceholders[i];
+      replaced = replaced.replace(id, () => content);
+    }
+    return replaced;
   }
 
   resolveMediaPlaceholders(text, cand) {
@@ -556,7 +574,12 @@ export class GeminiParser extends ChatParser {
         const title = videoDetail[0] || "Video";
         const url = videoDetail[2];
         if (url && typeof url === "string" && url.startsWith("http")) {
-          resolved = resolved.split(tagUrl).join(`[${title}](${url})`);
+          const escaped = tagUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+          const replacement = `[${title}](${url})`;
+          resolved = resolved.replace(
+            new RegExp(`${escaped}(?![\\w/])`, "g"),
+            () => replacement,
+          );
         }
       }
     }
@@ -729,28 +752,26 @@ export class GeminiParser extends ChatParser {
         }
       }
 
-      // Also check candidate citations (cand[2])
-      const candidates = this.getApiCandidates(item);
-      for (const cand of candidates) {
-        if (Array.isArray(cand[2])) {
-          for (const citeGroup of cand[2]) {
-            if (!Array.isArray(citeGroup)) continue;
-            for (const cite of citeGroup) {
-              if (!Array.isArray(cite)) continue;
-              const meta = cite[2];
-              const url =
-                Array.isArray(meta) &&
-                typeof meta[0] === "string" &&
-                meta[0].startsWith("http")
-                  ? meta[0]
-                  : null;
-              if (url && !seen.has(url)) {
-                try {
-                  const parsed = new URL(url);
-                  seen.set(url, parsed.hostname.replace(/^www\./, "") || url);
-                } catch {
-                  seen.set(url, url);
-                }
+      // Also check candidate citations (cand[2]) of the active candidate only
+      const visibleCand = this.findModelCandidateInApiItem(item);
+      if (visibleCand && Array.isArray(visibleCand[2])) {
+        for (const citeGroup of visibleCand[2]) {
+          if (!Array.isArray(citeGroup)) continue;
+          for (const cite of citeGroup) {
+            if (!Array.isArray(cite)) continue;
+            const meta = cite[2];
+            const url =
+              Array.isArray(meta) &&
+              typeof meta[0] === "string" &&
+              meta[0].startsWith("http")
+                ? meta[0]
+                : null;
+            if (url && !seen.has(url)) {
+              try {
+                const parsed = new URL(url);
+                seen.set(url, parsed.hostname.replace(/^www\./, "") || url);
+              } catch {
+                seen.set(url, url);
               }
             }
           }
@@ -1046,9 +1067,14 @@ export class GeminiParser extends ChatParser {
           if (markdownDiv) {
             const clone = markdownDiv.cloneNode(true);
 
-            // Extract sources from .sources-list before removal
+            // Extract sources from .sources-list before removal.
+            // Check both modelResponse and clone so sources in footers outside markdownDiv are not missed.
             const domSources = [];
-            clone.querySelectorAll(".sources-list").forEach((sl) => {
+            const sourceLists = [
+              ...modelResponse.querySelectorAll(".sources-list"),
+              ...clone.querySelectorAll(".sources-list"),
+            ];
+            sourceLists.forEach((sl) => {
               sl.querySelectorAll("a[href]").forEach((a) => {
                 const href = a.getAttribute("href")?.trim();
                 const title = a.textContent?.trim() || href;
