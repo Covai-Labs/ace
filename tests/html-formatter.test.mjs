@@ -486,3 +486,78 @@ test('HTML formatter closes emphasis before trailing underscores and keeps inner
   assert.ok(output.includes('<strong>bold</strong>_ and <em>word</em>_ here'));
   assert.ok(output.includes('<em>name__v2</em>'));
 });
+
+test('HTML formatter preserves Gemini images and links in output', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'Gemini Images and Links',
+    messages: [
+      {
+        role: 'Model',
+        content:
+          'Here is the formula diagram:\n\n' +
+          '![Euler Diagram](https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:12345)\n\n' +
+          '<Image alt="Inline XML image" caption="Complex plane" src="https://lh3.googleusercontent.com/pic.png"/>\n\n' +
+          'For details see [Nature Paper](https://nature.com/articles/123).',
+      },
+    ],
+    metadata: { Source: 'Gemini' },
+  };
+
+  const output = formatter.format(conversation);
+  assert.ok(
+    output.includes('src="https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:12345"'),
+    'Standard markdown image should render with gstatic URL',
+  );
+  assert.ok(
+    output.includes('src="https://lh3.googleusercontent.com/pic.png"'),
+    '<Image> XML tag fallback should render with googleusercontent URL',
+  );
+  assert.ok(
+    output.includes('<a href="https://nature.com/articles/123"'),
+    'Hyperlinked text should be preserved as clickable link',
+  );
+});
+
+test('HTML formatter preserves code blocks containing JSX <Image> tags without modifying them', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'JSX Code Blocks',
+    messages: [
+      {
+        role: 'Model',
+        content:
+          'Here is a Next.js component:\n\n' +
+          '```jsx\n' +
+          'import Image from "next/image";\n' +
+          'export default function Avatar() {\n' +
+          '  return <Image src="/avatar.png" alt="User avatar" width={50} height={50} />;\n' +
+          '}\n' +
+          '```\n\n' +
+          'And inline: `<Image src="test" />` is JSX.',
+      },
+    ],
+    metadata: { Source: 'Gemini' },
+  };
+
+  const output = formatter.format(conversation);
+  assert.ok(
+    output.includes(
+      '&lt;Image src=&quot;/avatar.png&quot; alt=&quot;User avatar&quot; width={50} height={50} /&gt;',
+    ) || output.includes('<Image src="/avatar.png" alt="User avatar" width={50} height={50} />'),
+    'Code block containing JSX <Image> tag should be preserved in code block',
+  );
+  assert.ok(
+    !output.includes('<img src="/avatar.png"'),
+    'Code block JSX <Image> tag must not be converted into an <img> HTML tag',
+  );
+  assert.ok(
+    output.includes('<code>&lt;Image src=&quot;test&quot; /&gt;</code>') ||
+      output.includes('<code><Image src="test" /></code>'),
+    'Inline code block should preserve <Image> tag',
+  );
+});

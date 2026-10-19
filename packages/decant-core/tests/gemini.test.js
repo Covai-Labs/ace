@@ -220,3 +220,284 @@ test("GeminiParser merges live DOM attachment metadata into API result", async (
   assert.match(firstUser.content, /- phylogeny_tree\.pdf/);
   assert.match(firstUser.content, /- genetic_markers\.csv/);
 });
+
+test("GeminiParser API resolves <Image> tags and YouTube media placeholders in candidate text", () => {
+  const parser = new GeminiParser();
+
+  const allItems = [];
+  for (const raw of [fixture.page1_raw, fixture.page2_raw]) {
+    const parsedBatch = parser.parseBatchExecuteLines(raw);
+    const rpcEntry = parser.findRpcEntry(parsedBatch.arrays, "hNvQHb");
+    const payload = JSON.parse(rpcEntry[2]);
+    const items = Array.isArray(payload[0]) ? payload[0] : [];
+    if (items.length > 0) {
+      allItems.unshift(...items.slice().reverse());
+    }
+  }
+
+  const result = parser.formatApiResult(
+    allItems,
+    `https://gemini.google.com/app/${fixture.convoId}`,
+  );
+
+  // Check Euler's identity turn (turn 11 -> message index 22 User, 23 Model)
+  const eulerModelMsg = result.messages.find(
+    (m) =>
+      m.role === "Model" &&
+      m.content.includes("Euler's identity is an equation"),
+  );
+  assert.ok(eulerModelMsg, "Euler model response found");
+  assert.match(
+    eulerModelMsg.content,
+    /!\[.*?\]\(https:\/\/encrypted-tbn2\.gstatic\.com\/licensed-image\?[^)]+\)/,
+    "Resolved <Image> XML tag to standard Markdown image with licensed image URL",
+  );
+  assert.doesNotMatch(
+    eulerModelMsg.content,
+    /<Image\b/,
+    "Unresolved raw <Image> tag should not remain",
+  );
+
+  // Check turn with YouTube media placeholder
+  const ytModelMsg = result.messages.find(
+    (m) =>
+      m.role === "Model" &&
+      m.content.includes("Focus Tamil Nadu"),
+  );
+  assert.ok(ytModelMsg, "YouTube media turn found");
+  assert.match(
+    ytModelMsg.content,
+    /\[Is the three language formula actually working\? \| Focus Tamil Nadu\]\(https:\/\/www\.youtube\.com\/watch\?v=vPTY8pRAPkA\)/,
+    "Resolved YouTube media placeholder to markdown link",
+  );
+});
+
+test("GeminiParser DOM preserves citation chips, links inside buttons, images, and .sources-list", () => {
+  const { document } = parseHTML(`
+    <html><body>
+      <div class="conversation-container">
+        <user-query><div class="query-text">What is the latest research?</div></user-query>
+        <model-response><message-content><div class="markdown">
+          <p>According to study<button aria-label="View source: Nature Genetics"><span class="citation-chip__title">Nature Genetics</span></button>, alleles vary widely.</p>
+          <p>Read the full paper <button><a href="https://doi.org/10.1038/example">DOI Link</a></button>.</p>
+          <image-container>
+            <img src="https://lh3.googleusercontent.com/diagram.png" alt="Phylogenetic Tree">
+          </image-container>
+          <div class="sources-list">
+            <a href="https://nature.com/articles/ng123">Nature Article 123</a>
+          </div>
+        </div></message-content></model-response>
+      </div>
+    </body></html>
+  `);
+
+  globalThis.document = document;
+  const parser = new GeminiParser();
+  const result = parser.parseFromDom("https://gemini.google.com/app/test");
+  const messages = result.messages;
+
+  assert.equal(messages.length, 2);
+  const modelContent = messages[1].content;
+
+  assert.match(modelContent, /Nature Genetics/, "Citation chip text preserved");
+  assert.match(
+    modelContent,
+    /\[DOI Link\]\(https:\/\/doi\.org\/10\.1038\/example\)/,
+    "Link inside button preserved",
+  );
+  assert.match(
+    modelContent,
+    /!\[Phylogenetic Tree\]\(https:\/\/lh3\.googleusercontent\.com\/diagram\.png\)/,
+    "Image inside image-container preserved",
+  );
+  assert.match(
+    modelContent,
+    /\*\*Sources consulted:\*\*/,
+    "Sources header created",
+  );
+  assert.match(
+    modelContent,
+    /\[Nature Article 123\]\(https:\/\/nature\.com\/articles\/ng123\)/,
+    "Source link from .sources-list preserved",
+  );
+});
+
+test("GeminiParser resolveImageTags preserves code blocks containing <Image> tags", () => {
+  const parser = new GeminiParser();
+  const cand = [
+    "c_1",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+      null,
+      [
+        [
+          [["https://example.com/resolved.png"]],
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          ["image_agent_tag_1"],
+        ],
+      ],
+    ],
+  ];
+
+  const input = [
+    'Here is an image: <Image src="image_agent_tag_1" alt="Test Diagram" />',
+    "",
+    "```jsx",
+    'import Image from "next/image";',
+    'export default function Hero() { return <Image src="/hero.png" alt="Hero" />; }',
+    "```",
+    "",
+    'And inline: `<Image src="foo" />` should remain as code.',
+  ].join("\n");
+
+  const resolved = parser.resolveImageTags(input, cand);
+
+  assert.match(
+    resolved,
+    /!\[Test Diagram\]\(https:\/\/example\.com\/resolved\.png\)/,
+    "Regular <Image> tag resolved",
+  );
+  assert.match(
+    resolved,
+    /```jsx[\s\S]*?<Image src="\/hero\.png" alt="Hero" \/>[\s\S]*?```/,
+    "JSX code block <Image> tag preserved verbatim",
+  );
+  assert.match(
+    resolved,
+    /`<Image src="foo" \/>`/,
+    "Inline code <Image> tag preserved verbatim",
+  );
+
+  // Test paired tag with closing </Image>
+  const pairedInput = 'Diagram: <Image src="image_agent_tag_1" alt="Paired [V1]"></Image>';
+  const pairedResolved = parser.resolveImageTags(pairedInput, cand);
+  assert.equal(
+    pairedResolved,
+    "Diagram: ![Paired \\[V1\\]](https://example.com/resolved.png)",
+  );
+});
+
+test("GeminiParser resolveMediaPlaceholders avoids partial matching on numbered placeholders", () => {
+  const parser = new GeminiParser();
+  const cand = [
+    "c_1",
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    [
+      null,
+      null,
+      null,
+      null,
+      [
+        [
+          ["http://googleusercontent.com/youtube_content/1"],
+          null,
+          null,
+          null,
+          [[["Video 1", null, "https://youtube.com/watch?v=1"]]],
+        ],
+        [
+          ["http://googleusercontent.com/youtube_content/10"],
+          null,
+          null,
+          null,
+          [[["Video 10", null, "https://youtube.com/watch?v=10"]]],
+        ],
+      ],
+    ],
+  ];
+
+  const text =
+    "Watch http://googleusercontent.com/youtube_content/10 and http://googleusercontent.com/youtube_content/1 now.";
+  const resolved = parser.resolveMediaPlaceholders(text, cand);
+
+  assert.match(
+    resolved,
+    /\[Video 10\]\(https:\/\/youtube\.com\/watch\?v=10\)/,
+    "Placeholder /10 matched correctly without being corrupted by /1",
+  );
+  assert.match(
+    resolved,
+    /\[Video 1\]\(https:\/\/youtube\.com\/watch\?v=1\)/,
+    "Placeholder /1 matched correctly",
+  );
+});
+
+test("GeminiParser extractActivitySources does not leak citations from alternate drafts", () => {
+  const parser = new GeminiParser();
+  // Turn item with 2 candidates:
+  // Candidate 0: active candidate with text and citation A
+  // Candidate 1: alternate draft with text and citation B
+  const item = [
+    "turn_1",
+    null,
+    null,
+    [
+      [
+        [
+          "cand_0",
+          ["Visible answer text"],
+          [
+            [
+              [
+                null,
+                null,
+                ["https://active-source.org/paper", "Active Source", null],
+              ],
+            ],
+          ],
+        ],
+        [
+          "cand_1",
+          ["Draft 2 alternate text"],
+          [
+            [
+              [
+                null,
+                null,
+                ["https://inactive-draft.org/paper", "Inactive Draft", null],
+              ],
+            ],
+          ],
+        ],
+      ],
+    ],
+  ];
+
+  const sources = parser.extractActivitySources(item);
+  assert.equal(sources.length, 1);
+  assert.equal(
+    sources[0],
+    "- [active-source.org](https://active-source.org/paper)",
+    "Sources list contains the expected markdown source link",
+  );
+  assert.ok(
+    !sources.some((s) => s.includes("inactive-draft")),
+    "Citations from inactive draft 1 should not leak into sources",
+  );
+});
+
