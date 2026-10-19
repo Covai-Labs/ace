@@ -486,3 +486,37 @@ test('HTML formatter closes emphasis before trailing underscores and keeps inner
   assert.ok(output.includes('<strong>bold</strong>_ and <em>word</em>_ here'));
   assert.ok(output.includes('<em>name__v2</em>'));
 });
+
+test('HTML formatter preserves Gemini images and links in output', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'Gemini Images and Links',
+    messages: [
+      {
+        role: 'Model',
+        content:
+          'Here is the formula diagram:\n\n' +
+          '![Euler Diagram](https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:12345)\n\n' +
+          '<Image alt="Inline XML image" caption="Complex plane" src="https://lh3.googleusercontent.com/pic.png"/>\n\n' +
+          'For details see [Nature Paper](https://nature.com/articles/123).',
+      },
+    ],
+    metadata: { Source: 'Gemini' },
+  };
+
+  const output = formatter.format(conversation);
+  assert.ok(
+    output.includes('src="https://encrypted-tbn2.gstatic.com/licensed-image?q=tbn:12345"'),
+    'Standard markdown image should render with gstatic URL',
+  );
+  assert.ok(
+    output.includes('src="https://lh3.googleusercontent.com/pic.png"'),
+    '<Image> XML tag fallback should render with googleusercontent URL',
+  );
+  assert.ok(
+    output.includes('<a href="https://nature.com/articles/123"'),
+    'Hyperlinked text should be preserved as clickable link',
+  );
+});

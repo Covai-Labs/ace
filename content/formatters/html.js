@@ -1401,6 +1401,20 @@ export function markdownToHtml(mdText) {
     return `\n\n<details class="thinking-block"><summary class="thinking-summary"><svg class="thinking-icon" viewBox="0 0 24 24" width="14" height="14"><path d="M12 2a10 10 0 1 0 10 10A10 10 0 0 0 12 2zm1 14.5h-2v-2h2zm0-4h-2V7h2z"/></svg> Thinking Process</summary><div class="thinking-content">\n\n${thinkContent.trim()}\n\n</div>\n</details>\n\n`;
   });
 
+  // Fallback: normalize XML-style <Image alt="..." caption="..." src="..."/> tags into markdown images
+  mdText = mdText.replace(/<Image\s+([^>]*?)(?:\/>|>(?:<\/Image>)?)/gi, (match, attrsStr) => {
+    const altMatch = attrsStr.match(/alt="([^"]*)"/i) || attrsStr.match(/alt='([^']*)'/i);
+    const captionMatch =
+      attrsStr.match(/caption="([^"]*)"/i) || attrsStr.match(/caption='([^']*)'/i);
+    const srcMatch = attrsStr.match(/src="([^"]*)"/i) || attrsStr.match(/src='([^']*)'/i);
+    const src = srcMatch ? srcMatch[1] : '';
+    const alt = altMatch ? altMatch[1] : captionMatch ? captionMatch[1] : 'Image';
+    if (src && /^(?:https?:|data:image|blob:|\/|\.\/)/i.test(src)) {
+      return `\n\n![${alt}](${src})\n\n`;
+    }
+    return '';
+  });
+
   // 1. Protect fenced code blocks (``` ... ``` or ~~~ ... ~~~)
   const codeBlockPlaceholders = [];
   let codeBlockCounter = 0;

@@ -460,7 +460,12 @@ export class GeminiParser extends ChatParser {
         });
       }
 
-      const modelText = this.findModelTextInApiItem(item, options);
+      const modelCand = this.findModelCandidateInApiItem(item);
+      let modelText = this.findModelTextInApiItem(item, options);
+      if (modelCand) {
+        modelText = this.resolveImageTags(modelText, modelCand);
+        modelText = this.resolveMediaPlaceholders(modelText, modelCand);
+      }
       const researchExtras = this.extractDeepResearchExtras(item);
       const combined = [modelText, researchExtras]
         .map((t) => this.stripChipPlaceholders(t))
@@ -476,6 +481,86 @@ export class GeminiParser extends ChatParser {
     }
 
     return messages;
+  }
+
+  buildImageTagMap(cand) {
+    const map = new Map();
+    if (!cand || !Array.isArray(cand[12])) return map;
+    const imageEntries = cand[12][1];
+    if (!Array.isArray(imageEntries)) return map;
+
+    for (const entry of imageEntries) {
+      if (!Array.isArray(entry)) continue;
+      const url = entry[0]?.[0]?.[0] || entry[3]?.[0]?.[0];
+      if (!url || typeof url !== "string" || !url.startsWith("http")) continue;
+
+      const tagInfo = entry[7];
+      if (Array.isArray(tagInfo) && typeof tagInfo[0] === "string") {
+        const fullTag = tagInfo[0];
+        map.set(fullTag, url);
+        const tagIdMatch = fullTag.match(
+          /(?:image_agent_tag_\w+|lmdx_image\/\w+)/,
+        );
+        if (tagIdMatch) {
+          map.set(tagIdMatch[0], url);
+        }
+      }
+    }
+    return map;
+  }
+
+  resolveImageTags(text, cand) {
+    if (typeof text !== "string" || !text) return text;
+    const imageMap = this.buildImageTagMap(cand);
+
+    return text.replace(
+      /<Image\s+([^>]*?)(?:\/>|>(?:<\/Image>)?)/gi,
+      (match, attrs) => {
+        const altMatch =
+          attrs.match(/alt="([^"]*)"/i) || attrs.match(/alt='([^']*)'/i);
+        const capMatch =
+          attrs.match(/caption="([^"]*)"/i) ||
+          attrs.match(/caption='([^']*)'/i);
+        const srcMatch =
+          attrs.match(/src="([^"]*)"/i) || attrs.match(/src='([^']*)'/i);
+
+        const src = srcMatch ? srcMatch[1] : "";
+        const alt = altMatch
+          ? altMatch[1]
+          : capMatch
+            ? capMatch[1]
+            : "Image";
+
+        const resolvedUrl =
+          imageMap.get(src) || (src.startsWith("http") ? src : null);
+        if (resolvedUrl) {
+          return `![${alt}](${resolvedUrl})`;
+        }
+        return match;
+      },
+    );
+  }
+
+  resolveMediaPlaceholders(text, cand) {
+    if (typeof text !== "string" || !text) return text;
+    if (!cand || !Array.isArray(cand[12])) return text;
+    const mediaEntries = cand[12][4];
+    if (!Array.isArray(mediaEntries)) return text;
+
+    let resolved = text;
+    for (const entry of mediaEntries) {
+      if (!Array.isArray(entry)) continue;
+      const tagUrl = entry[0]?.[0];
+      const videoDetail = entry[4]?.[0]?.[0];
+      if (typeof tagUrl === "string" && Array.isArray(videoDetail)) {
+        const title = videoDetail[0] || "Video";
+        const url = videoDetail[2];
+        if (url && typeof url === "string" && url.startsWith("http")) {
+          resolved = resolved.split(tagUrl).join(`[${title}](${url})`);
+        }
+      }
+    }
+    return resolved;
   }
 
   // Deep-research turns render a short summary plus placeholder chip links
@@ -632,15 +717,44 @@ export class GeminiParser extends ChatParser {
     const seen = new Map();
     try {
       const trail = item[3]?.[4];
-      if (!Array.isArray(trail)) return [];
-      for (const entry of trail) {
-        const detail = entry?.[4]?.[2];
-        const url = Array.isArray(detail) ? detail[1] : null;
-        if (typeof url !== "string" || !url.startsWith("http")) continue;
-        if (seen.has(url)) continue;
-        const title =
-          typeof detail[2] === "string" && detail[2] ? detail[2] : url;
-        seen.set(url, title);
+      if (Array.isArray(trail)) {
+        for (const entry of trail) {
+          const detail = entry?.[4]?.[2];
+          const url = Array.isArray(detail) ? detail[1] : null;
+          if (typeof url !== "string" || !url.startsWith("http")) continue;
+          if (seen.has(url)) continue;
+          const title =
+            typeof detail[2] === "string" && detail[2] ? detail[2] : url;
+          seen.set(url, title);
+        }
+      }
+
+      // Also check candidate citations (cand[2])
+      const candidates = this.getApiCandidates(item);
+      for (const cand of candidates) {
+        if (Array.isArray(cand[2])) {
+          for (const citeGroup of cand[2]) {
+            if (!Array.isArray(citeGroup)) continue;
+            for (const cite of citeGroup) {
+              if (!Array.isArray(cite)) continue;
+              const meta = cite[2];
+              const url =
+                Array.isArray(meta) &&
+                typeof meta[0] === "string" &&
+                meta[0].startsWith("http")
+                  ? meta[0]
+                  : null;
+              if (url && !seen.has(url)) {
+                try {
+                  const parsed = new URL(url);
+                  seen.set(url, parsed.hostname.replace(/^www\./, "") || url);
+                } catch {
+                  seen.set(url, url);
+                }
+              }
+            }
+          }
+        }
       }
     } catch {
       // Ignore malformed activity trails
@@ -731,6 +845,33 @@ export class GeminiParser extends ChatParser {
       // Fall through
     }
     return "";
+  }
+
+  findModelCandidateInApiItem(item) {
+    try {
+      if (Array.isArray(item[3])) {
+        const candidates = Array.isArray(item[3][0]) ? item[3][0] : item[3];
+        for (const cand of candidates) {
+          if (!Array.isArray(cand)) continue;
+          if (Array.isArray(cand[1]) && typeof cand[1][0] === "string") {
+            return cand;
+          }
+          if (typeof cand[1] === "string") {
+            return cand;
+          }
+          if (typeof cand[0] === "string" && cand[0].length > 50) {
+            return cand;
+          }
+        }
+      }
+      if (Array.isArray(item[1])) {
+        const candidate = item[1][0];
+        if (Array.isArray(candidate)) return candidate;
+      }
+    } catch {
+      // Fall through
+    }
+    return null;
   }
 
   extractTitleFromPage() {
@@ -905,6 +1046,61 @@ export class GeminiParser extends ChatParser {
           if (markdownDiv) {
             const clone = markdownDiv.cloneNode(true);
 
+            // Extract sources from .sources-list before removal
+            const domSources = [];
+            clone.querySelectorAll(".sources-list").forEach((sl) => {
+              sl.querySelectorAll("a[href]").forEach((a) => {
+                const href = a.getAttribute("href")?.trim();
+                const title = a.textContent?.trim() || href;
+                if (
+                  href &&
+                  href.startsWith("http") &&
+                  !domSources.some((s) => s.href === href)
+                ) {
+                  domSources.push({ href, title });
+                }
+              });
+            });
+
+            // Convert citation chips and source buttons to links or text before generic button removal
+            clone
+              .querySelectorAll(
+                'button[aria-label*="View source"], button:has([class*="citation-chip"]), [class*="citation-chip"], citation-chip',
+              )
+              .forEach((btn) => {
+                const titleEl = btn.querySelector(
+                  '[class*="citation-chip__title"], [class*="citation_title"]',
+                );
+                const ariaLabel = btn.getAttribute("aria-label") || "";
+                const label = titleEl
+                  ? titleEl.textContent.trim()
+                  : ariaLabel.replace(/^View source:\s*/i, "").trim();
+                const anchor =
+                  btn.querySelector("a[href]") || btn.closest("a[href]");
+                const href = anchor ? anchor.getAttribute("href") : null;
+
+                if (href && href.startsWith("http")) {
+                  const link = clone.ownerDocument.createElement("a");
+                  link.setAttribute("href", href);
+                  link.textContent = label || href;
+                  btn.replaceWith(link);
+                } else if (label) {
+                  const textNode =
+                    clone.ownerDocument.createTextNode(` [${label}]`);
+                  btn.replaceWith(textNode);
+                } else {
+                  btn.remove();
+                }
+              });
+
+            // Unwrap any <a> tags inside remaining buttons so links are not deleted
+            clone.querySelectorAll("button a[href]").forEach((a) => {
+              const btn = a.closest("button");
+              if (btn && btn.parentNode) {
+                btn.parentNode.insertBefore(a, btn);
+              }
+            });
+
             // Remove UI buttons, thought overlays, follow-up suggestion
             // widgets, and interactive toolbars.
             // Note: .hide-from-message-actions is NOT removed — it wraps
@@ -916,9 +1112,11 @@ export class GeminiParser extends ChatParser {
               )
               .forEach((el) => el.remove());
 
-            // Unwrap response-element wrappers and message-action guards
+            // Unwrap response-element wrappers, image containers, and message-action guards
             clone
-              .querySelectorAll("response-element, .hide-from-message-actions")
+              .querySelectorAll(
+                "response-element, image-container, picture, .hide-from-message-actions",
+              )
               .forEach((el) => {
                 while (el.firstChild) {
                   el.parentNode.insertBefore(el.firstChild, el);
@@ -926,7 +1124,14 @@ export class GeminiParser extends ChatParser {
                 el.remove();
               });
 
-            const text = convertToMarkdown(clone);
+            let text = convertToMarkdown(clone);
+            if (domSources.length > 0) {
+              const sourcesText = domSources
+                .map((s) => `- [${s.title}](${s.href})`)
+                .join("\n");
+              text += `\n\n**Sources consulted:**\n${sourcesText}`;
+            }
+
             const trimmed = text.trim();
             if (trimmed && !seenTexts.has(trimmed)) {
               seenTexts.add(trimmed);
