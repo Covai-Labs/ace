@@ -1,30 +1,32 @@
-import { ChatParser } from './base.js';
-import { convertToMarkdown } from '../utils/html-to-markdown.js';
-import { pickTimestamp } from '../utils/timestamps.js';
+import { ChatParser } from "./base.js";
+import { convertToMarkdown } from "../utils/html-to-markdown.js";
+import { pickTimestamp } from "../utils/timestamps.js";
 
 async function getOrganizationId() {
   try {
-    const response = await fetch('https://claude.ai/api/organizations', {
-      credentials: 'include',
+    const response = await fetch("https://claude.ai/api/organizations", {
+      credentials: "include",
       headers: {
-        Accept: 'application/json',
+        Accept: "application/json",
       },
     });
     if (!response.ok) return null;
     const orgs = await response.json();
     if (Array.isArray(orgs) && orgs.length > 0) {
-      const chatOrg = orgs.find((org) => org.capabilities && org.capabilities.includes('chat'));
+      const chatOrg = orgs.find(
+        (org) => org.capabilities && org.capabilities.includes("chat"),
+      );
       return chatOrg ? chatOrg.uuid : orgs[0].uuid;
     }
   } catch (e) {
-    console.error('[AI Exporter] Failed to detect org ID:', e);
+    console.error("[AI Exporter] Failed to detect org ID:", e);
   }
   return null;
 }
 
 function getConversationId() {
   try {
-    if (typeof window === 'undefined' || !window.location) return null;
+    if (typeof window === "undefined" || !window.location) return null;
     return window.location.pathname.match(/\/chat\/([^/?#]+)/)?.[1] ?? null;
   } catch {
     return null;
@@ -34,9 +36,9 @@ function getConversationId() {
 async function fetchConversation(orgId, conversationId) {
   const url = `https://claude.ai/api/organizations/${orgId}/chat_conversations/${conversationId}?tree=True&rendering_mode=messages&render_all_tools=true`;
   const response = await fetch(url, {
-    credentials: 'include',
+    credentials: "include",
     headers: {
-      Accept: 'application/json',
+      Accept: "application/json",
     },
   });
   if (!response.ok) {
@@ -70,65 +72,65 @@ function getCurrentBranch(data) {
 }
 
 const EXT_TO_LANG = {
-  py: 'python',
-  js: 'javascript',
-  jsx: 'jsx',
-  ts: 'typescript',
-  tsx: 'tsx',
-  md: 'markdown',
-  html: 'html',
-  css: 'css',
-  json: 'json',
-  sh: 'bash',
-  bash: 'bash',
-  yml: 'yaml',
-  yaml: 'yaml',
-  sql: 'sql',
-  java: 'java',
-  rb: 'ruby',
-  go: 'go',
-  rs: 'rust',
-  c: 'c',
-  cpp: 'cpp',
-  txt: 'text',
+  py: "python",
+  js: "javascript",
+  jsx: "jsx",
+  ts: "typescript",
+  tsx: "tsx",
+  md: "markdown",
+  html: "html",
+  css: "css",
+  json: "json",
+  sh: "bash",
+  bash: "bash",
+  yml: "yaml",
+  yaml: "yaml",
+  sql: "sql",
+  java: "java",
+  rb: "ruby",
+  go: "go",
+  rs: "rust",
+  c: "c",
+  cpp: "cpp",
+  txt: "text",
 };
 
 const MIME_TO_LANG = {
-  'application/vnd.ant.react': 'jsx',
-  'text/html': 'html',
-  'image/svg+xml': 'svg',
-  'application/vnd.ant.mermaid': 'mermaid',
-  'text/markdown': 'markdown',
-  'application/vnd.ant.code': 'text',
+  "application/vnd.ant.react": "jsx",
+  "text/html": "html",
+  "image/svg+xml": "svg",
+  "application/vnd.ant.mermaid": "mermaid",
+  "text/markdown": "markdown",
+  "application/vnd.ant.code": "text",
 };
 
 // Binary archives cannot be inlined as text in any export format; they are
 // listed by name so they at least appear in markdown/html/json exports.
 const BINARY_ARCHIVE_MIMES = new Set([
-  'application/x-tar',
-  'application/gzip',
-  'application/zip',
-  'application/x-7z-compressed',
-  'application/x-rar-compressed',
+  "application/x-tar",
+  "application/gzip",
+  "application/zip",
+  "application/x-7z-compressed",
+  "application/x-rar-compressed",
 ]);
 
 function formatFileSize(bytes) {
-  if (typeof bytes !== 'number' || !Number.isFinite(bytes) || bytes < 0) {
-    return '';
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes < 0) {
+    return "";
   }
   if (bytes < 1024) return `${bytes} B`;
   return `${(bytes / 1024).toFixed(1)} KB`;
 }
 
 function basenameOfPath(filePath) {
-  if (typeof filePath !== 'string' || !filePath) return 'file';
-  const base = filePath.split('/').pop();
-  return base || 'file';
+  if (typeof filePath !== "string" || !filePath) return "file";
+  const base = filePath.split("/").pop();
+  return base || "file";
 }
 
 function isBinaryArchive(mimeType, filePath) {
   if (mimeType && BINARY_ARCHIVE_MIMES.has(mimeType)) return true;
-  return /\.(tar\.gz|tgz|tar|zip|gz|7z|rar)$/i.test(filePath || '');
+  return /\.(tar\.gz|tgz|tar|zip|gz|7z|rar)$/i.test(filePath || "");
 }
 
 // Collect files surfaced via the `present_files` tool (File Creation
@@ -142,14 +144,17 @@ function collectPresentedFiles(branch) {
   for (const msg of branch) {
     if (!Array.isArray(msg?.content)) continue;
     for (const block of msg.content) {
-      if (block?.type === 'tool_use' && block?.name === 'present_files') {
+      if (block?.type === "tool_use" && block?.name === "present_files") {
         const filepaths = block?.input?.filepaths;
         if (Array.isArray(filepaths) && filepaths.length > 0 && block.id) {
           pathsByToolUseId.set(block.id, filepaths);
         }
-      } else if (block?.type === 'tool_result' && Array.isArray(block.content)) {
+      } else if (
+        block?.type === "tool_result" &&
+        Array.isArray(block.content)
+      ) {
         const resources = block.content.filter(
-          (item) => item && item.type === 'local_resource' && item.file_path,
+          (item) => item && item.type === "local_resource" && item.file_path,
         );
         if (resources.length > 0) {
           const toolUseId = block.tool_use_id || block.id;
@@ -162,13 +167,13 @@ function collectPresentedFiles(branch) {
   const filesByToolUseId = new Map();
   const seenPaths = new Set();
   const toEntry = (resource, fallbackPath) => {
-    const filePath = resource?.file_path || fallbackPath || '';
+    const filePath = resource?.file_path || fallbackPath || "";
     const name = resource?.name || basenameOfPath(filePath);
     return {
       key: resource?.uuid || filePath || `${name}`,
       name,
       path: filePath,
-      mime: resource?.mime_type || '',
+      mime: resource?.mime_type || "",
     };
   };
 
@@ -188,7 +193,7 @@ function collectPresentedFiles(branch) {
     const existing = filesByToolUseId.get(toolUseId) || [];
     const entries = [...existing];
     for (const filePath of filepaths) {
-      if (typeof filePath !== 'string' || !filePath) continue;
+      if (typeof filePath !== "string" || !filePath) continue;
       if (seenPaths.has(filePath)) continue;
       seenPaths.add(filePath);
       entries.push(toEntry(null, filePath));
@@ -200,20 +205,21 @@ function collectPresentedFiles(branch) {
 }
 
 function formatGeneratedFilesSection(files) {
-  if (!Array.isArray(files) || files.length === 0) return '';
+  if (!Array.isArray(files) || files.length === 0) return "";
   const lines = files.map((file) => {
     const displayName = file.name || basenameOfPath(file.path);
     const meta = [];
     if (file.mime) meta.push(file.mime);
     if (isBinaryArchive(file.mime, file.path || displayName)) {
-      meta.push('binary archive — download from Claude UI');
+      meta.push("binary archive — download from Claude UI");
     }
-    const suffix = meta.length > 0 ? ` _(${meta.join(', ')})_` : '';
-    const pathSuffix = file.path && file.path !== displayName ? ` — \`${file.path}\`` : '';
+    const suffix = meta.length > 0 ? ` _(${meta.join(", ")})_` : "";
+    const pathSuffix =
+      file.path && file.path !== displayName ? ` — \`${file.path}\`` : "";
     return `- \`${displayName}\`${suffix}${pathSuffix}`;
   });
-  const label = files.length === 1 ? 'Generated file:' : 'Generated files:';
-  return `\n\n**${label}**\n${lines.join('\n')}\n\n`;
+  const label = files.length === 1 ? "Generated file:" : "Generated files:";
+  return `\n\n**${label}**\n${lines.join("\n")}\n\n`;
 }
 
 function extractArtifactsFromText(text) {
@@ -228,8 +234,8 @@ function extractArtifactsFromText(text) {
     const languageMatch = fullTag.match(/language="([^"]*)"/);
 
     artifacts.push({
-      title: titleMatch ? titleMatch[1] : 'Artifact',
-      language: languageMatch ? languageMatch[1] : 'text',
+      title: titleMatch ? titleMatch[1] : "Artifact",
+      language: languageMatch ? languageMatch[1] : "text",
       content: content.trim(),
     });
   }
@@ -241,17 +247,20 @@ function collectArtifacts(messages) {
   for (const m of messages) {
     if (!Array.isArray(m?.content)) continue;
     for (const block of m.content) {
-      if (block.type !== 'tool_use' || block.name !== 'artifacts') continue;
+      if (block.type !== "tool_use" || block.name !== "artifacts") continue;
       const input = block.input || {};
-      const id = input.id || '__artifact__';
+      const id = input.id || "__artifact__";
       let a = artifacts.get(id);
       if (!a) {
-        a = { content: '' };
+        a = { content: "" };
         artifacts.set(id, a);
       }
 
-      if (input.command === 'update') {
-        if (typeof input.old_str === 'string' && typeof input.new_str === 'string') {
+      if (input.command === "update") {
+        if (
+          typeof input.old_str === "string" &&
+          typeof input.new_str === "string"
+        ) {
           if (a.content.includes(input.old_str)) {
             a.content = a.content.replace(input.old_str, () => input.new_str);
           } else {
@@ -260,7 +269,7 @@ function collectArtifacts(messages) {
             );
           }
         }
-      } else if (typeof input.content === 'string') {
+      } else if (typeof input.content === "string") {
         a.content = input.content;
       }
 
@@ -278,10 +287,10 @@ function extractArtifacts(message, foldedArtifacts = new Map()) {
   const artifacts = [];
   if (message.content && Array.isArray(message.content)) {
     for (const content of message.content) {
-      if (content.type === 'tool_use') {
+      if (content.type === "tool_use") {
         const input = content.input || {};
-        if (content.name === 'artifacts') {
-          const id = input.id || '__artifact__';
+        if (content.name === "artifacts") {
+          const id = input.id || "__artifact__";
           const folded = foldedArtifacts.get(id);
 
           // Only emit at the final edit block for this artifact
@@ -297,13 +306,14 @@ function extractArtifacts(message, foldedArtifacts = new Map()) {
             continue;
           }
 
-          const title = input.title || (folded && folded.title) || 'Artifact';
+          const title = input.title || (folded && folded.title) || "Artifact";
           const lang =
             input.language ||
             (folded && folded.language) ||
             MIME_TO_LANG[input.type || (folded && folded.type)] ||
-            'text';
-          const code = (folded && folded.content) || input.content || input.new_str || '';
+            "text";
+          const code =
+            (folded && folded.content) || input.content || input.new_str || "";
           if (code) {
             artifacts.push({
               title,
@@ -311,45 +321,53 @@ function extractArtifacts(message, foldedArtifacts = new Map()) {
               content: code.trim(),
             });
           }
-        } else if (content.name === 'create_file') {
-          let code = '';
-          let filename = 'file';
-          let lang = '';
+        } else if (content.name === "create_file") {
+          let code = "";
+          let filename = "file";
+          let lang = "";
 
-          if (typeof input.file_text === 'string' && input.file_text) {
+          if (typeof input.file_text === "string" && input.file_text) {
             code = input.file_text.trim();
-            filename = String(input.path || 'file')
-              .split('/')
+            filename = String(input.path || "file")
+              .split("/")
               .pop();
-            const ext = filename.includes('.') ? filename.split('.').pop().toLowerCase() : '';
-            lang = EXT_TO_LANG[ext] || ext || 'text';
+            const ext = filename.includes(".")
+              ? filename.split(".").pop().toLowerCase()
+              : "";
+            lang = EXT_TO_LANG[ext] || ext || "text";
           } else if (content.display_content) {
             const displayContent = content.display_content;
-            if (displayContent.type === 'code_block' && displayContent.code) {
-              filename = displayContent.filename || 'artifact';
+            if (displayContent.type === "code_block" && displayContent.code) {
+              filename = displayContent.filename || "artifact";
               code = displayContent.code.trim();
-              lang = displayContent.language || 'text';
-            } else if (displayContent.type === 'json_block' && displayContent.json_block) {
+              lang = displayContent.language || "text";
+            } else if (
+              displayContent.type === "json_block" &&
+              displayContent.json_block
+            ) {
               try {
                 const data = JSON.parse(displayContent.json_block);
                 if (data.filename) {
                   filename = data.filename;
-                  code = (data.code || '').trim();
-                  lang = data.language || 'text';
+                  code = (data.code || "").trim();
+                  lang = data.language || "text";
                 }
               } catch (e) {
-                console.warn('[AI Exporter] Failed to parse tool use artifact json:', e);
+                console.warn(
+                  "[AI Exporter] Failed to parse tool use artifact json:",
+                  e,
+                );
               }
             }
           }
 
           if (code) {
             const title = filename
-              .split('/')
+              .split("/")
               .pop()
-              .replace(/\.[^.]+$/, '');
+              .replace(/\.[^.]+$/, "");
             artifacts.push({
-              title: title || 'Artifact',
+              title: title || "Artifact",
               language: lang,
               content: code,
             });
@@ -372,13 +390,13 @@ function extractArtifacts(message, foldedArtifacts = new Map()) {
 // They carry no text content for convertToMarkdown, so extract their display
 // names (aria-label="View <name>") and drop the nodes to avoid button noise.
 function extractFileCards(root) {
-  if (!root || typeof root.querySelectorAll !== 'function') return [];
+  if (!root || typeof root.querySelectorAll !== "function") return [];
   const names = [];
   const cards = root.querySelectorAll('[data-testid="file-card-open"]');
   for (const card of cards) {
-    const label = card.getAttribute && card.getAttribute('aria-label');
-    const match = typeof label === 'string' && label.match(/^View\s+(.+)$/i);
-    const name = match ? match[1].trim() : '';
+    const label = card.getAttribute && card.getAttribute("aria-label");
+    const match = typeof label === "string" && label.match(/^View\s+(.+)$/i);
+    const name = match ? match[1].trim() : "";
     // No name-based dedup: two cards may legitimately share a display name
     // (same basename in different directories). Each card element is visited
     // exactly once, so nothing is double-counted here.
@@ -389,11 +407,15 @@ function extractFileCards(root) {
     // don't leak into the markdown conversion — but only when the parent
     // is a dedicated card wrapper. If the button shares its parent with
     // other prose, remove just the button to avoid deleting message text.
-    const parent = card.parentElement && card.parentElement !== root ? card.parentElement : null;
+    const parent =
+      card.parentElement && card.parentElement !== root
+        ? card.parentElement
+        : null;
     const isDedicatedCard =
-      !!parent && parent.querySelectorAll('[data-testid="file-card-open"]').length === 1;
+      !!parent &&
+      parent.querySelectorAll('[data-testid="file-card-open"]').length === 1;
     const target = isDedicatedCard ? parent : card;
-    if (target && typeof target.remove === 'function') {
+    if (target && typeof target.remove === "function") {
       target.remove();
     } else if (card.parentNode) {
       card.parentNode.removeChild(card);
@@ -406,16 +428,18 @@ function unrollInteractiveElements(root, doc) {
   if (!root || !doc) return;
 
   // Group slide titles by their common card container
-  const titleEls = Array.from(root.querySelectorAll('.text-title'));
+  const titleEls = Array.from(root.querySelectorAll(".text-title"));
   if (titleEls.length > 0) {
     const containerMap = new Map();
     for (const titleEl of titleEls) {
       let container = titleEl.parentElement;
       while (container && container !== root) {
         if (
-          container.classList.contains('@container') ||
-          container.classList.contains('bg-surface-2') ||
-          container.querySelector('[aria-label*="Go to step"], [aria-current="step"]')
+          container.classList.contains("@container") ||
+          container.classList.contains("bg-surface-2") ||
+          container.querySelector(
+            '[aria-label*="Go to step"], [aria-current="step"]',
+          )
         ) {
           break;
         }
@@ -434,20 +458,21 @@ function unrollInteractiveElements(root, doc) {
       titles.forEach((titleEl, idx) => {
         const title = titleEl.textContent.trim();
         const bodyEl =
-          titleEl.nextElementSibling || titleEl.parentElement.querySelector('.text-body');
-        const body = bodyEl ? bodyEl.textContent.trim() : '';
+          titleEl.nextElementSibling ||
+          titleEl.parentElement.querySelector(".text-body");
+        const body = bodyEl ? bodyEl.textContent.trim() : "";
         if (title) slides.push({ index: idx + 1, title, body });
       });
 
       if (slides.length > 0) {
-        const replacement = doc.createElement('div');
-        replacement.className = 'unrolled-interactive-steps';
+        const replacement = doc.createElement("div");
+        replacement.className = "unrolled-interactive-steps";
         slides.forEach((slide) => {
-          const h3 = doc.createElement('h3');
+          const h3 = doc.createElement("h3");
           h3.textContent = `${slide.index}. ${slide.title}`;
           replacement.appendChild(h3);
           if (slide.body) {
-            const p = doc.createElement('p');
+            const p = doc.createElement("p");
             p.textContent = slide.body;
             replacement.appendChild(p);
           }
@@ -458,28 +483,28 @@ function unrollInteractiveElements(root, doc) {
   }
 
   // Remove any remaining buttons
-  root.querySelectorAll('button').forEach((btn) => btn.remove());
+  root.querySelectorAll("button").forEach((btn) => btn.remove());
 }
 
 export class ClaudeParser extends ChatParser {
-  name = 'Claude';
+  name = "Claude";
   constructor() {
     super();
     this.lastFetch = null;
   }
 
   isAvailable(url) {
-    return url.includes('claude.ai');
+    return url.includes("claude.ai");
   }
 
   async parse(options = {}) {
-    const title = document.title || 'Claude Chat';
+    const title = document.title || "Claude Chat";
     const messages = [];
 
     const conversationId = getConversationId();
-    const parserMode = options.parserMode || 'auto';
+    const parserMode = options.parserMode || "auto";
 
-    if (conversationId && parserMode !== 'prefer_dom') {
+    if (conversationId && parserMode !== "prefer_dom") {
       const orgId = await getOrganizationId();
       if (orgId) {
         try {
@@ -510,12 +535,12 @@ export class ClaudeParser extends ChatParser {
           for (const msg of branch) {
             if (Array.isArray(msg?.content)) {
               for (const block of msg.content) {
-                if (block.type === 'tool_result') {
+                if (block.type === "tool_result") {
                   const toolUseId = block.tool_use_id || block.id;
                   let answers = block.toolUseResult?.answers || {};
                   if (
                     (!answers || Object.keys(answers).length === 0) &&
-                    typeof block.content === 'string'
+                    typeof block.content === "string"
                   ) {
                     try {
                       const parsed = JSON.parse(block.content);
@@ -533,89 +558,108 @@ export class ClaudeParser extends ChatParser {
           const convTitle = data.name || title;
 
           for (const message of branch) {
-            const role = message.sender === 'human' ? 'User' : 'Claude';
+            const role = message.sender === "human" ? "User" : "Claude";
 
-            let contentStr = '';
-            let thinkingStr = '';
+            let contentStr = "";
+            let thinkingStr = "";
 
             // Construct content
             if (message.content && Array.isArray(message.content)) {
               for (const block of message.content) {
-                if (block.type === 'thinking') {
-                  let thoughtText = '';
-                  if (typeof block.thinking === 'string' && block.thinking.trim()) {
+                if (block.type === "thinking") {
+                  let thoughtText = "";
+                  if (
+                    typeof block.thinking === "string" &&
+                    block.thinking.trim()
+                  ) {
                     thoughtText = block.thinking.trim();
                   } else if (Array.isArray(block.summaries)) {
                     thoughtText = block.summaries
-                      .map((s) => (typeof s === 'string' ? s : s?.summary || ''))
+                      .map((s) =>
+                        typeof s === "string" ? s : s?.summary || "",
+                      )
                       .map((s) => s.trim())
                       .filter(Boolean)
-                      .join('\n');
+                      .join("\n");
                   }
                   if (thoughtText) {
-                    thinkingStr += (thinkingStr ? '\n\n' : '') + thoughtText;
+                    thinkingStr += (thinkingStr ? "\n\n" : "") + thoughtText;
                   }
-                } else if (block.type === 'text' && block.text) {
+                } else if (block.type === "text" && block.text) {
                   const cleanText = block.text
-                    .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, '')
+                    .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, "")
                     .trim();
                   if (cleanText) {
                     contentStr += `${cleanText}\n\n`;
                   }
-                } else if (block.type === 'tool_use') {
+                } else if (block.type === "tool_use") {
                   const input = block.input || {};
-                  if (block.name === 'visualize:show_widget' && input.widget_code) {
-                    const widgetTitle = input.title || 'Interactive Widget';
+                  if (
+                    block.name === "visualize:show_widget" &&
+                    input.widget_code
+                  ) {
+                    const widgetTitle = input.title || "Interactive Widget";
                     contentStr += `> **Interactive Widget: ${widgetTitle}**\n\n\`\`\`jsx\n${input.widget_code.trim()}\n\`\`\`\n\n`;
-                  } else if (block.name === 'repl' && input.code) {
+                  } else if (block.name === "repl" && input.code) {
                     contentStr += `**Analyzed data**\n\n\`\`\`javascript\n${input.code.trim()}\n\`\`\`\n\n`;
                   } else if (
-                    block.name === 'AskUserQuestion' &&
+                    block.name === "AskUserQuestion" &&
                     Array.isArray(input.questions) &&
                     input.questions.length > 0
                   ) {
                     const qCount = input.questions.length;
                     const countLabel =
-                      qCount === 1 ? 'Asked 1 question' : `Asked ${qCount} questions`;
+                      qCount === 1
+                        ? "Asked 1 question"
+                        : `Asked ${qCount} questions`;
                     let qStr = `> **${countLabel}:**\n`;
                     const answers = toolResultMap.get(block.id) || {};
                     for (const q of input.questions) {
-                      const qText = q.question || q.text || '';
+                      const qText = q.question || q.text || "";
                       const ans = answers[qText];
-                      let ansStr = '';
-                      if (typeof ans === 'string') {
+                      let ansStr = "";
+                      if (typeof ans === "string") {
                         ansStr = ans;
                       } else if (Array.isArray(ans)) {
-                        ansStr = ans.join(', ');
-                      } else if (ans && typeof ans === 'object') {
+                        ansStr = ans.join(", ");
+                      } else if (ans && typeof ans === "object") {
                         ansStr = JSON.stringify(ans);
                       } else if (ans != null) {
                         ansStr = String(ans);
                       }
-                      qStr += ansStr ? `> - **${qText}** — ${ansStr}\n` : `> - ${qText}\n`;
+                      qStr += ansStr
+                        ? `> - **${qText}** — ${ansStr}\n`
+                        : `> - ${qText}\n`;
                     }
                     contentStr += `${qStr}\n`;
                   } else if (
-                    block.name === 'present_files' &&
+                    block.name === "present_files" &&
                     presentedFilesByToolUseId.has(block.id)
                   ) {
                     // Files surfaced via the File Creation integration
                     // (markdown docs, tarball, …). Without this they are
                     // silently dropped from every export format.
                     const files = presentedFilesByToolUseId.get(block.id);
-                    const fresh = files.filter((file) => !emittedFileKeys.has(file.key));
+                    const fresh = files.filter(
+                      (file) => !emittedFileKeys.has(file.key),
+                    );
                     fresh.forEach((file) => emittedFileKeys.add(file.key));
                     if (fresh.length > 0) {
                       contentStr += formatGeneratedFilesSection(fresh);
                     }
                   }
-                } else if (block.type === 'tool_result' && Array.isArray(block.content)) {
+                } else if (
+                  block.type === "tool_result" &&
+                  Array.isArray(block.content)
+                ) {
                   // Orphan file presentation: the matching tool_use block may
                   // sit outside the current branch, so emit unseen
                   // local_resource entries directly from the result.
                   const toolUseId = block.tool_use_id || block.id;
                   const files = presentedFilesByToolUseId.get(toolUseId) || [];
-                  const fresh = files.filter((file) => !emittedFileKeys.has(file.key));
+                  const fresh = files.filter(
+                    (file) => !emittedFileKeys.has(file.key),
+                  );
                   fresh.forEach((file) => emittedFileKeys.add(file.key));
                   if (fresh.length > 0) {
                     contentStr += formatGeneratedFilesSection(fresh);
@@ -624,7 +668,7 @@ export class ClaudeParser extends ChatParser {
               }
             } else if (message.text) {
               const cleanText = message.text
-                .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, '')
+                .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, "")
                 .trim();
               if (cleanText) {
                 contentStr += `${cleanText}\n\n`;
@@ -645,7 +689,7 @@ export class ClaudeParser extends ChatParser {
                     meta.push(attachment.file_type);
                   }
                   if (meta.length > 0) {
-                    header += ` _(${meta.join(', ')})_`;
+                    header += ` _(${meta.join(", ")})_`;
                   }
                   contentStr += `\n\n${header}\n`;
                   if (attachment.extracted_content) {
@@ -653,7 +697,7 @@ export class ClaudeParser extends ChatParser {
                   }
                 } else if (attachment.extracted_content) {
                   const sizeLabel = formatFileSize(attachment.file_size);
-                  const sizeSuffix = sizeLabel ? ` _(${sizeLabel})_` : '';
+                  const sizeSuffix = sizeLabel ? ` _(${sizeLabel})_` : "";
                   contentStr += `\n\n### Pasted content${sizeSuffix}\n\`\`\`\`\n${attachment.extracted_content}\n\`\`\`\`\n\n`;
                 }
               }
@@ -662,14 +706,22 @@ export class ClaudeParser extends ChatParser {
             // Append files (images/documents)
             if (message.files && Array.isArray(message.files)) {
               for (const file of message.files) {
-                const name = file.file_name || 'file';
-                if (file.file_kind === 'image' && (file.preview_url || file.preview_asset?.url)) {
+                const name = file.file_name || "file";
+                if (
+                  file.file_kind === "image" &&
+                  (file.preview_url || file.preview_asset?.url)
+                ) {
                   const url = file.preview_url || file.preview_asset.url;
                   contentStr += `\n\n**Attachment: ${name}**\n\n![${name}](${url})\n\n`;
-                } else if (file.file_kind === 'document' && file.document_asset?.url) {
+                } else if (
+                  file.file_kind === "document" &&
+                  file.document_asset?.url
+                ) {
                   const url = file.document_asset.url;
                   const pages = file.document_asset.page_count;
-                  const pageInfo = pages ? ` · ${pages} page${pages === 1 ? '' : 's'}` : '';
+                  const pageInfo = pages
+                    ? ` · ${pages} page${pages === 1 ? "" : "s"}`
+                    : "";
                   contentStr += `\n\n**Attachment: [${name}](${url})** _(document${pageInfo})_\n\n`;
                 }
               }
@@ -685,7 +737,10 @@ export class ClaudeParser extends ChatParser {
               if (thinkingStr) {
                 msgObj.thinking = thinkingStr;
               }
-              const timestamp = pickTimestamp(message, ['created_at', 'updated_at']);
+              const timestamp = pickTimestamp(message, [
+                "created_at",
+                "updated_at",
+              ]);
               if (timestamp) {
                 msgObj.timestamp = timestamp;
               }
@@ -695,27 +750,30 @@ export class ClaudeParser extends ChatParser {
             // Extract and push artifacts
             const artifacts = extractArtifacts(message, foldedArtifacts);
             for (const artifact of artifacts) {
-              let artContent = '';
-              const artTitle = artifact.title || 'Artifact';
-              const artText = artifact.content || '';
-              const artLang = artifact.language || 'text';
+              let artContent = "";
+              const artTitle = artifact.title || "Artifact";
+              const artText = artifact.content || "";
+              const artLang = artifact.language || "text";
 
-              if (artLang === 'markdown' || artLang === 'text') {
+              if (artLang === "markdown" || artLang === "text") {
                 const quotedContent = artText
-                  .split('\n')
+                  .split("\n")
                   .map((line) => `> ${line}`)
-                  .join('\n');
+                  .join("\n");
                 artContent = `\n\n> **Artifact: ${artTitle}**\n\n${quotedContent}\n\n`;
               } else {
                 artContent = `\n\n> **Artifact: ${artTitle}**\n\`\`\`${artLang}\n${artText}\n\`\`\`\n\n`;
               }
 
               messages.push({
-                role: 'Claude Artifact',
+                role: "Claude Artifact",
                 content: artContent.trim(),
-                ...(pickTimestamp(message, ['created_at', 'updated_at'])
+                ...(pickTimestamp(message, ["created_at", "updated_at"])
                   ? {
-                      timestamp: pickTimestamp(message, ['created_at', 'updated_at']),
+                      timestamp: pickTimestamp(message, [
+                        "created_at",
+                        "updated_at",
+                      ]),
                     }
                   : {}),
               });
@@ -723,27 +781,32 @@ export class ClaudeParser extends ChatParser {
           }
 
           const currentUrl =
-            typeof window !== 'undefined' && window.location ? window.location.href || '' : '';
+            typeof window !== "undefined" && window.location
+              ? window.location.href || ""
+              : "";
           const metadata = {
-            Source: 'Claude',
+            Source: "Claude",
             Date: new Date().toLocaleString(),
             Link: currentUrl,
-            Model: data.model || 'Claude',
-            Method: 'API',
+            Model: data.model || "Claude",
+            Method: "API",
           };
 
           return { title: convTitle, messages, url: currentUrl, metadata };
         } catch (e) {
-          console.error('[AI Exporter] Claude API parse failed, falling back to DOM:', e);
+          console.error(
+            "[AI Exporter] Claude API parse failed, falling back to DOM:",
+            e,
+          );
         }
       }
     }
 
     // Inject the React reader script if not already injected (DOM Fallback)
-    if (!document.getElementById('ai-export-claude-reader')) {
-      const script = document.createElement('script');
-      script.src = chrome.runtime.getURL('content/claude_react_reader.js');
-      script.id = 'ai-export-claude-reader';
+    if (!document.getElementById("ai-export-claude-reader")) {
+      const script = document.createElement("script");
+      script.src = chrome.runtime.getURL("content/claude_react_reader.js");
+      script.id = "ai-export-claude-reader";
       script.onload = function () {
         this.remove(); // Clean up script tag
       };
@@ -756,17 +819,20 @@ export class ClaudeParser extends ChatParser {
     const getArtifactInfo = (index) => {
       return new Promise((resolve) => {
         const handler = (event) => {
-          if (event.data.type === 'RspAtftInfo' && event.data.idx === index) {
-            window.removeEventListener('message', handler);
+          if (event.data.type === "RspAtftInfo" && event.data.idx === index) {
+            window.removeEventListener("message", handler);
             resolve(event.data.atftInfo);
           }
         };
-        window.addEventListener('message', handler);
-        window.postMessage({ type: 'ReqAtftInfo', idx: index }, window.location.origin);
+        window.addEventListener("message", handler);
+        window.postMessage(
+          { type: "ReqAtftInfo", idx: index },
+          window.location.origin,
+        );
 
         // Timeout fallback
         setTimeout(() => {
-          window.removeEventListener('message', handler);
+          window.removeEventListener("message", handler);
           resolve(null);
         }, 1000); // 1s timeout
       });
@@ -774,15 +840,19 @@ export class ClaudeParser extends ChatParser {
 
     const strictSelectors = [
       '[data-testid="user-message"]',
-      '.font-claude-message',
-      '.font-claude-response',
-      '.artifact-block-cell',
-    ].join(', ');
+      ".font-claude-message",
+      ".font-claude-response",
+      ".artifact-block-cell",
+    ].join(", ");
 
-    const fallbackSelectors = ['div.font-serif'].join(', ');
+    const fallbackSelectors = ["div.font-serif"].join(", ");
 
-    const strictCandidates = Array.from(document.querySelectorAll(strictSelectors));
-    const fallbackCandidates = Array.from(document.querySelectorAll(fallbackSelectors));
+    const strictCandidates = Array.from(
+      document.querySelectorAll(strictSelectors),
+    );
+    const fallbackCandidates = Array.from(
+      document.querySelectorAll(fallbackSelectors),
+    );
 
     const validFallbacks = fallbackCandidates.filter((fallback) => {
       const overlapsWithError = strictCandidates.some(
@@ -796,25 +866,25 @@ export class ClaudeParser extends ChatParser {
       document.querySelectorAll(`${strictSelectors}, ${fallbackSelectors}`),
     ).filter((el) => combinedSet.has(el));
 
-    const artifactElements = document.querySelectorAll('.artifact-block-cell');
+    const artifactElements = document.querySelectorAll(".artifact-block-cell");
     const artifactMap = new Map();
     artifactElements.forEach((el, index) => artifactMap.set(el, index));
 
     for (const el of allElements) {
-      let role = 'Unknown';
-      let content = '';
+      let role = "Unknown";
+      let content = "";
 
       if (el.matches('[data-testid="user-message"]')) {
-        role = 'User';
+        role = "User";
         const clone = el.cloneNode(true);
         unrollInteractiveElements(clone, el.ownerDocument || document);
         content = convertToMarkdown(clone);
       } else if (
-        el.matches('.font-claude-message') ||
-        el.matches('.font-claude-response') ||
-        el.matches('div.font-serif')
+        el.matches(".font-claude-message") ||
+        el.matches(".font-claude-response") ||
+        el.matches("div.font-serif")
       ) {
-        role = 'Claude';
+        role = "Claude";
         const clone = el.cloneNode(true);
         // Extract file cards first: unrollInteractiveElements strips all
         // buttons, which would destroy the card markers.
@@ -823,32 +893,35 @@ export class ClaudeParser extends ChatParser {
         content = convertToMarkdown(clone);
         if (fileCardNames.length > 0) {
           content += formatGeneratedFilesSection(
-            fileCardNames.map((name) => ({ name, path: '', mime: '' })),
+            fileCardNames.map((name) => ({ name, path: "", mime: "" })),
           );
         }
-      } else if (el.matches('.artifact-block-cell')) {
-        role = 'Claude Artifact';
+      } else if (el.matches(".artifact-block-cell")) {
+        role = "Claude Artifact";
 
         const index = artifactMap.get(el);
         if (index !== undefined) {
           const info = await getArtifactInfo(index);
           if (info) {
-            const artTitle = info.title || 'Artifact';
-            const artContent = info.content || '';
-            const artLang = info.language || 'text';
-            if (artLang === 'markdown' || artLang === 'text') {
+            const artTitle = info.title || "Artifact";
+            const artContent = info.content || "";
+            const artLang = info.language || "text";
+            if (artLang === "markdown" || artLang === "text") {
               const quotedContent = artContent
-                .split('\n')
+                .split("\n")
                 .map((line) => `> ${line}`)
-                .join('\n');
+                .join("\n");
               content = `\n\n> **Artifact: ${artTitle}**\n\n${quotedContent}\n\n`;
             } else {
               content = `\n\n> **Artifact: ${artTitle}**\n\`\`\`${artLang}\n${artContent}\n\`\`\`\n\n`;
             }
           } else {
             const header =
-              el.querySelector('.flex.items-center.gap-2') || el.querySelector('.font-bold');
-            const fallbackTitle = header ? header.innerText.split('\n')[0] : 'Unknown Artifact';
+              el.querySelector(".flex.items-center.gap-2") ||
+              el.querySelector(".font-bold");
+            const fallbackTitle = header
+              ? header.innerText.split("\n")[0]
+              : "Unknown Artifact";
             content = `\n> [Artifact: ${fallbackTitle} - content extraction failed]\n`;
           }
         }
@@ -863,17 +936,21 @@ export class ClaudeParser extends ChatParser {
         // practice (hover-only on some turns) — absent stays absent.
         try {
           let timeEl =
-            typeof el.querySelector === 'function' ? el.querySelector('time[datetime]') : null;
-          if (!timeEl && typeof el.closest === 'function') {
+            typeof el.querySelector === "function"
+              ? el.querySelector("time[datetime]")
+              : null;
+          if (!timeEl && typeof el.closest === "function") {
             // Narrow containers only: transcript-row holds one turn, so its
             // time belongs to this message. Never fall back to broad
             // containers like article (many turns) — wrong date is worse
             // than no date.
-            const row = el.closest('[data-testid="transcript-row"], .group\\/message-row');
-            timeEl = row?.querySelector?.('time[datetime]') || null;
+            const row = el.closest(
+              '[data-testid="transcript-row"], .group\\/message-row',
+            );
+            timeEl = row?.querySelector?.("time[datetime]") || null;
           }
-          const datetime = timeEl?.getAttribute?.('datetime');
-          const timestamp = pickTimestamp({ datetime }, ['datetime']);
+          const datetime = timeEl?.getAttribute?.("datetime");
+          const timestamp = pickTimestamp({ datetime }, ["datetime"]);
           if (timestamp) {
             msgObj.timestamp = timestamp;
           }
@@ -885,13 +962,15 @@ export class ClaudeParser extends ChatParser {
     }
 
     const currentUrl =
-      typeof window !== 'undefined' && window.location ? window.location.href || '' : '';
+      typeof window !== "undefined" && window.location
+        ? window.location.href || ""
+        : "";
     const metadata = {
-      Source: 'Claude',
+      Source: "Claude",
       Date: new Date().toLocaleString(),
       Link: currentUrl,
-      Model: 'Claude',
-      Method: 'DOM',
+      Model: "Claude",
+      Method: "DOM",
     };
 
     return { title, messages, url: currentUrl, metadata };

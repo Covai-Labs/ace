@@ -1,12 +1,12 @@
 (() => {
   // Listen for messages from the content script
-  window.addEventListener('message', (event) => {
+  window.addEventListener("message", (event) => {
     // Security check: ensure message is from same origin
     if (event.origin !== window.location.origin) return;
 
-    if (event.data.type === 'ReqAtftInfo') {
+    if (event.data.type === "ReqAtftInfo") {
       const index = event.data.idx;
-      const artifacts = document.querySelectorAll('div.artifact-block-cell');
+      const artifacts = document.querySelectorAll("div.artifact-block-cell");
       const artifactElement = artifacts[index];
 
       let artifactInfo = null;
@@ -14,7 +14,9 @@
       if (artifactElement) {
         try {
           // Try to find the React Fiber key
-          const key = Object.keys(artifactElement).find((k) => k.startsWith('__reactFiber'));
+          const key = Object.keys(artifactElement).find((k) =>
+            k.startsWith("__reactFiber"),
+          );
           if (key) {
             const fiber = artifactElement[key];
             // Navigate React props structure to find the artifact data
@@ -42,13 +44,13 @@
             }
           }
         } catch (e) {
-          console.error('[AI Export] Error reading React internals:', e);
+          console.error("[AI Export] Error reading React internals:", e);
         }
       }
 
       window.postMessage(
         {
-          type: 'RspAtftInfo',
+          type: "RspAtftInfo",
           idx: index,
           atftInfo: artifactInfo,
         },

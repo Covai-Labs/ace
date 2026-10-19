@@ -1,41 +1,47 @@
-import { ChatParser } from './base.js';
-import { convertToMarkdown } from '../utils/html-to-markdown.js';
-import { normalizeLatexMath } from '../utils/latex-math.js';
+import { ChatParser } from "./base.js";
+import { convertToMarkdown } from "../utils/html-to-markdown.js";
+import { normalizeLatexMath } from "../utils/latex-math.js";
 
-const GEMINI_RPC_ID = 'hNvQHb';
-const DEFAULT_BARD_PATH = '/_/BardChatUi';
+const GEMINI_RPC_ID = "hNvQHb";
+const DEFAULT_BARD_PATH = "/_/BardChatUi";
 
-function isValidMessageText(str, convoId = '') {
-  if (typeof str !== 'string') return false;
+function isValidMessageText(str, convoId = "") {
+  if (typeof str !== "string") return false;
   const trimmed = str.trim();
   if (!trimmed) return false;
   if (/^(?:c_|rc_|r_)[a-zA-Z0-9_-]+$/.test(trimmed)) return false;
-  if (convoId && (trimmed === convoId || trimmed === `c_${convoId}`)) return false;
+  if (convoId && (trimmed === convoId || trimmed === `c_${convoId}`))
+    return false;
   return true;
 }
 
 export class GeminiParser extends ChatParser {
-  name = 'Gemini';
+  name = "Gemini";
 
   isAvailable(url) {
     return (
-      typeof url === 'string' &&
-      (url.includes('gemini.google.com') || url.includes('bard.google.com'))
+      typeof url === "string" &&
+      (url.includes("gemini.google.com") || url.includes("bard.google.com"))
     );
   }
 
   getPlatformName() {
-    return 'Gemini';
+    return "Gemini";
   }
 
   getConversationId(url) {
     try {
       const targetUrl =
-        url || (typeof window !== 'undefined' && window.location ? window.location.href : '');
+        url ||
+        (typeof window !== "undefined" && window.location
+          ? window.location.href
+          : "");
       if (!targetUrl) return null;
       const parsed = new URL(
         targetUrl,
-        typeof location !== 'undefined' ? location.origin : 'https://gemini.google.com',
+        typeof location !== "undefined"
+          ? location.origin
+          : "https://gemini.google.com",
       );
       const match = parsed.pathname.match(/\/(?:app|share)\/([a-zA-Z0-9_-]+)/);
       return match ? match[1] : null;
@@ -48,20 +54,22 @@ export class GeminiParser extends ChatParser {
     try {
       // 1. Try direct window access if present
       if (
-        typeof window !== 'undefined' &&
+        typeof window !== "undefined" &&
         window.WIZ_global_data &&
-        typeof window.WIZ_global_data === 'object'
+        typeof window.WIZ_global_data === "object"
       ) {
         return window.WIZ_global_data;
       }
 
       // 2. Try parsing inline script tags for WIZ_global_data
-      if (typeof document !== 'undefined' && document.querySelectorAll) {
-        const scripts = document.querySelectorAll('script');
+      if (typeof document !== "undefined" && document.querySelectorAll) {
+        const scripts = document.querySelectorAll("script");
         for (let i = 0; i < scripts.length; i++) {
-          const content = scripts[i].textContent || '';
-          if (content.includes('WIZ_global_data')) {
-            const match = content.match(/window\.WIZ_global_data\s*=\s*(\{[\s\S]*?\});/);
+          const content = scripts[i].textContent || "";
+          if (content.includes("WIZ_global_data")) {
+            const match = content.match(
+              /window\.WIZ_global_data\s*=\s*(\{[\s\S]*?\});/,
+            );
             if (match && match[1]) {
               try {
                 return JSON.parse(match[1]);
@@ -73,32 +81,44 @@ export class GeminiParser extends ChatParser {
         }
       }
     } catch (e) {
-      console.warn('[Gemini Parser] Error reading global data:', e);
+      console.warn("[Gemini Parser] Error reading global data:", e);
     }
     return null;
   }
 
   async parse(options = {}) {
-    console.log('[Gemini Parser] ========== STARTING PARSE() ==========');
+    console.log("[Gemini Parser] ========== STARTING PARSE() ==========");
     const currentUrl =
-      typeof window !== 'undefined' && window.location ? window.location.href || '' : '';
+      typeof window !== "undefined" && window.location
+        ? window.location.href || ""
+        : "";
 
-    const mode = options.parserMode || 'auto';
+    const mode = options.parserMode || "auto";
 
     // 1. Attempt API / RPC extraction first when not explicitly in 'dom' mode
-    if (mode !== 'dom' && typeof fetch === 'function') {
+    if (mode !== "dom" && typeof fetch === "function") {
       try {
         const convoId = this.getConversationId(currentUrl);
         const globalData = this.getGlobalData();
 
         if (convoId && globalData && globalData.SNlM0e && globalData.FdrFJe) {
-          console.log('[Gemini Parser] Attempting API extraction for convo:', convoId);
-          const apiResult = await this.fetchFromApi(convoId, globalData, currentUrl, options);
+          console.log(
+            "[Gemini Parser] Attempting API extraction for convo:",
+            convoId,
+          );
+          const apiResult = await this.fetchFromApi(
+            convoId,
+            globalData,
+            currentUrl,
+            options,
+          );
           if (
             apiResult &&
             apiResult.messages &&
             apiResult.messages.length > 0 &&
-            apiResult.messages.some((m) => isValidMessageText(m.content, convoId))
+            apiResult.messages.some((m) =>
+              isValidMessageText(m.content, convoId),
+            )
           ) {
             console.log(
               `[Gemini Parser] Successfully parsed ${apiResult.messages.length} messages via API`,
@@ -107,7 +127,10 @@ export class GeminiParser extends ChatParser {
           }
         }
       } catch (err) {
-        console.warn('[Gemini Parser] API extraction failed, falling back to DOM:', err);
+        console.warn(
+          "[Gemini Parser] API extraction failed, falling back to DOM:",
+          err,
+        );
       }
     }
 
@@ -116,14 +139,14 @@ export class GeminiParser extends ChatParser {
   }
 
   async fetchFromApi(convoId, globalData, currentUrl, options = {}) {
-    const fSid = globalData.FdrFJe || '';
-    const bl = globalData.cfb2h || '';
+    const fSid = globalData.FdrFJe || "";
+    const bl = globalData.cfb2h || "";
     const prefix = globalData.Im6cmf || DEFAULT_BARD_PATH;
-    const atToken = globalData.SNlM0e || '';
+    const atToken = globalData.SNlM0e || "";
 
     const reqId = String(Math.floor(9e6 * Math.random()) + 1e6);
     const sourcePath =
-      typeof window !== 'undefined' && window.location
+      typeof window !== "undefined" && window.location
         ? window.location.pathname
         : `/app/${convoId}`;
 
@@ -137,30 +160,46 @@ export class GeminiParser extends ChatParser {
       `&_reqid=${encodeURIComponent(reqId)}` +
       `&rt=c`;
 
-    const formattedConvoId = convoId.startsWith('c_') ? convoId : `c_${convoId}`;
+    const formattedConvoId = convoId.startsWith("c_")
+      ? convoId
+      : `c_${convoId}`;
     const allItems = [];
     let cursor = null;
     let pageCount = 0;
 
     while (pageCount < 250) {
       pageCount++;
-      const payloadArg = JSON.stringify([formattedConvoId, 100, cursor, 1, [0], [4], null, 1]);
+      const payloadArg = JSON.stringify([
+        formattedConvoId,
+        100,
+        cursor,
+        1,
+        [0],
+        [4],
+        null,
+        1,
+      ]);
 
       const formParams = new URLSearchParams();
-      formParams.append('f.req', JSON.stringify([[[GEMINI_RPC_ID, payloadArg, null, 'generic']]]));
-      formParams.append('at', atToken);
+      formParams.append(
+        "f.req",
+        JSON.stringify([[[GEMINI_RPC_ID, payloadArg, null, "generic"]]]),
+      );
+      formParams.append("at", atToken);
 
       const resp = await fetch(endpoint, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+          "Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
         },
         body: formParams.toString(),
       });
 
       if (!resp.ok) {
-        throw new Error(`Gemini RPC request failed: ${resp.status} ${resp.statusText}`);
+        throw new Error(
+          `Gemini RPC request failed: ${resp.status} ${resp.statusText}`,
+        );
       }
 
       const rawText = await resp.text();
@@ -195,35 +234,39 @@ export class GeminiParser extends ChatParser {
 
   enrichMessagesWithDomAttachments(messages) {
     try {
-      if (typeof document === 'undefined' || !document.querySelectorAll) {
+      if (typeof document === "undefined" || !document.querySelectorAll) {
         return messages;
       }
-      const parentContainers = document.querySelectorAll('.conversation-container');
+      const parentContainers = document.querySelectorAll(
+        ".conversation-container",
+      );
       const domTurns = [];
 
       if (parentContainers.length > 0) {
         parentContainers.forEach((container, idx) => {
-          const rawId = (container.id || '').replace(/^r_/, '');
+          const rawId = (container.id || "").replace(/^r_/, "");
           const fileElements = container.querySelectorAll(
             "user-query-file-preview, .file-preview, .attachment-preview, [data-testid='file-preview']",
           );
           const fileNames = [];
           fileElements.forEach((fe) => {
-            const name = (fe.textContent || '').trim();
+            const name = (fe.textContent || "").trim();
             if (name && !fileNames.includes(name)) fileNames.push(name);
           });
 
-          const userQuery = container.querySelector('user-query') || container;
+          const userQuery = container.querySelector("user-query") || container;
           const clone = userQuery.cloneNode(true);
           clone
             .querySelectorAll(
-              'user-query-file-preview, .file-preview, .attachment-preview, button, .edit-button, model-response',
+              "user-query-file-preview, .file-preview, .attachment-preview, button, .edit-button, model-response",
             )
             .forEach((el) => el.remove());
           const queryText = (
-            clone.innerText !== undefined ? clone.innerText : clone.textContent || ''
+            clone.innerText !== undefined
+              ? clone.innerText
+              : clone.textContent || ""
           )
-            .replace(/^You said\s*/i, '')
+            .replace(/^You said\s*/i, "")
             .trim();
 
           if (fileNames.length > 0) {
@@ -237,27 +280,29 @@ export class GeminiParser extends ChatParser {
           }
         });
       } else {
-        const userQueries = document.querySelectorAll('user-query');
+        const userQueries = document.querySelectorAll("user-query");
         userQueries.forEach((uq, idx) => {
           const fileElements = uq.querySelectorAll(
             "user-query-file-preview, .file-preview, .attachment-preview, [data-testid='file-preview']",
           );
           const fileNames = [];
           fileElements.forEach((fe) => {
-            const name = (fe.textContent || '').trim();
+            const name = (fe.textContent || "").trim();
             if (name && !fileNames.includes(name)) fileNames.push(name);
           });
 
           const clone = uq.cloneNode(true);
           clone
             .querySelectorAll(
-              'user-query-file-preview, .file-preview, .attachment-preview, button, .edit-button',
+              "user-query-file-preview, .file-preview, .attachment-preview, button, .edit-button",
             )
             .forEach((el) => el.remove());
           const queryText = (
-            clone.innerText !== undefined ? clone.innerText : clone.textContent || ''
+            clone.innerText !== undefined
+              ? clone.innerText
+              : clone.textContent || ""
           )
-            .replace(/^You said\s*/i, '')
+            .replace(/^You said\s*/i, "")
             .trim();
 
           if (fileNames.length > 0) {
@@ -273,7 +318,7 @@ export class GeminiParser extends ChatParser {
 
       if (domTurns.length === 0) return messages;
 
-      const userMessages = messages.filter((m) => m.role === 'User');
+      const userMessages = messages.filter((m) => m.role === "User");
 
       for (const domTurn of domTurns) {
         let matchedMsg = null;
@@ -288,29 +333,36 @@ export class GeminiParser extends ChatParser {
           matchedMsg = userMessages.find(
             (m) =>
               m.content &&
-              (m.content.includes(domTurn.queryText) || domTurn.queryText.includes(m.content)),
+              (m.content.includes(domTurn.queryText) ||
+                domTurn.queryText.includes(m.content)),
           );
         }
 
         // 3. Fallback: match by trailing turn ordinal (mounted DOM elements align with latest turns)
-        if (!matchedMsg && typeof domTurn.domIndex === 'number') {
+        if (!matchedMsg && typeof domTurn.domIndex === "number") {
           const offset = userMessages.length - domTurn.totalDom;
-          const targetIndex = offset >= 0 ? offset + domTurn.domIndex : domTurn.domIndex;
+          const targetIndex =
+            offset >= 0 ? offset + domTurn.domIndex : domTurn.domIndex;
           matchedMsg = userMessages[targetIndex];
         }
 
         if (matchedMsg) {
           const attachBlock =
-            `\n\n**Attachments:**\n` + domTurn.fileNames.map((fn) => `- ${fn}`).join('\n');
-          if (!matchedMsg.content.includes('**Attachments:**')) {
+            `\n\n**Attachments:**\n` +
+            domTurn.fileNames.map((fn) => `- ${fn}`).join("\n");
+          if (!matchedMsg.content.includes("**Attachments:**")) {
             matchedMsg.content = matchedMsg.content
               ? `${matchedMsg.content}${attachBlock}`
-              : `**Attachments:**\n` + domTurn.fileNames.map((fn) => `- ${fn}`).join('\n');
+              : `**Attachments:**\n` +
+                domTurn.fileNames.map((fn) => `- ${fn}`).join("\n");
           }
         }
       }
     } catch (e) {
-      console.warn('[Gemini Parser] Failed to enrich messages with DOM attachments:', e);
+      console.warn(
+        "[Gemini Parser] Failed to enrich messages with DOM attachments:",
+        e,
+      );
     } finally {
       // Clean internal turnId tracking before returning messages
       for (const m of messages) {
@@ -330,35 +382,35 @@ export class GeminiParser extends ChatParser {
     this.enrichMessagesWithDomAttachments(messages);
 
     let title = this.extractTitleFromPage();
-    if (!title || title === 'Gemini Conversation') {
-      const firstUserMsg = messages.find((m) => m.role === 'User');
+    if (!title || title === "Gemini Conversation") {
+      const firstUserMsg = messages.find((m) => m.role === "User");
       if (firstUserMsg && firstUserMsg.content) {
-        title = firstUserMsg.content.slice(0, 50).split('\n')[0].trim();
+        title = firstUserMsg.content.slice(0, 50).split("\n")[0].trim();
       }
     }
 
     return {
-      title: title || 'Gemini Conversation',
+      title: title || "Gemini Conversation",
       messages,
       url: currentUrl,
       metadata: {
-        Source: 'Gemini',
+        Source: "Gemini",
         Date: new Date().toLocaleString(),
         Link: currentUrl,
-        Method: 'API',
+        Method: "API",
       },
     };
   }
 
   parseBatchExecuteLines(raw) {
-    const cleaned = String(raw || '').replace(/^\)\]\}'\s*\n/, '');
+    const cleaned = String(raw || "").replace(/^\)\]\}'\s*\n/, "");
     const lines = cleaned
-      .split('\n')
+      .split("\n")
       .map((l) => l.trim())
       .filter(Boolean);
     const arrays = [];
     for (const line of lines) {
-      if (!/^\d+$/.test(line) && line.startsWith('[') && line.endsWith(']')) {
+      if (!/^\d+$/.test(line) && line.startsWith("[") && line.endsWith("]")) {
         try {
           arrays.push(JSON.parse(line));
         } catch {
@@ -369,7 +421,7 @@ export class GeminiParser extends ChatParser {
     return { arrays, rawData: cleaned };
   }
 
-  findRpcEntry(arrays, rpcId, envelope = 'wrb.fr') {
+  findRpcEntry(arrays, rpcId, envelope = "wrb.fr") {
     if (!Array.isArray(arrays)) return null;
     if (arrays[0] === envelope && arrays[1] === rpcId && arrays[2]) {
       return arrays;
@@ -385,10 +437,10 @@ export class GeminiParser extends ChatParser {
 
   extractTurnId(item) {
     try {
-      const raw = item[0]?.[1] || item[1]?.[1] || '';
-      return String(raw).replace(/^r_/, '');
+      const raw = item[0]?.[1] || item[1]?.[1] || "";
+      return String(raw).replace(/^r_/, "");
     } catch {
-      return '';
+      return "";
     }
   }
 
@@ -402,7 +454,7 @@ export class GeminiParser extends ChatParser {
       const userText = this.findUserTextInApiItem(item);
       if (userText) {
         messages.push({
-          role: 'User',
+          role: "User",
           content: userText.trim(),
           turnId,
         });
@@ -413,10 +465,10 @@ export class GeminiParser extends ChatParser {
       const combined = [modelText, researchExtras]
         .map((t) => this.stripChipPlaceholders(t))
         .filter((t) => t && t.trim())
-        .join('\n\n');
+        .join("\n\n");
       if (combined.trim()) {
         messages.push({
-          role: 'Model',
+          role: "Model",
           content: normalizeLatexMath(combined.trim()),
           turnId,
         });
@@ -433,19 +485,19 @@ export class GeminiParser extends ChatParser {
   // other URL (including googleusercontent subdomains hosting real images
   // and links inside markdown) is left intact.
   stripChipPlaceholders(text) {
-    if (typeof text !== 'string' || !text) return text;
+    if (typeof text !== "string" || !text) return text;
     const chipPattern =
       /<?https?:\/\/googleusercontent\.com\/(?:immersive_entry_chip|deep_research_confirmation_content)(?:\/\d*)?>?/;
-    const chipPatternGlobal = new RegExp(chipPattern.source, 'g');
+    const chipPatternGlobal = new RegExp(chipPattern.source, "g");
     return text
-      .split('\n')
+      .split("\n")
       .filter((line) => {
         if (!chipPattern.test(line)) return true;
-        return line.replace(chipPatternGlobal, '').trim() !== '';
+        return line.replace(chipPatternGlobal, "").trim() !== "";
       })
-      .map((line) => line.replace(chipPatternGlobal, ''))
-      .join('\n')
-      .replace(/\n{3,}/g, '\n\n');
+      .map((line) => line.replace(chipPatternGlobal, ""))
+      .join("\n")
+      .replace(/\n{3,}/g, "\n\n");
   }
 
   getApiCandidates(item) {
@@ -463,7 +515,8 @@ export class GeminiParser extends ChatParser {
     try {
       const groups = Array.isArray(citeGroups) ? citeGroups : [citeGroups];
       for (const group of groups) {
-        if (!group || typeof group !== 'object' || Array.isArray(group)) continue;
+        if (!group || typeof group !== "object" || Array.isArray(group))
+          continue;
         for (const entries of Object.values(group)) {
           if (!Array.isArray(entries)) continue;
           for (const entry of entries) {
@@ -476,14 +529,17 @@ export class GeminiParser extends ChatParser {
               const url = Array.isArray(detail) ? detail[1] : null;
               const number = source[3][1];
               if (
-                typeof url === 'string' &&
-                url.startsWith('http') &&
-                typeof number === 'number' &&
+                typeof url === "string" &&
+                url.startsWith("http") &&
+                typeof number === "number" &&
                 !map.has(number)
               ) {
                 map.set(number, {
                   url,
-                  title: typeof detail[2] === 'string' && detail[2] ? detail[2] : url,
+                  title:
+                    typeof detail[2] === "string" && detail[2]
+                      ? detail[2]
+                      : url,
                 });
               }
             }
@@ -497,76 +553,79 @@ export class GeminiParser extends ChatParser {
   }
 
   resolveDeepResearchCites(markdown, citeMap) {
-    if (typeof markdown !== 'string' || !(citeMap instanceof Map)) {
+    if (typeof markdown !== "string" || !(citeMap instanceof Map)) {
       return markdown;
     }
     return markdown.replace(/ ?\[cite: ([\d,\s]+)\]/g, (match, nums) => {
       const numbers = [
         ...new Set(
           nums
-            .split(',')
+            .split(",")
             .map((n) => parseInt(n.trim(), 10))
             .filter((n) => Number.isFinite(n)),
         ),
       ];
-      if (numbers.length === 0) return '';
+      if (numbers.length === 0) return "";
       const links = numbers.map((n) => {
         const cite = citeMap.get(n);
         return cite ? `[[${n}]](${cite.url})` : `[${n}]`;
       });
-      return ` ${links.join(' ')}`;
+      return ` ${links.join(" ")}`;
     });
   }
 
   extractImmersiveDocFromCandidate(cand) {
     try {
-      if (!Array.isArray(cand[30]) || cand[30].length === 0) return '';
+      if (!Array.isArray(cand[30]) || cand[30].length === 0) return "";
       const doc = cand[30][0];
-      if (!Array.isArray(doc)) return '';
+      if (!Array.isArray(doc)) return "";
       // Guard: immersive research documents carry this task marker.
-      if (doc[3] !== 'agency-placeholder-task-id') return '';
-      if (typeof doc[4] !== 'string' || doc[4].trim().length < 100) return '';
-      const title = typeof doc[2] === 'string' && doc[2] ? doc[2] : 'Report';
+      if (doc[3] !== "agency-placeholder-task-id") return "";
+      if (typeof doc[4] !== "string" || doc[4].trim().length < 100) return "";
+      const title = typeof doc[2] === "string" && doc[2] ? doc[2] : "Report";
       const citeMap = this.buildDeepResearchCiteMap(doc[5]);
       const markdown = this.resolveDeepResearchCites(doc[4].trim(), citeMap);
       return `## ${title}\n\n${markdown}`;
     } catch {
-      return '';
+      return "";
     }
   }
 
   extractResearchPlanFromCandidate(cand) {
     try {
-      if (!Array.isArray(cand[12])) return '';
+      if (!Array.isArray(cand[12])) return "";
       for (const annotation of cand[12]) {
         if (
           !annotation ||
-          typeof annotation !== 'object' ||
+          typeof annotation !== "object" ||
           Array.isArray(annotation) ||
-          !Array.isArray(annotation['56'])
+          !Array.isArray(annotation["56"])
         ) {
           continue;
         }
-        const [planTitle, steps] = annotation['56'];
+        const [planTitle, steps] = annotation["56"];
         if (!Array.isArray(steps) || steps.length === 0) continue;
         const lines = steps.map((step, idx) => {
           if (!Array.isArray(step)) return null;
           const stepTitle = step[1] || `Step ${idx + 1}`;
-          const desc = typeof step[2] === 'string' && step[2].trim() ? `: ${step[2].trim()}` : '';
+          const desc =
+            typeof step[2] === "string" && step[2].trim()
+              ? `: ${step[2].trim()}`
+              : "";
           return `${idx + 1}. **${stepTitle}**${desc}`;
         });
         const valid = lines.filter(Boolean);
         if (valid.length === 0) continue;
         const heading =
-          typeof planTitle === 'string' && planTitle
+          typeof planTitle === "string" && planTitle
             ? `### ${planTitle} — research plan`
-            : '### Research plan';
-        return `${heading}\n${valid.join('\n')}`;
+            : "### Research plan";
+        return `${heading}\n${valid.join("\n")}`;
       }
     } catch {
       // Ignore malformed plan annotations
     }
-    return '';
+    return "";
   }
 
   extractActivitySources(item, limit = 40) {
@@ -577,9 +636,10 @@ export class GeminiParser extends ChatParser {
       for (const entry of trail) {
         const detail = entry?.[4]?.[2];
         const url = Array.isArray(detail) ? detail[1] : null;
-        if (typeof url !== 'string' || !url.startsWith('http')) continue;
+        if (typeof url !== "string" || !url.startsWith("http")) continue;
         if (seen.has(url)) continue;
-        const title = typeof detail[2] === 'string' && detail[2] ? detail[2] : url;
+        const title =
+          typeof detail[2] === "string" && detail[2] ? detail[2] : url;
         seen.set(url, title);
       }
     } catch {
@@ -603,9 +663,9 @@ export class GeminiParser extends ChatParser {
       const candidates = this.getApiCandidates(item);
       let anchorIdx = candidates.findIndex(
         (cand) =>
-          (Array.isArray(cand[1]) && typeof cand[1][0] === 'string') ||
-          typeof cand[1] === 'string' ||
-          (typeof cand[0] === 'string' && cand[0].length > 50),
+          (Array.isArray(cand[1]) && typeof cand[1][0] === "string") ||
+          typeof cand[1] === "string" ||
+          (typeof cand[0] === "string" && cand[0].length > 50),
       );
       if (anchorIdx === -1) anchorIdx = 0;
       const anchor = candidates[anchorIdx];
@@ -617,24 +677,25 @@ export class GeminiParser extends ChatParser {
       }
       const sourceLines = this.extractActivitySources(item);
       if (sourceLines.length > 0) {
-        parts.push(`**Sources consulted:**\n${sourceLines.join('\n')}`);
+        parts.push(`**Sources consulted:**\n${sourceLines.join("\n")}`);
       }
     } catch {
       // Never let research extras break the base message
     }
-    return parts.filter(Boolean).join('\n\n');
+    return parts.filter(Boolean).join("\n\n");
   }
 
   findUserTextInApiItem(item) {
     try {
-      if (typeof item[2]?.[0]?.[0] === 'string') return item[2][0][0];
-      if (typeof item[2]?.[0] === 'string') return item[2][0];
-      if (typeof item[1]?.[0] === 'string' && !Array.isArray(item[1][0])) return item[1][0];
-      if (typeof item[0]?.[0] === 'string') return item[0][0];
+      if (typeof item[2]?.[0]?.[0] === "string") return item[2][0][0];
+      if (typeof item[2]?.[0] === "string") return item[2][0];
+      if (typeof item[1]?.[0] === "string" && !Array.isArray(item[1][0]))
+        return item[1][0];
+      if (typeof item[0]?.[0] === "string") return item[0][0];
     } catch {
       // Fall through
     }
-    return '';
+    return "";
   }
 
   findModelTextInApiItem(item) {
@@ -645,13 +706,13 @@ export class GeminiParser extends ChatParser {
         for (const cand of candidates) {
           if (!Array.isArray(cand)) continue;
           // Shape: ["rc_...", ["markdown text", ...], ...]
-          if (Array.isArray(cand[1]) && typeof cand[1][0] === 'string') {
+          if (Array.isArray(cand[1]) && typeof cand[1][0] === "string") {
             return cand[1][0];
           }
-          if (typeof cand[1] === 'string') {
+          if (typeof cand[1] === "string") {
             return cand[1];
           }
-          if (typeof cand[0] === 'string' && cand[0].length > 50) {
+          if (typeof cand[0] === "string" && cand[0].length > 50) {
             return cand[0];
           }
         }
@@ -660,47 +721,53 @@ export class GeminiParser extends ChatParser {
       // 2. Fallback candidate in item[1]
       if (Array.isArray(item[1])) {
         const candidate = item[1][0];
-        if (typeof candidate === 'string') return candidate;
+        if (typeof candidate === "string") return candidate;
         if (Array.isArray(candidate)) {
-          if (typeof candidate[1]?.[0] === 'string') return candidate[1][0];
-          if (typeof candidate[0] === 'string') return candidate[0];
+          if (typeof candidate[1]?.[0] === "string") return candidate[1][0];
+          if (typeof candidate[0] === "string") return candidate[0];
         }
       }
     } catch {
       // Fall through
     }
-    return '';
+    return "";
   }
 
   extractTitleFromPage() {
-    if (typeof document !== 'undefined' && document.title) {
+    if (typeof document !== "undefined" && document.title) {
       const cleanedDocTitle = document.title
-        .replace(/Google/g, '')
-        .replace(/Gemini/g, '')
-        .replace(/Advanced/g, '')
-        .replace(/- /g, '')
-        .replace(/—/g, '')
+        .replace(/Google/g, "")
+        .replace(/Gemini/g, "")
+        .replace(/Advanced/g, "")
+        .replace(/- /g, "")
+        .replace(/—/g, "")
         .trim();
 
       const isGeneric =
         !cleanedDocTitle ||
-        cleanedDocTitle.toLowerCase() === 'new chat' ||
-        cleanedDocTitle.toLowerCase() === 'help' ||
-        cleanedDocTitle.toLowerCase() === 'settings';
+        cleanedDocTitle.toLowerCase() === "new chat" ||
+        cleanedDocTitle.toLowerCase() === "help" ||
+        cleanedDocTitle.toLowerCase() === "settings";
 
       if (cleanedDocTitle && !isGeneric && cleanedDocTitle.length > 2) {
         return cleanedDocTitle;
       }
     }
 
-    if (typeof document !== 'undefined' && document.querySelector) {
-      const activeNav = document.querySelector('a[aria-current="page"], .selected');
+    if (typeof document !== "undefined" && document.querySelector) {
+      const activeNav = document.querySelector(
+        'a[aria-current="page"], .selected',
+      );
       if (activeNav) {
-        const navText = (activeNav.textContent || activeNav.innerText || '')
-          .replace(/more_vert/g, '')
-          .replace(/\n/g, ' ')
+        const navText = (activeNav.textContent || activeNav.innerText || "")
+          .replace(/more_vert/g, "")
+          .replace(/\n/g, " ")
           .trim();
-        if (navText && navText.length > 2 && !navText.toLowerCase().includes('new chat')) {
+        if (
+          navText &&
+          navText.length > 2 &&
+          !navText.toLowerCase().includes("new chat")
+        ) {
           return navText;
         }
       }
@@ -709,67 +776,74 @@ export class GeminiParser extends ChatParser {
         'h1, .title, .conversation-title, [data-testid="title"]',
       );
       if (deepResearchTitle && !this.isInsideMessage(deepResearchTitle)) {
-        const text = (deepResearchTitle.textContent || deepResearchTitle.innerText || '').trim();
+        const text = (
+          deepResearchTitle.textContent ||
+          deepResearchTitle.innerText ||
+          ""
+        ).trim();
         if (
           text.length > 5 &&
-          !text.includes('Gemini') &&
-          !text.includes('Help') &&
-          !text.includes('Settings')
+          !text.includes("Gemini") &&
+          !text.includes("Help") &&
+          !text.includes("Settings")
         ) {
           return text;
         }
       }
     }
 
-    return 'Gemini Conversation';
+    return "Gemini Conversation";
   }
 
   isInsideMessage(el) {
     return !!el.closest?.(
-      'user-query, model-response, .conversation-container, message-content, .query-text, .markdown',
+      "user-query, model-response, .conversation-container, message-content, .query-text, .markdown",
     );
   }
 
   parseFromDom(currentUrl) {
-    console.log('[Gemini Parser] Running DOM content extraction...');
+    console.log("[Gemini Parser] Running DOM content extraction...");
     const title = this.extractTitleFromPage();
     const messages = [];
     const seenTexts = new Set();
 
-    if (typeof document === 'undefined' || !document.querySelectorAll) {
+    if (typeof document === "undefined" || !document.querySelectorAll) {
       return {
         title,
         messages: [],
         url: currentUrl,
         metadata: {
-          Source: 'Gemini',
+          Source: "Gemini",
           Date: new Date().toLocaleString(),
           Link: currentUrl,
-          Method: 'DOM',
+          Method: "DOM",
         },
       };
     }
 
     // Strategy 1: Conversation containers or individual query/response tags
     const conversationContainers = document.querySelectorAll(
-      '.conversation-container, user-query, model-response',
+      ".conversation-container, user-query, model-response",
     );
 
     if (conversationContainers.length > 0) {
-      const parentContainers = document.querySelectorAll('.conversation-container');
-      const targetContainers = parentContainers.length > 0 ? parentContainers : [document.body];
+      const parentContainers = document.querySelectorAll(
+        ".conversation-container",
+      );
+      const targetContainers =
+        parentContainers.length > 0 ? parentContainers : [document.body];
 
       targetContainers.forEach((container) => {
         // 1. Extract User Queries
         const userQueries =
-          container.tagName === 'USER-QUERY'
+          container.tagName === "USER-QUERY"
             ? [container]
-            : container.querySelectorAll('user-query, .user-query-container');
+            : container.querySelectorAll("user-query, .user-query-container");
 
         userQueries.forEach((userQuery) => {
           const queryTextEl =
-            userQuery.querySelector('.query-text') ||
-            userQuery.querySelector('user-query-content') ||
+            userQuery.querySelector(".query-text") ||
+            userQuery.querySelector("user-query-content") ||
             userQuery;
 
           if (queryTextEl) {
@@ -782,28 +856,32 @@ export class GeminiParser extends ChatParser {
 
             // Extract file attachments if any
             const attachments = [];
-            userQuery.querySelectorAll('user-query-file-preview').forEach((fp) => {
-              const fileName = fp.textContent?.trim();
-              if (fileName) attachments.push(fileName);
-            });
+            userQuery
+              .querySelectorAll("user-query-file-preview")
+              .forEach((fp) => {
+                const fileName = fp.textContent?.trim();
+                if (fileName) attachments.push(fileName);
+              });
 
             // Use innerText if available, with textContent fallback so detached nodes are never blank
             let userText = (
-              clone.innerText !== undefined && clone.innerText !== ''
+              clone.innerText !== undefined && clone.innerText !== ""
                 ? clone.innerText
-                : clone.textContent || ''
+                : clone.textContent || ""
             ).trim();
             // Clean out leading "You said" if still present
-            userText = userText.replace(/^You said\s*/i, '').trim();
+            userText = userText.replace(/^You said\s*/i, "").trim();
 
             if (attachments.length > 0) {
-              userText += `\n\n**Attachments:**\n` + attachments.map((a) => `- ${a}`).join('\n');
+              userText +=
+                `\n\n**Attachments:**\n` +
+                attachments.map((a) => `- ${a}`).join("\n");
             }
 
             if (userText && !seenTexts.has(userText)) {
               seenTexts.add(userText);
               messages.push({
-                role: 'User',
+                role: "User",
                 content: userText,
               });
             }
@@ -812,15 +890,17 @@ export class GeminiParser extends ChatParser {
 
         // 2. Extract Model Responses
         const modelResponses =
-          container.tagName === 'MODEL-RESPONSE'
+          container.tagName === "MODEL-RESPONSE"
             ? [container]
-            : container.querySelectorAll('model-response');
+            : container.querySelectorAll("model-response");
 
         modelResponses.forEach((modelResponse) => {
-          const messageContent = modelResponse.querySelector('message-content') || modelResponse;
+          const messageContent =
+            modelResponse.querySelector("message-content") || modelResponse;
           const markdownDiv =
-            messageContent.querySelector('.markdown.markdown-main-panel, .markdown') ||
-            messageContent;
+            messageContent.querySelector(
+              ".markdown.markdown-main-panel, .markdown",
+            ) || messageContent;
 
           if (markdownDiv) {
             const clone = markdownDiv.cloneNode(true);
@@ -832,24 +912,26 @@ export class GeminiParser extends ChatParser {
             // inside are still stripped above).
             clone
               .querySelectorAll(
-                'button, follow-up, .follow-up-container, .thoughts-container, .thoughts-wrapper, model-thoughts, .table-footer, message-actions, election-info-disclaimer, finance-info-disclaimer, .sources-list',
+                "button, follow-up, .follow-up-container, .thoughts-container, .thoughts-wrapper, model-thoughts, .table-footer, message-actions, election-info-disclaimer, finance-info-disclaimer, .sources-list",
               )
               .forEach((el) => el.remove());
 
             // Unwrap response-element wrappers and message-action guards
-            clone.querySelectorAll('response-element, .hide-from-message-actions').forEach((el) => {
-              while (el.firstChild) {
-                el.parentNode.insertBefore(el.firstChild, el);
-              }
-              el.remove();
-            });
+            clone
+              .querySelectorAll("response-element, .hide-from-message-actions")
+              .forEach((el) => {
+                while (el.firstChild) {
+                  el.parentNode.insertBefore(el.firstChild, el);
+                }
+                el.remove();
+              });
 
             const text = convertToMarkdown(clone);
             const trimmed = text.trim();
             if (trimmed && !seenTexts.has(trimmed)) {
               seenTexts.add(trimmed);
               messages.push({
-                role: 'Model',
+                role: "Model",
                 content: trimmed,
               });
             }
@@ -868,10 +950,11 @@ export class GeminiParser extends ChatParser {
       // messages, so exact-match dedup never fires. Skip the section when a
       // Model message already carries the report (e.g. panel content also
       // rendered inside a chat model-response).
-      const body = section.content.replace(/^## .*\n\n/, '');
+      const body = section.content.replace(/^## .*\n\n/, "");
       const probe = body.slice(0, 300);
       const alreadyExported =
-        probe.length > 0 && messages.some((m) => m.role === 'Model' && m.content.includes(probe));
+        probe.length > 0 &&
+        messages.some((m) => m.role === "Model" && m.content.includes(probe));
       if (!alreadyExported) {
         seenTexts.add(section.content);
         messages.push(section);
@@ -879,9 +962,12 @@ export class GeminiParser extends ChatParser {
     });
 
     if (messages.length === 0) {
-      const deepResearchPanel = document.querySelector('deep-research-immersive-panel');
+      const deepResearchPanel = document.querySelector(
+        "deep-research-immersive-panel",
+      );
       if (deepResearchPanel) {
-        const panelContent = this.extractDeepResearchPanelContent(deepResearchPanel);
+        const panelContent =
+          this.extractDeepResearchPanelContent(deepResearchPanel);
         panelContent.forEach((section) => {
           if (section.content && !seenTexts.has(section.content)) {
             seenTexts.add(section.content);
@@ -897,18 +983,18 @@ export class GeminiParser extends ChatParser {
     // Strategy 3: General content container fallback
     if (messages.length === 0) {
       const contentSelectors = [
-        'main',
-        'article',
-        '.content',
-        '.main-content',
+        "main",
+        "article",
+        ".content",
+        ".main-content",
         '[role="main"]',
-        '.chat-window-content',
+        ".chat-window-content",
       ];
 
       for (const selector of contentSelectors) {
         const el = document.querySelector(selector);
         if (el) {
-          const text = (el.textContent || '').trim();
+          const text = (el.textContent || "").trim();
           if (text.length > 100) {
             const sections = this.extractDeepResearchSections(el);
             if (sections.length > 0) {
@@ -925,23 +1011,25 @@ export class GeminiParser extends ChatParser {
       }
     }
 
-    console.log(`[Gemini Parser] Total DOM messages extracted: ${messages.length}`);
+    console.log(
+      `[Gemini Parser] Total DOM messages extracted: ${messages.length}`,
+    );
     return {
       title,
       messages,
       url: currentUrl,
       metadata: {
-        Source: 'Gemini',
+        Source: "Gemini",
         Date: new Date().toLocaleString(),
         Link: currentUrl,
-        Method: 'DOM',
+        Method: "DOM",
       },
     };
   }
 
   extractDeepResearchSections(contentElement) {
     const sections = [];
-    const text = contentElement.innerText || contentElement.textContent || '';
+    const text = contentElement.innerText || contentElement.textContent || "";
 
     const patterns = [
       {
@@ -951,8 +1039,10 @@ export class GeminiParser extends ChatParser {
           /(?:Response|I've completed|Generating|Start research)[:\s]*\n*([\s\S]*?)(?=\n\s*(?:Prompt|You said)|$)/i,
       },
       {
-        promptRegex: /(?:Question|Q)[:\s]*\n*([\s\S]*?)(?=\n\s*(?:Answer|A|Response)|$)/i,
-        responseRegex: /(?:Answer|A|Response)[:\s]*\n*([\s\S]*?)(?=\n\s*(?:Question|Q)|$)/i,
+        promptRegex:
+          /(?:Question|Q)[:\s]*\n*([\s\S]*?)(?=\n\s*(?:Answer|A|Response)|$)/i,
+        responseRegex:
+          /(?:Answer|A|Response)[:\s]*\n*([\s\S]*?)(?=\n\s*(?:Question|Q)|$)/i,
       },
     ];
 
@@ -964,7 +1054,7 @@ export class GeminiParser extends ChatParser {
         const promptContent = promptMatches[1].trim();
         if (promptContent.length > 20) {
           sections.push({
-            role: 'User',
+            role: "User",
             content: promptContent,
           });
         }
@@ -974,7 +1064,7 @@ export class GeminiParser extends ChatParser {
         const responseContent = responseMatches[1].trim();
         if (responseContent.length > 50) {
           sections.push({
-            role: 'Model',
+            role: "Model",
             content: responseContent,
           });
         }
@@ -991,38 +1081,39 @@ export class GeminiParser extends ChatParser {
   extractImmersivePanelMessages(doc) {
     const sections = [];
     try {
-      if (!doc || typeof doc.querySelector !== 'function') return sections;
+      if (!doc || typeof doc.querySelector !== "function") return sections;
       const panel =
-        doc.querySelector('immersive-panel deep-research-immersive-panel') ||
-        doc.querySelector('deep-research-immersive-panel');
+        doc.querySelector("immersive-panel deep-research-immersive-panel") ||
+        doc.querySelector("deep-research-immersive-panel");
       if (!panel) return sections;
 
       const titleEl =
-        panel.querySelector('toolbar .title-text') || panel.querySelector('.title-text');
-      const title = (titleEl?.textContent || '').trim();
+        panel.querySelector("toolbar .title-text") ||
+        panel.querySelector(".title-text");
+      const title = (titleEl?.textContent || "").trim();
 
       const bodyRoot =
         panel.querySelector('[data-test-id="message-content"] .markdown') ||
-        panel.querySelector('#extended-response-markdown-content') ||
-        panel.querySelector('message-content .markdown') ||
-        panel.querySelector('message-content');
+        panel.querySelector("#extended-response-markdown-content") ||
+        panel.querySelector("message-content .markdown") ||
+        panel.querySelector("message-content");
       if (!bodyRoot) return sections;
 
       const clone = bodyRoot.cloneNode(true);
       // Inline citation footnotes carry only a source index — render it as
       // text so references survive markdown conversion.
-      clone.querySelectorAll('sup[data-turn-source-index]').forEach((sup) => {
-        const idx = sup.getAttribute('data-turn-source-index');
+      clone.querySelectorAll("sup[data-turn-source-index]").forEach((sup) => {
+        const idx = sup.getAttribute("data-turn-source-index");
         if (idx && sup.parentNode) {
           sup.parentNode.replaceChild(doc.createTextNode(`[${idx}]`), sup);
         }
       });
       clone
         .querySelectorAll(
-          'button, toolbar, toc-menu, mat-menu, message-actions, follow-up, .follow-up-container, .hide-from-message-actions button',
+          "button, toolbar, toc-menu, mat-menu, message-actions, follow-up, .follow-up-container, .hide-from-message-actions button",
         )
         .forEach((el) => el.remove());
-      clone.querySelectorAll('response-element').forEach((el) => {
+      clone.querySelectorAll("response-element").forEach((el) => {
         while (el.firstChild) {
           el.parentNode.insertBefore(el.firstChild, el);
         }
@@ -1033,15 +1124,15 @@ export class GeminiParser extends ChatParser {
         .trim()
         // Turndown escapes the [N] citation markers inserted above;
         // restore them (they render identically either way).
-        .replace(/\\\[(\d+)\\\]/g, '[$1]');
+        .replace(/\\\[(\d+)\\\]/g, "[$1]");
       if (body && body.length > 100) {
         sections.push({
-          role: 'Model',
+          role: "Model",
           content: title ? `## ${title}\n\n${body}` : body,
         });
       }
     } catch (error) {
-      console.error('[Gemini Parser] Error extracting immersive panel:', error);
+      console.error("[Gemini Parser] Error extracting immersive panel:", error);
     }
     return sections;
   }
@@ -1050,29 +1141,33 @@ export class GeminiParser extends ChatParser {
     const sections = [];
     try {
       const contentElements = panelElement.querySelectorAll(
-        '.markdown, .content, .research-content, .panel-content',
+        ".markdown, .content, .research-content, .panel-content",
       );
       contentElements.forEach((element) => {
-        const text = (element.innerText || element.textContent || '').trim();
+        const text = (element.innerText || element.textContent || "").trim();
         if (text.length > 100) {
           sections.push({
-            role: 'Model',
+            role: "Model",
             content: text,
           });
         }
       });
 
       if (sections.length === 0) {
-        const panelText = (panelElement.innerText || panelElement.textContent || '').trim();
+        const panelText = (
+          panelElement.innerText ||
+          panelElement.textContent ||
+          ""
+        ).trim();
         if (panelText.length > 200) {
           sections.push({
-            role: 'Model',
+            role: "Model",
             content: panelText,
           });
         }
       }
     } catch (error) {
-      console.error('[Gemini Parser] Error extracting panel content:', error);
+      console.error("[Gemini Parser] Error extracting panel content:", error);
     }
     return sections;
   }

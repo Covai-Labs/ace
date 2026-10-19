@@ -1,14 +1,14 @@
-import test from 'node:test';
-import assert from 'node:assert/strict';
-import { scoreContent, cleanTitle } from '../web/scoring.js';
+import test from "node:test";
+import assert from "node:assert/strict";
+import { scoreContent, cleanTitle } from "../web/scoring.js";
 
-test('scoreContent gives high score to text-dense and structural HTML', () => {
+test("scoreContent gives high score to text-dense and structural HTML", () => {
   const blogHtml = `
     <article>
       <h2>First Section</h2>
-      <p>${'This is a clean and informative paragraph explaining a key concept in great detail with clear prose. '.repeat(5)}</p>
+      <p>${"This is a clean and informative paragraph explaining a key concept in great detail with clear prose. ".repeat(5)}</p>
       <h2>Second Section</h2>
-      <p>${'Another structured paragraph continuing the explanation with well-formed thoughts. '.repeat(5)}</p>
+      <p>${"Another structured paragraph continuing the explanation with well-formed thoughts. ".repeat(5)}</p>
     </article>
   `;
 
@@ -16,13 +16,13 @@ test('scoreContent gives high score to text-dense and structural HTML', () => {
   assert.ok(score > 50, `Expected score > 50, got ${score}`);
 });
 
-test('scoreContent heavily rewards code blocks and tables', () => {
-  const plainTextHtml = `<p>${'Some basic article text describing algorithms and syntax. '.repeat(10)}</p>`;
+test("scoreContent heavily rewards code blocks and tables", () => {
+  const plainTextHtml = `<p>${"Some basic article text describing algorithms and syntax. ".repeat(10)}</p>`;
   const techDocHtml = `
     <div>
       <h2>Code Example</h2>
       <pre><code>function binarySearch(arr, target) { return -1; }</code></pre>
-      <p>${'Some basic article text describing algorithms and syntax. '.repeat(10)}</p>
+      <p>${"Some basic article text describing algorithms and syntax. ".repeat(10)}</p>
       <table>
         <thead><tr><th>Method</th><th>Complexity</th></tr></thead>
         <tbody><tr><td>Search</td><td>O(log N)</td></tr></tbody>
@@ -39,7 +39,7 @@ test('scoreContent heavily rewards code blocks and tables', () => {
   );
 });
 
-test('scoreContent penalizes link farms / navigation noise', () => {
+test("scoreContent penalizes link farms / navigation noise", () => {
   const noisyNavHtml = `
     <div>
       <a href="/1">Link One</a> | <a href="/2">Link Two</a> | <a href="/3">Link Three</a> |
@@ -52,13 +52,19 @@ test('scoreContent penalizes link farms / navigation noise', () => {
   assert.ok(score < 20, `Expected noisy nav score < 20, got ${score}`);
 });
 
-test('cleanTitle strips site and brand suffixes cleanly', () => {
+test("cleanTitle strips site and brand suffixes cleanly", () => {
   assert.equal(
-    cleanTitle('Understanding Transformers | Medium', 'Medium'),
-    'Understanding Transformers',
+    cleanTitle("Understanding Transformers | Medium", "Medium"),
+    "Understanding Transformers",
   );
-  assert.equal(cleanTitle('How to Build Addons - The Verge', 'The Verge'), 'How to Build Addons');
-  assert.equal(cleanTitle('Simple Guide — SiteBrand'), 'Simple Guide');
-  assert.equal(cleanTitle('Clean Title Without Suffix'), 'Clean Title Without Suffix');
-  assert.equal(cleanTitle(''), 'Untitled');
+  assert.equal(
+    cleanTitle("How to Build Addons - The Verge", "The Verge"),
+    "How to Build Addons",
+  );
+  assert.equal(cleanTitle("Simple Guide — SiteBrand"), "Simple Guide");
+  assert.equal(
+    cleanTitle("Clean Title Without Suffix"),
+    "Clean Title Without Suffix",
+  );
+  assert.equal(cleanTitle(""), "Untitled");
 });

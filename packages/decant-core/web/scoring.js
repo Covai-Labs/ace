@@ -7,10 +7,10 @@
  * @returns {number} Quality score >= 0
  */
 export function scoreContent(html) {
-  if (!html || typeof html !== 'string') return 0;
+  if (!html || typeof html !== "string") return 0;
 
   // Strip HTML tags to get raw visible text
-  const rawText = html.replace(/<[^>]+>/g, '').trim();
+  const rawText = html.replace(/<[^>]+>/g, "").trim();
   const textLength = rawText.length;
   if (textLength < 30) return 0;
 
@@ -31,7 +31,7 @@ export function scoreContent(html) {
   // 4. Heavy penalty for anchor density (detects sidebar link farms / navigation headers)
   const linkMatches = html.match(/<a[^>]*>(.*?)<\/a>/gi) || [];
   const linkTextLength = linkMatches.reduce((acc, tag) => {
-    return acc + tag.replace(/<[^>]+>/g, '').length;
+    return acc + tag.replace(/<[^>]+>/g, "").length;
   }, 0);
 
   const anchorDensity = textLength > 0 ? linkTextLength / textLength : 0;
@@ -49,25 +49,28 @@ export function scoreContent(html) {
  * @param {string} [siteName]
  * @returns {string} Cleaned title
  */
-export function cleanTitle(title, siteName = '') {
-  if (!title || typeof title !== 'string') return 'Untitled';
+export function cleanTitle(title, siteName = "") {
+  if (!title || typeof title !== "string") return "Untitled";
   let cleaned = title.trim();
 
   // Strip known siteName if provided at end
   if (siteName && siteName.trim()) {
-    const escapedSite = siteName.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-    const siteRegex = new RegExp(`\\s*[\\|\\-–—:•·]\\s*${escapedSite}\\s*$`, 'i');
-    cleaned = cleaned.replace(siteRegex, '');
+    const escapedSite = siteName.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const siteRegex = new RegExp(
+      `\\s*[\\|\\-–—:•·]\\s*${escapedSite}\\s*$`,
+      "i",
+    );
+    cleaned = cleaned.replace(siteRegex, "");
   }
 
   // Strip general brand suffix if short (e.g., " | BrandName", " - The Verge")
   cleaned = cleaned
     .replace(/\s*[|\-–—•·]\s*[^|\-–—•·]+$/, (match) => {
       // If the trailing segment is relatively short (brand name), remove it
-      const segment = match.replace(/^[\s|\-–—•·]+/, '').trim();
-      return segment.length > 0 && segment.length <= 35 ? '' : match;
+      const segment = match.replace(/^[\s|\-–—•·]+/, "").trim();
+      return segment.length > 0 && segment.length <= 35 ? "" : match;
     })
     .trim();
 
-  return cleaned || title.trim() || 'Untitled';
+  return cleaned || title.trim() || "Untitled";
 }

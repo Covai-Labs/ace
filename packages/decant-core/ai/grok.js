@@ -1,23 +1,29 @@
-import { ChatParser } from './base.js';
-import { convertToMarkdown } from '../utils/html-to-markdown.js';
+import { ChatParser } from "./base.js";
+import { convertToMarkdown } from "../utils/html-to-markdown.js";
 
 export const GROK_BATCH_SIZE = 20;
 
 export function getGrokConversationId(url) {
-  if (!url || typeof url !== 'string') return null;
+  if (!url || typeof url !== "string") return null;
 
   // 1. Direct conversation paths take precedence (/c/, /chat/, /conversation/)
-  const pathMatch = url.match(/grok\.com\/(?:chat|c|conversation)\/([a-f0-9-]+)/i)?.[1];
+  const pathMatch = url.match(
+    /grok\.com\/(?:chat|c|conversation)\/([a-f0-9-]+)/i,
+  )?.[1];
   if (pathMatch) return pathMatch;
 
   // 2. Project URLs with chat query parameter (/project/<workspaceId>?chat=<conversationId>)
   try {
     const parsed = new URL(url);
     const hostname = parsed.hostname.toLowerCase();
-    const isGrokHost = hostname === 'grok.com' || hostname.endsWith('.grok.com');
-    if (isGrokHost && parsed.pathname.startsWith('/project/')) {
-      const chatParam = parsed.searchParams.get('chat');
-      if (chatParam && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(chatParam)) {
+    const isGrokHost =
+      hostname === "grok.com" || hostname.endsWith(".grok.com");
+    if (isGrokHost && parsed.pathname.startsWith("/project/")) {
+      const chatParam = parsed.searchParams.get("chat");
+      if (
+        chatParam &&
+        /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/i.test(chatParam)
+      ) {
         return chatParam;
       }
     }
@@ -36,7 +42,9 @@ export function getGrokConversationId(url) {
 export function orderGrokNodes(responseNodes) {
   if (!Array.isArray(responseNodes) || responseNodes.length === 0) return [];
   const byId = new Map(responseNodes.map((n) => [n?.responseId, n]));
-  const parentIds = new Set(responseNodes.map((n) => n?.parentResponseId).filter(Boolean));
+  const parentIds = new Set(
+    responseNodes.map((n) => n?.parentResponseId).filter(Boolean),
+  );
   let leaf = responseNodes.find((n) => n && !parentIds.has(n.responseId));
   if (!leaf) leaf = responseNodes[responseNodes.length - 1];
   const chain = [];
@@ -57,13 +65,13 @@ export function formatGrokResponses(responses, orderedIds, fallbackTitle) {
       ? orderedIds
       : (responses || []).map((r) => r?.responseId).filter(Boolean);
   const messages = [];
-  let title = fallbackTitle || 'Grok Conversation';
+  let title = fallbackTitle || "Grok Conversation";
   for (const id of ids) {
     const r = byId.get(id);
     if (!r) continue;
-    const content = (r.message || '').trim();
+    const content = (r.message || "").trim();
     if (!content) continue;
-    const role = r.sender === 'human' ? 'User' : 'Grok';
+    const role = r.sender === "human" ? "User" : "Grok";
     const msg = { role, content };
     if (r.createTime) msg.timestamp = r.createTime;
     messages.push(msg);
@@ -72,9 +80,9 @@ export function formatGrokResponses(responses, orderedIds, fallbackTitle) {
 }
 
 export class GrokParser extends ChatParser {
-  name = 'Grok';
+  name = "Grok";
   isAvailable(url) {
-    return url.includes('grok.com');
+    return url.includes("grok.com");
   }
 
   async fetchConversationMeta(conversationId) {
@@ -82,9 +90,9 @@ export class GrokParser extends ChatParser {
       `https://grok.com/rest/app-chat/conversations_v2/${conversationId}` +
       `?includeWorkspaces=true&includeTaskResult=true`;
     const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include',
-      headers: { Accept: 'application/json' },
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" },
     });
     if (!response.ok) {
       throw new Error(`Grok API request failed: ${response.status}`);
@@ -95,9 +103,9 @@ export class GrokParser extends ChatParser {
   async fetchResponseNodes(conversationId) {
     const url = `https://grok.com/rest/app-chat/conversations/${conversationId}/response-node`;
     const response = await fetch(url, {
-      method: 'GET',
-      credentials: 'include',
-      headers: { Accept: 'application/json' },
+      method: "GET",
+      credentials: "include",
+      headers: { Accept: "application/json" },
     });
     if (!response.ok) {
       throw new Error(`Grok response-node request failed: ${response.status}`);
@@ -111,11 +119,11 @@ export class GrokParser extends ChatParser {
     for (let i = 0; i < responseIds.length; i += GROK_BATCH_SIZE) {
       const chunk = responseIds.slice(i, i + GROK_BATCH_SIZE);
       const response = await fetch(url, {
-        method: 'POST',
-        credentials: 'include',
+        method: "POST",
+        credentials: "include",
         headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
+          Accept: "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ responseIds: chunk }),
       });
@@ -129,19 +137,22 @@ export class GrokParser extends ChatParser {
   }
 
   async parse(options = {}) {
-    const parserMode = options.parserMode || 'prefer_api';
+    const parserMode = options.parserMode || "prefer_api";
     const currentUrl =
-      typeof window !== 'undefined' && window.location ? window.location.href || '' : '';
+      typeof window !== "undefined" && window.location
+        ? window.location.href || ""
+        : "";
     const metadata = {
-      Source: 'Grok',
+      Source: "Grok",
       Date: new Date().toLocaleString(),
       Link: currentUrl,
     };
     const domTitle =
-      (document.title || '').replace(/\s*-\s*Grok\s*$/i, '').trim() || 'Grok Conversation';
+      (document.title || "").replace(/\s*-\s*Grok\s*$/i, "").trim() ||
+      "Grok Conversation";
 
     // Primary: internal API (response-node ordering + load-responses bodies)
-    if (parserMode !== 'prefer_dom') {
+    if (parserMode !== "prefer_dom") {
       try {
         const conversationId = getGrokConversationId(currentUrl);
         if (conversationId) {
@@ -152,21 +163,31 @@ export class GrokParser extends ChatParser {
           const ordered = orderGrokNodes(nodes?.responseNodes);
           const orderedIds = ordered.map((n) => n.responseId);
           if (orderedIds.length > 0) {
-            const responses = await this.fetchResponses(conversationId, orderedIds);
+            const responses = await this.fetchResponses(
+              conversationId,
+              orderedIds,
+            );
             const title = meta?.conversation?.title?.trim() || domTitle;
-            const { messages } = formatGrokResponses(responses, orderedIds, title);
+            const { messages } = formatGrokResponses(
+              responses,
+              orderedIds,
+              title,
+            );
             if (messages.length > 0) {
               return {
                 title,
                 messages,
                 url: currentUrl,
-                metadata: { ...metadata, Method: 'API' },
+                metadata: { ...metadata, Method: "API" },
               };
             }
           }
         }
       } catch (e) {
-        console.warn('[AI Exporter] Grok API fetch failed, falling back to DOM:', e);
+        console.warn(
+          "[AI Exporter] Grok API fetch failed, falling back to DOM:",
+          e,
+        );
       }
     }
 
@@ -180,7 +201,10 @@ export class GrokParser extends ChatParser {
     const elements = candidates.filter((el) => {
       let parent = el.parentElement;
       while (parent) {
-        if (parent.matches && (parent.matches(userSelector) || parent.matches(assistantSelector))) {
+        if (
+          parent.matches &&
+          (parent.matches(userSelector) || parent.matches(assistantSelector))
+        ) {
           return false;
         }
         parent = parent.parentElement;
@@ -191,12 +215,16 @@ export class GrokParser extends ChatParser {
     const messages = [];
     for (const el of elements) {
       const isUser = el.matches(userSelector);
-      const role = isUser ? 'User' : 'Grok';
+      const role = isUser ? "User" : "Grok";
       const contentEl =
-        el.querySelector('.response-content-markdown') || el.querySelector('.message-bubble') || el;
+        el.querySelector(".response-content-markdown") ||
+        el.querySelector(".message-bubble") ||
+        el;
       const clone = contentEl.cloneNode(true);
       clone
-        .querySelectorAll(".thinking-container, button, [data-testid='canvas-trigger']")
+        .querySelectorAll(
+          ".thinking-container, button, [data-testid='canvas-trigger']",
+        )
         .forEach((n) => n.remove());
       const text = convertToMarkdown(clone).trim();
       if (text) messages.push({ role, content: text });
@@ -206,7 +234,7 @@ export class GrokParser extends ChatParser {
       title: domTitle,
       messages,
       url: currentUrl,
-      metadata: { ...metadata, Method: 'DOM' },
+      metadata: { ...metadata, Method: "DOM" },
     };
   }
 }

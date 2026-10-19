@@ -37,8 +37,8 @@
   "scripts": {
     "test": "node --test tests/*.test.js",
     "lint": "eslint .",
-    "format": "prettier --no-config --write .",
-    "format:check": "prettier --no-config --check .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "sync:platforms": "node scripts/sync-platforms.js",
     "sync:check": "node scripts/sync-platforms.js --check"
   },

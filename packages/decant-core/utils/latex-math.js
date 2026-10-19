@@ -4,8 +4,10 @@
  * @returns {string} Cleaned LaTeX math
  */
 export function cleanLatexMath(latex) {
-  if (!latex || typeof latex !== 'string') return '';
-  return latex.replace(/\\\\([a-zA-Z]+)/g, '\\$1').replace(/\\([_\][*])/g, '$1');
+  if (!latex || typeof latex !== "string") return "";
+  return latex
+    .replace(/\\\\([a-zA-Z]+)/g, "\\$1")
+    .replace(/\\([_\][*])/g, "$1");
 }
 
 /**
@@ -17,7 +19,7 @@ export function cleanLatexMath(latex) {
  * @returns {string} Text with normalized LaTeX math delimiters
  */
 export function normalizeLatexMath(text) {
-  if (!text || typeof text !== 'string') return '';
+  if (!text || typeof text !== "string") return "";
 
   const placeholders = [];
   let tokenCounter = 0;
@@ -51,17 +53,23 @@ export function normalizeLatexMath(text) {
   });
 
   // 5. Convert display math: \[ ... \] or \\[ ... \\]
-  processed = processed.replace(/(?:\\{1,2}\[)([\s\S]+?)(?:\\{1,2}\])/g, (match, math) => {
-    return `$$${cleanLatexMath(math).trim()}$$`;
-  });
+  processed = processed.replace(
+    /(?:\\{1,2}\[)([\s\S]+?)(?:\\{1,2}\])/g,
+    (match, math) => {
+      return `$$${cleanLatexMath(math).trim()}$$`;
+    },
+  );
 
   // 6. Convert inline math: \( ... \) or \\( ... \\)
-  processed = processed.replace(/(?:\\{1,2}\()([\s\S]+?)(?:\\{1,2}\))/g, (match, math) => {
-    return `$${cleanLatexMath(math).trim()}$`;
-  });
+  processed = processed.replace(
+    /(?:\\{1,2}\()([\s\S]+?)(?:\\{1,2}\))/g,
+    (match, math) => {
+      return `$${cleanLatexMath(math).trim()}$`;
+    },
+  );
 
   // 7. Collapse excessive blank lines outside protected code
-  processed = processed.replace(/\n{3,}/g, '\n\n');
+  processed = processed.replace(/\n{3,}/g, "\n\n");
 
   // 8. Restore protected items in reverse order
   for (let i = placeholders.length - 1; i >= 0; i--) {

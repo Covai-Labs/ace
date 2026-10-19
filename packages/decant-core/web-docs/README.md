@@ -24,7 +24,6 @@ npm run build
 ```
 
 This triggers:
-
 1. `prebuild`: Executes `node ../scripts/sync-platforms.js` to ensure Markdown files and `src/data/platforms.ts` are in sync with `data/platforms.json`.
 2. `astro build`: Compiles all pages and sitemaps into `../docs`.
 3. `prettier --write ../docs`: Formats the generated output for consistent code style.

@@ -1,9 +1,9 @@
-import { Readability } from '@mozilla/readability';
-import Defuddle from 'defuddle';
-import { extractFromHtml } from '@extractus/article-extractor';
-import { convertToMarkdown } from '../utils/html-to-markdown.js';
-import { scoreContent, cleanTitle } from './scoring.js';
-import { ChatParser } from '../ai/base.js';
+import { Readability } from "@mozilla/readability";
+import Defuddle from "defuddle";
+import { extractFromHtml } from "@extractus/article-extractor";
+import { convertToMarkdown } from "../utils/html-to-markdown.js";
+import { scoreContent, cleanTitle } from "./scoring.js";
+import { ChatParser } from "../ai/base.js";
 
 /**
  * Resolves a Document object from a document or an HTML string.
@@ -13,41 +13,45 @@ import { ChatParser } from '../ai/base.js';
  * @param {string} [url]
  * @returns {Promise<{ doc: Document, rawHtml: string, url: string }>}
  */
-async function resolveDocument(docOrHtml, url = '') {
+async function resolveDocument(docOrHtml, url = "") {
   let doc = null;
-  let rawHtml = '';
+  let rawHtml = "";
   let finalUrl = url;
 
-  if (typeof docOrHtml === 'string') {
+  if (typeof docOrHtml === "string") {
     rawHtml = docOrHtml;
-    if (typeof DOMParser !== 'undefined') {
-      doc = new DOMParser().parseFromString(docOrHtml, 'text/html');
+    if (typeof DOMParser !== "undefined") {
+      doc = new DOMParser().parseFromString(docOrHtml, "text/html");
     } else {
-      const { parseHTML } = await import('linkedom');
+      const { parseHTML } = await import("linkedom");
       const parsed = parseHTML(docOrHtml);
       doc = parsed.document;
     }
-  } else if (docOrHtml && typeof docOrHtml === 'object' && docOrHtml.documentElement) {
+  } else if (
+    docOrHtml &&
+    typeof docOrHtml === "object" &&
+    docOrHtml.documentElement
+  ) {
     doc = docOrHtml;
-    rawHtml = docOrHtml.documentElement.innerHTML || '';
+    rawHtml = docOrHtml.documentElement.innerHTML || "";
     if (
       !finalUrl &&
       docOrHtml.location &&
       docOrHtml.location.href &&
-      docOrHtml.location.href !== 'about:blank'
+      docOrHtml.location.href !== "about:blank"
     ) {
       finalUrl = docOrHtml.location.href;
     }
-  } else if (typeof document !== 'undefined') {
+  } else if (typeof document !== "undefined") {
     doc = document;
-    rawHtml = document.documentElement.innerHTML || '';
-    if (!finalUrl && typeof window !== 'undefined' && window.location) {
+    rawHtml = document.documentElement.innerHTML || "";
+    if (!finalUrl && typeof window !== "undefined" && window.location) {
       finalUrl = window.location.href;
     }
   }
 
   if (!finalUrl) {
-    finalUrl = 'https://localhost/article';
+    finalUrl = "https://localhost/article";
   }
 
   return { doc, rawHtml, url: finalUrl };
@@ -78,69 +82,81 @@ export async function extractArticleIntelligent(docOrHtml, options = {}) {
   const { doc, rawHtml, url } = await resolveDocument(docOrHtml, options.url);
 
   if (!doc) {
-    throw new Error('Unable to resolve a valid Document object for extraction.');
+    throw new Error(
+      "Unable to resolve a valid Document object for extraction.",
+    );
   }
 
   // 1. Run all 3 extractors concurrently
-  const [readabilitySettled, defuddleSettled, extractusSettled] = await Promise.allSettled([
-    // Mozilla Readability
-    Promise.resolve().then(() => {
-      try {
-        const clone = doc.cloneNode(true);
-        const reader = new Readability(clone);
-        return reader.parse();
-      } catch {
-        return null;
-      }
-    }),
-    // Defuddle
-    Promise.resolve().then(() => {
-      try {
-        const defuddle = new Defuddle(doc, { url });
-        return defuddle.parse();
-      } catch {
-        return null;
-      }
-    }),
-    // Article-Extractor (Metadata & JSON-LD)
-    Promise.resolve().then(async () => {
-      try {
-        if (!rawHtml) return null;
-        return await extractFromHtml(rawHtml, url);
-      } catch {
-        return null;
-      }
-    }),
-  ]);
+  const [readabilitySettled, defuddleSettled, extractusSettled] =
+    await Promise.allSettled([
+      // Mozilla Readability
+      Promise.resolve().then(() => {
+        try {
+          const clone = doc.cloneNode(true);
+          const reader = new Readability(clone);
+          return reader.parse();
+        } catch {
+          return null;
+        }
+      }),
+      // Defuddle
+      Promise.resolve().then(() => {
+        try {
+          const defuddle = new Defuddle(doc, { url });
+          return defuddle.parse();
+        } catch {
+          return null;
+        }
+      }),
+      // Article-Extractor (Metadata & JSON-LD)
+      Promise.resolve().then(async () => {
+        try {
+          if (!rawHtml) return null;
+          return await extractFromHtml(rawHtml, url);
+        } catch {
+          return null;
+        }
+      }),
+    ]);
 
-  const rData = readabilitySettled.status === 'fulfilled' ? readabilitySettled.value : null;
-  const dData = defuddleSettled.status === 'fulfilled' ? defuddleSettled.value : null;
-  const mData = extractusSettled.status === 'fulfilled' ? extractusSettled.value : null;
+  const rData =
+    readabilitySettled.status === "fulfilled" ? readabilitySettled.value : null;
+  const dData =
+    defuddleSettled.status === "fulfilled" ? defuddleSettled.value : null;
+  const mData =
+    extractusSettled.status === "fulfilled" ? extractusSettled.value : null;
 
   // 2. Best-of-breed Metadata Resolution
   const ogSiteName = doc
     .querySelector?.('meta[property="og:site_name"], meta[name="og:site_name"]')
-    ?.getAttribute?.('content');
+    ?.getAttribute?.("content");
   const metaAuthor = doc
     .querySelector?.('meta[name="author"], meta[property="article:author"]')
-    ?.getAttribute?.('content');
-  const siteName = ogSiteName || mData?.source || rData?.siteName || dData?.site || '';
+    ?.getAttribute?.("content");
+  const siteName =
+    ogSiteName || mData?.source || rData?.siteName || dData?.site || "";
 
-  const articleH1 = doc.querySelector?.('article h1, main h1')?.textContent?.trim();
+  const articleH1 = doc
+    .querySelector?.("article h1, main h1")
+    ?.textContent?.trim();
   const rawTitle =
     articleH1 && articleH1.length > 3
       ? articleH1
-      : mData?.title || rData?.title || dData?.title || doc.title || 'Untitled';
+      : mData?.title || rData?.title || dData?.title || doc.title || "Untitled";
   const title = cleanTitle(rawTitle, siteName);
 
-  const author = metaAuthor || mData?.author || rData?.byline || dData?.author || '';
-  const published = mData?.published || rData?.publishedTime || dData?.published || '';
-  const description = mData?.description || rData?.excerpt || dData?.description || '';
-  const image = mData?.image || dData?.image || '';
+  const author =
+    metaAuthor || mData?.author || rData?.byline || dData?.author || "";
+  const published =
+    mData?.published || rData?.publishedTime || dData?.published || "";
+  const description =
+    mData?.description || rData?.excerpt || dData?.description || "";
+  const image = mData?.image || dData?.image || "";
 
   // 3. Content Quality Scoring & Arbitration
-  const rHtml = rData?.content || '';
-  const dHtml = dData?.content || '';
+  const rHtml = rData?.content || "";
+  const dHtml = dData?.content || "";
 
   const rScore = scoreContent(rHtml);
   const dScore = scoreContent(dHtml);
@@ -150,35 +166,41 @@ export async function extractArticleIntelligent(docOrHtml, options = {}) {
 
   if (rScore === 0 && dScore === 0) {
     // Fallback: take main/article or body
-    const mainEl = doc.querySelector('main, article, #content, .content, .post');
-    bestHtml = mainEl ? mainEl.innerHTML : doc.body ? doc.body.innerHTML : rawHtml;
-    winningEngine = 'raw';
+    const mainEl = doc.querySelector(
+      "main, article, #content, .content, .post",
+    );
+    bestHtml = mainEl
+      ? mainEl.innerHTML
+      : doc.body
+        ? doc.body.innerHTML
+        : rawHtml;
+    winningEngine = "raw";
   } else if (rScore >= dScore) {
     bestHtml = rHtml || dHtml;
-    winningEngine = 'readability';
+    winningEngine = "readability";
   } else {
     bestHtml = dHtml || rHtml;
-    winningEngine = 'defuddle';
+    winningEngine = "defuddle";
   }
 
   // 4. Convert to Markdown using decant-core convertToMarkdown
   let markdownBody;
   try {
-    const container = doc.createElement('div');
+    const container = doc.createElement("div");
     container.innerHTML = bestHtml;
     markdownBody = convertToMarkdown(container, options.turndownOptions || {});
   } catch {
     markdownBody = convertToMarkdown(bestHtml, options.turndownOptions || {});
   }
-  const cleanMarkdown = markdownBody ? markdownBody.trim() : '';
+  const cleanMarkdown = markdownBody ? markdownBody.trim() : "";
   const fullMarkdown = title ? `# ${title}\n\n${cleanMarkdown}` : cleanMarkdown;
 
   // Approximate word count
   const rawText = bestHtml
-    .replace(/<[^>]+>/g, ' ')
-    .replace(/\s+/g, ' ')
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
     .trim();
-  const wordCount = rawText ? rawText.split(' ').length : 0;
+  const wordCount = rawText ? rawText.split(" ").length : 0;
 
   return {
     title,
@@ -206,10 +228,10 @@ export const extractArticle = extractArticleIntelligent;
  * allowing extensions to treat generic web pages uniformly alongside AI chat parsers.
  */
 export class ArticleParser extends ChatParser {
-  name = 'WebArticle';
+  name = "WebArticle";
 
   getPlatformName() {
-    return 'Web Article';
+    return "Web Article";
   }
 
   /**
@@ -218,11 +240,20 @@ export class ArticleParser extends ChatParser {
    * @returns {boolean}
    */
   isAvailable(url) {
-    if (!url || typeof url !== 'string') return false;
-    if (typeof window !== 'undefined' && window.self && window.top && window.self !== window.top) {
+    if (!url || typeof url !== "string") return false;
+    if (
+      typeof window !== "undefined" &&
+      window.self &&
+      window.top &&
+      window.self !== window.top
+    ) {
       return false;
     }
-    return url.startsWith('http://') || url.startsWith('https://') || url.startsWith('file://');
+    return (
+      url.startsWith("http://") ||
+      url.startsWith("https://") ||
+      url.startsWith("file://")
+    );
   }
 
   /**
@@ -237,7 +268,7 @@ export class ArticleParser extends ChatParser {
    */
   async parse(options = {}) {
     const article = await extractArticleIntelligent(
-      typeof document !== 'undefined' ? document : null,
+      typeof document !== "undefined" ? document : null,
       options,
     );
 
@@ -245,15 +276,15 @@ export class ArticleParser extends ChatParser {
       title: article.title,
       messages: [
         {
-          role: 'Assistant',
+          role: "Assistant",
           content: article.content,
         },
       ],
       metadata: {
-        Source: article.siteName || 'Web Article',
-        Author: article.author || '',
-        Date: article.published || new Date().toISOString().split('T')[0],
-        Description: article.description || '',
+        Source: article.siteName || "Web Article",
+        Author: article.author || "",
+        Date: article.published || new Date().toISOString().split("T")[0],
+        Description: article.description || "",
         Engine: article.engine,
       },
       url: article.url,

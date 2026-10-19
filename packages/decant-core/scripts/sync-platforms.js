@@ -1,23 +1,29 @@
 #!/usr/bin/env node
-import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import fs from "node:fs";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const rootDir = path.resolve(__dirname, '..');
+const rootDir = path.resolve(__dirname, "..");
 
-const platformsPath = path.join(rootDir, 'data', 'platforms.json');
-const supportedMdPath = path.join(rootDir, 'SUPPORTED_PLATFORMS.md');
-const readmePath = path.join(rootDir, 'README.md');
-const webDocsPlatformsPath = path.join(rootDir, 'web-docs', 'src', 'data', 'platforms.ts');
+const platformsPath = path.join(rootDir, "data", "platforms.json");
+const supportedMdPath = path.join(rootDir, "SUPPORTED_PLATFORMS.md");
+const readmePath = path.join(rootDir, "README.md");
+const webDocsPlatformsPath = path.join(
+  rootDir,
+  "web-docs",
+  "src",
+  "data",
+  "platforms.ts",
+);
 
-const isCheckMode = process.argv.includes('--check');
+const isCheckMode = process.argv.includes("--check");
 
 function readFileIfExists(filePath) {
   try {
-    return fs.readFileSync(filePath, 'utf-8');
+    return fs.readFileSync(filePath, "utf-8");
   } catch (err) {
-    if (err && err.code === 'ENOENT') {
+    if (err && err.code === "ENOENT") {
       return null;
     }
     throw err;
@@ -26,16 +32,16 @@ function readFileIfExists(filePath) {
 
 async function getPrettier() {
   try {
-    const mod = await import('prettier');
+    const mod = await import("prettier");
     return mod.default || mod;
   } catch {
     try {
       const webDocsPrettier = path.join(
         rootDir,
-        'web-docs',
-        'node_modules',
-        'prettier',
-        'index.mjs',
+        "web-docs",
+        "node_modules",
+        "prettier",
+        "index.mjs",
       );
       const mod = await import(webDocsPrettier);
       return mod.default || mod;
@@ -46,7 +52,7 @@ async function getPrettier() {
 }
 
 async function formatCode(content, parser, prettierInstance) {
-  if (prettierInstance && typeof prettierInstance.format === 'function') {
+  if (prettierInstance && typeof prettierInstance.format === "function") {
     try {
       return await prettierInstance.format(content, { parser });
     } catch {
@@ -58,8 +64,8 @@ async function formatCode(content, parser, prettierInstance) {
 
 async function main() {
   const prettierInstance = await getPrettier();
-  const platforms = JSON.parse(fs.readFileSync(platformsPath, 'utf-8'));
-  const aiPlatforms = platforms.filter((p) => p.id !== 'article');
+  const platforms = JSON.parse(fs.readFileSync(platformsPath, "utf-8"));
+  const aiPlatforms = platforms.filter((p) => p.id !== "article");
   const aiCount = aiPlatforms.length;
 
   // 1. Build Markdown Table
@@ -68,10 +74,10 @@ async function main() {
   });
 
   const markdownTable = [
-    '| Platform | Parser | Extraction strategy |',
-    '| :--- | :--- | :--- |',
+    "| Platform | Parser | Extraction strategy |",
+    "| :--- | :--- | :--- |",
     ...tableRows,
-  ].join('\n');
+  ].join("\n");
 
   let hasDiff = false;
 
@@ -98,15 +104,24 @@ async function main() {
         );
       }
     } else {
-      let updatedSupported = currentSupported.replace(supportedRegex, `${markdownTable}$2`);
-      updatedSupported = await formatCode(updatedSupported, 'markdown', prettierInstance);
+      let updatedSupported = currentSupported.replace(
+        supportedRegex,
+        `${markdownTable}$2`,
+      );
+      updatedSupported = await formatCode(
+        updatedSupported,
+        "markdown",
+        prettierInstance,
+      );
       if (currentSupported !== updatedSupported) {
         if (isCheckMode) {
-          console.error('SUPPORTED_PLATFORMS.md is out of sync with data/platforms.json');
+          console.error(
+            "SUPPORTED_PLATFORMS.md is out of sync with data/platforms.json",
+          );
           hasDiff = true;
         } else {
-          fs.writeFileSync(supportedMdPath, updatedSupported, 'utf-8');
-          console.log('✓ Updated SUPPORTED_PLATFORMS.md');
+          fs.writeFileSync(supportedMdPath, updatedSupported, "utf-8");
+          console.log("✓ Updated SUPPORTED_PLATFORMS.md");
         }
       }
     }
@@ -126,10 +141,14 @@ async function main() {
       /(## Supported Platforms\n\n)\d+ AI chat platform parsers[^\n]*\n\n(\| Platform[\s\S]*?)(\n\nAll parsers extend)/;
     if (!readmeSectionRegex.test(currentReadme)) {
       if (isCheckMode) {
-        console.error("README.md is missing the '## Supported Platforms' section marker");
+        console.error(
+          "README.md is missing the '## Supported Platforms' section marker",
+        );
         hasDiff = true;
       } else {
-        throw new Error("README.md is missing the '## Supported Platforms' section marker");
+        throw new Error(
+          "README.md is missing the '## Supported Platforms' section marker",
+        );
       }
     } else {
       let updatedReadme = currentReadme.replace(
@@ -140,15 +159,19 @@ async function main() {
         readmeSectionRegex,
         `$1${aiCount} AI chat platform parsers plus generic web article extraction:\n\n${markdownTable}$3`,
       );
-      updatedReadme = await formatCode(updatedReadme, 'markdown', prettierInstance);
+      updatedReadme = await formatCode(
+        updatedReadme,
+        "markdown",
+        prettierInstance,
+      );
 
       if (currentReadme !== updatedReadme) {
         if (isCheckMode) {
-          console.error('README.md is out of sync with data/platforms.json');
+          console.error("README.md is out of sync with data/platforms.json");
           hasDiff = true;
         } else {
-          fs.writeFileSync(readmePath, updatedReadme, 'utf-8');
-          console.log('✓ Updated README.md');
+          fs.writeFileSync(readmePath, updatedReadme, "utf-8");
+          console.log("✓ Updated README.md");
         }
       }
     }
@@ -177,17 +200,19 @@ export interface PlatformEntry {
 export const PLATFORMS: PlatformEntry[] = ${JSON.stringify(platforms, null, 2)};
 `;
 
-  tsContent = await formatCode(tsContent, 'typescript', prettierInstance);
+  tsContent = await formatCode(tsContent, "typescript", prettierInstance);
 
   const currentTs = readFileIfExists(webDocsPlatformsPath);
   if (currentTs !== tsContent) {
     if (isCheckMode) {
-      console.error('web-docs/src/data/platforms.ts is out of sync with data/platforms.json');
+      console.error(
+        "web-docs/src/data/platforms.ts is out of sync with data/platforms.json",
+      );
       hasDiff = true;
     } else {
       try {
-        fs.writeFileSync(webDocsPlatformsPath, tsContent, 'utf-8');
-        console.log('✓ Updated web-docs/src/data/platforms.ts');
+        fs.writeFileSync(webDocsPlatformsPath, tsContent, "utf-8");
+        console.log("✓ Updated web-docs/src/data/platforms.ts");
       } catch (err) {
         console.error(`Failed to write ${webDocsPlatformsPath}:`, err.message);
         throw err;

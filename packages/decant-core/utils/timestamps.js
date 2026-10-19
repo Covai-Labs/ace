@@ -23,14 +23,14 @@ export function normalizeEpochToMs(value) {
  * @returns {string|null} ISO string for epochs, trimmed input for date strings, else null.
  */
 export function normalizeTimestamp(value) {
-  if (typeof value === 'number' && Number.isFinite(value)) {
+  if (typeof value === "number" && Number.isFinite(value)) {
     try {
       return new Date(normalizeEpochToMs(value)).toISOString();
     } catch {
       return null;
     }
   }
-  if (typeof value === 'string') {
+  if (typeof value === "string") {
     const trimmed = value.trim();
     if (!trimmed) return null;
     if (/^[+-]?\d+(\.\d+)?$/.test(trimmed)) {

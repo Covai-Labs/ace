@@ -1,11 +1,11 @@
-import { ChatParser } from './base.js';
-import { convertToMarkdown } from '../utils/html-to-markdown.js';
-import { normalizeTimestamp } from '../utils/timestamps.js';
+import { ChatParser } from "./base.js";
+import { convertToMarkdown } from "../utils/html-to-markdown.js";
+import { normalizeTimestamp } from "../utils/timestamps.js";
 
 function getUserToken() {
   try {
-    if (typeof localStorage === 'undefined') return null;
-    const raw = localStorage.getItem('userToken');
+    if (typeof localStorage === "undefined") return null;
+    const raw = localStorage.getItem("userToken");
     if (!raw) return null;
     try {
       const parsed = JSON.parse(raw);
@@ -19,117 +19,119 @@ function getUserToken() {
 }
 
 export function formatFileSize(bytes) {
-  if (typeof bytes !== 'number' || !Number.isFinite(bytes) || bytes < 0) {
-    return '';
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes < 0) {
+    return "";
   }
   if (bytes < 1024) return `${bytes} B`;
   if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function buildDeepSeekFileUrl(signedPath, mode = 'r') {
-  if (!signedPath) return '';
-  const filesHost = 'files.deepseeksvc.com';
+export function buildDeepSeekFileUrl(signedPath, mode = "r") {
+  if (!signedPath) return "";
+  const filesHost = "files.deepseeksvc.com";
   let url = signedPath;
-  if (!url.startsWith('http://') && !url.startsWith('https://')) {
-    url = `https://${filesHost}/api${signedPath.startsWith('/') ? '' : '/'}${signedPath}`;
+  if (!url.startsWith("http://") && !url.startsWith("https://")) {
+    url = `https://${filesHost}/api${signedPath.startsWith("/") ? "" : "/"}${signedPath}`;
   }
   try {
     const parsed = new URL(url);
-    if (!parsed.searchParams.has('ty')) {
-      parsed.searchParams.set('ty', mode);
+    if (!parsed.searchParams.has("ty")) {
+      parsed.searchParams.set("ty", mode);
     }
     return parsed.toString();
   } catch {
-    const sep = signedPath.includes('?') ? '&' : '?';
-    return signedPath.includes('ty=') ? signedPath : `${signedPath}${sep}ty=${mode}`;
+    const sep = signedPath.includes("?") ? "&" : "?";
+    return signedPath.includes("ty=")
+      ? signedPath
+      : `${signedPath}${sep}ty=${mode}`;
   }
 }
 
 function isTextFile(fileName) {
-  if (!fileName || typeof fileName !== 'string') return false;
+  if (!fileName || typeof fileName !== "string") return false;
   const match = fileName.match(/\.([a-zA-Z0-9_-]+)$/);
   if (!match) return false;
   const ext = match[1].toLowerCase();
   const textExtensions = new Set([
-    'txt',
-    'md',
-    'markdown',
-    'csv',
-    'tsv',
-    'json',
-    'jsonl',
-    'xml',
-    'yaml',
-    'yml',
-    'toml',
-    'ini',
-    'conf',
-    'log',
-    'sql',
-    'html',
-    'htm',
-    'css',
-    'scss',
-    'less',
-    'js',
-    'jsx',
-    'mjs',
-    'cjs',
-    'ts',
-    'tsx',
-    'py',
-    'rb',
-    'java',
-    'c',
-    'cpp',
-    'h',
-    'hpp',
-    'cs',
-    'go',
-    'rs',
-    'php',
-    'sh',
-    'bash',
-    'zsh',
-    'bat',
-    'ps1',
-    'r',
-    'swift',
-    'kt',
-    'kts',
-    'scala',
-    'lua',
-    'pl',
-    'pm',
-    'dart',
-    'diff',
-    'patch',
+    "txt",
+    "md",
+    "markdown",
+    "csv",
+    "tsv",
+    "json",
+    "jsonl",
+    "xml",
+    "yaml",
+    "yml",
+    "toml",
+    "ini",
+    "conf",
+    "log",
+    "sql",
+    "html",
+    "htm",
+    "css",
+    "scss",
+    "less",
+    "js",
+    "jsx",
+    "mjs",
+    "cjs",
+    "ts",
+    "tsx",
+    "py",
+    "rb",
+    "java",
+    "c",
+    "cpp",
+    "h",
+    "hpp",
+    "cs",
+    "go",
+    "rs",
+    "php",
+    "sh",
+    "bash",
+    "zsh",
+    "bat",
+    "ps1",
+    "r",
+    "swift",
+    "kt",
+    "kts",
+    "scala",
+    "lua",
+    "pl",
+    "pm",
+    "dart",
+    "diff",
+    "patch",
   ]);
   return textExtensions.has(ext);
 }
 
 function escapeMarkdownLinkText(text) {
-  if (!text || typeof text !== 'string') return '';
+  if (!text || typeof text !== "string") return "";
   return text
-    .replace(/\\/g, '\\\\')
-    .replace(/[[\]]/g, '\\$&')
-    .replace(/[*_~`]/g, '\\$&');
+    .replace(/\\/g, "\\\\")
+    .replace(/[[\]]/g, "\\$&")
+    .replace(/[*_~`]/g, "\\$&");
 }
 
 export function formatDeepSeekFileAttachment(file) {
-  if (!file) return '';
+  if (!file) return "";
   const sizeLabel = formatFileSize(file.file_size);
-  const name = file.file_name || 'file';
+  const name = file.file_name || "file";
   const safeName = escapeMarkdownLinkText(name);
 
   if (file.is_image) {
-    const url = buildDeepSeekFileUrl(file.signed_path, 'p');
+    const url = buildDeepSeekFileUrl(file.signed_path, "p");
     return `\n\n**Attachment: ${safeName}**\n\n![${safeName}](${url})\n\n`;
   }
 
-  if (typeof file.extracted_content === 'string') {
-    const metaSuffix = sizeLabel ? ` _(${sizeLabel})_` : '';
+  if (typeof file.extracted_content === "string") {
+    const metaSuffix = sizeLabel ? ` _(${sizeLabel})_` : "";
     if (file.file_name) {
       return `\n\n### Attachment: ${file.file_name}${metaSuffix}\n\`\`\`\`\n${file.extracted_content}\n\`\`\`\`\n\n`;
     }
@@ -137,35 +139,35 @@ export function formatDeepSeekFileAttachment(file) {
   }
 
   // Fallback when content was not downloaded
-  const url = buildDeepSeekFileUrl(file.signed_path, 'r');
+  const url = buildDeepSeekFileUrl(file.signed_path, "r");
   if (url) {
-    const metaSuffix = sizeLabel ? ` · ${sizeLabel}` : '';
+    const metaSuffix = sizeLabel ? ` · ${sizeLabel}` : "";
     return `\n\n**Attachment: [${safeName}](${url})** _(document${metaSuffix})_\n\n`;
   }
-  const metaSuffix = sizeLabel ? ` _(${sizeLabel})_` : '';
+  const metaSuffix = sizeLabel ? ` _(${sizeLabel})_` : "";
   return `\n\n### Attachment: ${name}${metaSuffix}\n\n`;
 }
 
 export function extractDeepSeekMessageContent(msgNode) {
-  if (!msgNode) return '';
+  if (!msgNode) return "";
   // Current API shape: content lives in fragments[] ({type, content}).
   // REQUEST = user prompt, RESPONSE = final assistant answer.
   // FILE = attached file or pasted long text.
   // THINK / TOOL_* fragments are intermediate reasoning/tool output.
   if (Array.isArray(msgNode.fragments) && msgNode.fragments.length > 0) {
-    const isUser = msgNode.role === 'USER' || msgNode.role === 'user';
+    const isUser = msgNode.role === "USER" || msgNode.role === "user";
     if (isUser) {
       const promptFragments = msgNode.fragments.filter(
-        (f) => f && f.type === 'REQUEST' && typeof f.content === 'string',
+        (f) => f && f.type === "REQUEST" && typeof f.content === "string",
       );
       const promptText = promptFragments
         .map((f) => f.content.trim())
         .filter(Boolean)
-        .join('\n\n');
+        .join("\n\n");
 
-      let attachmentsText = '';
+      let attachmentsText = "";
       const fileFragments = msgNode.fragments.filter(
-        (f) => f && f.type === 'FILE' && Array.isArray(f.files),
+        (f) => f && f.type === "FILE" && Array.isArray(f.files),
       );
       for (const f of fileFragments) {
         for (const file of f.files) {
@@ -185,32 +187,35 @@ export function extractDeepSeekMessageContent(msgNode) {
       if (combined) return combined;
     }
 
-    const wanted = isUser ? 'REQUEST' : 'RESPONSE';
+    const wanted = isUser ? "REQUEST" : "RESPONSE";
     const picked = msgNode.fragments.filter((f) => f && f.type === wanted);
     const fallback = picked.length > 0 ? picked : msgNode.fragments;
     const text = fallback
-      .map((f) => (typeof f.content === 'string' ? f.content : ''))
-      .join('\n\n')
+      .map((f) => (typeof f.content === "string" ? f.content : ""))
+      .join("\n\n")
       .trim();
     if (text) return text;
   }
   // Legacy shape: top-level content/text fields.
-  const legacy = msgNode.content || msgNode.text || '';
-  return typeof legacy === 'string' ? legacy.trim() : '';
+  const legacy = msgNode.content || msgNode.text || "";
+  return typeof legacy === "string" ? legacy.trim() : "";
 }
 
 async function fetchDeepSeekFileContent(file) {
   if (!file || !file.signed_path || file.is_image) return null;
   if (file.file_name && !isTextFile(file.file_name)) return null;
 
-  const url = buildDeepSeekFileUrl(file.signed_path, 'r');
+  const url = buildDeepSeekFileUrl(file.signed_path, "r");
   if (!url) return null;
 
   let timeoutId = null;
   let signal;
-  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.timeout === 'function') {
+  if (
+    typeof AbortSignal !== "undefined" &&
+    typeof AbortSignal.timeout === "function"
+  ) {
     signal = AbortSignal.timeout(10000);
-  } else if (typeof AbortController !== 'undefined') {
+  } else if (typeof AbortController !== "undefined") {
     const controller = new AbortController();
     timeoutId = setTimeout(() => controller.abort(), 10000);
     signal = controller.signal;
@@ -222,7 +227,10 @@ async function fetchDeepSeekFileContent(file) {
       return await res.text();
     }
   } catch (err) {
-    console.warn(`[AI Exporter] Failed to fetch DeepSeek attachment "${file.file_name}":`, err);
+    console.warn(
+      `[AI Exporter] Failed to fetch DeepSeek attachment "${file.file_name}":`,
+      err,
+    );
   } finally {
     if (timeoutId !== null) {
       clearTimeout(timeoutId);
@@ -233,8 +241,8 @@ async function fetchDeepSeekFileContent(file) {
 
 function getConversationId() {
   try {
-    if (typeof window === 'undefined' || !window.location) return null;
-    const path = window.location.pathname || window.location.href || '';
+    if (typeof window === "undefined" || !window.location) return null;
+    const path = window.location.pathname || window.location.href || "";
     return (
       path.match(/\/chat\/s\/([a-f0-9-]+)/)?.[1] ??
       path.match(/\/a\/chat\/s\/([a-f0-9-]+)/)?.[1] ??
@@ -248,10 +256,10 @@ function getConversationId() {
 async function fetchDeepSeekConversation(sessionId, token) {
   const url = `https://chat.deepseek.com/api/v0/chat/history_messages?chat_session_id=${sessionId}&cache_version=0`;
   const response = await fetch(url, {
-    method: 'GET',
-    credentials: 'include',
+    method: "GET",
+    credentials: "include",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
       Authorization: `Bearer ${token}`,
     },
   });
@@ -290,12 +298,12 @@ async function fetchDeepSeekConversation(sessionId, token) {
   for (const msgNode of branch) {
     if (Array.isArray(msgNode?.fragments)) {
       for (const frag of msgNode.fragments) {
-        if (frag?.type === 'FILE' && Array.isArray(frag.files)) {
+        if (frag?.type === "FILE" && Array.isArray(frag.files)) {
           for (const file of frag.files) {
             if (
               !file.is_image &&
               file.signed_path &&
-              typeof file.extracted_content !== 'string' &&
+              typeof file.extracted_content !== "string" &&
               (!file.file_name || isTextFile(file.file_name))
             ) {
               filesToFetch.push(file);
@@ -325,20 +333,20 @@ async function fetchDeepSeekConversation(sessionId, token) {
 
   return branch
     .map((msgNode) => {
-      const isUser = msgNode.role === 'USER' || msgNode.role === 'user';
-      const role = isUser ? 'User' : 'DeepSeek';
+      const isUser = msgNode.role === "USER" || msgNode.role === "user";
+      const role = isUser ? "User" : "DeepSeek";
       const content = extractDeepSeekMessageContent(msgNode);
-      let thinking = '';
+      let thinking = "";
       if (!isUser && Array.isArray(msgNode.fragments)) {
         const thinkFragments = msgNode.fragments.filter(
-          (f) => f && f.type === 'THINK' && typeof f.content === 'string',
+          (f) => f && f.type === "THINK" && typeof f.content === "string",
         );
         thinking = thinkFragments
           .map((f) => f.content.trim())
           .filter(Boolean)
-          .join('\n\n');
+          .join("\n\n");
       }
-      let fullContent = '';
+      let fullContent = "";
       if (thinking) {
         fullContent += `<think>\n${thinking}\n</think>\n\n`;
       }
@@ -362,18 +370,20 @@ async function fetchDeepSeekConversation(sessionId, token) {
 }
 
 export class DeepSeekParser extends ChatParser {
-  name = 'DeepSeek';
+  name = "DeepSeek";
   isAvailable(url) {
-    return url.includes('chat.deepseek.com');
+    return url.includes("chat.deepseek.com");
   }
 
   async parse() {
-    const title = document.title || 'DeepSeek Chat';
+    const title = document.title || "DeepSeek Chat";
 
     const currentUrl =
-      typeof window !== 'undefined' && window.location ? window.location.href || '' : '';
+      typeof window !== "undefined" && window.location
+        ? window.location.href || ""
+        : "";
     const metadata = {
-      Source: 'DeepSeek',
+      Source: "DeepSeek",
       Date: new Date().toLocaleString(),
       Link: currentUrl,
     };
@@ -389,20 +399,23 @@ export class DeepSeekParser extends ChatParser {
             title,
             messages: apiMessages,
             url: currentUrl,
-            metadata: { ...metadata, Method: 'API' },
+            metadata: { ...metadata, Method: "API" },
           };
         }
       }
     } catch (e) {
-      console.warn('[AI Exporter] DeepSeek API fetch failed, falling back to DOM:', e);
+      console.warn(
+        "[AI Exporter] DeepSeek API fetch failed, falling back to DOM:",
+        e,
+      );
     }
 
     // Secondary: DOM Fallback
     const messages = [];
 
     // Selectors from research
-    const userSelector = '.fbb737a4';
-    const assistantSelector = '.ds-markdown';
+    const userSelector = ".fbb737a4";
+    const assistantSelector = ".ds-markdown";
 
     // We'll traverse the DOM to find these in order. Nested matches
     // (e.g. a .ds-markdown code fragment inside an assistant turn) are
@@ -415,13 +428,17 @@ export class DeepSeekParser extends ChatParser {
       // ds-think-content containers and would otherwise duplicate turns.
       let ancestor = el.parentElement;
       while (ancestor) {
-        const cls = typeof ancestor.className === 'string' ? ancestor.className : '';
+        const cls =
+          typeof ancestor.className === "string" ? ancestor.className : "";
         if (/think/i.test(cls)) return false;
         ancestor = ancestor.parentElement;
       }
       let parent = el.parentElement;
       while (parent) {
-        if (parent.matches && (parent.matches(userSelector) || parent.matches(assistantSelector))) {
+        if (
+          parent.matches &&
+          (parent.matches(userSelector) || parent.matches(assistantSelector))
+        ) {
           return false;
         }
         parent = parent.parentElement;
@@ -430,26 +447,28 @@ export class DeepSeekParser extends ChatParser {
     });
 
     outerElements.forEach((el) => {
-      let role = 'Unknown';
-      let thinking = '';
+      let role = "Unknown";
+      let thinking = "";
       if (el.matches(userSelector)) {
-        role = 'User';
+        role = "User";
       } else if (el.matches(assistantSelector)) {
-        role = 'DeepSeek';
-        const messageContainer = (el.closest && el.closest('.ds-message')) || el.parentElement;
+        role = "DeepSeek";
+        const messageContainer =
+          (el.closest && el.closest(".ds-message")) || el.parentElement;
         if (messageContainer) {
-          const thinkContainers = messageContainer.querySelectorAll('.ds-think-content');
+          const thinkContainers =
+            messageContainer.querySelectorAll(".ds-think-content");
           if (thinkContainers.length > 0) {
             thinking = Array.from(thinkContainers)
               .map((tc) => convertToMarkdown(tc).trim())
               .filter(Boolean)
-              .join('\n\n');
+              .join("\n\n");
           }
         }
       }
 
       const text = convertToMarkdown(el);
-      let fullContent = '';
+      let fullContent = "";
       if (thinking) {
         fullContent += `<think>\n${thinking}\n</think>\n\n`;
       }
@@ -468,14 +487,17 @@ export class DeepSeekParser extends ChatParser {
 
     // Fallback if the specific classes fail (e.g. class name rotation)
     if (messages.length === 0) {
-      const messageRows = document.querySelectorAll('.ds-message-row, .message-row');
+      const messageRows = document.querySelectorAll(
+        ".ds-message-row, .message-row",
+      );
       messageRows.forEach((row) => {
-        const isUser = row.classList.contains('ds-user-message');
-        const role = isUser ? 'User' : 'DeepSeek';
+        const isUser = row.classList.contains("ds-user-message");
+        const role = isUser ? "User" : "DeepSeek";
         const rowClone = row.cloneNode(true);
-        let thinking = '';
+        let thinking = "";
         if (!isUser) {
-          const thinkContainers = rowClone.querySelectorAll('.ds-think-content');
+          const thinkContainers =
+            rowClone.querySelectorAll(".ds-think-content");
           if (thinkContainers.length > 0) {
             thinking = Array.from(thinkContainers)
               .map((tc) => {
@@ -484,11 +506,11 @@ export class DeepSeekParser extends ChatParser {
                 return md;
               })
               .filter(Boolean)
-              .join('\n\n');
+              .join("\n\n");
           }
         }
         const text = convertToMarkdown(rowClone);
-        let fullContent = '';
+        let fullContent = "";
         if (thinking) {
           fullContent += `<think>\n${thinking}\n</think>\n\n`;
         }
@@ -510,7 +532,7 @@ export class DeepSeekParser extends ChatParser {
       title,
       messages,
       url: currentUrl,
-      metadata: { ...metadata, Method: 'DOM' },
+      metadata: { ...metadata, Method: "DOM" },
     };
   }
 }
