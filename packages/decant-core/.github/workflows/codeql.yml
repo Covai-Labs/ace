@@ -1,0 +1,19 @@
+name: 'CodeQL'
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 6 * * 1'
+
+jobs:
+  codeql:
+    uses: Covai-Labs/.github/.github/workflows/reusable-codeql.yml@main
+    with:
+      config-file: ./.github/codeql/codeql-config.yml
+    permissions:
+      security-events: write
+      actions: read
+      contents: read

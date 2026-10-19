@@ -1,0 +1,162 @@
+[
+  {
+    "id": "chatgpt",
+    "platform": "ChatGPT",
+    "parser": "ChatGPTParser",
+    "module": "decant-core/ai/chatgpt",
+    "strategy": "DOM + internal API",
+    "notes": "Fallback and RPC-assisted extraction; scroll/dedup helper for long threads."
+  },
+  {
+    "id": "claude",
+    "platform": "Claude",
+    "parser": "ClaudeParser",
+    "module": "decant-core/ai/claude",
+    "strategy": "DOM + internal API + React fiber",
+    "notes": "Internal API first with DOM fallback; reads the React tree for artifacts and structured blocks."
+  },
+  {
+    "id": "gemini",
+    "platform": "Google Gemini",
+    "parser": "GeminiParser",
+    "module": "decant-core/ai/gemini",
+    "strategy": "DOM + batchexecute RPC",
+    "notes": "Uses batchexecute RPC pagination with resilient DOM fallback."
+  },
+  {
+    "id": "copilot",
+    "platform": "Microsoft Copilot",
+    "parser": "CopilotParser",
+    "module": "decant-core/ai/copilot",
+    "strategy": "DOM",
+    "notes": "Multi-domain (bing + copilot) DOM extraction."
+  },
+  {
+    "id": "perplexity",
+    "platform": "Perplexity",
+    "parser": "PerplexityParser",
+    "module": "decant-core/ai/perplexity",
+    "strategy": "Internal API + DOM",
+    "notes": "Internal API first, DOM fallback for source citations and answers."
+  },
+  {
+    "id": "deepseek",
+    "platform": "DeepSeek",
+    "parser": "DeepSeekParser",
+    "module": "decant-core/ai/deepseek",
+    "strategy": "DOM + internal API",
+    "notes": "API-assisted parsing (fragments[]) with DOM fallback."
+  },
+  {
+    "id": "qwen",
+    "platform": "Qwen",
+    "parser": "QwenParser",
+    "module": "decant-core/ai/qwen",
+    "strategy": "DOM",
+    "notes": "Structured DOM extraction incl. file attachments."
+  },
+  {
+    "id": "meta",
+    "platform": "Meta AI",
+    "parser": "MetaParser",
+    "module": "decant-core/ai/meta",
+    "strategy": "Internal API + DOM",
+    "notes": "Internal GraphQL API (pinned + auto-resolved doc_ids) with DOM fallback."
+  },
+  {
+    "id": "mistral",
+    "platform": "Mistral / Le Chat",
+    "parser": "MistralParser",
+    "module": "decant-core/ai/mistral",
+    "strategy": "DOM",
+    "notes": "DOM extraction."
+  },
+  {
+    "id": "lumo",
+    "platform": "Proton Lumo",
+    "parser": "LumoParser",
+    "module": "decant-core/ai/lumo",
+    "strategy": "DOM",
+    "notes": "DOM only — API responses are E2E-encrypted and not readable."
+  },
+  {
+    "id": "z-ai",
+    "platform": "Z.ai",
+    "parser": "ZAiParser",
+    "module": "decant-core/ai/z_ai",
+    "strategy": "Internal API + DOM",
+    "notes": "Internal API (chat skeleton + batched bodies) with DOM fallback."
+  },
+  {
+    "id": "grok",
+    "platform": "Grok",
+    "parser": "GrokParser",
+    "module": "decant-core/ai/grok",
+    "strategy": "Internal API + DOM",
+    "notes": "Internal API (response-node ordering + load-responses bodies) with DOM fallback."
+  },
+  {
+    "id": "google-ai-studio",
+    "platform": "Google AI Studio",
+    "parser": "GoogleAIStudioParser",
+    "module": "decant-core/ai/google_ai_studio",
+    "strategy": "DOM",
+    "notes": "DOM extraction for aistudio.google.com sessions."
+  },
+  {
+    "id": "notebooklm",
+    "platform": "NotebookLM",
+    "parser": "NotebookLMParser",
+    "module": "decant-core/ai/notebooklm",
+    "strategy": "DOM",
+    "notes": "DOM extraction incl. notes and citations."
+  },
+  {
+    "id": "google-search-ai",
+    "platform": "Google Search AI (AI Overviews)",
+    "parser": "GoogleSearchAIParser",
+    "module": "decant-core/ai/google_search_ai",
+    "strategy": "DOM",
+    "notes": "DOM extraction for SGE overviews."
+  },
+  {
+    "id": "gemini-cloud-assist",
+    "platform": "Gemini Cloud Assist",
+    "parser": "GeminiCloudAssistParser",
+    "module": "decant-core/ai/gemini_cloud_assist",
+    "strategy": "DOM",
+    "notes": "DOM extraction for console.cloud.google.com assistants."
+  },
+  {
+    "id": "joyland",
+    "platform": "Joyland",
+    "parser": "JoylandParser",
+    "module": "decant-core/ai/joyland",
+    "strategy": "DOM",
+    "notes": "DOM extraction for character chat platforms."
+  },
+  {
+    "id": "chub",
+    "platform": "Chub",
+    "parser": "ChubParser",
+    "module": "decant-core/ai/chub",
+    "strategy": "DOM",
+    "notes": "DOM extraction."
+  },
+  {
+    "id": "duck-ai",
+    "platform": "Duck.ai (DuckDuckGo AI)",
+    "parser": "DuckAIParser",
+    "module": "decant-core/ai/duck_ai",
+    "strategy": "DOM",
+    "notes": "DOM (client-side privacy, no server chat history API)."
+  },
+  {
+    "id": "article",
+    "platform": "Generic Web Article",
+    "parser": "ArticleParser",
+    "module": "decant-core/article",
+    "strategy": "Readability + Defuddle + Article-Extractor",
+    "notes": "Runs three extractors concurrently and arbitrates by content-quality scoring."
+  }
+]

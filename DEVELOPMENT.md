@@ -51,14 +51,13 @@ npm run format:check
 
 ### Add or update a platform parser
 
-Platform parsers live in `content/parsers` (or are consumed from `decant-core`). If an AI chat interface
+Platform parsers live directly in `packages/decant-core/ai/`. If an AI chat interface
 changes its DOM or you want to add support for a new platform:
 
-1. Copy an existing parser as a starting point and add it to the parsers registry in `content/main.js`.
-2. Add a DOM fixture under `tests/fixtures/` and a matching `tests/<platform>-parser.test.mjs`.
-3. Add the platform to the README supported platforms table and `web/src/data/guides.ts`.
-4. If a custom guide page is needed, add `web/src/pages/<platform>-exporter.astro`; otherwise, provide metadata in `web/src/data/platform-details.ts` so dynamic routing `[slug].astro` generates it automatically.
-5. Run `npm test && npm run lint && npm run format:check` (and `cd web && npm run build` if files under `web/` were modified) before committing.
+1. Locate or create the parser file in `packages/decant-core/ai/<platform>.js`.
+2. Add or update test fixtures in `packages/decant-core/tests/fixtures/` and add test coverage in `packages/decant-core/tests/`.
+3. If adding a new platform, register metadata in `packages/decant-core/data/platforms.json` and run `npm run sync:platforms --workspace=packages/decant-core`.
+4. Run `npm test && npm run lint && npm run format:check` to verify all tests and style checks pass before committing.
 
 ## Website & Platform Guides (`ace.covai.org`)
 

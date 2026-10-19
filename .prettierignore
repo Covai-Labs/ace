@@ -17,4 +17,10 @@ playwright-report/
 test-results/
 *-snapshots/
 *.png
+LICENSE
 CHANGELOG.md
+packages/decant-core/tests/fixtures/
+packages/decant-core/CHANGELOG.md
+packages/decant-core/web-docs/
+packages/decant-core/LICENSE
+packages/decant-core/README.md

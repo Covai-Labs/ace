@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const description = 'Why decant-core is AGPL-3.0, and what that means for your project.';
+---
+
+<BaseLayout title="License — decant-core" description={description} canonicalPath="/license.html">
+  <Header />
+  <main class="page-section shell">
+    <span class="eyebrow">License</span>
+    <h1>
+      The AGPL Open Commons <span style="color: var(--wine)">manifesto</span>.
+    </h1>
+    <p class="lede">
+      <code>decant-core</code> is licensed under the{' '}
+      <strong>GNU Affero General Public License v3.0 (AGPL-3.0-only)</strong>. That choice is not
+      incidental — it is a product decision.
+    </p>
+
+    <h2>Parser infrastructure belongs in a shared commons</h2>
+    <p class="lede">
+      AI platforms change constantly. Every time ChatGPT redecorates a message or Claude changes how
+      artifacts render, somebody has to re-learn the DOM. If each exporter maintains its own private
+      parser stack, a platform update means the same broken logic gets re-debugged dozens of times —
+      and the fixes disappear forever.
+    </p>
+    <p class="lede">
+      decant-core exists to be the opposite: a shared copyleft commons where improvements stay
+      available to the ecosystem instead of being siloed into proprietary forks.
+    </p>
+
+    <h2>What AGPL means for you</h2>
+    <ul style="padding-left: 20px; color: var(--muted)">
+      <li>
+        <strong>Open-source projects (FOSS Exception)</strong> — You are welcome to link, import, or
+        bundle decant-core into any project distributed under an OSI-approved open source license
+        (such as MPL-2.0, MIT, Apache-2.0, or BSD) without requiring your project to adopt AGPLv3.
+      </li>
+      <li>
+        <strong>Running a modified version as a network service</strong> — If your modified version
+        supports remote interaction through a computer network, you must prominently offer all users
+        interacting with it remotely an opportunity to receive the Corresponding Source of your
+        modified version at no charge. This is the clause that keeps parser fixes available to the
+        commons even behind a server.
+      </li>
+      <li>
+        <strong>Proprietary, closed-source, or commercial use</strong> — If your product cannot
+        comply with AGPLv3, commercial licenses are available. Contact{' '}
+        <a href="mailto:office@covai.org">office@covai.org</a> for licensing terms.
+      </li>
+    </ul>
+
+    <h2>Where to see the full terms</h2>
+    <p class="lede">
+      The complete text lives in{' '}
+      <a href="https://github.com/Covai-Labs/decant/blob/main/LICENSE">LICENSE</a>. Our natural
+      community is open-source extensions, exporters, archival and research tools, and self-hosted
+      applications — projects that can contribute fixes back to the commons.
+    </p>
+  </main>
+  <Footer />
+</BaseLayout>

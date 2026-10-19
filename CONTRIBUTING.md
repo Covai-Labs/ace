@@ -19,9 +19,15 @@ Please keep Pull Requests focused on a single bug fix or feature, and provide de
 
 ## Adding or Fixing a Platform Parser
 
-All platform parsers (ChatGPT, Claude, Gemini, DeepSeek, etc.) live in the shared **[decant-core](https://github.com/Covai-Labs/decant)** library, not in this repository.
+All chat platform parsers (ChatGPT, Claude, Gemini, DeepSeek, Perplexity, etc.) live directly in:
+`packages/decant-core/ai/`
 
-If an AI platform changes its DOM or you want to add support for a new platform, please open your PR there. See [decant-core's CONTRIBUTING guide](https://github.com/Covai-Labs/decant/blob/main/CONTRIBUTING.md) for parser contribution guidelines, selector resilience rules, and test fixture instructions.
+When a platform updates its DOM or you want to add support for a new AI platform:
+
+1. Locate or create the parser in `packages/decant-core/ai/<platform>.js`.
+2. Update or add test fixtures in `packages/decant-core/tests/fixtures/` and add test coverage in `packages/decant-core/tests/`.
+3. Run tests with `npm test` to verify everything passes across both the core engine and the extension.
+4. Open your Pull Request directly on this repository!
 
 ---
 

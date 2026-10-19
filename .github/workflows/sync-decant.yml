@@ -1,0 +1,35 @@
+name: Sync decant-core to Standalone Repository
+run-name: Sync decant-core to Covai-Labs/decant
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/decant-core/**'
+  workflow_dispatch:
+
+concurrency:
+  group: sync-decant
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout monorepo
+        uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+
+      - name: Push packages/decant-core to Covai-Labs/decant
+        uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2 # v1.7.2
+        env:
+          API_TOKEN_GITHUB: ${{ secrets.DECANT_SYNC_TOKEN }}
+        with:
+          source-directory: 'packages/decant-core'
+          destination-github-username: 'Covai-Labs'
+          destination-repository-name: 'decant'
+          user-email: 'office@covai.org'
+          user-name: 'Covai Labs'
+          target-branch: 'main'

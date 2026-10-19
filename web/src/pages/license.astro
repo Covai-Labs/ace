@@ -1,19 +1,19 @@
 ---
 import LegalLayout from '../layouts/LegalLayout.astro';
-import mpl2 from '../data/mpl2.txt?raw';
+import agpl3 from '../data/agpl3.txt?raw';
 ---
 
 <LegalLayout
   title="Software License"
-  description="AI Chat Exporter is distributed under the Mozilla Public License Version 2.0 (MPL-2.0)."
+  description="AI Chat Exporter is distributed under the GNU Affero General Public License Version 3 (AGPL-3.0-only) with a FOSS Linking Exception."
   canonicalPath="/license.html"
-  updatedText="Mozilla Public License Version 2.0 (MPL-2.0)"
+  updatedText="GNU Affero General Public License v3.0 (AGPL-3.0-only)"
 >
   <div class="legal-highlight">
     <strong>Summary:</strong> AI Chat Exporter is open-source software distributed under the
-    <strong>Mozilla Public License v2.0</strong>. You are free to use, modify, and distribute this
-    software, provided that any modifications to covered files remain open under the same MPL 2.0
-    license.
+    <strong>GNU Affero General Public License Version 3 (AGPL-3.0-only)</strong> with an additional
+    <strong>FOSS Linking Exception</strong>. You are free to inspect, audit, fork, and contribute.
+    Any OSI-approved open source projects may freely link, import, or bundle these components.
   </div>
 
   <div class="legal-body">
@@ -28,7 +28,7 @@ import mpl2 from '../data/mpl2.txt?raw';
     </p>
 
     <h2>2. License Text</h2>
-    <p>Below is the full text of the Mozilla Public License Version 2.0:</p>
-    <pre class="license-block">{mpl2}</pre>
+    <p>Below is the full text of the license and FOSS Linking Exception:</p>
+    <pre class="license-block">{agpl3}</pre>
   </div>
 </LegalLayout>

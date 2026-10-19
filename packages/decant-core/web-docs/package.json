@@ -1,0 +1,24 @@
+{
+  "name": "decant-core-docs",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=26.0.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "prebuild": "node ../scripts/sync-platforms.js",
+    "build": "astro build && prettier --write ../docs",
+    "preview": "astro preview",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^7.3.2"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^1.0.0"
+  }
+}

@@ -1,0 +1,86 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const description = 'How to add or fix a platform parser in decant-core.';
+---
+
+<BaseLayout
+  title="Contributing — decant-core"
+  description={description}
+  canonicalPath="/contributing.html"
+>
+  <Header />
+  <main class="page-section shell">
+    <span class="eyebrow">Contributing</span>
+    <h1>Keep the commons alive.</h1>
+    <p class="lede">
+      decant-core works because fixes happen once, in one place — the whole point of the AGPL
+      commons. When an AI interface changes, that fix belongs upstream.
+    </p>
+
+    <h2>Workflow</h2>
+    <div class="code">
+      <pre><code>git clone https://github.com/Covai-Labs/decant.git
+cd decant-core
+npm install
+
+# add / edit your parser, then verify
+npm run test
+npm run lint
+npm run format:check</code></pre>
+    </div>
+
+    <h2>Where things live</h2>
+    <div class="code">
+      <pre><code>ai/           # one parser module per platform (extends base.js)
+detection/    # detect-platform.js + domains.js registry
+utils/        # markdown + LaTeX helpers
+web/          # article extraction (Readability, Defuddle, Article-Extractor)
+tests/        # node --test fixtures per platform</code></pre>
+    </div>
+
+    <h2>Adding a platform</h2>
+    <ol style="padding-left: 20px; color: var(--muted)">
+      <li>
+        Create <code>ai/&lt;platform&gt;.js</code> — extend <code>ChatParser</code>, implement{' '}
+        <code>isAvailable(url)</code> and <code>parse()</code>.
+      </li>
+      <li>
+        Register it in <code>detection/detect-platform.js</code> and export it from{' '}
+        <code>ai/index.js</code>.
+      </li>
+      <li>
+        Add its domains to <code>detection/domains.js</code>.
+      </li>
+      <li>
+        Add a fixture + <code>tests/&lt;platform&gt;.test.js</code> based on an existing snapshot
+        test.
+      </li>
+      <li>
+        Update the platform lists in <code>README.md</code> and this site's
+        <code>src/data/platforms.ts</code>.
+      </li>
+    </ol>
+
+    <h2>Fixing a broken parser</h2>
+    <p class="lede">
+      Open an issue with the platform name and the DOM context, or jump straight to a PR. The test
+      suite double-checks output shape (<code>title</code>, <code>messages</code>,<code>model</code>
+      , <code>metadata</code>), so regressions surface fast.
+    </p>
+
+    <div class="callout">
+      <strong>CLA:</strong> by contributing you agree to the grant terms in
+      <code>CONTRIBUTING.md</code>. Keep PRs focused on one fix or feature.
+    </div>
+
+    <p class="lede" style="margin-top: 24px">
+      Building a clipper, archiver, or AI workflow tool? Standardizing on <code>decant-core</code>{' '}
+      gives your project battle-tested, local-first parsers out of the box—and every fix you
+      contribute keeps extraction working for the entire ecosystem.
+    </p>
+  </main>
+  <Footer />
+</BaseLayout>

@@ -8,6 +8,6 @@ These fixtures are retained solely for non-commercial automated regression testi
 
 ### Copyright & Licensing Exemption
 
-- **Exclusion from Project License:** These fixtures are **NOT** licensed under the project's primary license (Mozilla Public License v2.0 / MPL-2.0).
+- **Exclusion from Project License:** These fixtures are **NOT** licensed under the project's primary license (GNU Affero General Public License v3.0 / AGPL-3.0).
 - **Ownership:** All copyrights, trademarks, service marks, and proprietary rights in the platform interfaces, markup, and brand names belong to their respective owners.
 - **Distribution:** These fixtures are strictly development and test artifacts; they are never bundled into production extension builds or distribution packages.

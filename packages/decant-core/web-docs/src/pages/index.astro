@@ -1,0 +1,159 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const description =
+  'Reusable extraction, parsing, and detection infrastructure for AI conversations and regular web pages. 10+ AI platforms, one dependency, AGPL-3.0.';
+---
+
+<BaseLayout
+  title="decant-core — shared extraction for AI chats and the web"
+  description={description}
+>
+  <Header />
+  <main>
+    <section class="hero shell">
+      <span class="eyebrow">Open commons infrastructure &middot; AGPL-3.0</span>
+      <h1>
+        Stop rewriting ChatGPT parsers
+        <br />
+        <span style="color: var(--wine)">every product cycle.</span>
+      </h1>
+      <p class="lede">
+        decant-core is a shared extraction layer for the modern web — including AI conversations.
+        Reusable parsers for 10+ AI platforms, platform detection, and web article extraction, so
+        the fix for a platform change lands once, in one place, instead of in every exporter.
+      </p>
+      <div class="actions">
+        <a class="button button-primary" href="./quickstart.html">
+          Get started &#8594;
+        </a>
+        <a
+          class="button button-ghost"
+          href="https://github.com/Covai-Labs/decant"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          GitHub &#8599;
+        </a>
+      </div>
+    </section>
+
+    <section class="shell">
+      <div class="code">
+        <pre><code>import &#123; detectPlatform, isAiChatUrl &#125; from "decant-core";
+
+if (isAiChatUrl(location.href)) &#123;
+  const &#123; platform, parser &#125; = detectPlatform(location.href);
+  const result = await parser.parse();
+  // result.messages -> structured, normalized, reusable
+&#125;</code></pre>
+      </div>
+    </section>
+
+    <section class="page-section shell">
+      <h2>Local-first. Open foundation.</h2>
+      <p class="lede">
+        <code>decant-core</code> was created to end the cycle of fragile chat exporters and opaque
+        server-side data collection. Built as the extraction engine behind{' '}
+        <a href="https://ace.covai.org/" target="_blank" rel="noopener noreferrer">
+          AI Chat Exporter
+        </a>{' '}
+        and{' '}
+        <a href="https://decant.covai.org/" target="_blank" rel="noopener noreferrer">
+          Decant
+        </a>
+        , it provides local-first, zero-telemetry parsing across major AI chat platforms.
+      </p>
+      <p class="lede">
+        Rather than having every project reverse-engineer evolving DOM structures independently,{' '}
+        <code>decant-core</code> centralizes platform maintenance into a single open-source layer.
+      </p>
+    </section>
+
+    <section class="page-section shell">
+      <h2>Boring infrastructure. Serious leverage.</h2>
+      <p class="lede">
+        AI platforms change constantly. Their DOM structures, rendering approaches, and features
+        evolve, and parsers that worked yesterday break today. decant-core centralizes that work so
+        the entire ecosystem shares the benefit.
+      </p>
+      <div class="grid-3">
+        <div class="card">
+          <h3>10+ AI chat parsers</h3>
+          <p>
+            ChatGPT, Claude, Gemini, Copilot, Perplexity, DeepSeek, Qwen and more — normalized
+            messages, models, and metadata.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Web article extraction</h3>
+          <p>
+            Mozilla Readability, Defuddle, and Article-Extractor run concurrently and arbitrate by
+            content-quality scoring.
+          </p>
+        </div>
+        <div class="card">
+          <h3>Detection utilities</h3>
+          <p>
+            Tell an AI chat page from a regular page before you decide which parser to run —
+            <code>isAiChatUrl</code>, <code>detectPlatform</code>, <code>AI_CHAT_DOMAINS</code>.
+          </p>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="card">
+          <h3>Math &amp; Markdown handling</h3>
+          <p>
+            LaTeX normalization plus GFM tables and code fencing that survive round-trips into
+            Obsidian, Logseq and Noteplan.
+          </p>
+        </div>
+        <div class="card">
+          <h3>One package, tree-shakeable</h3>
+          <p>
+            Subpath imports (<code>decant-core/ai/chatgpt</code>, <code>decant-core/article</code>)
+            let consumers pull only what they need.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="page-section shell">
+      <h2>Used by</h2>
+      <div class="grid-2">
+        <div class="card">
+          <h3>AI Chat Exporter</h3>
+          <p>
+            Export, archive, and transfer AI conversations between platforms. The product is the
+            demonstration; decant-core is the engine.
+          </p>
+          <p>
+            <a href="https://ace.covai.org/" target="_blank" rel="noopener noreferrer">
+              See it live &#8599;
+            </a>
+          </p>
+        </div>
+        <div class="card">
+          <h3>Decant</h3>
+          <p>
+            The distraction-free web clipper and research batcher. Batch-clips tabs to Markdown and
+            PKM apps on top of the same extraction layer.
+          </p>
+          <p>
+            <a href="https://decant.covai.org/" target="_blank" rel="noopener noreferrer">
+              See it live &#8599;
+            </a>
+          </p>
+        </div>
+      </div>
+      <p class="lede" style="margin-top: 24px">
+        Building a browser extension, clipper, or research tool? See{' '}
+        <a href="./contributing.html">Contributing</a> to integrate <code>decant-core</code> or
+        improve a parser.
+      </p>
+    </section>
+  </main>
+  <Footer />
+</BaseLayout>

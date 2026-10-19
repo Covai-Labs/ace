@@ -1,0 +1,82 @@
+{
+  "name": "decant-core",
+  "version": "1.17.1",
+  "description": "A shared web extraction layer for AI conversations and regular web pages.",
+  "type": "module",
+  "engines": {
+    "node": ">=26.0.0"
+  },
+  "main": "ai/index.js",
+  "exports": {
+    ".": "./ai/index.js",
+    "./ai/*": "./ai/*.js",
+    "./web": "./web/index.js",
+    "./web/*": "./web/*.js",
+    "./article": "./web/article.js",
+    "./detection/*": "./detection/*.js",
+    "./platforms": "./data/platforms.json"
+  },
+  "files": [
+    "ai",
+    "web",
+    "detection",
+    "lib",
+    "utils",
+    "data",
+    "LICENSE",
+    "README.md"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Covai-Labs/decant.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Covai-Labs/decant/issues"
+  },
+  "homepage": "https://github.com/Covai-Labs/decant#readme",
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "sync:platforms": "node scripts/sync-platforms.js",
+    "sync:check": "node scripts/sync-platforms.js --check"
+  },
+  "keywords": [
+    "ai",
+    "chat",
+    "parser",
+    "chatgpt",
+    "claude",
+    "gemini",
+    "deepseek",
+    "copilot",
+    "perplexity",
+    "web-clipper",
+    "extraction",
+    "markdown",
+    "readability",
+    "turndown",
+    "browser-extension",
+    "scraping"
+  ],
+  "author": "deadrat-in",
+  "license": "AGPL-3.0-only",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@extractus/article-extractor": "^9.0.1",
+    "@mozilla/readability": "^0.6.0",
+    "defuddle": "^0.19.3",
+    "turndown": "^7.2.4",
+    "turndown-plugin-gfm": "^1.0.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "globals": "^17.9.0",
+    "linkedom": "^0.18.13",
+    "prettier": "^3.9.6"
+  }
+}

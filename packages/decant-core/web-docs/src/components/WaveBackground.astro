@@ -1,0 +1,445 @@
+---
+// Topology background: dynamic terrain contours + telemetry wave.
+// Decant-Core brand palette: Wine Cellar (#4d1427) & Rose (#e8859b).
+// Theme adapter covers data-theme attr + class fallback + system preference.
+// Zero-dependency HTML5 Canvas + requestAnimationFrame.
+---
+
+<div class="fixed-bg-layer" aria-hidden="true">
+  <div class="fixed-bg-grid"></div>
+  <canvas id="core-wave" class="bg-topology-canvas"></canvas>
+</div>
+
+<style>
+  .fixed-bg-layer {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .fixed-bg-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, rgba(77, 20, 39, 0.1) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(77, 20, 39, 0.1) 1px, transparent 1px);
+    background-size: 40px 40px;
+    background-position: center top;
+  }
+
+  :global(:root[data-theme='dark']) .fixed-bg-grid {
+    background-image:
+      linear-gradient(to right, rgba(239, 230, 233, 0.06) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(239, 230, 233, 0.06) 1px, transparent 1px);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :global(:root:not([data-theme])) .fixed-bg-grid {
+      background-image:
+        linear-gradient(to right, rgba(239, 230, 233, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(239, 230, 233, 0.06) 1px, transparent 1px);
+    }
+  }
+
+  .bg-topology-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  :global(body) {
+    position: relative;
+  }
+
+  :global(header),
+  :global(main),
+  :global(footer) {
+    position: relative;
+    z-index: 1;
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    var GRAD_DARK_FROM = [155, 44, 71]; // Cellar Red #9b2c47
+    var GRAD_DARK_TO = [232, 133, 155]; // Rose highlight #e8859b
+    var GRAD_LIGHT_FROM = [77, 20, 39]; // Deep cellar #4d1427
+    var GRAD_LIGHT_TO = [140, 34, 60]; // Wine #8c223c
+
+    var LEVELS = 6;
+    var SAMPLES = 90;
+    var BASE_R = 0.2;
+    var LEVEL_SPACING = 0.065;
+    var MOUSE_PULL_RADIUS = 220;
+    var MOUSE_PULL_STRENGTH = 55;
+    var PEAK_SPEED = 0.00018;
+
+    function isDark() {
+      var el = document.documentElement;
+      var attr = el.getAttribute('data-theme');
+      if (attr === 'dark') return true;
+      if (attr === 'light') return false;
+      if (el.classList.contains('dark')) return true;
+      if (el.classList.contains('light')) return false;
+      try {
+        return window.matchMedia('(prefers-color-scheme: dark)').matches;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function setupCoreTopology() {
+      var canvas = document.getElementById('core-wave');
+      if (!canvas) return;
+      if (canvas.dataset.waveInit === '1') return;
+      canvas.dataset.waveInit = '1';
+
+      var ctx = canvas.getContext('2d');
+      if (!ctx) return;
+
+      if (window.__coreTopologyCleanup) {
+        window.__coreTopologyCleanup();
+        window.__coreTopologyCleanup = null;
+      }
+
+      var width = 0;
+      var height = 0;
+      var time = 0;
+      var animId = 0;
+      var scrollY = window.scrollY || window.pageYOffset || 0;
+      var mouseX = -9999;
+      var mouseY = -9999;
+      var reducedMotion = false;
+
+      try {
+        reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      } catch (e) {
+        /* ignore */
+      }
+
+      var peaks = [
+        {
+          cx: 0.28,
+          cy: 0.38,
+          vx: (Math.random() - 0.5) * PEAK_SPEED,
+          vy: (Math.random() - 0.5) * PEAK_SPEED,
+          harmonics: [
+            { amp: 0.09, freq: 2, phase: Math.random() * Math.PI * 2, speed: 0.3 },
+            { amp: 0.055, freq: 3, phase: Math.random() * Math.PI * 2, speed: -0.22 },
+            { amp: 0.03, freq: 5, phase: Math.random() * Math.PI * 2, speed: 0.14 },
+            { amp: 0.018, freq: 7, phase: Math.random() * Math.PI * 2, speed: -0.09 },
+          ],
+        },
+        {
+          cx: 0.72,
+          cy: 0.62,
+          vx: (Math.random() - 0.5) * PEAK_SPEED,
+          vy: (Math.random() - 0.5) * PEAK_SPEED,
+          harmonics: [
+            { amp: 0.09, freq: 2, phase: Math.random() * Math.PI * 2, speed: 0.28 },
+            { amp: 0.055, freq: 3, phase: Math.random() * Math.PI * 2, speed: -0.2 },
+            { amp: 0.03, freq: 5, phase: Math.random() * Math.PI * 2, speed: 0.16 },
+            { amp: 0.018, freq: 7, phase: Math.random() * Math.PI * 2, speed: -0.1 },
+          ],
+        },
+      ];
+
+      function resize() {
+        var dpr = Math.min(window.devicePixelRatio || 1, 2);
+        width = canvas.offsetWidth || window.innerWidth;
+        height = canvas.offsetHeight || window.innerHeight;
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        if (reducedMotion) drawFrame();
+      }
+
+      function updatePeaks() {
+        for (var i = 0; i < peaks.length; i++) {
+          for (var j = i + 1; j < peaks.length; j++) {
+            var a = peaks[i];
+            var b = peaks[j];
+            var dx = b.cx - a.cx;
+            var dy = b.cy - a.cy;
+            var dist = Math.sqrt(dx * dx + dy * dy);
+            var minDist = 0.45;
+            if (dist < minDist && dist > 0.001) {
+              var force = ((minDist - dist) / dist) * 0.00012;
+              var fx = dx * force;
+              var fy = dy * force;
+              a.vx -= fx;
+              a.vy -= fy;
+              b.vx += fx;
+              b.vy += fy;
+            }
+          }
+        }
+
+        for (var k = 0; k < peaks.length; k++) {
+          var p = peaks[k];
+          var margin = 0.15;
+          if (p.cx < margin) p.vx += 0.00004;
+          if (p.cx > 1 - margin) p.vx -= 0.00004;
+          if (p.cy < margin) p.vy += 0.00004;
+          if (p.cy > 1 - margin) p.vy -= 0.00004;
+
+          p.vx *= 0.992;
+          p.vy *= 0.992;
+          p.cx += p.vx;
+          p.cy += p.vy;
+        }
+      }
+
+      function drawContour(p, level, dark, cFrom, cTo) {
+        var dim = Math.min(width, height);
+        var baseR = BASE_R * dim;
+        var levelR = baseR + level * LEVEL_SPACING * dim;
+        var centerX = p.cx * width;
+        var centerY = p.cy * height + scrollY * (0.015 + level * 0.008);
+
+        var t = level / (LEVELS - 1);
+        var alpha = dark ? 0.22 - t * 0.16 : 0.14 - t * 0.1;
+        if (alpha <= 0.01) return;
+
+        var r = Math.round(cFrom[0] + (cTo[0] - cFrom[0]) * t);
+        var g = Math.round(cFrom[1] + (cTo[1] - cFrom[1]) * t);
+        var b = Math.round(cFrom[2] + (cTo[2] - cFrom[2]) * t);
+
+        var hasMouse = mouseX > -1000;
+
+        ctx.beginPath();
+        for (var i = 0; i <= SAMPLES; i++) {
+          var angle = (i / SAMPLES) * Math.PI * 2;
+          var radius = levelR;
+          for (var h = 0; h < p.harmonics.length; h++) {
+            var harm = p.harmonics[h];
+            radius += dim * harm.amp * Math.sin(harm.freq * angle + harm.phase + time * harm.speed);
+          }
+
+          var px = centerX + Math.cos(angle) * radius;
+          var py = centerY + Math.sin(angle) * radius;
+
+          if (hasMouse) {
+            var dmx = mouseX - px;
+            var dmy = mouseY - py;
+            var dmDist = Math.sqrt(dmx * dmx + dmy * dmy);
+            if (dmDist < MOUSE_PULL_RADIUS && dmDist > 0.1) {
+              var pull = MOUSE_PULL_STRENGTH * Math.pow(1 - dmDist / MOUSE_PULL_RADIUS, 2);
+              px += (dmx / dmDist) * pull;
+              py += (dmy / dmDist) * pull;
+            }
+          }
+
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+        ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + alpha + ')';
+        ctx.lineWidth = dark ? 1 - t * 0.4 : 0.8 - t * 0.3;
+        ctx.stroke();
+      }
+
+      function drawCursorGlow(dark, cFrom, cTo) {
+        if (mouseX <= -1000) return;
+        var haloR = 90;
+        var grd = ctx.createRadialGradient(mouseX, mouseY, 0, mouseX, mouseY, haloR);
+        grd.addColorStop(
+          0,
+          'rgba(' + cFrom[0] + ',' + cFrom[1] + ',' + cFrom[2] + ',' + (dark ? 0.1 : 0.08) + ')',
+        );
+        grd.addColorStop(
+          0.5,
+          'rgba(' + cTo[0] + ',' + cTo[1] + ',' + cTo[2] + ',' + (dark ? 0.05 : 0.04) + ')',
+        );
+        grd.addColorStop(1, 'rgba(0,0,0,0)');
+        ctx.fillStyle = grd;
+        ctx.beginPath();
+        ctx.arc(mouseX, mouseY, haloR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      function drawWave(dark, cFrom, cTo) {
+        var waveY = height / 2 + scrollY * 0.04;
+
+        // Baseline
+        ctx.strokeStyle = dark ? 'rgba(239,230,233,0.08)' : 'rgba(77,20,39,0.06)';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, waveY);
+        ctx.lineTo(width, waveY);
+        ctx.stroke();
+
+        var gradOffset = (time * 0.12) % 1;
+
+        // Wave 1: ambient secondary harmonic
+        var g1 = ctx.createLinearGradient(0, 0, width, 0);
+        g1.addColorStop(
+          0,
+          'rgba(' + cTo[0] + ',' + cTo[1] + ',' + cTo[2] + ',' + (dark ? 0.25 : 0.18) + ')',
+        );
+        g1.addColorStop(
+          0.5,
+          'rgba(' + cFrom[0] + ',' + cFrom[1] + ',' + cFrom[2] + ',' + (dark ? 0.28 : 0.2) + ')',
+        );
+        g1.addColorStop(
+          1,
+          'rgba(' + cTo[0] + ',' + cTo[1] + ',' + cTo[2] + ',' + (dark ? 0.25 : 0.18) + ')',
+        );
+        ctx.strokeStyle = g1;
+        ctx.lineWidth = 1.2;
+        ctx.beginPath();
+        for (var x = 0; x <= width; x += 3) {
+          var y =
+            waveY + Math.sin(x * 0.005 - time * 0.8) * 22 + Math.cos(x * 0.012 + time * 1.2) * 10;
+          if (x === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+
+        // Wave 2: primary color-shifting telemetry
+        var g2 = ctx.createLinearGradient(0, 0, width, 0);
+        var s1 = (0.2 + gradOffset) % 1;
+        var s2 = (0.7 + gradOffset) % 1;
+        if (s1 < s2) {
+          g2.addColorStop(
+            0,
+            'rgba(' + cFrom[0] + ',' + cFrom[1] + ',' + cFrom[2] + ',' + (dark ? 0.65 : 0.5) + ')',
+          );
+          g2.addColorStop(
+            s1,
+            'rgba(' + cTo[0] + ',' + cTo[1] + ',' + cTo[2] + ',' + (dark ? 0.75 : 0.55) + ')',
+          );
+          g2.addColorStop(
+            s2,
+            'rgba(' + cFrom[0] + ',' + cFrom[1] + ',' + cFrom[2] + ',' + (dark ? 0.7 : 0.5) + ')',
+          );
+          g2.addColorStop(
+            1,
+            'rgba(' + cFrom[0] + ',' + cFrom[1] + ',' + cFrom[2] + ',' + (dark ? 0.65 : 0.5) + ')',
+          );
+        } else {
+          g2.addColorStop(
+            0,
+            'rgba(' + cTo[0] + ',' + cTo[1] + ',' + cTo[2] + ',' + (dark ? 0.75 : 0.55) + ')',
+          );
+          g2.addColorStop(
+            s2,
+            'rgba(' + cFrom[0] + ',' + cFrom[1] + ',' + cFrom[2] + ',' + (dark ? 0.65 : 0.5) + ')',
+          );
+          g2.addColorStop(
+            s1,
+            'rgba(' + cTo[0] + ',' + cTo[1] + ',' + cTo[2] + ',' + (dark ? 0.7 : 0.55) + ')',
+          );
+          g2.addColorStop(
+            1,
+            'rgba(' + cTo[0] + ',' + cTo[1] + ',' + cTo[2] + ',' + (dark ? 0.75 : 0.55) + ')',
+          );
+        }
+        ctx.strokeStyle = g2;
+        ctx.lineWidth = 1.8;
+        ctx.beginPath();
+        for (var x2 = 0; x2 <= width; x2 += 2) {
+          var y2 =
+            waveY + Math.sin(x2 * 0.007 + time) * 26 + Math.sin(x2 * 0.018 + time * 1.5) * 12;
+          if (x2 === 0) ctx.moveTo(x2, y2);
+          else ctx.lineTo(x2, y2);
+        }
+        ctx.stroke();
+      }
+
+      function drawFrame() {
+        ctx.clearRect(0, 0, width, height);
+        var dark = isDark();
+        var cFrom = dark ? GRAD_DARK_FROM : GRAD_LIGHT_FROM;
+        var cTo = dark ? GRAD_DARK_TO : GRAD_LIGHT_TO;
+
+        drawCursorGlow(dark, cFrom, cTo);
+
+        for (var p = 0; p < peaks.length; p++) {
+          for (var lvl = LEVELS - 1; lvl >= 0; lvl--) {
+            drawContour(peaks[p], lvl, dark, cFrom, cTo);
+          }
+        }
+
+        drawWave(dark, cFrom, cTo);
+      }
+
+      function animate() {
+        if (!document.hidden) {
+          updatePeaks();
+          time += 0.018;
+          drawFrame();
+        }
+        animId = requestAnimationFrame(animate);
+      }
+
+      function onMouseMove(e) {
+        var rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+      }
+
+      function onMouseLeave() {
+        mouseX = -9999;
+        mouseY = -9999;
+      }
+
+      function onScroll() {
+        scrollY = window.scrollY || window.pageYOffset || 0;
+      }
+
+      function onVisibility() {
+        if (!reducedMotion && !document.hidden && !animId) animate();
+      }
+
+      window.addEventListener('resize', resize);
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('mousemove', onMouseMove, { passive: true });
+      window.addEventListener('mouseleave', onMouseLeave);
+      document.addEventListener('visibilitychange', onVisibility);
+
+      var themeObserver = new MutationObserver(function () {
+        if (reducedMotion) drawFrame();
+      });
+      themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'data-theme'],
+      });
+
+      resize();
+
+      if (!reducedMotion) {
+        animate();
+      } else {
+        drawFrame();
+      }
+
+      window.__coreTopologyCleanup = function () {
+        cancelAnimationFrame(animId);
+        window.removeEventListener('resize', resize);
+        window.removeEventListener('scroll', onScroll);
+        window.removeEventListener('mousemove', onMouseMove);
+        window.removeEventListener('mouseleave', onMouseLeave);
+        document.removeEventListener('visibilitychange', onVisibility);
+        themeObserver.disconnect();
+      };
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', setupCoreTopology);
+    } else {
+      setupCoreTopology();
+    }
+    document.addEventListener('astro:page-load', function () {
+      var c = document.getElementById('core-wave');
+      if (c) c.dataset.waveInit = '0';
+      setupCoreTopology();
+    });
+  })();
+</script>

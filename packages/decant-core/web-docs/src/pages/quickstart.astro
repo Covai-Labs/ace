@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+
+const description = 'Install decant-core and parse AI chats or web articles in a few lines.';
+---
+
+<BaseLayout
+  title="Quickstart — decant-core"
+  description={description}
+  canonicalPath="/quickstart.html"
+>
+  <Header />
+  <main class="page-section shell">
+    <span class="eyebrow">Quickstart</span>
+    <h1>From install to first parse.</h1>
+
+    <h2>1. Install</h2>
+    <div class="code">
+      <pre><code>npm install decant-core</code></pre>
+    </div>
+    <p class="lede">
+      Published as
+      <a href="https://www.npmjs.com/package/decant-core" target="_blank" rel="noopener noreferrer">
+        decant-core on npm
+      </a>
+      — one dependency, tree-shakeable subpaths.
+    </p>
+
+    <h2>2. Extract an AI conversation</h2>
+    <div class="code">
+      <pre><code>import &#123; detectPlatform, isAiChatUrl &#125; from "decant-core";
+
+if (isAiChatUrl(window.location.href)) &#123;
+  const &#123; platform, parser &#125; = detectPlatform(window.location.href);
+  if (parser &amp;&amp; parser.isAvailable(window.location.href)) &#123;
+    const result = await parser.parse();
+    console.log(result.title);   // conversation title
+    console.log(result.model);   // model slug when available
+    console.log(result.messages); // [&#123; role: 'User' | 'Assistant', content, ... &#125;]
+  &#125;
+&#125;</code></pre>
+    </div>
+
+    <h2>3. Extract a regular web article</h2>
+    <div class="code">
+      <pre><code>import &#123; extractArticle &#125; from "decant-core";
+
+const article = await extractArticle(document /* or an HTML string */, &#123;
+  url: window.location.href,
+&#125;);
+
+console.log(article.title);
+console.log(article.markdown);  // clean, reusable Markdown
+console.log(article.engine);    // 'readability' | 'defuddle' | 'raw'</code></pre>
+    </div>
+
+    <h2>4. Use it outside the browser (Node / CLI)</h2>
+    <p class="lede">
+      Article extraction works in Node via <code>linkedom</code>. Detection is pure string/URL logic
+      and runs anywhere.
+    </p>
+    <div class="code">
+      <pre><code>import &#123; extractArticle &#125; from "decant-core";
+import &#123; readFile &#125; from "node:fs/promises";
+
+const html = await readFile("page.html", "utf8");
+const article = await extractArticle(html, &#123; url: "https://example.com" &#125;);
+console.log(article.markdown);</code></pre>
+    </div>
+
+    <h2>Subpath imports</h2>
+    <p class="lede">Pull only what you need — every subpath is tree-shakeable.</p>
+    <div class="code">
+      <pre><code>// Individual parsers
+import &#123; ChatGPTParser &#125; from "decant-core/ai/chatgpt";
+import &#123; ClaudeParser &#125; from "decant-core/ai/claude";
+
+// Article extraction
+import &#123; ArticleParser &#125; from "decant-core/article";
+
+// Detection
+import &#123; detectPlatform, isAiChatUrl, parsers &#125; from "decant-core";
+
+// Markdown utilities
+import &#123; convertToMarkdown, normalizeLatexMath &#125; from "decant-core";</code></pre>
+    </div>
+
+    <div class="callout">
+      <strong>Manifest V3 extensions:</strong> parsers are DOM-ready and work in content scripts.
+      Register what you need in your content script, then call <code>parse()</code> on the current
+      page. No bundled server, no API keys.
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>
