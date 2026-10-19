@@ -22,6 +22,20 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Extract commit author info
+        id: author
+        run: |
+          AUTHOR_NAME="${{ github.event.head_commit.author.name }}"
+          AUTHOR_EMAIL="${{ github.event.head_commit.author.email }}"
+          if [ -z "$AUTHOR_NAME" ]; then
+            AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
+          fi
+          if [ -z "$AUTHOR_EMAIL" ]; then
+            AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
+          fi
+          echo "name=${AUTHOR_NAME:-github-actions[bot]}" >> "$GITHUB_OUTPUT"
+          echo "email=${AUTHOR_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}" >> "$GITHUB_OUTPUT"
+
       - name: Push packages/decant-core to Covai-Labs/decant
         uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2 # v1.7.2
         env:
@@ -30,6 +44,7 @@ jobs:
           source-directory: 'packages/decant-core'
           destination-github-username: 'Covai-Labs'
           destination-repository-name: 'decant'
-          user-email: 'office@covai.org'
-          user-name: 'Covai Labs'
+          user-name: ${{ steps.author.outputs.name }}
+          user-email: ${{ steps.author.outputs.email }}
+          commit-message: 'Update from ORIGIN_COMMIT: LAST_COMMIT_MESSAGE'
           target-branch: 'main'
