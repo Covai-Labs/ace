@@ -1,0 +1,6 @@
+node_modules/
+CHANGELOG.md
+packages/
+*.log
+tests/fixtures/
+web-docs/

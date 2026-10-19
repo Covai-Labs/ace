@@ -1,0 +1,97 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { PLATFORMS } from '../data/platforms';
+
+const description =
+  'Interactive support matrix for decant-core: 10+ AI chat platforms, parser classes, and extraction strategies.';
+---
+
+<BaseLayout
+  title="Platform Matrix — decant-core"
+  description={description}
+  canonicalPath="/platforms.html"
+>
+  <Header />
+  <main class="page-section shell">
+    <span class="eyebrow">Platforms</span>
+    <h1>
+      Supported <span style="color: var(--wine)">extraction targets</span>
+    </h1>
+    <p class="lede">
+      Every entry below is a real parser in this repository — the class is imported from the same
+      subpath you use in your own project.
+    </p>
+
+    <h2>AI chat platforms</h2>
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Platform</th>
+            <th>Parser</th>
+            <th>Strategy</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {PLATFORMS.filter((p) => p.strategy !== 'Readability + Defuddle + Article-Extractor').map(
+            (p) => (
+              <tr>
+                <td class="platform">{p.platform}</td>
+                <td>
+                  <code>{p.parser}</code>
+                  <div style="margin-top: 2px">
+                    <span class="tag">{`decant-core/ai/${p.module.split('/').pop()}`}</span>
+                  </div>
+                </td>
+                <td>{p.strategy}</td>
+                <td>{p.notes}</td>
+              </tr>
+            ),
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <h2>Web articles</h2>
+    <div class="matrix-wrap">
+      <table class="matrix">
+        <thead>
+          <tr>
+            <th>Target</th>
+            <th>Parser</th>
+            <th>Strategy</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          {PLATFORMS.filter((p) => p.strategy === 'Readability + Defuddle + Article-Extractor').map(
+            (p) => (
+              <tr>
+                <td class="platform">{p.platform}</td>
+                <td>
+                  <code>{p.parser}</code>
+                  <div style="margin-top: 2px">
+                    <span class="tag">{p.module}</span>
+                  </div>
+                </td>
+                <td>{p.strategy}</td>
+                <td>{p.notes}</td>
+              </tr>
+            ),
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="callout">
+      <strong>Maintenance is the point.</strong> “DOM” parsers target semantic structure, not pixel
+      positions; “internal API” parsers read the same RPC payloads the frontend uses. When a
+      platform changes, one shared fix heals every consumer. If a parser drifts, add a fixture and
+      open a PR — see <a href="./contributing.html">Contributing</a>.
+    </div>
+  </main>
+  <Footer />
+</BaseLayout>

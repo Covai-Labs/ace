@@ -1,0 +1,25 @@
+---
+const LINKS = [
+  { label: 'Quickstart', href: './quickstart.html' },
+  { label: 'Platforms', href: './platforms.html' },
+  { label: 'Contributing', href: './contributing.html' },
+  { label: 'Release notes', href: './release-notes.html' },
+  { label: 'License (AGPL-3.0)', href: './license.html' },
+  { label: 'GitHub', href: 'https://github.com/Covai-Labs/decant', external: true },
+];
+---
+
+<footer class="site-footer">
+  <nav class="site-nav" aria-label="Footer navigation">
+    {LINKS.map((item) =>
+      item.external ? (
+        <a href={item.href} target="_blank" rel="noopener noreferrer">
+          {item.label}
+        </a>
+      ) : (
+        <a href={item.href}>{item.label}</a>
+      ),
+    )}
+  </nav>
+  <span>&copy; 2026 decant-core &middot; AGPL-3.0</span>
+</footer>

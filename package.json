@@ -1,8 +1,11 @@
 {
   "name": "ai-chat-exporter",
   "version": "1.22.0",
-  "license": "MPL-2.0",
+  "license": "AGPL-3.0-only",
   "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
   "engines": {
     "node": ">=26.0.0"
   },
@@ -15,7 +18,9 @@
     "zip:edge": "wxt zip -b edge",
     "zip:firefox": "wxt zip -b firefox",
     "postinstall": "wxt prepare",
-    "test": "node --test tests/*.test.*",
+    "test": "node --test tests/*.test.* && npm test --workspace=packages/decant-core",
+    "test:ext": "node --test tests/*.test.*",
+    "test:core": "npm test --workspace=packages/decant-core",
     "test:e2e": "playwright test",
     "test:e2e:install": "playwright install --with-deps chromium",
     "test:e2e:update-snapshots": "playwright test --update-snapshots",
@@ -36,7 +41,7 @@
     "wxt": "^0.21.4"
   },
   "dependencies": {
-    "decant-core": "^1.17.1",
+    "decant-core": "*",
     "dompurify": "^3.4.14",
     "html2canvas": "^1.4.1",
     "katex": "^0.19.0",

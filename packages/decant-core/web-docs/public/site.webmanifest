@@ -1,0 +1,12 @@
+{
+  "name": "decant-core",
+  "short_name": "decant-core",
+  "description": "Shared AI chat parsers, platform detection, and web article extraction.",
+  "icons": [
+    { "src": "/android-chrome-192x192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/android-chrome-512x512.png", "sizes": "512x512", "type": "image/png" }
+  ],
+  "theme_color": "#4d1427",
+  "background_color": "#0d0508",
+  "display": "standalone"
+}

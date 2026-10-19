@@ -194,11 +194,11 @@ Because AI platforms constantly push layout updates that break DOM extraction, k
 
 ## License
 
-This Source Code Form is subject to the terms of the Mozilla Public License, v. 2.0. See [LICENSE](LICENSE) for the full license text.
+This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full license text and permissions.
 
 ### Third-Party Test Fixtures Notice
 
-Sample test fixtures located in [`tests/fixtures/`](tests/fixtures/) consist of third-party DOM snapshots and API response excerpts retained solely for automated regression testing and platform interoperability under fair use principles. They are excluded from the project's MPL-2.0 license. See [`tests/fixtures/README.md`](tests/fixtures/README.md) for details.
+Sample test fixtures located in [`tests/fixtures/`](tests/fixtures/) consist of third-party DOM snapshots and API response excerpts retained solely for automated regression testing and platform interoperability under fair use principles. They are excluded from the project's AGPL-3.0 license. See [`tests/fixtures/README.md`](tests/fixtures/README.md) for details.
 
 ---
 
