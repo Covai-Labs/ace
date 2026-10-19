@@ -23,9 +23,8 @@ jobs:
           fetch-depth: 0
 
       - name: Push packages/decant-core to Covai-Labs/decant
-        uses: cpina/github-action-push-to-another-repository@main
+        uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2 # v1.7.2
         env:
-          SSH_DEPLOY_KEY: ${{ secrets.DECANT_DEPLOY_KEY }}
           API_TOKEN_GITHUB: ${{ secrets.DECANT_SYNC_TOKEN }}
         with:
           source-directory: 'packages/decant-core'
