@@ -382,6 +382,14 @@ test("GeminiParser resolveImageTags preserves code blocks containing <Image> tag
     /`<Image src="foo" \/>`/,
     "Inline code <Image> tag preserved verbatim",
   );
+
+  // Test paired tag with closing </Image>
+  const pairedInput = 'Diagram: <Image src="image_agent_tag_1" alt="Paired [V1]"></Image>';
+  const pairedResolved = parser.resolveImageTags(pairedInput, cand);
+  assert.equal(
+    pairedResolved,
+    "Diagram: ![Paired \\[V1\\]](https://example.com/resolved.png)",
+  );
 });
 
 test("GeminiParser resolveMediaPlaceholders avoids partial matching on numbered placeholders", () => {
@@ -482,7 +490,10 @@ test("GeminiParser extractActivitySources does not leak citations from alternate
 
   const sources = parser.extractActivitySources(item);
   assert.equal(sources.length, 1);
-  assert.match(sources[0], /https:\/\/active-source\.org\/paper/);
+  assert.ok(
+    sources[0].includes("https://active-source.org/paper"),
+    "Sources list contains the active candidate paper URL",
+  );
   assert.ok(
     !sources.some((s) => s.includes("inactive-draft")),
     "Citations from inactive draft 1 should not leak into sources",

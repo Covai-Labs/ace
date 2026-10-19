@@ -1421,13 +1421,14 @@ export function markdownToHtml(mdText) {
 
   // Fallback: normalize XML-style <Image alt="..." caption="..." src="..."/> tags into markdown images
   // (Runs after code blocks are protected so code samples are not modified)
-  mdText = mdText.replace(/<Image\s+([^>]*?)(?:\/>|<\/Image>|>)/gi, (match, attrsStr) => {
+  mdText = mdText.replace(/<Image\s+([^>]*?)(?:\/>|>(?:\s*<\/Image>)?)/gi, (match, attrsStr) => {
     const altMatch = attrsStr.match(/alt="([^"]*)"/i) || attrsStr.match(/alt='([^']*)'/i);
     const captionMatch =
       attrsStr.match(/caption="([^"]*)"/i) || attrsStr.match(/caption='([^']*)'/i);
     const srcMatch = attrsStr.match(/src="([^"]*)"/i) || attrsStr.match(/src='([^']*)'/i);
     const src = srcMatch ? srcMatch[1] : '';
-    const alt = altMatch ? altMatch[1] : captionMatch ? captionMatch[1] : 'Image';
+    const rawAlt = altMatch ? altMatch[1] : captionMatch ? captionMatch[1] : 'Image';
+    const alt = rawAlt.replace(/[[\]]/g, '\\$&');
     if (src && /^(?:https?:|data:image|blob:|\/|\.\/)/i.test(src)) {
       return `\n\n![${alt}](${src})\n\n`;
     }

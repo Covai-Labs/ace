@@ -526,7 +526,7 @@ export class GeminiParser extends ChatParser {
     );
 
     let replaced = protectedText.replace(
-      /<Image\s+([^>]*?)(?:\/>|<\/Image>|>)/gi,
+      /<Image\s+([^>]*?)(?:\/>|>(?:\s*<\/Image>)?)/gi,
       (match, attrs) => {
         const altMatch =
           attrs.match(/alt="([^"]*)"/i) || attrs.match(/alt='([^']*)'/i);
@@ -537,11 +537,12 @@ export class GeminiParser extends ChatParser {
           attrs.match(/src="([^"]*)"/i) || attrs.match(/src='([^']*)'/i);
 
         const src = srcMatch ? srcMatch[1] : "";
-        const alt = altMatch
+        const rawAlt = altMatch
           ? altMatch[1]
           : capMatch
             ? capMatch[1]
             : "Image";
+        const alt = rawAlt.replace(/[[\]]/g, "\\$&");
 
         const resolvedUrl =
           imageMap.get(src) || (src.startsWith("http") ? src : null);
@@ -571,7 +572,8 @@ export class GeminiParser extends ChatParser {
       const tagUrl = entry[0]?.[0];
       const videoDetail = entry[4]?.[0]?.[0];
       if (typeof tagUrl === "string" && Array.isArray(videoDetail)) {
-        const title = videoDetail[0] || "Video";
+        const rawTitle = videoDetail[0] || "Video";
+        const title = rawTitle.replace(/[[\]]/g, "\\$&");
         const url = videoDetail[2];
         if (url && typeof url === "string" && url.startsWith("http")) {
           const escaped = tagUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
