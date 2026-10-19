@@ -33,8 +33,10 @@ jobs:
           if [ -z "$AUTHOR_EMAIL" ]; then
             AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
           fi
+          COMMIT_SUBJECT=$(git log -1 --pretty=format:'%s')
           echo "name=${AUTHOR_NAME:-github-actions[bot]}" >> "$GITHUB_OUTPUT"
           echo "email=${AUTHOR_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}" >> "$GITHUB_OUTPUT"
+          echo "subject=${COMMIT_SUBJECT:-sync decant-core}" >> "$GITHUB_OUTPUT"
 
       - name: Push packages/decant-core to Covai-Labs/decant
         uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2 # v1.7.2
@@ -46,5 +48,5 @@ jobs:
           destination-repository-name: 'decant'
           user-name: ${{ steps.author.outputs.name }}
           user-email: ${{ steps.author.outputs.email }}
-          commit-message: 'Update from ORIGIN_COMMIT: LAST_COMMIT_MESSAGE'
+          commit-message: 'Update from ORIGIN_COMMIT: ${{ steps.author.outputs.subject }}'
           target-branch: 'main'
