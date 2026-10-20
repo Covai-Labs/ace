@@ -558,6 +558,14 @@ export default defineBackground(() => {
             const customPrompt = request.customPrompt || '';
 
             if (mode === 'ai') {
+              let autoSend = true;
+              try {
+                const syncData = await chrome.storage.sync.get(['transferAutoSend']);
+                autoSend = syncData?.transferAutoSend !== false;
+              } catch {
+                // Default to auto-send when the preference is unavailable.
+              }
+
               const { validTabs, results } = await extractAllTabsData(
                 options,
                 windowId,
@@ -579,7 +587,7 @@ export default defineBackground(() => {
                 effectiveTarget,
                 prompt,
                 `Synthesized Chats (${results.length})`,
-                true,
+                autoSend,
               );
 
               const result = {
