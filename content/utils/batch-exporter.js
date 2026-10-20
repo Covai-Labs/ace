@@ -55,21 +55,22 @@ export function isExtractableTab(tab, aiOnly = false) {
  * @returns {Array<{ filename: string, [key: string]: any }>}
  */
 export function deduplicateFilenames(results) {
-  const counts = new Map();
+  const assignedNames = new Set();
   return results.map((item, index) => {
     let name = item.filename || `${item.baseFilename || `chat-${index + 1}`}.md`;
     if (!name.endsWith('.md')) {
       name = `${name}.md`;
     }
 
-    if (counts.has(name)) {
-      const currentCount = counts.get(name) + 1;
-      counts.set(name, currentCount);
+    if (assignedNames.has(name)) {
       const base = name.slice(0, -3);
-      name = `${base}-${currentCount}.md`;
-    } else {
-      counts.set(name, 0);
+      let suffix = 1;
+      do {
+        name = `${base}-${suffix}.md`;
+        suffix++;
+      } while (assignedNames.has(name));
     }
+    assignedNames.add(name);
 
     return {
       ...item,
@@ -254,7 +255,7 @@ export async function downloadFile(content, filename, mimeType = 'text/markdown'
 export async function extractAllTabsData(options = {}, windowId = null, onProgress = null) {
   const queryInfo = windowId ? { windowId } : { currentWindow: true };
   const tabs = await chrome.tabs.query(queryInfo);
-  const validTabs = tabs.filter((t) => isExtractableTab(t, false));
+  const validTabs = tabs.filter((t) => isExtractableTab(t, true));
 
   if (validTabs.length === 0) {
     throw new Error('No compatible tabs found in this window.');
