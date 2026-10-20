@@ -1,9 +1,9 @@
 name: 'CodeQL Config'
 
 paths-ignore:
-  - 'tests/fixtures/**'
+  - 'tests/**'
+  - 'packages/decant-core/tests/**'
   - 'content/lib/**'
   - 'public/content/lib/**'
-  - 'packages/decant-core/tests/fixtures/**'
   - 'packages/decant-core/lib/**'
   - 'packages/decant-core/web-docs/**'
