@@ -75,6 +75,7 @@ export default defineConfig({
       'storage',
       'contextMenus',
       'clipboardWrite',
+      'downloads',
     ];
     if (!isFirefox) {
       permissions.push('sidePanel');
