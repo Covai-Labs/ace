@@ -46,21 +46,6 @@
       </header>
 
       <main>
-        <div class="batch-section" id="batch-section">
-          <div class="card-header-row">
-            <span class="batch-badge">BATCH ALL TABS</span>
-          </div>
-          <div class="batch-row">
-            <select id="batch-mode-select">
-              <option value="zip">📦 ZIP Archive (.zip)</option>
-              <option value="combined">📑 Combined Note (.md)</option>
-              <option value="ai">🤖 Synthesize in AI Chat</option>
-            </select>
-            <button id="batch-export-btn" class="batch-btn-primary">Batch Export</button>
-          </div>
-          <div id="batch-progress" class="batch-progress hidden">Processing tabs...</div>
-        </div>
-
         <div class="chat-info hidden" id="chat-info">
           <div class="card-header-row">
             <span class="field-label-small" data-i18n="exportFilename">EXPORT FILENAME</span>
@@ -219,6 +204,19 @@
               >
             </div>
           </div>
+        </div>
+
+        <div class="batch-section" id="batch-section">
+          <div class="batch-row">
+            <span class="batch-pill-label">BATCH TABS</span>
+            <select id="batch-mode-select">
+              <option value="zip">📦 ZIP (.zip)</option>
+              <option value="combined">📑 Note (.md)</option>
+              <option value="ai">🤖 AI Synthesis</option>
+            </select>
+            <button id="batch-export-btn" class="batch-btn-primary">Export</button>
+          </div>
+          <div id="batch-progress" class="batch-progress hidden">Processing tabs...</div>
         </div>
       </main>
     </div>

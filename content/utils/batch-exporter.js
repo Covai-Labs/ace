@@ -262,13 +262,16 @@ export async function downloadFile(content, filename, mimeType = 'text/markdown'
   }
 
   if (isObjectUrl) {
-    setTimeout(() => {
+    const timer = setTimeout(() => {
       try {
         URL.revokeObjectURL(downloadUrl);
       } catch (err) {
         logger.warn('Failed to revoke object URL:', err);
       }
     }, 60000);
+    if (typeof timer === 'object' && typeof timer.unref === 'function') {
+      timer.unref();
+    }
   }
 
   return downloadId;

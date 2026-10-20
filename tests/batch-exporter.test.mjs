@@ -7,6 +7,7 @@ import {
   formatCombinedMarkdown,
   generateZipArchive,
   buildBatchAiPrompt,
+  downloadFile,
 } from '../content/utils/batch-exporter.js';
 
 test('isExtractableTab validates tabs correctly', () => {
@@ -81,4 +82,75 @@ test('buildBatchAiPrompt aggregates chats into synthesis prompt', () => {
   assert.match(prompt, /Please analyze and synthesize the web pages \/ discussions/);
   assert.match(prompt, /### Conversation 1: Discussion 1/);
   assert.match(prompt, /Argument A\./);
+});
+
+test('downloadFile uses chrome.downloads when available', async () => {
+  const originalChrome = globalThis.chrome;
+  let downloadedOptions = null;
+  globalThis.chrome = {
+    downloads: {
+      download: async (opts) => {
+        downloadedOptions = opts;
+        return 42;
+      },
+    },
+  };
+  try {
+    const id = await downloadFile('Hello world', 'test.md', 'text/markdown');
+    assert.equal(id, 42);
+    assert.equal(downloadedOptions.filename, 'test.md');
+    assert.equal(downloadedOptions.saveAs, false);
+    assert.ok(downloadedOptions.url.length > 0);
+  } finally {
+    globalThis.chrome = originalChrome;
+  }
+});
+
+test('downloadFile falls back to DOM anchor click when chrome.downloads is unavailable', async () => {
+  const originalChrome = globalThis.chrome;
+  const originalDocument = globalThis.document;
+  delete globalThis.chrome;
+
+  let clicked = false;
+  let anchorAttrs = {};
+  globalThis.document = {
+    body: {
+      appendChild: () => {},
+    },
+    createElement: (tag) => {
+      if (tag === 'a') {
+        return {
+          style: {},
+          set href(val) {
+            anchorAttrs.href = val;
+          },
+          get href() {
+            return anchorAttrs.href;
+          },
+          set download(val) {
+            anchorAttrs.download = val;
+          },
+          get download() {
+            return anchorAttrs.download;
+          },
+          click: () => {
+            clicked = true;
+          },
+          remove: () => {},
+        };
+      }
+      return {};
+    },
+  };
+
+  try {
+    const id = await downloadFile('# Title', 'doc.md', 'text/markdown');
+    assert.equal(id, null);
+    assert.equal(clicked, true);
+    assert.equal(anchorAttrs.download, 'doc.md');
+    assert.ok(anchorAttrs.href.length > 0);
+  } finally {
+    globalThis.chrome = originalChrome;
+    globalThis.document = originalDocument;
+  }
 });
