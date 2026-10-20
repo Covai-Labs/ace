@@ -29,16 +29,27 @@ test('deduplicateFilenames resolves colliding filenames', () => {
   assert.equal(deduped[2].filename, 'chat-1-1.md');
 });
 
-test('formatCombinedMarkdown produces table of contents and sections', () => {
+test('formatCombinedMarkdown produces table of contents and sections with namespaced image references', () => {
   const chats = [
-    { title: 'Chat One', content: '# First Chat\n\nHello!' },
-    { title: 'Chat Two', content: '# Second Chat\n\nWorld!' },
+    {
+      title: 'Chat One',
+      content:
+        '# First Chat\n\n![Image A][image-1]\n\n<!-- Image References -->\n\n[image-1]: data:image/png;base64,AAA',
+    },
+    {
+      title: 'Chat Two',
+      content:
+        '# Second Chat\n\n![Image B][image-1]\n\n<!-- Image References -->\n\n[image-1]: data:image/png;base64,BBB',
+    },
   ];
   const combined = formatCombinedMarkdown(chats, '2026-08-20');
   assert.match(combined, /title: Exported AI Chats \(2026-08-20\)/);
   assert.match(combined, /1\. \[Chat One\]\(#chat-1\)/);
   assert.match(combined, /<a id="chat-1"><\/a>/);
-  assert.match(combined, /Hello!/);
+  assert.match(combined, /!\[Image A\]\[c1-image-1\]/);
+  assert.match(combined, /\[c1-image-1\]: data:image\/png;base64,AAA/);
+  assert.match(combined, /!\[Image B\]\[c2-image-1\]/);
+  assert.match(combined, /\[c2-image-1\]: data:image\/png;base64,BBB/);
 });
 
 test('generateZipArchive builds valid zip containing files', async () => {

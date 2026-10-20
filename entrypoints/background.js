@@ -575,6 +575,9 @@ export default defineBackground(() => {
                 },
               );
 
+              const syncData = await chrome.storage.sync.get(['transferAutoSend']);
+              const autoSend = syncData?.transferAutoSend !== false;
+
               const prompt = buildBatchAiPrompt(results, customPrompt);
               const noteAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
               const effectiveTarget =
@@ -583,7 +586,7 @@ export default defineBackground(() => {
                 effectiveTarget,
                 prompt,
                 `Synthesized Chats (${results.length})`,
-                true,
+                autoSend,
               );
 
               const result = {

@@ -123,7 +123,20 @@ export function formatCombinedMarkdown(results, dateStr = new Date().toISOString
   const sections = results
     .map((r, i) => {
       const anchor = `<a id="chat-${i + 1}"></a>`;
-      return `${anchor}\n\n${r.content || r.markdown || ''}`;
+      let text = r.content || r.markdown || '';
+      const prefix = `c${i + 1}-`;
+
+      // Namespace image and general markdown reference links:
+      // Replace [label]: url/data definitions
+      text = text.replace(/^\[([^\]]+)\]:\s*(\S.*)$/gm, (match, label, target) => {
+        return `[${prefix}${label}]: ${target}`;
+      });
+      // Replace ![alt][label] reference uses
+      text = text.replace(/!\[([\s\S]*?)\]\[([^\]]+)\]/g, (match, alt, label) => {
+        return `![${alt}][${prefix}${label}]`;
+      });
+
+      return `${anchor}\n\n${text}`;
     })
     .join('\n\n---\n\n');
 
