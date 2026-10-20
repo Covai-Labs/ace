@@ -338,6 +338,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     establishSession(tab.id);
 
+    chatInfoEl.classList.add('hidden');
+    actionsEl.classList.add('hidden');
+    errorEl.classList.add('hidden');
+
     if (isForce) {
       setStatus('scanning', t('statusScanning') || 'Scanning messages...');
     } else {
