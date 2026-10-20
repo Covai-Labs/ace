@@ -9,6 +9,9 @@ on:
       - 'packages/decant-core/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: sync-decant
   cancel-in-progress: false

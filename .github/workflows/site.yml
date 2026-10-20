@@ -13,6 +13,9 @@ on:
       - '.github/workflows/site.yml'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 concurrency:
   group: site-${{ github.ref }}
   cancel-in-progress: true
@@ -33,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: web
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Build Astro site
         working-directory: web
