@@ -977,3 +977,83 @@ html[data-theme='light'] .decant-promo-box {
   background: rgba(239, 68, 68, 0.22);
   border-color: rgba(239, 68, 68, 0.5);
 }
+
+.batch-section {
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  box-shadow: var(--card-shadow);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 12px;
+  transition:
+    transform 0.2s,
+    border-color 0.2s;
+}
+
+.batch-section:hover {
+  border-color: var(--accent-color);
+}
+
+.batch-badge {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--accent-color);
+  background-color: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.batch-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.batch-row select {
+  flex: 1;
+  min-width: 0;
+}
+
+.batch-btn-primary {
+  background: var(--accent-gradient);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.25);
+  transition: all 0.2s;
+}
+
+.batch-btn-primary:hover {
+  opacity: 0.95;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.35);
+}
+
+.batch-btn-primary:active {
+  transform: scale(0.98);
+}
+
+.batch-btn-primary:disabled {
+  background: var(--text-muted);
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+.batch-progress {
+  font-size: 11.5px;
+  color: var(--text-muted);
+  text-align: center;
+  margin-top: 2px;
+}

@@ -175,7 +175,7 @@ export function buildBatchAiPrompt(results, customInstruction = '') {
   const instruction =
     customInstruction && customInstruction.trim().length > 0
       ? customInstruction.trim()
-      : 'Please analyze and synthesize the discussions across the following AI chat conversations. Highlight key insights, agreements, and discrepancies:';
+      : 'Please analyze and synthesize the web pages / discussions across the following AI chat conversations. Highlight key insights, agreements, and discrepancies:';
 
   const formattedChats = results
     .map((item, index) => {
@@ -242,11 +242,24 @@ export async function downloadFile(content, filename, mimeType = 'text/markdown'
     }
   }
 
-  const downloadId = await chrome.downloads.download({
-    url: downloadUrl,
-    filename,
-    saveAs: false,
-  });
+  let downloadId = null;
+  if (typeof chrome !== 'undefined' && chrome.downloads?.download) {
+    downloadId = await chrome.downloads.download({
+      url: downloadUrl,
+      filename,
+      saveAs: false,
+    });
+  } else if (typeof document !== 'undefined' && document.createElement) {
+    const a = document.createElement('a');
+    a.href = downloadUrl;
+    a.download = filename;
+    a.style.display = 'none';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } else {
+    throw new Error('Downloads API and DOM are both unavailable in this context.');
+  }
 
   if (isObjectUrl) {
     setTimeout(() => {

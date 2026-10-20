@@ -78,7 +78,7 @@ test('buildBatchAiPrompt aggregates chats into synthesis prompt', () => {
     { title: 'Discussion 2', content: 'Argument B.' },
   ];
   const prompt = buildBatchAiPrompt(chats);
-  assert.match(prompt, /Please analyze and synthesize/);
+  assert.match(prompt, /Please analyze and synthesize the web pages \/ discussions/);
   assert.match(prompt, /### Conversation 1: Discussion 1/);
   assert.match(prompt, /Argument A\./);
 });
