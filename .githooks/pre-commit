@@ -1,0 +1,4 @@
+#!/bin/sh
+# Prevent committing un-sanitized secrets
+echo "Scanning for un-sanitized secrets before commit..."
+node --test tests/secrets.test.mjs
