@@ -36,7 +36,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: web
-        run: npm ci
+        run: npm ci --ignore-scripts
 
       - name: Build Astro site
         working-directory: web
@@ -62,7 +62,7 @@ jobs:
         uses: actions/deploy-pages@v5
 
       - name: Submit sitemap to IndexNow
-        uses: bojieyang/indexnow-action@v3.0.0
+        uses: bojieyang/indexnow-action@38ddfbd93579a8a44c0dee662121bf9d51098f71 # v3.0.0
         with:
           sitemap-location: https://ace.covai.org/sitemap-index.xml
           key: ${{ secrets.INDEXNOW_KEY }}
