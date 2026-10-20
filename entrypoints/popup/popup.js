@@ -760,7 +760,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       try {
         const currentWin = await chrome.windows.getCurrent();
-        const targetAi = continueTargetSelect ? continueTargetSelect.value : 'chatgpt';
+        const noteAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
+        let targetAi = continueTargetSelect ? continueTargetSelect.value : 'chatgpt';
+        if (noteAppTargets.includes(targetAi)) {
+          targetAi = 'chatgpt';
+        }
         await chrome.runtime.sendMessage({
           action: 'BATCH_EXPORT_TABS',
           mode,
@@ -783,7 +787,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         batchProgress.textContent = `Extracting ${msg.processed} of ${msg.total} tabs...`;
       } else if (msg.action === 'BATCH_COMPLETE') {
         if (batchProgress) {
-          batchProgress.textContent = `✓ Exported ${msg.result?.extracted || 0} tabs!`;
+          const extracted = msg.result?.extracted || 0;
+          const total = msg.result?.total || extracted;
+          const failed = msg.result?.failed || 0;
+          if (failed > 0) {
+            batchProgress.textContent = `✓ Exported ${extracted} of ${total} tabs (${failed} skipped/failed)`;
+          } else {
+            batchProgress.textContent = `✓ Exported ${extracted} tabs!`;
+          }
         }
         setTimeout(() => {
           if (batchProgress) batchProgress.classList.add('hidden');

@@ -316,12 +316,13 @@ export default defineBackground(() => {
       timestamp: Date.now(),
       autoSend,
     };
+    let transferStatus = { success: true, truncated: false };
     if (tab && tab.id !== undefined) {
       const key = `xfer_${tab.id}`;
       try {
         await chrome.storage.local.set({ [key]: { ...base, payload } });
       } catch {
-        await writeChunkedOrTruncated(tab.id, base, payload);
+        transferStatus = await writeChunkedOrTruncated(tab.id, base, payload);
       }
       pruneTransferKeys();
     } else {
@@ -336,9 +337,10 @@ export default defineBackground(() => {
             truncated: true,
           },
         });
+        transferStatus = { success: true, truncated: true };
       }
     }
-    return { success: true };
+    return transferStatus;
   }
 
   async function handleTransferContextMenu(targetId, info, tab) {
@@ -574,8 +576,10 @@ export default defineBackground(() => {
               );
 
               const prompt = buildBatchAiPrompt(results, customPrompt);
-              const effectiveTarget = targetAi || 'chatgpt';
-              await performTransfer(
+              const noteAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
+              const effectiveTarget =
+                targetAi && !noteAppTargets.includes(targetAi) ? targetAi : 'chatgpt';
+              const transferRes = await performTransfer(
                 effectiveTarget,
                 prompt,
                 `Synthesized Chats (${results.length})`,
@@ -586,7 +590,20 @@ export default defineBackground(() => {
                 total: validTabs.length,
                 extracted: results.length,
                 failed: validTabs.length - results.length,
+                truncated: Boolean(transferRes?.truncated),
               };
+
+              if (transferRes?.truncated) {
+                chrome.runtime
+                  .sendMessage({
+                    action: 'BATCH_ERROR',
+                    error:
+                      'Batch synthesis prompt exceeded storage quota (500K chars) and was truncated.',
+                  })
+                  .catch(() => {});
+                sendResponse({ success: false, error: 'Synthesis prompt truncated', result });
+                return;
+              }
 
               chrome.runtime
                 .sendMessage({
@@ -776,7 +793,7 @@ export default defineBackground(() => {
       });
       try {
         await chrome.storage.local.set(obj);
-        return;
+        return { success: true, truncated: false };
       } catch {
         // Fall through to truncation
       }
@@ -784,6 +801,7 @@ export default defineBackground(() => {
     await chrome.storage.local.set({
       [key]: { ...base, payload: truncatedPayload(payload), truncated: true },
     });
+    return { success: true, truncated: true };
   }
 
   function truncatedPayload(payload) {

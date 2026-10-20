@@ -21,10 +21,12 @@ test('deduplicateFilenames resolves colliding filenames', () => {
   const items = [
     { filename: 'chat.md', content: 'Chat 1' },
     { filename: 'chat.md', content: 'Chat 2' },
+    { filename: 'chat-1.md', content: 'Chat 3' },
   ];
   const deduped = deduplicateFilenames(items);
   assert.equal(deduped[0].filename, 'chat.md');
   assert.equal(deduped[1].filename, 'chat-1.md');
+  assert.equal(deduped[2].filename, 'chat-1-1.md');
 });
 
 test('formatCombinedMarkdown produces table of contents and sections', () => {

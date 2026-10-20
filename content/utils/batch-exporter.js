@@ -55,21 +55,20 @@ export function isExtractableTab(tab, aiOnly = false) {
  * @returns {Array<{ filename: string, [key: string]: any }>}
  */
 export function deduplicateFilenames(results) {
-  const counts = new Map();
+  const used = new Set();
   return results.map((item, index) => {
     let name = item.filename || `${item.baseFilename || `chat-${index + 1}`}.md`;
     if (!name.endsWith('.md')) {
       name = `${name}.md`;
     }
 
-    if (counts.has(name)) {
-      const currentCount = counts.get(name) + 1;
-      counts.set(name, currentCount);
-      const base = name.slice(0, -3);
-      name = `${base}-${currentCount}.md`;
-    } else {
-      counts.set(name, 0);
+    const base = name.slice(0, -3);
+    let counter = 0;
+    while (used.has(name)) {
+      counter++;
+      name = `${base}-${counter}.md`;
     }
+    used.add(name);
 
     return {
       ...item,
@@ -261,10 +260,10 @@ export async function extractAllTabsData(options = {}, windowId = null, onProgre
   }
 
   const concurrencyLimit = 4;
-  const results = [];
+  const results = new Array(validTabs.length).fill(null);
   let processed = 0;
 
-  async function processTab(tab) {
+  async function processTab(tab, tabIndex) {
     try {
       let res = await sendMessageToTab(
         tab.id,
@@ -300,7 +299,7 @@ export async function extractAllTabsData(options = {}, windowId = null, onProgre
 
       if (res && res.success && res.content) {
         const title = res.conversation?.title || tab.title || `Chat ${tab.id}`;
-        results.push({
+        results[tabIndex] = {
           title,
           content: res.content,
           markdown: res.content,
@@ -311,7 +310,7 @@ export async function extractAllTabsData(options = {}, windowId = null, onProgre
               .trim()
               .slice(0, 80) || `chat-${tab.id}`
           }.md`,
-        });
+        };
       }
     } catch (err) {
       logger.warn(`Failed extracting tab ${tab.id} (${tab.title}):`, err);
@@ -325,14 +324,16 @@ export async function extractAllTabsData(options = {}, windowId = null, onProgre
 
   for (let i = 0; i < validTabs.length; i += concurrencyLimit) {
     const chunk = validTabs.slice(i, i + concurrencyLimit);
-    await Promise.all(chunk.map((t) => processTab(t)));
+    await Promise.all(chunk.map((t, offset) => processTab(t, i + offset)));
   }
 
-  if (results.length === 0) {
+  const extractedResults = results.filter(Boolean);
+
+  if (extractedResults.length === 0) {
     throw new Error('Could not extract conversation content from any open tabs.');
   }
 
-  return { validTabs, results };
+  return { validTabs, results: extractedResults };
 }
 
 /**
