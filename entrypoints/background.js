@@ -308,6 +308,11 @@ export default defineBackground(() => {
       throw new Error(`Unsupported transfer target: ${target}`);
     }
 
+    const isOversized = (payload || '').length > 7000000; // > 10 chunks of 700KB
+    if (isOversized) {
+      throw new Error('Transfer payload is too large.');
+    }
+
     const url = PLATFORM_URLS[target] || 'https://chatgpt.com/';
     const tab = await chrome.tabs.create({ url });
     const base = {
@@ -322,7 +327,12 @@ export default defineBackground(() => {
       try {
         await chrome.storage.local.set({ [key]: { ...base, payload } });
       } catch {
-        transferStatus = await writeChunkedOrTruncated(tab.id, base, payload);
+        // If truncated, ensure autoSend is false so user can review rather than auto-submitting broken prompt
+        transferStatus = await writeChunkedOrTruncated(
+          tab.id,
+          { ...base, autoSend: false },
+          payload,
+        );
       }
       pruneTransferKeys();
     } else {
@@ -333,6 +343,7 @@ export default defineBackground(() => {
         await chrome.storage.local.set({
           pendingContinuation: {
             ...base,
+            autoSend: false,
             payload: truncatedPayload(payload),
             truncated: true,
           },

@@ -126,15 +126,20 @@ export function formatCombinedMarkdown(results, dateStr = new Date().toISOString
       let text = r.content || r.markdown || '';
       const prefix = `c${i + 1}-`;
 
-      // Namespace image and general markdown reference links:
-      // Replace [label]: url/data definitions
-      text = text.replace(/^\[([^\]]+)\]:\s*(\S.*)$/gm, (match, label, target) => {
-        return `[${prefix}${label}]: ${target}`;
-      });
-      // Replace ![alt][label] reference uses
-      text = text.replace(/!\[([\s\S]*?)\]\[([^\]]+)\]/g, (match, alt, label) => {
+      // Namespace only image reference links emitted for base64 images:
+      // First find all image reference labels actually used: ![alt][label]
+      const imgLabels = new Set();
+      text = text.replace(/!\[([^\]]*)\]\[([^\]]+)\]/g, (match, alt, label) => {
+        imgLabels.add(label);
         return `![${alt}][${prefix}${label}]`;
       });
+
+      // Rewrite only matching definitions for those image labels
+      if (imgLabels.size > 0) {
+        text = text.replace(/^\[([^\]]+)\]:\s*(\S.*)$/gm, (match, label, target) => {
+          return imgLabels.has(label) ? `[${prefix}${label}]: ${target}` : match;
+        });
+      }
 
       return `${anchor}\n\n${text}`;
     })
