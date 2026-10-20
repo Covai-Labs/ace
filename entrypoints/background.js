@@ -1,4 +1,9 @@
 import { formatSelectionPrompt } from '../content/formatters/continuation.js';
+import {
+  batchExportTabs,
+  extractAllTabsData,
+  buildBatchAiPrompt,
+} from '../content/utils/batch-exporter.js';
 
 export default defineBackground(() => {
   const extVersion =
@@ -538,6 +543,93 @@ export default defineBackground(() => {
           } catch (e) {
             console.error('[AI Exporter Background] Transfer failed:', e);
             sendResponse({ success: false, error: e.message });
+          }
+        })();
+        return true;
+      }
+
+      if (request.action === 'BATCH_EXPORT_TABS') {
+        (async () => {
+          try {
+            const mode = request.mode || 'zip';
+            const windowId = request.windowId || null;
+            const options = request.options || {};
+            const targetAi = request.targetAi || null;
+            const customPrompt = request.customPrompt || '';
+
+            if (mode === 'ai') {
+              const { validTabs, results } = await extractAllTabsData(
+                options,
+                windowId,
+                (processed, total, title) => {
+                  chrome.runtime
+                    .sendMessage({
+                      action: 'BATCH_PROGRESS',
+                      processed,
+                      total,
+                      title,
+                    })
+                    .catch(() => {});
+                },
+              );
+
+              const prompt = buildBatchAiPrompt(results, customPrompt);
+              const effectiveTarget = targetAi || 'chatgpt';
+              await performTransfer(
+                effectiveTarget,
+                prompt,
+                `Synthesized Chats (${results.length})`,
+                true,
+              );
+
+              const result = {
+                total: validTabs.length,
+                extracted: results.length,
+                failed: validTabs.length - results.length,
+              };
+
+              chrome.runtime
+                .sendMessage({
+                  action: 'BATCH_COMPLETE',
+                  result,
+                })
+                .catch(() => {});
+              sendResponse({ success: true, result });
+              return;
+            }
+
+            const result = await batchExportTabs(
+              options,
+              mode,
+              windowId,
+              (processed, total, title) => {
+                chrome.runtime
+                  .sendMessage({
+                    action: 'BATCH_PROGRESS',
+                    processed,
+                    total,
+                    title,
+                  })
+                  .catch(() => {});
+              },
+            );
+
+            chrome.runtime
+              .sendMessage({
+                action: 'BATCH_COMPLETE',
+                result,
+              })
+              .catch(() => {});
+            sendResponse({ success: true, result });
+          } catch (err) {
+            console.error('[AI Exporter Background] Batch export failed:', err);
+            chrome.runtime
+              .sendMessage({
+                action: 'BATCH_ERROR',
+                error: err.message,
+              })
+              .catch(() => {});
+            sendResponse({ success: false, error: err.message });
           }
         })();
         return true;
