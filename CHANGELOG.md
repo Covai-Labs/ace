@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.23.0](https://github.com/Covai-Labs/ace/compare/v1.22.0...v1.23.0) (2026-10-20)
+
+
+### Features
+
+* add multi-tab batch chat export and LLM synthesis ([#144](https://github.com/Covai-Labs/ace/issues/144)) ([d71a8b1](https://github.com/Covai-Labs/ace/commit/d71a8b10338f9af31eb234a458eef8a56d8fea7e))
+
+
+### Bug Fixes
+
+* **batch:** add downloads permission, update synthesis prompt, and position batch at top of popup ([#146](https://github.com/Covai-Labs/ace/issues/146)) ([031aba1](https://github.com/Covai-Labs/ace/commit/031aba1a3e98d0cb331d7fc74921ec137fee8ff1))
+* **decant:** restore standard prettier formatting and config for decant-core ([f5664de](https://github.com/Covai-Labs/ace/commit/f5664deba4cd436a559a0406c1bc074a9f3d180c))
+* **decant:** sync package-lock with standalone dependencies ([3294267](https://github.com/Covai-Labs/ace/commit/32942679cd01c40e25cac2076e9147b49ca3b361))
+* **decant:** update decant-core README note and isolate format check ([b85fcc4](https://github.com/Covai-Labs/ace/commit/b85fcc4e457dcd9c0d35802d1ab4e43c6ce11d2e))
+* **gemini:** preserve linked text and images in html and pdf exports ([#110](https://github.com/Covai-Labs/ace/issues/110)) ([#140](https://github.com/Covai-Labs/ace/issues/140)) ([e47b37d](https://github.com/Covai-Labs/ace/commit/e47b37d99ea3a01d5b5c33f0bd412ccc6afa4bfb))
+* **security:** update scanner exclusions, sanitize test fixture, and add secret prevention test ([#141](https://github.com/Covai-Labs/ace/issues/141)) ([ded1a50](https://github.com/Covai-Labs/ace/commit/ded1a50cee765594bfc3ffa4d87a2991ea707fc2))
+
 ## [1.22.0](https://github.com/Covai-Labs/ace/compare/v1.21.0...v1.22.0) (2026-10-14)
 
 
