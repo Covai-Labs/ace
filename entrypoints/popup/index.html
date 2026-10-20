@@ -156,6 +156,41 @@
           </div>
         </div>
 
+        <div class="divider"></div>
+
+        <div class="batch-section" id="batch-section">
+          <div class="card-header-row" style="margin-bottom: 6px">
+            <span class="field-label-small">BATCH ALL TABS</span>
+          </div>
+          <div class="batch-row" style="display: flex; gap: 8px">
+            <select id="batch-mode-select" style="flex: 1; min-width: 0">
+              <option value="zip">📦 ZIP Archive (.zip)</option>
+              <option value="combined">📑 Combined Note (.md)</option>
+              <option value="ai">🤖 Synthesize in AI Chat</option>
+            </select>
+            <button
+              id="batch-export-btn"
+              class="secondary-btn"
+              style="
+                white-space: nowrap;
+                flex-shrink: 0;
+                padding: 8px 12px;
+                font-size: 12.5px;
+                font-weight: 600;
+              "
+            >
+              Batch Export
+            </button>
+          </div>
+          <div
+            id="batch-progress"
+            class="hidden"
+            style="margin-top: 8px; font-size: 11.5px; color: var(--text-muted); text-align: center"
+          >
+            Processing tabs...
+          </div>
+        </div>
+
         <div class="error-container hidden" id="error-msg">
           <div class="copilot-redirect-box hidden" id="copilot-redirect-box">
             <span class="copilot-redirect-icon">💡</span>

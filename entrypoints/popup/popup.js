@@ -744,4 +744,68 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+
+  const batchExportBtn = document.getElementById('batch-export-btn');
+  const batchModeSelect = document.getElementById('batch-mode-select');
+  const batchProgress = document.getElementById('batch-progress');
+
+  if (batchExportBtn) {
+    batchExportBtn.addEventListener('click', async () => {
+      const mode = batchModeSelect ? batchModeSelect.value : 'zip';
+      batchExportBtn.disabled = true;
+      if (batchProgress) {
+        batchProgress.classList.remove('hidden');
+        batchProgress.textContent = 'Processing open tabs...';
+      }
+
+      try {
+        const currentWin = await chrome.windows.getCurrent();
+        const noteAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
+        let targetAi = continueTargetSelect ? continueTargetSelect.value : 'chatgpt';
+        if (noteAppTargets.includes(targetAi)) {
+          targetAi = 'chatgpt';
+        }
+        await chrome.runtime.sendMessage({
+          action: 'BATCH_EXPORT_TABS',
+          mode,
+          windowId: currentWin.id,
+          targetAi,
+          options: {
+            includeImages: includeImagesCheckbox ? includeImagesCheckbox.checked : true,
+          },
+        });
+      } catch (err) {
+        logger.error('Failed to trigger batch export:', err);
+        if (batchProgress) batchProgress.textContent = 'Batch export failed.';
+        batchExportBtn.disabled = false;
+      }
+    });
+
+    chrome.runtime.onMessage.addListener((msg) => {
+      if (msg.action === 'BATCH_PROGRESS' && batchProgress) {
+        batchProgress.classList.remove('hidden');
+        batchProgress.textContent = `Extracting ${msg.processed} of ${msg.total} tabs...`;
+      } else if (msg.action === 'BATCH_COMPLETE') {
+        if (batchProgress) {
+          const extracted = msg.result?.extracted || 0;
+          const total = msg.result?.total || extracted;
+          const failed = msg.result?.failed || 0;
+          if (failed > 0) {
+            batchProgress.textContent = `✓ Exported ${extracted} of ${total} tabs (${failed} skipped/failed)`;
+          } else {
+            batchProgress.textContent = `✓ Exported ${extracted} tabs!`;
+          }
+        }
+        setTimeout(() => {
+          if (batchProgress) batchProgress.classList.add('hidden');
+          if (batchExportBtn) batchExportBtn.disabled = false;
+        }, 2500);
+      } else if (msg.action === 'BATCH_ERROR') {
+        if (batchProgress) {
+          batchProgress.textContent = `⚠️ Error: ${msg.error || 'Failed'}`;
+        }
+        if (batchExportBtn) batchExportBtn.disabled = false;
+      }
+    });
+  }
 });

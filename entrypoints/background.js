@@ -1,4 +1,9 @@
 import { formatSelectionPrompt } from '../content/formatters/continuation.js';
+import {
+  batchExportTabs,
+  extractAllTabsData,
+  buildBatchAiPrompt,
+} from '../content/utils/batch-exporter.js';
 
 export default defineBackground(() => {
   const extVersion =
@@ -303,6 +308,11 @@ export default defineBackground(() => {
       throw new Error(`Unsupported transfer target: ${target}`);
     }
 
+    const isOversized = (payload || '').length > 7000000; // > 10 chunks of 700KB
+    if (isOversized) {
+      throw new Error('Transfer payload is too large.');
+    }
+
     const url = PLATFORM_URLS[target] || 'https://chatgpt.com/';
     const tab = await chrome.tabs.create({ url });
     const base = {
@@ -311,12 +321,18 @@ export default defineBackground(() => {
       timestamp: Date.now(),
       autoSend,
     };
+    let transferStatus = { success: true, truncated: false };
     if (tab && tab.id !== undefined) {
       const key = `xfer_${tab.id}`;
       try {
         await chrome.storage.local.set({ [key]: { ...base, payload } });
       } catch {
-        await writeChunkedOrTruncated(tab.id, base, payload);
+        // If truncated, ensure autoSend is false so user can review rather than auto-submitting broken prompt
+        transferStatus = await writeChunkedOrTruncated(
+          tab.id,
+          { ...base, autoSend: false },
+          payload,
+        );
       }
       pruneTransferKeys();
     } else {
@@ -327,13 +343,15 @@ export default defineBackground(() => {
         await chrome.storage.local.set({
           pendingContinuation: {
             ...base,
+            autoSend: false,
             payload: truncatedPayload(payload),
             truncated: true,
           },
         });
+        transferStatus = { success: true, truncated: true };
       }
     }
-    return { success: true };
+    return transferStatus;
   }
 
   async function handleTransferContextMenu(targetId, info, tab) {
@@ -542,6 +560,111 @@ export default defineBackground(() => {
         })();
         return true;
       }
+
+      if (request.action === 'BATCH_EXPORT_TABS') {
+        (async () => {
+          try {
+            const mode = request.mode || 'zip';
+            const windowId = request.windowId || null;
+            const options = request.options || {};
+            const targetAi = request.targetAi || null;
+            const customPrompt = request.customPrompt || '';
+
+            if (mode === 'ai') {
+              const { validTabs, results } = await extractAllTabsData(
+                options,
+                windowId,
+                (processed, total, title) => {
+                  chrome.runtime
+                    .sendMessage({
+                      action: 'BATCH_PROGRESS',
+                      processed,
+                      total,
+                      title,
+                    })
+                    .catch(() => {});
+                },
+              );
+
+              const syncData = await chrome.storage.sync.get(['transferAutoSend']);
+              const autoSend = syncData?.transferAutoSend !== false;
+
+              const prompt = buildBatchAiPrompt(results, customPrompt);
+              const noteAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
+              const effectiveTarget =
+                targetAi && !noteAppTargets.includes(targetAi) ? targetAi : 'chatgpt';
+              const transferRes = await performTransfer(
+                effectiveTarget,
+                prompt,
+                `Synthesized Chats (${results.length})`,
+                autoSend,
+              );
+
+              const result = {
+                total: validTabs.length,
+                extracted: results.length,
+                failed: validTabs.length - results.length,
+                truncated: Boolean(transferRes?.truncated),
+              };
+
+              if (transferRes?.truncated) {
+                chrome.runtime
+                  .sendMessage({
+                    action: 'BATCH_ERROR',
+                    error:
+                      'Batch synthesis prompt exceeded storage quota (500K chars) and was truncated.',
+                  })
+                  .catch(() => {});
+                sendResponse({ success: false, error: 'Synthesis prompt truncated', result });
+                return;
+              }
+
+              chrome.runtime
+                .sendMessage({
+                  action: 'BATCH_COMPLETE',
+                  result,
+                })
+                .catch(() => {});
+              sendResponse({ success: true, result });
+              return;
+            }
+
+            const result = await batchExportTabs(
+              options,
+              mode,
+              windowId,
+              (processed, total, title) => {
+                chrome.runtime
+                  .sendMessage({
+                    action: 'BATCH_PROGRESS',
+                    processed,
+                    total,
+                    title,
+                  })
+                  .catch(() => {});
+              },
+            );
+
+            chrome.runtime
+              .sendMessage({
+                action: 'BATCH_COMPLETE',
+                result,
+              })
+              .catch(() => {});
+            sendResponse({ success: true, result });
+          } catch (err) {
+            console.error('[AI Exporter Background] Batch export failed:', err);
+            chrome.runtime
+              .sendMessage({
+                action: 'BATCH_ERROR',
+                error: err.message,
+              })
+              .catch(() => {});
+            sendResponse({ success: false, error: err.message });
+          }
+        })();
+        return true;
+      }
     });
   }
 
@@ -684,7 +807,7 @@ export default defineBackground(() => {
       });
       try {
         await chrome.storage.local.set(obj);
-        return;
+        return { success: true, truncated: false };
       } catch {
         // Fall through to truncation
       }
@@ -692,6 +815,7 @@ export default defineBackground(() => {
     await chrome.storage.local.set({
       [key]: { ...base, payload: truncatedPayload(payload), truncated: true },
     });
+    return { success: true, truncated: true };
   }
 
   function truncatedPayload(payload) {
