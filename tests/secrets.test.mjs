@@ -2,7 +2,7 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync } from 'node:child_process';
 
 const SECRET_PATTERNS = [
   { name: 'Google API Key', regex: /\bAIza[0-9A-Za-z_-]{35}\b/g },
@@ -59,12 +59,12 @@ const isStagedMode = process.env.CHECK_STAGED === '1' || process.argv.includes('
 
 test('repository contains no un-sanitized secrets or live credentials', () => {
   const targetFiles = isStagedMode
-    ? execSync('git diff --cached --name-only --diff-filter=ACM', {
+    ? execFileSync('git', ['diff', '--cached', '--name-only', '--diff-filter=ACMR'], {
         encoding: 'utf8',
       })
         .split('\n')
         .filter(Boolean)
-    : execSync('git ls-files', { encoding: 'utf8' }).split('\n').filter(Boolean);
+    : execFileSync('git', ['ls-files'], { encoding: 'utf8' }).split('\n').filter(Boolean);
 
   const violations = [];
 
@@ -75,8 +75,8 @@ test('repository contains no un-sanitized secrets or live credentials', () => {
     let content;
     try {
       if (isStagedMode) {
-        // Read directly from git index (staged blob) to catch staged secrets
-        content = execSync(`git show :${JSON.stringify(relPath)}`, {
+        // Read directly from git index (staged blob) without invoking shell
+        content = execFileSync('git', ['show', `:${relPath}`], {
           encoding: 'utf8',
           maxBuffer: 20 * 1024 * 1024,
         });
