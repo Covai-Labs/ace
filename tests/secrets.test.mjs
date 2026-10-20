@@ -1,8 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import fs from 'node:fs';
 import path from 'node:path';
-import { execSync } from 'node:child_process';
+import { execFileSync, execSync } from 'node:child_process';
 
 const SECRET_PATTERNS = [
   { name: 'Google API Key', regex: /\bAIza[0-9A-Za-z_-]{35}\b/g },
@@ -43,19 +42,22 @@ const BINARY_EXTENSIONS = new Set([
 ]);
 
 test('repository contains no un-sanitized secrets or live credentials', () => {
-  const gitOutput = execSync('git ls-files', { encoding: 'utf8' });
-  const trackedFiles = gitOutput.split('\n').filter(Boolean);
+  const gitOutput = execSync('git ls-files --cached -z', { encoding: 'utf8' });
+  const stagedFiles = gitOutput.split('\0').filter(Boolean);
 
   const violations = [];
 
-  for (const relPath of trackedFiles) {
+  for (const relPath of stagedFiles) {
     if (relPath === 'tests/secrets.test.mjs') continue;
     const ext = path.extname(relPath).toLowerCase();
     if (BINARY_EXTENSIONS.has(ext)) continue;
 
     let content;
     try {
-      content = fs.readFileSync(relPath, 'utf8');
+      content = execFileSync('git', ['show', `:${relPath}`], {
+        encoding: 'utf8',
+        maxBuffer: 50 * 1024 * 1024,
+      });
     } catch {
       continue;
     }
