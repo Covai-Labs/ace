@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.23.1](https://github.com/Covai-Labs/ace/compare/v1.23.0...v1.23.1) (2026-10-24)
+
+
+### Bug Fixes
+
+* **chatgpt,downloads:** fix ChatGPT preview on Firefox and defer blob URL revocation ([#153](https://github.com/Covai-Labs/ace/issues/153)) ([#154](https://github.com/Covai-Labs/ace/issues/154)) ([7d979d5](https://github.com/Covai-Labs/ace/commit/7d979d5dd182accba1cbeeb35e081d79098f550e))
+* **ci:** resolve SonarCloud source-test path overlap and add CodeQL workflow_dispatch ([#147](https://github.com/Covai-Labs/ace/issues/147)) ([11996e5](https://github.com/Covai-Labs/ace/commit/11996e55c3fc90090f119f450ae461806ab5a410))
+* **google-search-ai:** preserve citation chips, RHS sources, and align multi-turn queries ([#109](https://github.com/Covai-Labs/ace/issues/109)) ([#156](https://github.com/Covai-Labs/ace/issues/156)) ([b8c3ecd](https://github.com/Covai-Labs/ace/commit/b8c3ecd31ea7289bcdca9707fda1ee1b78a653eb))
+
 ## [1.23.0](https://github.com/Covai-Labs/ace/compare/v1.22.0...v1.23.0) (2026-10-20)
 
 
