@@ -12,17 +12,17 @@ function cleanAriaLabel(label) {
 
 export function extractSourcesFromRhs(turnEl) {
   if (!turnEl || typeof turnEl.querySelector !== "function") return [];
-  const rhs = turnEl.querySelector('[data-container-id="rhs-col"]');
-  if (!rhs) return [];
 
-  const cards = rhs.querySelectorAll(".cRH23c, [data-src-id]");
+  // RHS cards are not consistently rendered inside rhs-col. In particular, some
+  // responses keep their source list in the turn markup (or in serialized data
+  // in a hidden comment), so search the turn rather than requiring that wrapper.
+  const cards = turnEl.querySelectorAll(
+    '.cRH23c, [data-src-id], .as3zCc, [data-container-id="rhs-col"] a[href]',
+  );
   const sources = [];
   const seenUrls = new Set();
 
-  for (const card of cards) {
-    const link = card.querySelector("a[href]");
-    if (!link) continue;
-    let url = link.getAttribute("href") || "";
+  const addSource = (url, title = "") => {
     if (url.startsWith("/goto?") || url.startsWith("/url?")) {
       try {
         const parsed = new URL(url, "https://www.google.com");
@@ -34,15 +34,29 @@ export function extractSourcesFromRhs(turnEl) {
         // Keep original url
       }
     }
-    if (!url || seenUrls.has(url)) continue;
+    if (!url || seenUrls.has(url)) return;
     seenUrls.add(url);
+    sources.push({ title: title.trim() || url, url });
+  };
 
-    let title = cleanAriaLabel(link.getAttribute("aria-label"));
-    if (!title) {
-      title = card.textContent.trim().split("\n")[0].trim() || url;
-    }
-    sources.push({ title, url });
+  for (const card of cards) {
+    const link = card.matches?.("a[href]") ? card : card.querySelector("a[href]");
+    if (!link) continue;
+    const title = cleanAriaLabel(link.getAttribute("aria-label")) ||
+      card.textContent.trim().split("\n")[0].trim();
+    addSource(link.getAttribute("href") || "", title);
   }
+
+  // Google sometimes serializes source cards in a hidden comment instead of
+  // creating card elements. Keep only ordinary HTTPS URLs, excluding assets.
+  const markup = turnEl.innerHTML || "";
+  const serializedUrls = markup.match(/https?:\/\/[^\s"'<>\\]+/g) || [];
+  for (const rawUrl of serializedUrls) {
+    const url = rawUrl.replace(/\\u003d/g, "=").replace(/\\u0026/g, "&");
+    if (/encrypted-tbn|favicon|data:image|gstatic\.com/i.test(url)) continue;
+    addSource(url);
+  }
+
   return sources;
 }
 
@@ -267,7 +281,8 @@ export class GoogleSearchAIParser extends ChatParser {
     // Pair queries and responses in order
     const totalTurns = Math.max(queries.length, responseContainers.length);
     for (let i = 0; i < totalTurns; i++) {
-      const query = queries[i] || (i === 0 ? initialQuery : "") || "Follow-up query";
+      // Do not fabricate a prompt when the page did not expose one for this turn.
+      const query = queries[i] || (i === 0 ? initialQuery : "");
       const response = responseContainers[i];
 
       if (query) {
