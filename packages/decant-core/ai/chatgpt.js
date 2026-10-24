@@ -37,11 +37,29 @@ function fetchConversation(convId, token, includeImages) {
         ? crypto.randomUUID()
         : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
+    let responseTimer;
+    const ackTimer = setTimeout(() => {
+      window.removeEventListener("message", handler);
+      reject(new Error("Request timed out"));
+    }, 5000);
+
     const handler = (event) => {
       if (event.data?.source !== "chatgpt-exporter-page") return;
       if (event.data?.requestId !== requestId) return;
+      if (event.data.ack) {
+        clearTimeout(ackTimer);
+        responseTimer = setTimeout(
+          () => {
+            window.removeEventListener("message", handler);
+            reject(new Error("Request timed out"));
+          },
+          includeImages ? 60000 : 45000,
+        );
+        return;
+      }
       window.removeEventListener("message", handler);
-      clearTimeout(timer);
+      clearTimeout(ackTimer);
+      clearTimeout(responseTimer);
       if (event.data.error) {
         reject(new Error(event.data.error));
       } else {
@@ -49,10 +67,13 @@ function fetchConversation(convId, token, includeImages) {
       }
     };
 
-    const timer = setTimeout(() => {
-      window.removeEventListener("message", handler);
-      reject(new Error("Request timed out"));
-    }, 45000);
+    const targetOrigin =
+      typeof window !== "undefined" &&
+      window.location &&
+      window.location.origin &&
+      window.location.origin.startsWith("http")
+        ? window.location.origin
+        : "https://chatgpt.com";
 
     window.addEventListener("message", handler);
     window.postMessage(
@@ -64,7 +85,7 @@ function fetchConversation(convId, token, includeImages) {
         requestId,
         includeImages,
       },
-      "https://chatgpt.com",
+      targetOrigin,
     );
   });
 }
@@ -779,7 +800,21 @@ export class ChatGPTParser extends ChatParser {
   }
 
   isAvailable(url) {
-    return url.includes("chatgpt.com");
+    if (!url || typeof url !== "string") return false;
+    try {
+      const parsed = new URL(url);
+      const host = parsed.hostname.toLowerCase();
+      const cleanHost = host.startsWith("www.") ? host.slice(4) : host;
+      return (
+        cleanHost === "chatgpt.com" ||
+        cleanHost.endsWith(".chatgpt.com") ||
+        cleanHost === "chat.openai.com"
+      );
+    } catch {
+      return /^https?:\/\/(?:[a-z0-9-]+\.)*(?:chatgpt\.com|chat\.openai\.com)(?::\d+)?(?:\/.*)?$/i.test(
+        url,
+      );
+    }
   }
 
   getRoleElement(container) {
@@ -1274,6 +1309,29 @@ export class ChatGPTParser extends ChatParser {
       }
     }
 
+    const fullExport = options.full !== false;
+    const extractedMessages = fullExport
+      ? await this.extractAllConversationTurns()
+      : this.extractMountedMessages();
+    if (extractedMessages.length > 0) {
+      messages.push(...extractedMessages);
+      const currentUrl =
+        typeof window !== "undefined" && window.location
+          ? window.location.href || ""
+          : "";
+      const metadata = {
+        Source: "ChatGPT",
+        Date: new Date().toLocaleString(),
+        Link: currentUrl,
+        Model:
+          document.querySelector('[data-testid="model-selector-dropdown"]')
+            ?.innerText || "ChatGPT",
+        Method: "DOM",
+      };
+
+      return { title, messages, url: currentUrl, metadata };
+    }
+
     // Check if we have iframe-based content (deep research feature)
     const iframes = document.querySelectorAll(
       'iframe[src*="oaiusercontent.com"]',
@@ -1389,45 +1447,28 @@ export class ChatGPTParser extends ChatParser {
         });
       }
 
-      // Add note about extraction method
+      // Add note about extraction method if messages were found
       if (messages.length > 0) {
         messages.push({
           role: "ChatGPT",
           content:
             "*Note: Content extracted from iframe-based ChatGPT interface. Some formatting may be lost.*",
         });
-      } else {
-        // Last resort - add a message explaining the limitation
-        messages.push({
-          role: "ChatGPT",
-          content:
-            "*Note: ChatGPT is using iframe-based content that cannot be accessed by browser extensions. Please try exporting from a standard ChatGPT conversation.*",
-        });
+
+        const currentUrl =
+          typeof window !== "undefined" && window.location
+            ? window.location.href || ""
+            : "";
+        const metadata = {
+          Source: "ChatGPT",
+          Date: new Date().toLocaleString(),
+          Link: currentUrl,
+          Method: "DOM",
+        };
+
+        return { title, messages, url: currentUrl, metadata };
       }
-
-      const currentUrl =
-        typeof window !== "undefined" && window.location
-          ? window.location.href || ""
-          : "";
-      const metadata = {
-        Source: "ChatGPT",
-        Date: new Date().toLocaleString(),
-        Link: currentUrl,
-        Method: "DOM",
-      };
-
-      return { title, messages, url: currentUrl, metadata };
     }
-
-    const fullExport = options.full !== false;
-    const extractedMessages = fullExport
-      ? await this.extractAllConversationTurns()
-      : this.extractMountedMessages();
-    messages.push(
-      ...(extractedMessages.length > 0
-        ? extractedMessages
-        : this.extractMountedMessages()),
-    );
 
     const currentUrl =
       typeof window !== "undefined" && window.location

@@ -106,6 +106,12 @@ test('wiring: content.js handles DISCOVER_FRAMES and popup.js contains targeted 
   assert.match(popupJs, /discoverBestFrame/);
   assert.match(popupJs, /activeTargetFrameId/);
   assert.match(popupJs, /frameId:\s*activeTargetFrameId/);
+
+  // Subframes without active parser must not hijack COPY_CHAT / EXPORT_CHAT
+  assert.match(
+    contentJs,
+    /if \(currentFrameIsTop\) \{\s*sendResponse\(\{ success: false, error: 'No parser available' \}\);/,
+  );
 });
 
 test('GoogleSearchAIParser correctly extracts all turns from actual-page fixture', async () => {

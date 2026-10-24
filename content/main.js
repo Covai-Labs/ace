@@ -575,7 +575,9 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         detectParser();
       }
       if (!activeParser) {
-        sendResponse({ success: false, error: 'No parser available' });
+        if (currentFrameIsTop) {
+          sendResponse({ success: false, error: 'No parser available' });
+        }
         return true;
       }
 
@@ -675,7 +677,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(url);
+            } catch (err) {
+              console.warn('Failed to revoke object URL:', err);
+            }
+          }, 60000);
 
           sendResponse({ success: true });
         } catch (e) {
@@ -691,7 +699,9 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
         detectParser();
       }
       if (!activeParser) {
-        sendResponse({ success: false, error: 'No parser available' });
+        if (currentFrameIsTop) {
+          sendResponse({ success: false, error: 'No parser available' });
+        }
         return true;
       }
 
@@ -710,6 +720,10 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               includeImages: request.includeImages !== false,
             }),
           );
+          if (!conversation || !conversation.messages || conversation.messages.length === 0) {
+            sendResponse({ success: false, error: 'No messages found in conversation' });
+            return;
+          }
           if (request.includeImages === false) {
             conversation.messages.forEach((msg) => {
               if (msg.content) {
@@ -792,7 +806,12 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 
     if (request.action === 'GET_CONTINUATION_PAYLOAD') {
       if (!activeParser) {
-        sendResponse({ success: false, error: 'No parser available' });
+        detectParser();
+      }
+      if (!activeParser) {
+        if (currentFrameIsTop) {
+          sendResponse({ success: false, error: 'No parser available' });
+        }
         return true;
       }
 
@@ -857,8 +876,8 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       if (!activeParser) {
         if (isTopFrame) {
           showExporterToast('⚠️ No supported AI chat found on this tab', 'error');
+          sendResponse({ success: false, error: 'No parser available' });
         }
-        sendResponse({ success: false, error: 'No parser available' });
         return true;
       }
 
@@ -945,7 +964,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            setTimeout(() => {
+              try {
+                URL.revokeObjectURL(url);
+              } catch (err) {
+                console.warn('Failed to revoke object URL:', err);
+              }
+            }, 60000);
 
             if (isTopFrame) {
               const formatLabel =

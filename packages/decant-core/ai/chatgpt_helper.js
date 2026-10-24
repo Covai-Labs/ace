@@ -49,11 +49,31 @@ if (!window.__chatgptHelperInjected) {
   }
 
   window.addEventListener("message", async (event) => {
-    if (event.origin !== "https://chatgpt.com") return;
+    if (
+      event.origin !== window.location.origin &&
+      event.origin !== "https://chatgpt.com" &&
+      event.origin !== "https://chat.openai.com"
+    ) {
+      return;
+    }
     if (event.data?.source !== "chatgpt-exporter-ext") return;
     if (event.data?.type !== "fetch_conversation") return;
 
     const { convId, token, requestId, includeImages } = event.data;
+    if (!convId || !/^[a-zA-Z0-9_-]+$/.test(convId)) {
+      return;
+    }
+    const replyOrigin =
+      window.location.origin && window.location.origin.startsWith("http")
+        ? window.location.origin
+        : "https://chatgpt.com";
+
+    // Acknowledge immediately so the caller does not mistake slow image
+    // processing for an unresponsive helper.
+    window.postMessage(
+      { source: "chatgpt-exporter-page", requestId, ack: true },
+      replyOrigin,
+    );
 
     try {
       const headers = {
@@ -127,14 +147,24 @@ if (!window.__chatgptHelperInjected) {
         images = Object.fromEntries(entries.filter(([, b64]) => b64 !== null));
       }
 
+      const replyOrigin =
+        window.location.origin && window.location.origin.startsWith("http")
+          ? window.location.origin
+          : "https://chatgpt.com";
+
       window.postMessage(
         { source: "chatgpt-exporter-page", requestId, data, images },
-        "https://chatgpt.com",
+        replyOrigin,
       );
     } catch (err) {
+      const replyOrigin =
+        window.location.origin && window.location.origin.startsWith("http")
+          ? window.location.origin
+          : "https://chatgpt.com";
+
       window.postMessage(
         { source: "chatgpt-exporter-page", requestId, error: err.message },
-        "https://chatgpt.com",
+        replyOrigin,
       );
     }
   });
