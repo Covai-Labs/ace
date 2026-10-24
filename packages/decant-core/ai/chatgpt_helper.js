@@ -49,15 +49,20 @@ if (!window.__chatgptHelperInjected) {
   }
 
   window.addEventListener("message", async (event) => {
-    const isAllowedOrigin =
-      event.origin === window.location.origin ||
-      event.origin === "https://chatgpt.com" ||
-      event.origin === "https://chat.openai.com";
-    if (!isAllowedOrigin) return;
+    if (
+      event.origin !== window.location.origin &&
+      event.origin !== "https://chatgpt.com" &&
+      event.origin !== "https://chat.openai.com"
+    ) {
+      return;
+    }
     if (event.data?.source !== "chatgpt-exporter-ext") return;
     if (event.data?.type !== "fetch_conversation") return;
 
     const { convId, token, requestId, includeImages } = event.data;
+    if (!convId || !/^[a-zA-Z0-9_-]+$/.test(convId)) {
+      return;
+    }
     const replyOrigin =
       window.location.origin && window.location.origin.startsWith("http")
         ? window.location.origin

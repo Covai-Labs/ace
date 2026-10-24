@@ -811,11 +811,8 @@ export class ChatGPTParser extends ChatParser {
         cleanHost === "chat.openai.com"
       );
     } catch {
-      return (
-        url.startsWith("https://chatgpt.com") ||
-        url.startsWith("http://chatgpt.com") ||
-        url.startsWith("https://chat.openai.com") ||
-        url.startsWith("http://chat.openai.com")
+      return /^https?:\/\/(?:[a-z0-9-]+\.)*(?:chatgpt\.com|chat\.openai\.com)(?::\d+)?(?:\/.*)?$/i.test(
+        url,
       );
     }
   }
