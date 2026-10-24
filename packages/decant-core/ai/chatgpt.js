@@ -37,22 +37,35 @@ function fetchConversation(convId, token, includeImages) {
         ? crypto.randomUUID()
         : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
+    let responseTimer;
+    const ackTimer = setTimeout(() => {
+      window.removeEventListener("message", handler);
+      reject(new Error("Request timed out"));
+    }, 5000);
+
     const handler = (event) => {
       if (event.data?.source !== "chatgpt-exporter-page") return;
       if (event.data?.requestId !== requestId) return;
+      if (event.data.ack) {
+        clearTimeout(ackTimer);
+        responseTimer = setTimeout(
+          () => {
+            window.removeEventListener("message", handler);
+            reject(new Error("Request timed out"));
+          },
+          includeImages ? 60000 : 45000,
+        );
+        return;
+      }
       window.removeEventListener("message", handler);
-      clearTimeout(timer);
+      clearTimeout(ackTimer);
+      clearTimeout(responseTimer);
       if (event.data.error) {
         reject(new Error(event.data.error));
       } else {
         resolve({ data: event.data.data, images: event.data.images ?? {} });
       }
     };
-
-    const timer = setTimeout(() => {
-      window.removeEventListener("message", handler);
-      reject(new Error("Request timed out"));
-    }, 5000);
 
     const targetOrigin =
       typeof window !== "undefined" &&

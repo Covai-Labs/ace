@@ -105,7 +105,7 @@ test('wiring: content.js handles DISCOVER_FRAMES and popup.js contains targeted 
   assert.match(popupJs, /action:\s*['"]DISCOVER_FRAMES['"]/);
   assert.match(popupJs, /discoverBestFrame/);
   assert.match(popupJs, /activeTargetFrameId/);
-  assert.match(popupJs, /targetFrameId/);
+  assert.match(popupJs, /frameId:\s*activeTargetFrameId/);
 
   // Subframes without active parser must not hijack COPY_CHAT / EXPORT_CHAT
   assert.match(

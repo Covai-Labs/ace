@@ -28,15 +28,17 @@ test('Issue #153: ChatGPTParser.isAvailable recognizes chatgpt.com and chat.open
   assert.ok(AI_CHAT_DOMAINS.includes('chat.openai.com'));
 });
 
-test('Issue #153: ChatGPTParser helper timeout is configured to 5000ms', () => {
+test('Issue #153: ChatGPTParser helper initial ack timeout is configured to 5000ms', () => {
   const parserSrc = fs.readFileSync(
     path.join(__dirname, '../packages/decant-core/ai/chatgpt.js'),
     'utf8',
   );
 
-  // Verify fetchConversation timer is 5000ms rather than 45000ms
+  // Verify fetchConversation initial ack timer is 5000ms
+  assert.ok(parserSrc.includes('const ackTimer = setTimeout('));
   assert.ok(parserSrc.includes('}, 5000);'));
-  assert.ok(!parserSrc.includes('}, 45000);'));
+  // Verify scaled responseTimer exists for payload fetching
+  assert.ok(parserSrc.includes('includeImages ? 60000 : 45000'));
 });
 
 test('Issue #153: ChatGPTParser helper respects replyOrigin from chat.openai.com', async () => {
