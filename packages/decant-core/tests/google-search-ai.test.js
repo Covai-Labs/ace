@@ -284,9 +284,9 @@ test("GoogleSearchAIParser parse() appends RHS sources and handles missing initi
     import.meta.url,
   );
   const rawHtml = fs.readFileSync(fixtureUrl, "utf-8");
-  // Simulate page where turn 0 initial prompt is only in the search box/URL
-  const modifiedHtml = rawHtml.replace(/<div class="sUKAcb">[\s\S]*?<\/div>/, "");
-  const { document, window } = parseHTML(modifiedHtml);
+  const { document, window } = parseHTML(rawHtml);
+  // Simulate page where turn 0 initial prompt is only in the search box/URL/title
+  document.querySelector(".sUKAcb")?.remove();
   globalThis.document = document;
   globalThis.window = window;
 
@@ -295,6 +295,8 @@ test("GoogleSearchAIParser parse() appends RHS sources and handles missing initi
 
   // All 5 turns should be captured (10 messages total)
   assert.equal(result.messages.length, 10);
+  assert.equal(result.messages[0].role, "User");
+  assert.match(result.messages[0].content, /species that went extinct/);
 
   // Turn 0 model response should include citation chip and sources section
   const turn0Response = result.messages[1].content;
