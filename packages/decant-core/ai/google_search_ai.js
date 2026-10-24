@@ -116,8 +116,8 @@ export function sanitizeResponseContainer(container) {
       }
     }
 
-    // 5. If link text is empty, check aria-label before treating as an empty link shell
-    if (!a.textContent.trim()) {
+    // 5. If link text is empty and contains no image/svg, check aria-label before treating as an empty link shell
+    if (!a.textContent.trim() && !a.querySelector("img, svg")) {
       const aria = a.getAttribute("aria-label");
       if (aria) {
         const label = cleanAriaLabel(aria).replace(/\s*–\s*.*$/, "").trim();
@@ -267,7 +267,7 @@ export class GoogleSearchAIParser extends ChatParser {
     // Pair queries and responses in order
     const totalTurns = Math.max(queries.length, responseContainers.length);
     for (let i = 0; i < totalTurns; i++) {
-      const query = queries[i] || (i === 0 ? initialQuery : "") || "Follow-up query";
+      const query = queries[i] || (i === 0 ? initialQuery : "");
       const response = responseContainers[i];
 
       if (query) {
