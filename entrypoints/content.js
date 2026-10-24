@@ -557,7 +557,9 @@ export default defineContentScript({
             detectParser();
           }
           if (!activeParser) {
-            sendResponse({ success: false, error: 'No parser available' });
+            if (currentFrameIsTop) {
+              sendResponse({ success: false, error: 'No parser available' });
+            }
             return true;
           }
 
@@ -687,7 +689,9 @@ export default defineContentScript({
             detectParser();
           }
           if (!activeParser) {
-            sendResponse({ success: false, error: 'No parser available' });
+            if (currentFrameIsTop) {
+              sendResponse({ success: false, error: 'No parser available' });
+            }
             return true;
           }
 
@@ -804,7 +808,9 @@ export default defineContentScript({
             detectParser();
           }
           if (!activeParser) {
-            sendResponse({ success: false, error: 'No parser available' });
+            if (currentFrameIsTop) {
+              sendResponse({ success: false, error: 'No parser available' });
+            }
             return true;
           }
 
@@ -879,8 +885,8 @@ export default defineContentScript({
           if (!activeParser) {
             if (isTopFrame) {
               showExporterToast('⚠️ No supported AI chat found on this tab', 'error');
+              sendResponse({ success: false, error: 'No parser available' });
             }
-            sendResponse({ success: false, error: 'No parser available' });
             return true;
           }
 

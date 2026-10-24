@@ -243,14 +243,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function sendTabMessage(actionPayload) {
     if (!tab || !tab.id) throw new Error('No active tab');
-    if (typeof activeTargetFrameId === 'number') {
-      try {
-        return await chrome.tabs.sendMessage(tab.id, actionPayload, {
-          frameId: activeTargetFrameId,
-        });
-      } catch (err) {
-        logger.debug('Sending to target frame failed, falling back to broadcast:', err);
-      }
+    const targetFrameId = typeof activeTargetFrameId === 'number' ? activeTargetFrameId : 0;
+    try {
+      return await chrome.tabs.sendMessage(tab.id, actionPayload, {
+        frameId: targetFrameId,
+      });
+    } catch (err) {
+      logger.debug(
+        `Sending to target frame ${targetFrameId} failed, falling back to broadcast:`,
+        err,
+      );
     }
     return await chrome.tabs.sendMessage(tab.id, actionPayload);
   }
@@ -369,7 +371,12 @@ document.addEventListener('DOMContentLoaded', async () => {
             force: isForce,
             parserMode: storedSettings.parserMode || 'auto',
           });
-          activeTargetFrameId = null;
+          if (response && response.available) {
+            activeTargetFrameId =
+              typeof response.frameId === 'number' ? response.frameId : response.isTopFrame ? 0 : 0;
+          } else {
+            activeTargetFrameId = null;
+          }
         }
 
         logger.debug('Response received:', response);

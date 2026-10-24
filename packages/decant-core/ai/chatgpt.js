@@ -1282,6 +1282,29 @@ export class ChatGPTParser extends ChatParser {
       }
     }
 
+    const fullExport = options.full !== false;
+    const extractedMessages = fullExport
+      ? await this.extractAllConversationTurns()
+      : this.extractMountedMessages();
+    if (extractedMessages.length > 0) {
+      messages.push(...extractedMessages);
+      const currentUrl =
+        typeof window !== "undefined" && window.location
+          ? window.location.href || ""
+          : "";
+      const metadata = {
+        Source: "ChatGPT",
+        Date: new Date().toLocaleString(),
+        Link: currentUrl,
+        Model:
+          document.querySelector('[data-testid="model-selector-dropdown"]')
+            ?.innerText || "ChatGPT",
+        Method: "DOM",
+      };
+
+      return { title, messages, url: currentUrl, metadata };
+    }
+
     // Check if we have iframe-based content (deep research feature)
     const iframes = document.querySelectorAll(
       'iframe[src*="oaiusercontent.com"]',
@@ -1419,16 +1442,6 @@ export class ChatGPTParser extends ChatParser {
         return { title, messages, url: currentUrl, metadata };
       }
     }
-
-    const fullExport = options.full !== false;
-    const extractedMessages = fullExport
-      ? await this.extractAllConversationTurns()
-      : this.extractMountedMessages();
-    messages.push(
-      ...(extractedMessages.length > 0
-        ? extractedMessages
-        : this.extractMountedMessages()),
-    );
 
     const currentUrl =
       typeof window !== "undefined" && window.location
