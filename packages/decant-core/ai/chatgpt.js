@@ -800,7 +800,24 @@ export class ChatGPTParser extends ChatParser {
   }
 
   isAvailable(url) {
-    return url.includes("chatgpt.com") || url.includes("chat.openai.com");
+    if (!url || typeof url !== "string") return false;
+    try {
+      const parsed = new URL(url);
+      const host = parsed.hostname.toLowerCase();
+      const cleanHost = host.startsWith("www.") ? host.slice(4) : host;
+      return (
+        cleanHost === "chatgpt.com" ||
+        cleanHost.endsWith(".chatgpt.com") ||
+        cleanHost === "chat.openai.com"
+      );
+    } catch {
+      return (
+        url.startsWith("https://chatgpt.com") ||
+        url.startsWith("http://chatgpt.com") ||
+        url.startsWith("https://chat.openai.com") ||
+        url.startsWith("http://chat.openai.com")
+      );
+    }
   }
 
   getRoleElement(container) {
