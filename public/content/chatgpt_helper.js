@@ -58,6 +58,17 @@ if (!window.__chatgptHelperInjected) {
     if (event.data?.type !== "fetch_conversation") return;
 
     const { convId, token, requestId, includeImages } = event.data;
+    const replyOrigin =
+      window.location.origin && window.location.origin.startsWith("http")
+        ? window.location.origin
+        : "https://chatgpt.com";
+
+    // Acknowledge immediately so the caller does not mistake slow image
+    // processing for an unresponsive helper.
+    window.postMessage(
+      { source: "chatgpt-exporter-page", requestId, ack: true },
+      replyOrigin,
+    );
 
     try {
       const headers = {
@@ -130,11 +141,6 @@ if (!window.__chatgptHelperInjected) {
         );
         images = Object.fromEntries(entries.filter(([, b64]) => b64 !== null));
       }
-
-      const replyOrigin =
-        window.location.origin && window.location.origin.startsWith("http")
-          ? window.location.origin
-          : "https://chatgpt.com";
 
       window.postMessage(
         { source: "chatgpt-exporter-page", requestId, data, images },
