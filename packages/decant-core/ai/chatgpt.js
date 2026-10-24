@@ -52,7 +52,15 @@ function fetchConversation(convId, token, includeImages) {
     const timer = setTimeout(() => {
       window.removeEventListener("message", handler);
       reject(new Error("Request timed out"));
-    }, 45000);
+    }, 5000);
+
+    const targetOrigin =
+      typeof window !== "undefined" &&
+      window.location &&
+      window.location.origin &&
+      window.location.origin.startsWith("http")
+        ? window.location.origin
+        : "https://chatgpt.com";
 
     window.addEventListener("message", handler);
     window.postMessage(
@@ -64,7 +72,7 @@ function fetchConversation(convId, token, includeImages) {
         requestId,
         includeImages,
       },
-      "https://chatgpt.com",
+      targetOrigin,
     );
   });
 }
@@ -779,7 +787,7 @@ export class ChatGPTParser extends ChatParser {
   }
 
   isAvailable(url) {
-    return url.includes("chatgpt.com");
+    return url.includes("chatgpt.com") || url.includes("chat.openai.com");
   }
 
   getRoleElement(container) {
@@ -1389,34 +1397,27 @@ export class ChatGPTParser extends ChatParser {
         });
       }
 
-      // Add note about extraction method
+      // Add note about extraction method if messages were found
       if (messages.length > 0) {
         messages.push({
           role: "ChatGPT",
           content:
             "*Note: Content extracted from iframe-based ChatGPT interface. Some formatting may be lost.*",
         });
-      } else {
-        // Last resort - add a message explaining the limitation
-        messages.push({
-          role: "ChatGPT",
-          content:
-            "*Note: ChatGPT is using iframe-based content that cannot be accessed by browser extensions. Please try exporting from a standard ChatGPT conversation.*",
-        });
+
+        const currentUrl =
+          typeof window !== "undefined" && window.location
+            ? window.location.href || ""
+            : "";
+        const metadata = {
+          Source: "ChatGPT",
+          Date: new Date().toLocaleString(),
+          Link: currentUrl,
+          Method: "DOM",
+        };
+
+        return { title, messages, url: currentUrl, metadata };
       }
-
-      const currentUrl =
-        typeof window !== "undefined" && window.location
-          ? window.location.href || ""
-          : "";
-      const metadata = {
-        Source: "ChatGPT",
-        Date: new Date().toLocaleString(),
-        Link: currentUrl,
-        Method: "DOM",
-      };
-
-      return { title, messages, url: currentUrl, metadata };
     }
 
     const fullExport = options.full !== false;

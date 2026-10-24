@@ -8,6 +8,7 @@ import { isCopilotUrl } from "../ai/copilot.js";
 
 export const AI_CHAT_DOMAINS = [
   "chatgpt.com",
+  "chat.openai.com",
   "claude.ai",
   "gemini.google.com",
   "chat.deepseek.com",

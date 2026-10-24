@@ -675,7 +675,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
           document.body.appendChild(a);
           a.click();
           document.body.removeChild(a);
-          URL.revokeObjectURL(url);
+          setTimeout(() => {
+            try {
+              URL.revokeObjectURL(url);
+            } catch (err) {
+              console.warn('Failed to revoke object URL:', err);
+            }
+          }, 60000);
 
           sendResponse({ success: true });
         } catch (e) {
@@ -710,6 +716,10 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               includeImages: request.includeImages !== false,
             }),
           );
+          if (!conversation || !conversation.messages || conversation.messages.length === 0) {
+            sendResponse({ success: false, error: 'No messages found in conversation' });
+            return;
+          }
           if (request.includeImages === false) {
             conversation.messages.forEach((msg) => {
               if (msg.content) {
@@ -945,7 +955,13 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            URL.revokeObjectURL(url);
+            setTimeout(() => {
+              try {
+                URL.revokeObjectURL(url);
+              } catch (err) {
+                console.warn('Failed to revoke object URL:', err);
+              }
+            }, 60000);
 
             if (isTopFrame) {
               const formatLabel =

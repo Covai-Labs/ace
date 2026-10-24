@@ -663,7 +663,13 @@ export default defineContentScript({
               document.body.appendChild(a);
               a.click();
               document.body.removeChild(a);
-              URL.revokeObjectURL(url);
+              setTimeout(() => {
+                try {
+                  URL.revokeObjectURL(url);
+                } catch (err) {
+                  logger.warn('Failed to revoke object URL:', err);
+                }
+              }, 60000);
 
               sendResponse({ success: true });
             } catch (e) {
@@ -705,6 +711,10 @@ export default defineContentScript({
                 (!conversation || !conversation.messages || conversation.messages.length === 0)
               ) {
                 logger.debug('Subframe has 0 messages, ignoring subframe copy');
+                return;
+              }
+              if (!conversation || !conversation.messages || conversation.messages.length === 0) {
+                sendResponse({ success: false, error: 'No messages found in conversation' });
                 return;
               }
               if (request.includeImages === false) {
@@ -957,7 +967,13 @@ export default defineContentScript({
                 document.body.appendChild(a);
                 a.click();
                 document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+                setTimeout(() => {
+                  try {
+                    URL.revokeObjectURL(url);
+                  } catch (err) {
+                    logger.warn('Failed to revoke object URL:', err);
+                  }
+                }, 60000);
 
                 if (isTopFrame) {
                   const formatLabel =

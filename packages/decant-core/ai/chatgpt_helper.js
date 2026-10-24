@@ -49,7 +49,11 @@ if (!window.__chatgptHelperInjected) {
   }
 
   window.addEventListener("message", async (event) => {
-    if (event.origin !== "https://chatgpt.com") return;
+    const isAllowedOrigin =
+      event.origin === window.location.origin ||
+      event.origin === "https://chatgpt.com" ||
+      event.origin === "https://chat.openai.com";
+    if (!isAllowedOrigin) return;
     if (event.data?.source !== "chatgpt-exporter-ext") return;
     if (event.data?.type !== "fetch_conversation") return;
 
@@ -127,14 +131,24 @@ if (!window.__chatgptHelperInjected) {
         images = Object.fromEntries(entries.filter(([, b64]) => b64 !== null));
       }
 
+      const replyOrigin =
+        window.location.origin && window.location.origin.startsWith("http")
+          ? window.location.origin
+          : "https://chatgpt.com";
+
       window.postMessage(
         { source: "chatgpt-exporter-page", requestId, data, images },
-        "https://chatgpt.com",
+        replyOrigin,
       );
     } catch (err) {
+      const replyOrigin =
+        window.location.origin && window.location.origin.startsWith("http")
+          ? window.location.origin
+          : "https://chatgpt.com";
+
       window.postMessage(
         { source: "chatgpt-exporter-page", requestId, error: err.message },
-        "https://chatgpt.com",
+        replyOrigin,
       );
     }
   });

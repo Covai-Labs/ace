@@ -1347,7 +1347,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        URL.revokeObjectURL(url);
+        setTimeout(() => {
+          try {
+            URL.revokeObjectURL(url);
+          } catch (err) {
+            console.warn('Failed to revoke object URL:', err);
+          }
+        }, 60000);
       } catch (err) {
         console.error('[Preview] PNG download failed:', err);
         alert('PNG Download Failed: ' + err.message);
@@ -1384,7 +1390,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     a.click();
 
     document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    setTimeout(() => {
+      try {
+        URL.revokeObjectURL(url);
+      } catch (err) {
+        console.warn('Failed to revoke object URL:', err);
+      }
+    }, 60000);
   });
 
   if (transferBtn && transferTargetSelect) {
