@@ -256,3 +256,59 @@ test("convertToMarkdown handles Google Search AI math with data-xpm-copy-text or
   const md2 = convertToMarkdown(doc2.querySelector("div"));
   assert.equal(md2, "Formula is $\\sqrt{x^2+y^2}$ here.");
 });
+
+test("sanitizeResponseContainer preserves inline citation chips (.NMq1me) and unwraps labels", () => {
+  const html = `<div data-container-id="main-col">
+    <p>Several species went extinct due to human activity.<span class="NMq1me"><a class="PMDqCb" href="https://royalsociety.org/article" aria-label="Royal Society (+3) – Past and future decline of species. Related results"></a><button class="vDOt8c">Royal Society +3</button></span></p>
+  </div>`;
+  const { document } = parseHTML(html);
+  const container = document.querySelector('[data-container-id="main-col"]');
+  const clean = sanitizeResponseContainer(container);
+
+  const links = clean.querySelectorAll("a");
+  assert.equal(links.length, 1);
+  assert.equal(links[0].getAttribute("href"), "https://royalsociety.org/article");
+  assert.equal(links[0].textContent, "Royal Society (+3)");
+  assert.equal(clean.querySelector("button"), null);
+
+  const md = cleanMarkdownSpacing(convertToMarkdown(clean));
+  assert.match(
+    md,
+    /\[Royal Society \(\+3\)\]\(https:\/\/royalsociety\.org\/article\)/,
+  );
+});
+
+test("GoogleSearchAIParser parse() appends RHS sources and handles missing initial .sUKAcb query", async () => {
+  const fixtureUrl = new URL(
+    "./fixtures/google-search-ai-chat.html",
+    import.meta.url,
+  );
+  const rawHtml = fs.readFileSync(fixtureUrl, "utf-8");
+  const { document, window } = parseHTML(rawHtml);
+  // Simulate page where turn 0 initial prompt is only in the search box/URL/title
+  document.querySelector(".sUKAcb")?.remove();
+  globalThis.document = document;
+  globalThis.window = window;
+
+  const parser = new GoogleSearchAIParser();
+  const result = await parser.parse();
+
+  // All 5 turns should be captured (10 messages total)
+  assert.equal(result.messages.length, 10);
+  assert.equal(result.messages[0].role, "User");
+  assert.match(result.messages[0].content, /species that went extinct/);
+
+  // Turn 0 model response should include citation chip and sources section
+  const turn0Response = result.messages[1].content;
+  assert.match(turn0Response, /\[Royal Society \(\+3\)\]/);
+  assert.match(turn0Response, /\*\*Sources:\*\*/);
+  assert.match(turn0Response, /https:\/\/www\.ifaw\.org/);
+  assert.match(turn0Response, /https:\/\/royalsociety\.org/);
+
+  // Subsequent turns are aligned
+  assert.equal(result.messages[2].role, "User");
+  assert.equal(result.messages[2].content, "Tell me about Euler's identity.");
+  assert.equal(result.messages[4].role, "User");
+  assert.match(result.messages[4].content, /You cannot evolve out of a clade/);
+});
+
