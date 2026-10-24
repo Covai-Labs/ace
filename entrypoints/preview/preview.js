@@ -1347,13 +1347,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
-        setTimeout(() => {
-          try {
-            URL.revokeObjectURL(url);
-          } catch (err) {
-            console.warn('Failed to revoke object URL:', err);
-          }
-        }, 60000);
+        // Keep the object URL alive for the browser's download/save dialog.
+        // It is released with this document's lifetime rather than while
+        // Firefox may still be consuming it.
       } catch (err) {
         console.error('[Preview] PNG download failed:', err);
         alert('PNG Download Failed: ' + err.message);
@@ -1390,13 +1386,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     a.click();
 
     document.body.removeChild(a);
-    setTimeout(() => {
-      try {
-        URL.revokeObjectURL(url);
-      } catch (err) {
-        console.warn('Failed to revoke object URL:', err);
-      }
-    }, 60000);
+    // Keep the object URL alive for the browser's download/save dialog. It
+    // is released with this document's lifetime rather than while Firefox
+    // may still be consuming it.
   });
 
   if (transferBtn && transferTargetSelect) {

@@ -261,17 +261,23 @@ export async function downloadFile(content, filename, mimeType = 'text/markdown'
     throw new Error('Downloads API and DOM are both unavailable in this context.');
   }
 
-  if (isObjectUrl) {
-    const timer = setTimeout(() => {
+  if (isObjectUrl && downloadId !== null && chrome.downloads?.onChanged) {
+    const onChanged = (delta) => {
+      if (
+        delta.id !== downloadId ||
+        (delta.state?.current !== 'complete' &&
+          delta.state?.current !== 'interrupted')
+      ) {
+        return;
+      }
+      chrome.downloads.onChanged.removeListener(onChanged);
       try {
         URL.revokeObjectURL(downloadUrl);
       } catch (err) {
         logger.warn('Failed to revoke object URL:', err);
       }
-    }, 60000);
-    if (typeof timer === 'object' && typeof timer.unref === 'function') {
-      timer.unref();
-    }
+    };
+    chrome.downloads.onChanged.addListener(onChanged);
   }
 
   return downloadId;
