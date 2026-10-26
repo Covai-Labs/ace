@@ -2,6 +2,11 @@ import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { DEFAULT_TRANSFER_PROMPT_TEMPLATE } from '../content/formatters/continuation.js';
 import { normalizeMessageNumbering } from '../content/formatters/base.js';
+import {
+  hasPermission,
+  requestPermission,
+  removePermission,
+} from '../content/utils/permissions.js';
 
 function applyTheme(theme) {
   if (theme && theme !== 'system') {
@@ -378,6 +383,91 @@ document.addEventListener('DOMContentLoaded', async () => {
       os: os,
     });
     feedbackLink.href = `https://ace.covai.org/feedback.html?${params.toString()}`;
+  }
+
+  // Optional Permissions Management
+  const permDownloadsStatus = document.getElementById('perm-downloads-status');
+  const permDownloadsToggle = document.getElementById('perm-downloads-toggle');
+  const permClipboardStatus = document.getElementById('perm-clipboard-status');
+  const permClipboardToggle = document.getElementById('perm-clipboard-toggle');
+
+  async function updatePermissionUi(permName, statusEl, toggleBtn) {
+    if (!statusEl || !toggleBtn) return;
+    const isGranted = await hasPermission(permName);
+    if (isGranted) {
+      statusEl.textContent = `✓ ${t('permissionGranted') || 'Granted'}`;
+      statusEl.style.color = 'var(--accent-color, #10b981)';
+      toggleBtn.textContent = t('permissionRevoke') || 'Revoke';
+      toggleBtn.setAttribute('data-action', 'revoke');
+    } else {
+      statusEl.textContent = `○ ${t('permissionNotGranted') || 'Not granted'}`;
+      statusEl.style.color = 'var(--text-secondary, #94a3b8)';
+      toggleBtn.textContent = t('permissionGrant') || 'Grant';
+      toggleBtn.setAttribute('data-action', 'grant');
+    }
+  }
+
+  async function refreshAllPermissionsUi() {
+    await Promise.all([
+      updatePermissionUi('downloads', permDownloadsStatus, permDownloadsToggle),
+      updatePermissionUi('clipboardWrite', permClipboardStatus, permClipboardToggle),
+    ]);
+  }
+
+  if (permDownloadsToggle) {
+    permDownloadsToggle.addEventListener('click', async () => {
+      const action = permDownloadsToggle.getAttribute('data-action');
+      permDownloadsToggle.disabled = true;
+      try {
+        if (action === 'grant') {
+          await requestPermission('downloads');
+        } else {
+          await removePermission('downloads');
+        }
+      } finally {
+        await refreshAllPermissionsUi();
+        permDownloadsToggle.disabled = false;
+        showToast();
+      }
+    });
+  }
+
+  if (permClipboardToggle) {
+    permClipboardToggle.addEventListener('click', async () => {
+      const action = permClipboardToggle.getAttribute('data-action');
+      permClipboardToggle.disabled = true;
+      try {
+        if (action === 'grant') {
+          await requestPermission('clipboardWrite');
+        } else {
+          await removePermission('clipboardWrite');
+        }
+      } finally {
+        await refreshAllPermissionsUi();
+        permClipboardToggle.disabled = false;
+        showToast();
+      }
+    });
+  }
+
+  await refreshAllPermissionsUi();
+
+  const permissionsApi =
+    typeof browser !== 'undefined' && browser.permissions
+      ? browser.permissions
+      : typeof chrome !== 'undefined' && chrome.permissions
+        ? chrome.permissions
+        : null;
+
+  if (permissionsApi?.onAdded) {
+    permissionsApi.onAdded.addListener(() => {
+      refreshAllPermissionsUi();
+    });
+  }
+  if (permissionsApi?.onRemoved) {
+    permissionsApi.onRemoved.addListener(() => {
+      refreshAllPermissionsUi();
+    });
   }
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {

@@ -744,5 +744,49 @@
   "openGithubIssue": {
     "message": "GitHub पर रिपोर्ट करें",
     "description": "Button label for opening GitHub issues in options feedback section"
+  },
+  "permissionsSectionTitle": {
+    "message": "Permissions & Privacy",
+    "description": "Title for permissions section in options"
+  },
+  "permissionsSectionHelp": {
+    "message": "ACE follows a strict least-privilege approach. Certain features require optional browser permissions that you can grant or revoke at any time.",
+    "description": "Help text for permissions section in options"
+  },
+  "permissionsDownloadsTitle": {
+    "message": "Downloads Permission",
+    "description": "Title for downloads permission row in options"
+  },
+  "permissionsDownloadsDesc": {
+    "message": "Required for batch exporting multiple open tabs into a ZIP archive or merged markdown file. Single-chat exports work without this.",
+    "description": "Description for downloads permission in options"
+  },
+  "permissionsClipboardTitle": {
+    "message": "Clipboard Write Permission",
+    "description": "Title for clipboardWrite permission row in options"
+  },
+  "permissionsClipboardDesc": {
+    "message": "Allows copying prompts to your clipboard when continuing conversations to target AI platforms.",
+    "description": "Description for clipboardWrite permission in options"
+  },
+  "permissionGranted": {
+    "message": "Granted",
+    "description": "Status text when permission is granted"
+  },
+  "permissionNotGranted": {
+    "message": "Not granted",
+    "description": "Status text when permission is not granted"
+  },
+  "permissionGrant": {
+    "message": "Grant",
+    "description": "Button label to grant permission"
+  },
+  "permissionRevoke": {
+    "message": "Revoke",
+    "description": "Button label to revoke permission"
+  },
+  "batchDownloadPermissionDenied": {
+    "message": "Downloads permission is required to save batch files.",
+    "description": "Message shown when downloads permission is denied for batch export"
   }
 }

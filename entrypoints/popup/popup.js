@@ -9,6 +9,7 @@ import {
   shouldShowUnsupportedWarning,
   buildPlatformSupportIssueUrl,
 } from '../../content/utils/feedback.js';
+import { hasPermission, requestPermission } from '../../content/utils/permissions.js';
 
 const logger = createLogger('Popup');
 
@@ -775,6 +776,26 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (batchExportBtn) {
     batchExportBtn.addEventListener('click', async () => {
       const mode = batchModeSelect ? batchModeSelect.value : 'zip';
+
+      if (mode === 'zip' || mode === 'combined') {
+        const permitted = await hasPermission('downloads');
+        if (!permitted) {
+          const granted = await requestPermission('downloads');
+          if (!granted) {
+            if (batchProgress) {
+              batchProgress.classList.remove('hidden');
+              batchProgress.textContent =
+                t('batchDownloadPermissionDenied') ||
+                'Downloads permission is required to save batch files.';
+              setTimeout(() => {
+                batchProgress.classList.add('hidden');
+              }, 4000);
+            }
+            return;
+          }
+        }
+      }
+
       batchExportBtn.disabled = true;
       if (batchProgress) {
         batchProgress.classList.remove('hidden');
