@@ -788,5 +788,9 @@
   "batchDownloadPermissionDenied": {
     "message": "Downloads permission is required to save batch files.",
     "description": "Message shown when downloads permission is denied for batch export"
+  },
+  "permissionDeniedToast": {
+    "message": "Permission request was cancelled or denied.",
+    "description": "Toast message shown when user cancels or denies an optional permission request"
   }
 }

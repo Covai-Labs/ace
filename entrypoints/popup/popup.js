@@ -773,26 +773,72 @@ document.addEventListener('DOMContentLoaded', async () => {
   const batchModeSelect = document.getElementById('batch-mode-select');
   const batchProgress = document.getElementById('batch-progress');
 
+  let hasDownloadsPermission = false;
+  hasPermission('downloads').then((granted) => {
+    hasDownloadsPermission = granted;
+  });
+
+  async function ensureDownloadsPermission() {
+    if (hasDownloadsPermission) return true;
+    const granted = await requestPermission('downloads');
+    if (granted) {
+      hasDownloadsPermission = true;
+      return true;
+    }
+    return false;
+  }
+
+  async function triggerBatchExport(mode) {
+    const currentWin = await chrome.windows.getCurrent();
+    const noteAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
+    let targetAi = continueTargetSelect ? continueTargetSelect.value : 'chatgpt';
+    if (noteAppTargets.includes(targetAi)) {
+      targetAi = 'chatgpt';
+    }
+    await chrome.runtime.sendMessage({
+      action: 'BATCH_EXPORT_TABS',
+      mode,
+      windowId: currentWin.id,
+      targetAi,
+      options: {
+        includeImages: includeImagesCheckbox ? includeImagesCheckbox.checked : true,
+      },
+    });
+  }
+
+  function handleBatchComplete(result) {
+    if (!batchProgress) return;
+    const extracted = result?.extracted || 0;
+    const total = result?.total || extracted;
+    const failed = result?.failed || 0;
+    if (failed > 0) {
+      batchProgress.textContent = `✓ Exported ${extracted} of ${total} tabs (${failed} skipped/failed)`;
+    } else {
+      batchProgress.textContent = `✓ Exported ${extracted} tabs!`;
+    }
+    setTimeout(() => {
+      batchProgress.classList.add('hidden');
+      if (batchExportBtn) batchExportBtn.disabled = false;
+    }, 2500);
+  }
+
   if (batchExportBtn) {
     batchExportBtn.addEventListener('click', async () => {
       const mode = batchModeSelect ? batchModeSelect.value : 'zip';
 
       if (mode === 'zip' || mode === 'combined') {
-        const permitted = await hasPermission('downloads');
+        const permitted = await ensureDownloadsPermission();
         if (!permitted) {
-          const granted = await requestPermission('downloads');
-          if (!granted) {
-            if (batchProgress) {
-              batchProgress.classList.remove('hidden');
-              batchProgress.textContent =
-                t('batchDownloadPermissionDenied') ||
-                'Downloads permission is required to save batch files.';
-              setTimeout(() => {
-                batchProgress.classList.add('hidden');
-              }, 4000);
-            }
-            return;
+          if (batchProgress) {
+            batchProgress.classList.remove('hidden');
+            batchProgress.textContent =
+              t('batchDownloadPermissionDenied') ||
+              'Downloads permission is required to save batch files.';
+            setTimeout(() => {
+              batchProgress.classList.add('hidden');
+            }, 4000);
           }
+          return;
         }
       }
 
@@ -803,21 +849,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
 
       try {
-        const currentWin = await chrome.windows.getCurrent();
-        const noteAppTargets = ['obsidian', 'logseq', 'bear', 'noteplan', 'drafts'];
-        let targetAi = continueTargetSelect ? continueTargetSelect.value : 'chatgpt';
-        if (noteAppTargets.includes(targetAi)) {
-          targetAi = 'chatgpt';
-        }
-        await chrome.runtime.sendMessage({
-          action: 'BATCH_EXPORT_TABS',
-          mode,
-          windowId: currentWin.id,
-          targetAi,
-          options: {
-            includeImages: includeImagesCheckbox ? includeImagesCheckbox.checked : true,
-          },
-        });
+        await triggerBatchExport(mode);
       } catch (err) {
         logger.error('Failed to trigger batch export:', err);
         if (batchProgress) batchProgress.textContent = 'Batch export failed.';
@@ -830,20 +862,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         batchProgress.classList.remove('hidden');
         batchProgress.textContent = `Extracting ${msg.processed} of ${msg.total} tabs...`;
       } else if (msg.action === 'BATCH_COMPLETE') {
-        if (batchProgress) {
-          const extracted = msg.result?.extracted || 0;
-          const total = msg.result?.total || extracted;
-          const failed = msg.result?.failed || 0;
-          if (failed > 0) {
-            batchProgress.textContent = `✓ Exported ${extracted} of ${total} tabs (${failed} skipped/failed)`;
-          } else {
-            batchProgress.textContent = `✓ Exported ${extracted} tabs!`;
-          }
-        }
-        setTimeout(() => {
-          if (batchProgress) batchProgress.classList.add('hidden');
-          if (batchExportBtn) batchExportBtn.disabled = false;
-        }, 2500);
+        handleBatchComplete(msg.result);
       } else if (msg.action === 'BATCH_ERROR') {
         if (batchProgress) {
           batchProgress.textContent = `⚠️ Error: ${msg.error || 'Failed'}`;

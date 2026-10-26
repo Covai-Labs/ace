@@ -16,6 +16,22 @@ function applyTheme(theme) {
   }
 }
 
+async function updatePermissionUi(permName, statusEl, toggleBtn) {
+  if (!statusEl || !toggleBtn) return;
+  const isGranted = await hasPermission(permName);
+  if (isGranted) {
+    statusEl.textContent = `✓ ${t('permissionGranted') || 'Granted'}`;
+    statusEl.style.color = 'var(--accent-color, #10b981)';
+    toggleBtn.textContent = t('permissionRevoke') || 'Revoke';
+    toggleBtn.dataset.action = 'revoke';
+  } else {
+    statusEl.textContent = `○ ${t('permissionNotGranted') || 'Not granted'}`;
+    statusEl.style.color = 'var(--text-secondary, #94a3b8)';
+    toggleBtn.textContent = t('permissionGrant') || 'Grant';
+    toggleBtn.dataset.action = 'grant';
+  }
+}
+
 if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
   try {
     chrome.storage.sync.get(['theme'], (res) => {
@@ -391,22 +407,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   const permClipboardStatus = document.getElementById('perm-clipboard-status');
   const permClipboardToggle = document.getElementById('perm-clipboard-toggle');
 
-  async function updatePermissionUi(permName, statusEl, toggleBtn) {
-    if (!statusEl || !toggleBtn) return;
-    const isGranted = await hasPermission(permName);
-    if (isGranted) {
-      statusEl.textContent = `✓ ${t('permissionGranted') || 'Granted'}`;
-      statusEl.style.color = 'var(--accent-color, #10b981)';
-      toggleBtn.textContent = t('permissionRevoke') || 'Revoke';
-      toggleBtn.setAttribute('data-action', 'revoke');
-    } else {
-      statusEl.textContent = `○ ${t('permissionNotGranted') || 'Not granted'}`;
-      statusEl.style.color = 'var(--text-secondary, #94a3b8)';
-      toggleBtn.textContent = t('permissionGrant') || 'Grant';
-      toggleBtn.setAttribute('data-action', 'grant');
-    }
-  }
-
   async function refreshAllPermissionsUi() {
     await Promise.all([
       updatePermissionUi('downloads', permDownloadsStatus, permDownloadsToggle),
@@ -416,57 +416,67 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (permDownloadsToggle) {
     permDownloadsToggle.addEventListener('click', async () => {
-      const action = permDownloadsToggle.getAttribute('data-action');
+      const action = permDownloadsToggle.dataset.action;
       permDownloadsToggle.disabled = true;
+      let ok = false;
       try {
         if (action === 'grant') {
-          await requestPermission('downloads');
+          ok = await requestPermission('downloads');
         } else {
-          await removePermission('downloads');
+          ok = await removePermission('downloads');
         }
       } finally {
         await refreshAllPermissionsUi();
         permDownloadsToggle.disabled = false;
-        showToast();
+        if (ok) {
+          showToast(t('toastSaved') || 'Preferences saved!');
+        } else if (action === 'grant') {
+          showToast(t('permissionDeniedToast') || 'Permission request was cancelled or denied.');
+        }
       }
     });
   }
 
   if (permClipboardToggle) {
     permClipboardToggle.addEventListener('click', async () => {
-      const action = permClipboardToggle.getAttribute('data-action');
+      const action = permClipboardToggle.dataset.action;
       permClipboardToggle.disabled = true;
+      let ok = false;
       try {
         if (action === 'grant') {
-          await requestPermission('clipboardWrite');
+          ok = await requestPermission('clipboardWrite');
         } else {
-          await removePermission('clipboardWrite');
+          ok = await removePermission('clipboardWrite');
         }
       } finally {
         await refreshAllPermissionsUi();
         permClipboardToggle.disabled = false;
-        showToast();
+        if (ok) {
+          showToast(t('toastSaved') || 'Preferences saved!');
+        } else if (action === 'grant') {
+          showToast(t('permissionDeniedToast') || 'Permission request was cancelled or denied.');
+        }
       }
     });
   }
 
   await refreshAllPermissionsUi();
 
-  const permissionsApi =
-    typeof browser !== 'undefined' && browser.permissions
-      ? browser.permissions
-      : typeof chrome !== 'undefined' && chrome.permissions
-        ? chrome.permissions
-        : null;
+  let permissionsApi = null;
+  if (typeof browser !== 'undefined' && browser.permissions) {
+    permissionsApi = browser.permissions;
+  } else if (typeof chrome !== 'undefined' && chrome.permissions) {
+    permissionsApi = chrome.permissions;
+  }
 
   if (permissionsApi?.onAdded) {
     permissionsApi.onAdded.addListener(() => {
-      refreshAllPermissionsUi();
+      void refreshAllPermissionsUi();
     });
   }
   if (permissionsApi?.onRemoved) {
     permissionsApi.onRemoved.addListener(() => {
-      refreshAllPermissionsUi();
+      void refreshAllPermissionsUi();
     });
   }
 
@@ -475,8 +485,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (areaName === 'sync') {
         if (changes.theme) {
           const newTheme = changes.theme.newValue || 'system';
-          const matchedVal =
-            newTheme === 'modern-dark' ? 'dark' : newTheme === 'modern-light' ? 'light' : newTheme;
+          let matchedVal = newTheme;
+          if (newTheme === 'modern-dark') {
+            matchedVal = 'dark';
+          } else if (newTheme === 'modern-light') {
+            matchedVal = 'light';
+          }
           if (themeSelect) themeSelect.value = matchedVal;
           applyTheme(newTheme);
         }
