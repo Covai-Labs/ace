@@ -46,6 +46,10 @@
               <span class="nav-icon">⌨️</span>
               <span class="nav-label" data-i18n="shortcutsSectionTitle">Shortcuts</span>
             </a>
+            <a href="#section-permissions" class="nav-item" id="nav-permissions">
+              <span class="nav-icon">🛡️</span>
+              <span class="nav-label" data-i18n="permissionsSectionTitle">Permissions</span>
+            </a>
             <a href="#feedback-section" class="nav-item" id="nav-feedback">
               <span class="nav-icon">💬</span>
               <span class="nav-label" data-i18n="feedbackTitle">Feedback</span>
@@ -552,6 +556,94 @@
                       "
                     >
                       <span data-i18n="copyAboutAddons">Copy about:addons</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4.6: Optional Permissions -->
+          <section class="card" id="section-permissions">
+            <div class="card-header">
+              <span class="card-icon">🛡️</span>
+              <h2 data-i18n="permissionsSectionTitle">Permissions &amp; Privacy</h2>
+            </div>
+            <div class="card-body">
+              <span
+                class="field-help"
+                data-i18n="permissionsSectionHelp"
+                style="margin-bottom: 16px; display: block"
+              >
+                ACE follows a strict least-privilege approach. Certain features require optional
+                browser permissions that you can grant or revoke at any time.
+              </span>
+
+              <div class="field-group" style="margin-bottom: 20px">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <div>
+                    <strong class="field-label" data-i18n="permissionsDownloadsTitle"
+                      >Downloads Permission</strong
+                    >
+                    <span class="field-help" data-i18n="permissionsDownloadsDesc">
+                      Required for batch exporting multiple open tabs into a ZIP archive or merged
+                      markdown file. Single-chat exports work without this.
+                    </span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <span id="perm-downloads-status" class="sub-text" style="font-weight: 500"
+                      >Checking...</span
+                    >
+                    <button
+                      type="button"
+                      id="perm-downloads-toggle"
+                      class="secondary-btn"
+                      style="padding: 6px 14px; font-size: 13px"
+                    >
+                      Grant
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div class="field-group">
+                <div
+                  style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                  "
+                >
+                  <div>
+                    <strong class="field-label" data-i18n="permissionsClipboardTitle"
+                      >Clipboard Write Permission</strong
+                    >
+                    <span class="field-help" data-i18n="permissionsClipboardDesc">
+                      Allows copying prompts to your clipboard when continuing conversations to
+                      target AI platforms.
+                    </span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 8px">
+                    <span id="perm-clipboard-status" class="sub-text" style="font-weight: 500"
+                      >Checking...</span
+                    >
+                    <button
+                      type="button"
+                      id="perm-clipboard-toggle"
+                      class="secondary-btn"
+                      style="padding: 6px 14px; font-size: 13px"
+                    >
+                      Grant
                     </button>
                   </div>
                 </div>

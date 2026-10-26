@@ -68,18 +68,12 @@ export default defineConfig({
     const isFirefox = browser === 'firefox';
     const isEdge = browser === 'edge';
 
-    const permissions = [
-      'activeTab',
-      'tabs',
-      'downloads',
-      'scripting',
-      'storage',
-      'contextMenus',
-      'clipboardWrite',
-    ];
+    const permissions = ['activeTab', 'tabs', 'scripting', 'storage', 'contextMenus'];
     if (!isFirefox) {
       permissions.push('sidePanel');
     }
+
+    const optionalPermissions = ['downloads', 'clipboardWrite'];
 
     const hostPermissions = ['<all_urls>'];
 
@@ -94,6 +88,7 @@ export default defineConfig({
       description: '__MSG_extensionDescription__',
       homepage_url: 'https://ace.covai.org/',
       permissions,
+      optional_permissions: optionalPermissions,
       host_permissions: hostPermissions,
       action: {
         default_popup: 'entrypoints/popup/index.html',

@@ -2,12 +2,33 @@ import { initI18n, applyI18n, t } from '../content/utils/i18n.js';
 import { formatFilename, DEFAULT_FILENAME_TEMPLATE } from '../content/utils/filename.js';
 import { DEFAULT_TRANSFER_PROMPT_TEMPLATE } from '../content/formatters/continuation.js';
 import { normalizeMessageNumbering } from '../content/formatters/base.js';
+import {
+  hasPermission,
+  requestPermission,
+  removePermission,
+} from '../content/utils/permissions.js';
 
 function applyTheme(theme) {
   if (theme && theme !== 'system') {
     document.documentElement.setAttribute('data-theme', theme);
   } else {
     document.documentElement.removeAttribute('data-theme');
+  }
+}
+
+async function updatePermissionUi(permName, statusEl, toggleBtn) {
+  if (!statusEl || !toggleBtn) return;
+  const isGranted = await hasPermission(permName);
+  if (isGranted) {
+    statusEl.textContent = `✓ ${t('permissionGranted') || 'Granted'}`;
+    statusEl.style.color = 'var(--accent-color, #10b981)';
+    toggleBtn.textContent = t('permissionRevoke') || 'Revoke';
+    toggleBtn.dataset.action = 'revoke';
+  } else {
+    statusEl.textContent = `○ ${t('permissionNotGranted') || 'Not granted'}`;
+    statusEl.style.color = 'var(--text-secondary, #94a3b8)';
+    toggleBtn.textContent = t('permissionGrant') || 'Grant';
+    toggleBtn.dataset.action = 'grant';
   }
 }
 
@@ -380,13 +401,96 @@ document.addEventListener('DOMContentLoaded', async () => {
     feedbackLink.href = `https://ace.covai.org/feedback.html?${params.toString()}`;
   }
 
+  // Optional Permissions Management
+  const permDownloadsStatus = document.getElementById('perm-downloads-status');
+  const permDownloadsToggle = document.getElementById('perm-downloads-toggle');
+  const permClipboardStatus = document.getElementById('perm-clipboard-status');
+  const permClipboardToggle = document.getElementById('perm-clipboard-toggle');
+
+  async function refreshAllPermissionsUi() {
+    await Promise.all([
+      updatePermissionUi('downloads', permDownloadsStatus, permDownloadsToggle),
+      updatePermissionUi('clipboardWrite', permClipboardStatus, permClipboardToggle),
+    ]);
+  }
+
+  if (permDownloadsToggle) {
+    permDownloadsToggle.addEventListener('click', async () => {
+      const action = permDownloadsToggle.dataset.action;
+      permDownloadsToggle.disabled = true;
+      let ok = false;
+      try {
+        if (action === 'grant') {
+          ok = await requestPermission('downloads');
+        } else {
+          ok = await removePermission('downloads');
+        }
+      } finally {
+        await refreshAllPermissionsUi();
+        permDownloadsToggle.disabled = false;
+        if (ok) {
+          showToast(t('toastSaved') || 'Preferences saved!');
+        } else if (action === 'grant') {
+          showToast(t('permissionDeniedToast') || 'Permission request was cancelled or denied.');
+        }
+      }
+    });
+  }
+
+  if (permClipboardToggle) {
+    permClipboardToggle.addEventListener('click', async () => {
+      const action = permClipboardToggle.dataset.action;
+      permClipboardToggle.disabled = true;
+      let ok = false;
+      try {
+        if (action === 'grant') {
+          ok = await requestPermission('clipboardWrite');
+        } else {
+          ok = await removePermission('clipboardWrite');
+        }
+      } finally {
+        await refreshAllPermissionsUi();
+        permClipboardToggle.disabled = false;
+        if (ok) {
+          showToast(t('toastSaved') || 'Preferences saved!');
+        } else if (action === 'grant') {
+          showToast(t('permissionDeniedToast') || 'Permission request was cancelled or denied.');
+        }
+      }
+    });
+  }
+
+  await refreshAllPermissionsUi();
+
+  let permissionsApi = null;
+  if (typeof browser !== 'undefined' && browser.permissions) {
+    permissionsApi = browser.permissions;
+  } else if (typeof chrome !== 'undefined' && chrome.permissions) {
+    permissionsApi = chrome.permissions;
+  }
+
+  if (permissionsApi?.onAdded) {
+    permissionsApi.onAdded.addListener(() => {
+      void refreshAllPermissionsUi();
+    });
+  }
+  if (permissionsApi?.onRemoved) {
+    permissionsApi.onRemoved.addListener(() => {
+      void refreshAllPermissionsUi();
+    });
+  }
+
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener(async (changes, areaName) => {
       if (areaName === 'sync') {
         if (changes.theme) {
           const newTheme = changes.theme.newValue || 'system';
-          const matchedVal =
-            newTheme === 'modern-dark' ? 'dark' : newTheme === 'modern-light' ? 'light' : newTheme;
+          let matchedVal = newTheme;
+          if (newTheme === 'modern-dark') {
+            matchedVal = 'dark';
+          } else if (newTheme === 'modern-light') {
+            matchedVal = 'light';
+          }
           if (themeSelect) themeSelect.value = matchedVal;
           applyTheme(newTheme);
         }
