@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.24.0](https://github.com/Covai-Labs/ace/compare/v1.23.1...v1.24.0) (2026-10-26)
+
+
+### Features
+
+* **permissions:** migrate downloads and clipboardWrite to optional permissions ([#159](https://github.com/Covai-Labs/ace/issues/159)) ([94e53d6](https://github.com/Covai-Labs/ace/commit/94e53d653fa426139f228fe777b56f538f9863e8))
+
 ## [1.23.1](https://github.com/Covai-Labs/ace/compare/v1.23.0...v1.23.1) (2026-10-24)
 
 
