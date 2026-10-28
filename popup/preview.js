@@ -485,6 +485,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDownloadButtonLabel(activeExtension);
   };
 
+  const getActiveConversation = () => {
+    if (!conversation || !Array.isArray(conversation.messages)) return conversation;
+
+    const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
+    const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
+    const includeAttachments = includeAttachmentsCheckbox
+      ? includeAttachmentsCheckbox.checked
+      : true;
+    const filteredMessages = conversation.messages.map((msg) => {
+      let content = msg.content;
+      if (!includeImages && content) {
+        content = stripImages(content);
+      }
+      if (!includeThinking && content) {
+        content = stripThinking(content);
+      }
+      if (content) {
+        content = applyAttachmentOption(
+          { ...msg, content },
+          { includeAttachments, imagesStripped: !includeImages },
+        );
+      }
+      if (content !== msg.content) {
+        return { ...msg, content };
+      }
+      return msg;
+    });
+    return { ...conversation, messages: filteredMessages };
+  };
+
   const recalculateContent = () => {
     if (!conversation && !fallbackPreviewContent) {
       cachedPngBlob = null;
@@ -493,31 +523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     if (conversation) {
-      const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
-      const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
-      const includeAttachments = includeAttachmentsCheckbox
-        ? includeAttachmentsCheckbox.checked
-        : true;
-      const filteredMessages = conversation.messages.map((msg) => {
-        let content = msg.content;
-        if (!includeImages && content) {
-          content = stripImages(content);
-        }
-        if (!includeThinking && content) {
-          content = stripThinking(content);
-        }
-        if (content) {
-          content = applyAttachmentOption(
-            { ...msg, content },
-            { includeAttachments, imagesStripped: !includeImages },
-          );
-        }
-        if (content !== msg.content) {
-          return { ...msg, content };
-        }
-        return msg;
-      });
-      const activeConv = { ...conversation, messages: filteredMessages };
+      const activeConv = getActiveConversation();
 
       const shouldIncludeToc = Boolean(includeTocCheckbox && includeTocCheckbox.checked);
 
@@ -534,7 +540,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ...exportOptions,
         includeToc: shouldIncludeToc,
       });
-      jsonContent = jsonFormatter.format(activeConv);
+      jsonContent = jsonFormatter.format(activeConv, exportOptions);
       docContent = docFormatter.format(activeConv, {
         ...exportOptions,
         includeToc: shouldIncludeToc,
@@ -985,9 +991,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           // Defaults apply
         }
         if (conversation) {
-          const source = conversation?.metadata?.Source || '';
+          const activeConv = getActiveConversation();
+          const source = activeConv?.metadata?.Source || '';
           const isArticle = source === 'Web Article' || source === 'WebArticle';
-          payload = continuationFormatter.format(conversation, '', { template, isArticle });
+          payload = continuationFormatter.format(activeConv, '', { template, isArticle });
         } else {
           payload = stripEncodedImages(markdownContent || activeContent);
         }

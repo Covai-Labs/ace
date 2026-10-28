@@ -369,7 +369,7 @@ export default defineBackground(() => {
     const copyToClipboard = Boolean(syncData?.transferCopyToClipboard);
 
     const targetFrameId = typeof info.frameId === 'number' ? info.frameId : undefined;
-    const sendOptions = targetFrameId !== undefined ? { frameId: targetFrameId } : undefined;
+    let sendOptions = targetFrameId !== undefined ? { frameId: targetFrameId } : undefined;
 
     let selectedText = info.selectionText ? info.selectionText.trim() : '';
 
@@ -482,6 +482,9 @@ export default defineBackground(() => {
             { action: 'GET_CONTINUATION_PAYLOAD' },
             { frameId: 0 },
           );
+          if (response && response.success) {
+            sendOptions = { frameId: 0 };
+          }
         } catch {
           // Ignore
         }

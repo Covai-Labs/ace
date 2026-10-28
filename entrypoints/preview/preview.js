@@ -1,7 +1,7 @@
 import { MarkdownFormatter } from '../../content/formatters/markdown.js';
 import { TextFormatter } from '../../content/formatters/text.js';
 import { JsonFormatter } from '../../content/formatters/json.js';
-import { HtmlFormatter } from '../../content/formatters/html.js';
+import { HtmlFormatter, escapeHtml } from '../../content/formatters/html.js';
 import { DocFormatter } from '../../content/formatters/doc.js';
 import { ImageFormatter } from '../../content/formatters/image.js';
 import {
@@ -497,8 +497,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       itemEl.innerHTML = `
         <input type="checkbox" ${isSelected ? 'checked' : ''} data-index="${idx}" />
         <div class="turn-item-info">
-          <div class="turn-item-role">${roleLabel} #${idx + 1}</div>
-          <div class="turn-item-snippet">${snippetText}</div>
+          <div class="turn-item-role">${escapeHtml(roleLabel)} #${idx + 1}</div>
+          <div class="turn-item-snippet">${escapeHtml(snippetText)}</div>
         </div>
       `;
 
@@ -532,8 +532,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateTurnBadge();
   };
 
-  const recalculateContent = () => {
-    if (!conversation || !Array.isArray(conversation.messages)) return;
+  const getActiveConversation = () => {
+    if (!conversation || !Array.isArray(conversation.messages)) return conversation;
 
     const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
     const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ? includeAttachmentsCheckbox.checked
       : true;
     const filteredMessages = conversation.messages
-      .filter((_, idx) => selectedIndices.has(idx))
+      .filter((_, idx) => (selectedIndices.size > 0 ? selectedIndices.has(idx) : true))
       .map((msg) => {
         let content = msg.content;
         if (!includeImages && content) {
@@ -561,7 +561,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         return msg;
       });
-    const activeConv = { ...conversation, messages: filteredMessages };
+    return { ...conversation, messages: filteredMessages };
+  };
+
+  const recalculateContent = () => {
+    if (!conversation || !Array.isArray(conversation.messages)) return;
+    const activeConv = getActiveConversation();
 
     const shouldIncludeToc = Boolean(includeTocCheckbox && includeTocCheckbox.checked);
 
@@ -578,7 +583,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ...exportOptions,
       includeToc: shouldIncludeToc,
     });
-    jsonContent = jsonFormatter.format(activeConv);
+    jsonContent = jsonFormatter.format(activeConv, exportOptions);
     docContent = docFormatter.format(activeConv, {
       ...exportOptions,
       includeToc: shouldIncludeToc,
@@ -1270,35 +1275,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!pngBlob && conversation) {
           const isHighQuality = pngQualityCheckbox ? pngQualityCheckbox.checked : true;
           const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
-          const includeThinking = includeThinkingCheckbox ? includeThinkingCheckbox.checked : true;
-          const includeAttachments = includeAttachmentsCheckbox
-            ? includeAttachmentsCheckbox.checked
-            : true;
           const activeTheme = getActiveTheme();
-          const filteredMessages =
-            conversation && Array.isArray(conversation.messages) && selectedIndices
-              ? conversation.messages.filter((_, idx) => selectedIndices.has(idx))
-              : conversation?.messages || [];
-          const processedMessages = filteredMessages.map((msg) => {
-            let content = msg.content;
-            if (!includeImages && content) {
-              content = stripImages(content);
-            }
-            if (!includeThinking && content) {
-              content = stripThinking(content);
-            }
-            if (content) {
-              content = applyAttachmentOption(
-                { ...msg, content },
-                { includeAttachments, imagesStripped: !includeImages },
-              );
-            }
-            if (content !== msg.content) {
-              return { ...msg, content };
-            }
-            return msg;
-          });
-          const activeConv = { ...conversation, messages: processedMessages };
+          const activeConv = getActiveConversation();
 
           // Directly capture the rendered HTML container from the preview iframe
           let container = null;
@@ -1436,9 +1414,10 @@ document.addEventListener('DOMContentLoaded', async () => {
           // Defaults apply
         }
         if (conversation) {
-          const source = conversation?.metadata?.Source || '';
+          const activeConv = getActiveConversation();
+          const source = activeConv?.metadata?.Source || '';
           const isArticle = source === 'Web Article' || source === 'WebArticle';
-          payload = continuationFormatter.format(conversation, '', { template, isArticle });
+          payload = continuationFormatter.format(activeConv, '', { template, isArticle });
         } else {
           payload = stripEncodedImages(markdownContent || activeContent);
         }

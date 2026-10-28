@@ -1,4 +1,4 @@
-import { ExportFormatter, formatMessageTimestamp } from './base.js';
+import { ExportFormatter, formatMessageTimestamp, shouldIncludeTimestamps } from './base.js';
 
 const SCHEMA_PATH = './schemas/export-v1.schema.json';
 
@@ -22,10 +22,11 @@ export class JsonFormatter extends ExportFormatter {
    * Formats parser output as a pretty-printed schema v1 JSON export.
    *
    * @param {object} conversation Parsed conversation returned by a platform parser.
+   * @param {object} [options] Formatter options, such as `{ includeTimestamps: boolean }`.
    * @returns {string} JSON text suitable for download or clipboard export.
    */
-  format(conversation) {
-    return JSON.stringify(this.toSchema(conversation), null, 2);
+  format(conversation, options = {}) {
+    return JSON.stringify(this.toSchema(conversation, options), null, 2);
   }
 
   /**
@@ -40,11 +41,13 @@ export class JsonFormatter extends ExportFormatter {
    * @param {string} [conversation.url] Conversation URL.
    * @param {Array<{role?: string, content?: string}>} [conversation.messages] Messages to export.
    * @param {Record<string, string|number|boolean|null>} [conversation.metadata] Parser metadata.
+   * @param {object} [options] Formatter options, such as `{ includeTimestamps: boolean }`.
    * @returns {object} Export object conforming to `schemas/export-v1.schema.json`.
    */
-  toSchema(conversation) {
+  toSchema(conversation, options = {}) {
     const metadata = conversation.metadata || {};
     const source = metadata.Source || this.platform || 'Unknown';
+    const includeTimestamps = shouldIncludeTimestamps(options);
 
     return {
       $schema: SCHEMA_PATH,
@@ -62,7 +65,7 @@ export class JsonFormatter extends ExportFormatter {
           displayRole: message.role || 'Unknown',
           content: message.content || '',
         };
-        const timestamp = formatMessageTimestamp(message?.timestamp);
+        const timestamp = includeTimestamps ? formatMessageTimestamp(message?.timestamp) : null;
         if (timestamp) {
           entry.timestamp = timestamp;
         }

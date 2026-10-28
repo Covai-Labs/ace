@@ -107,3 +107,31 @@ test('JSON formatter emits normalized schema v1 exports', async () => {
   assert.equal(formatter.getFileExtension(), 'json');
   assert.equal(formatter.getMimeType(), 'application/json');
 });
+
+test('JSON formatter respects includeTimestamps option', async () => {
+  const { JsonFormatter } = await importFormatter();
+  const formatter = new JsonFormatter({
+    platform: 'ChatGPT',
+    exportedAt: '2026-05-20T00:00:00.000Z',
+  });
+
+  const conversation = {
+    title: 'Test Timestamps',
+    messages: [
+      { role: 'User', content: 'Hi', timestamp: '2026-09-30T08:48:07.000Z' },
+      { role: 'ChatGPT', content: 'Hello', timestamp: 1710000000000 },
+    ],
+  };
+
+  const defaultOutput = JSON.parse(formatter.format(conversation));
+  assert.equal(defaultOutput.messages[0].timestamp, undefined);
+  assert.equal(defaultOutput.messages[1].timestamp, undefined);
+
+  const disabledOutput = JSON.parse(formatter.format(conversation, { includeTimestamps: false }));
+  assert.equal(disabledOutput.messages[0].timestamp, undefined);
+  assert.equal(disabledOutput.messages[1].timestamp, undefined);
+
+  const enabledOutput = JSON.parse(formatter.format(conversation, { includeTimestamps: true }));
+  assert.equal(enabledOutput.messages[0].timestamp, '2026-09-30T08:48:07.000Z');
+  assert.equal(enabledOutput.messages[1].timestamp, '2024-03-09T16:00:00.000Z');
+});
