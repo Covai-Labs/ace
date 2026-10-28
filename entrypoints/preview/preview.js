@@ -541,7 +541,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       ? includeAttachmentsCheckbox.checked
       : true;
     const filteredMessages = conversation.messages
-      .filter((_, idx) => (selectedIndices.size > 0 ? selectedIndices.has(idx) : true))
+      .filter((_, idx) => selectedIndices.has(idx))
       .map((msg) => {
         let content = msg.content;
         if (!includeImages && content) {
@@ -1111,7 +1111,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         ...exportOptions,
         includeToc: initialIncludeToc,
       });
-      jsonContent = jsonFormatter.format(initialConv);
+      jsonContent = jsonFormatter.format(initialConv, exportOptions);
       docContent = docFormatter.format(initialConv, {
         ...exportOptions,
         includeToc: initialIncludeToc,

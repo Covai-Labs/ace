@@ -47,7 +47,7 @@
         },
         "timestamp": {
           "type": "string",
-          "description": "Per-message timestamp when the parser provided one (ISO 8601, epoch-derived ISO, or platform locale string). Omitted when unavailable."
+          "description": "Per-message timestamp when the parser provided one (ISO 8601, epoch-derived ISO, or platform locale string). Omitted when unavailable or when the includeTimestamps export option is disabled."
         }
       },
       "required": ["index", "role", "displayRole", "content"],
