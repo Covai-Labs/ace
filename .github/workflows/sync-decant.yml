@@ -27,9 +27,12 @@ jobs:
 
       - name: Extract commit author info
         id: author
+        env:
+          HEAD_AUTHOR_NAME: ${{ github.event.head_commit.author.name }}
+          HEAD_AUTHOR_EMAIL: ${{ github.event.head_commit.author.email }}
         run: |
-          AUTHOR_NAME="${{ github.event.head_commit.author.name }}"
-          AUTHOR_EMAIL="${{ github.event.head_commit.author.email }}"
+          AUTHOR_NAME="$HEAD_AUTHOR_NAME"
+          AUTHOR_EMAIL="$HEAD_AUTHOR_EMAIL"
           if [ -z "$AUTHOR_NAME" ]; then
             AUTHOR_NAME=$(git log -1 --pretty=format:'%an')
           fi
