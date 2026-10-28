@@ -494,13 +494,26 @@ document.addEventListener('DOMContentLoaded', async () => {
           .trim()
           .substring(0, 70) || '(Empty message)';
 
-      itemEl.innerHTML = `
-        <input type="checkbox" ${isSelected ? 'checked' : ''} data-index="${idx}" />
-        <div class="turn-item-info">
-          <div class="turn-item-role">${escapeHtml(roleLabel)} #${idx + 1}</div>
-          <div class="turn-item-snippet">${escapeHtml(snippetText)}</div>
-        </div>
-      `;
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.checked = isSelected;
+      checkbox.dataset.index = idx;
+
+      const infoDiv = document.createElement('div');
+      infoDiv.className = 'turn-item-info';
+
+      const roleDiv = document.createElement('div');
+      roleDiv.className = 'turn-item-role';
+      roleDiv.textContent = `${roleLabel} #${idx + 1}`;
+
+      const snippetDiv = document.createElement('div');
+      snippetDiv.className = 'turn-item-snippet';
+      snippetDiv.textContent = snippetText;
+
+      infoDiv.appendChild(roleDiv);
+      infoDiv.appendChild(snippetDiv);
+      itemEl.appendChild(checkbox);
+      itemEl.appendChild(infoDiv);
 
       itemEl.addEventListener('click', (e) => {
         const checkbox = itemEl.querySelector('input[type="checkbox"]');
