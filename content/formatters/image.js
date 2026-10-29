@@ -11,6 +11,7 @@ import {
   getOmittedAttachmentsSuffix,
 } from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
+import { sanitizeHtml } from '../utils/sanitizer.js';
 
 export const THEME_PALETTES = {
   'modern-light': {
@@ -418,7 +419,7 @@ export class ImageFormatter extends ExportFormatter {
           ? formatMessageTimestamp(msg?.timestamp)
           : null;
         const dateSuffix = timestamp ? ` • ${escapeHtml(timestamp)}` : '';
-        const htmlContent = markdownToHtml(msg.content);
+        const htmlContent = sanitizeHtml(markdownToHtml(msg.content));
 
         return `
           <div style="margin-bottom: 24px; display: flex; flex-direction: column; align-items: ${isUser ? 'flex-end' : 'flex-start'};">
