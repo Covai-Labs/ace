@@ -16,15 +16,38 @@ const MIME_TYPES = {
 };
 
 const server = http.createServer((req, res) => {
-  const url = new URL(req.url, `http://localhost:${PORT}`);
+  let url;
+  try {
+    url = new URL(req.url, `http://localhost:${PORT}`);
+  } catch {
+    res.writeHead(400, { 'Content-Type': 'text/plain' });
+    res.end('Bad Request');
+    return;
+  }
+
   if (url.pathname === '/ping') {
     res.writeHead(200, { 'Content-Type': 'text/plain' });
     res.end('ok');
     return;
   }
 
-  const normalizedSubPath = path.normalize(url.pathname).replace(/^\/fixtures\/?/, '');
-  const filePath = path.join(FIXTURES_DIR, normalizedSubPath);
+  // Ensure path starts with /fixtures/ or is exactly /fixtures
+  if (!url.pathname.startsWith('/fixtures/') && url.pathname !== '/fixtures') {
+    res.writeHead(404, { 'Content-Type': 'text/plain' });
+    res.end('Not Found');
+    return;
+  }
+
+  const subPath = url.pathname.replace(/^\/fixtures\/?/, '');
+  const filePath = path.resolve(FIXTURES_DIR, subPath);
+
+  // Prevent path traversal outside FIXTURES_DIR
+  if (!filePath.startsWith(FIXTURES_DIR + path.sep) && filePath !== FIXTURES_DIR) {
+    res.writeHead(403, { 'Content-Type': 'text/plain' });
+    res.end('Forbidden');
+    return;
+  }
+
   if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
     const ext = path.extname(filePath).toLowerCase();
     res.writeHead(200, {

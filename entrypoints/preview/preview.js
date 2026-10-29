@@ -1,7 +1,7 @@
 import { MarkdownFormatter } from '../../content/formatters/markdown.js';
 import { TextFormatter } from '../../content/formatters/text.js';
 import { JsonFormatter } from '../../content/formatters/json.js';
-import { HtmlFormatter, escapeHtml } from '../../content/formatters/html.js';
+import { HtmlFormatter } from '../../content/formatters/html.js';
 import { DocFormatter } from '../../content/formatters/doc.js';
 import { ImageFormatter } from '../../content/formatters/image.js';
 import {
