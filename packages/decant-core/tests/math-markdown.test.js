@@ -108,6 +108,16 @@ And inline \`array[0]\` code.`;
   assert.ok(output.includes("$$\\boxed{e^{i\\pi}+1=0}$$"));
   assert.ok(output.includes("return [x for x in range(10)]"));
   assert.ok(output.includes("`array[0]`"));
+
+  // Check aligned line breaks inside display math \\[1ex\\] are preserved
+  const alignedInput = "\\[\\begin{aligned} a &= b \\\\[1ex] c &= d \\end{aligned}\\]";
+  const alignedOutput = normalizeLatexMath(alignedInput);
+  assert.ok(alignedOutput.includes("$$\\begin{aligned} a &= b \\[1ex] c &= d \\end{aligned}$$"));
+
+  // Check repeated openers do not span across subsequent blocks
+  const repeatedInput = "\\[ a \\[ valid \\]";
+  const repeatedOutput = normalizeLatexMath(repeatedInput);
+  assert.ok(repeatedOutput.includes("$$valid$$"));
 });
 
 test("ChatGPTParser formatApiResult normalizes LaTeX math from API response", async () => {

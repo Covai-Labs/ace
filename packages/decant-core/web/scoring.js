@@ -55,18 +55,17 @@ export function cleanTitle(title, siteName = "") {
 
   // Strip known siteName if provided at end
   if (siteName && siteName.trim()) {
-    const trimmedSite = siteName.trim().toLowerCase();
+    const rawSite = siteName.trim();
     const sepChars = ["|", "-", "–", "—", ":", "•", "·"];
     for (const sep of sepChars) {
-      const target = `${sep} ${trimmedSite}`;
-      const targetNoSpace = `${sep}${trimmedSite}`;
-      const lowerCleaned = cleaned.toLowerCase();
-      if (lowerCleaned.endsWith(target)) {
-        cleaned = cleaned.slice(0, -target.length).trim();
-        break;
-      } else if (lowerCleaned.endsWith(targetNoSpace)) {
-        cleaned = cleaned.slice(0, -targetNoSpace.length).trim();
-        break;
+      const sepIdx = cleaned.lastIndexOf(sep);
+      if (sepIdx !== -1) {
+        const candidate = cleaned.slice(sepIdx + 1).trim();
+        if (candidate.localeCompare(rawSite, undefined, { sensitivity: "accent" }) === 0 ||
+            candidate.toLowerCase() === rawSite.toLowerCase()) {
+          cleaned = cleaned.slice(0, sepIdx).trim();
+          break;
+        }
       }
     }
   }
