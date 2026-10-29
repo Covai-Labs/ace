@@ -55,22 +55,30 @@ export function cleanTitle(title, siteName = "") {
 
   // Strip known siteName if provided at end
   if (siteName && siteName.trim()) {
-    const escapedSite = siteName.trim().replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const siteRegex = new RegExp(
-      `\\s*[\\|\\-–—:•·]\\s*${escapedSite}\\s*$`,
-      "i",
-    );
-    cleaned = cleaned.replace(siteRegex, "");
+    const trimmedSite = siteName.trim().toLowerCase();
+    const sepChars = ["|", "-", "–", "—", ":", "•", "·"];
+    for (const sep of sepChars) {
+      const target = `${sep} ${trimmedSite}`;
+      const targetNoSpace = `${sep}${trimmedSite}`;
+      const lowerCleaned = cleaned.toLowerCase();
+      if (lowerCleaned.endsWith(target)) {
+        cleaned = cleaned.slice(0, -target.length).trim();
+        break;
+      } else if (lowerCleaned.endsWith(targetNoSpace)) {
+        cleaned = cleaned.slice(0, -targetNoSpace.length).trim();
+        break;
+      }
+    }
   }
 
   // Strip general brand suffix if short (e.g., " | BrandName", " - The Verge")
-  cleaned = cleaned
-    .replace(/\s*[|\-–—•·]\s*[^|\-–—•·]+$/, (match) => {
-      // If the trailing segment is relatively short (brand name), remove it
-      const segment = match.replace(/^[\s|\-–—•·]+/, "").trim();
-      return segment.length > 0 && segment.length <= 35 ? "" : match;
-    })
-    .trim();
+  const sepMatch = cleaned.match(/[|\-–—•·](?=[^|\-–—•·]+$)/);
+  if (sepMatch && sepMatch.index !== undefined) {
+    const trailing = cleaned.slice(sepMatch.index + 1).trim();
+    if (trailing.length > 0 && trailing.length <= 35) {
+      cleaned = cleaned.slice(0, sepMatch.index).trim();
+    }
+  }
 
   return cleaned || title.trim() || "Untitled";
 }

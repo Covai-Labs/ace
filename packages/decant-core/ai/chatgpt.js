@@ -188,15 +188,19 @@ export function extractSharedConversationFromDom(
       const convo = findMappingInObj(parsed);
       if (convo) return convo;
     } catch {
-      const matches = text.match(/\{[\s\S]*"mapping"[\s\S]*\}/g);
-      if (matches) {
-        for (const match of matches) {
+      // Find JSON object boundaries containing "mapping" without unbounded regex backtracking
+      const mappingIdx = text.indexOf('"mapping"');
+      if (mappingIdx !== -1) {
+        const firstBrace = text.lastIndexOf("{", mappingIdx);
+        const lastBrace = text.lastIndexOf("}");
+        if (firstBrace !== -1 && lastBrace > mappingIdx) {
           try {
-            const parsed = JSON.parse(match);
+            const candidate = text.slice(firstBrace, lastBrace + 1);
+            const parsed = JSON.parse(candidate);
             const convo = findMappingInObj(parsed);
             if (convo) return convo;
           } catch {
-            // Ignore JSON parse errors in script segments
+            // Ignore parse errors on candidate segment
           }
         }
       }

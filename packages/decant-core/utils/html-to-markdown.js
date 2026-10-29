@@ -103,8 +103,10 @@ export function convertToMarkdown(htmlContent, options = {}) {
   turndownService.addRule("tables", {
     filter: "table",
     replacement: function (content, node) {
-      // Convert HTML table to markdown table
-      const rows = Array.from(node.querySelectorAll("tr"));
+      // Convert HTML table to markdown table.
+      // Filter rows to only those belonging directly to this table (avoid multiplying nested table subtrees)
+      const allRows = Array.from(node.querySelectorAll("tr"));
+      const rows = allRows.filter((r) => r.closest("table") === node);
       if (rows.length === 0) return content;
 
       // Create a separate Turndown service for cell content to avoid recursion/state issues
@@ -125,7 +127,9 @@ export function convertToMarkdown(htmlContent, options = {}) {
 
       let markdown = "\n";
       rows.forEach((row, rowIndex) => {
-        const cells = Array.from(row.querySelectorAll("th, td"));
+        const cells = Array.from(row.querySelectorAll("th, td")).filter(
+          (c) => c.closest("table") === node,
+        );
 
         // Convert each cell's HTML to markdown using the isolated service
         const cellContents = cells.map((cell) => {
