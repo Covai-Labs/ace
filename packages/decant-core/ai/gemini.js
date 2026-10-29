@@ -526,7 +526,7 @@ export class GeminiParser extends ChatParser {
     );
 
     let replaced = protectedText.replace(
-      /<Image\s+([^>]*?)(?:\/>|><\/Image>|>)/gi,
+      /<Image\s+([^>]*?)(?:\/>|>\s*<\/Image>|>)/gi,
       (match, attrs) => {
         const altMatch =
           attrs.match(/alt="([^"]*)"/i) || attrs.match(/alt='([^']*)'/i);

@@ -188,20 +188,52 @@ export function extractSharedConversationFromDom(
       const convo = findMappingInObj(parsed);
       if (convo) return convo;
     } catch {
-      // Find JSON object boundaries containing "mapping" without unbounded regex backtracking
+      // Find balanced JSON object containing "mapping" without unbounded regex backtracking
       const mappingIdx = text.indexOf('"mapping"');
       if (mappingIdx !== -1) {
-        const firstBrace = text.lastIndexOf("{", mappingIdx);
-        const lastBrace = text.lastIndexOf("}");
-        if (firstBrace !== -1 && lastBrace > mappingIdx) {
-          try {
-            const candidate = text.slice(firstBrace, lastBrace + 1);
-            const parsed = JSON.parse(candidate);
-            const convo = findMappingInObj(parsed);
-            if (convo) return convo;
-          } catch {
-            // Ignore parse errors on candidate segment
+        let start = text.lastIndexOf('{', mappingIdx);
+        while (start !== -1) {
+          let depth = 0;
+          let inString = false;
+          let escape = false;
+          let matched = false;
+          for (let i = start; i < text.length; i++) {
+            const ch = text[i];
+            if (escape) {
+              escape = false;
+              continue;
+            }
+            if (ch === '\\') {
+              escape = true;
+              continue;
+            }
+            if (ch === '"') {
+              inString = !inString;
+              continue;
+            }
+            if (!inString) {
+              if (ch === '{') depth++;
+              else if (ch === '}') {
+                depth--;
+                if (depth === 0) {
+                  if (i > mappingIdx) {
+                    try {
+                      const candidate = text.slice(start, i + 1);
+                      const parsed = JSON.parse(candidate);
+                      const convo = findMappingInObj(parsed);
+                      if (convo) return convo;
+                    } catch {
+                      // Ignore parse errors on candidate segment
+                    }
+                  }
+                  matched = true;
+                  break;
+                }
+              }
+            }
           }
+          if (matched) break;
+          start = text.lastIndexOf('{', start - 1);
         }
       }
     }
