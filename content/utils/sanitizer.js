@@ -37,9 +37,7 @@ export function sanitizeHtml(html) {
       ADD_ATTR: ['target', 'rel', 'class', 'style', 'disabled', 'checked', 'type'],
     });
     if (sanitized !== undefined) {
-      return sanitized
-        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-        .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '');
+      return sanitized;
     }
   }
 
