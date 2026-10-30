@@ -287,7 +287,7 @@ export function stripTags(text) {
     output += input.slice(i, open);
     const rest = input.slice(open);
     const tagMatch = rest.match(
-      /^<(?:\/?[a-zA-Z][a-zA-Z0-9:-]*(?:\s+[^"'>]*(?:(?:"[^"]*"|'[^']*')[^"'>]*)*)?\s*\/?>|!--[\s\S]*?-->|![a-zA-Z][^>]*>)/,
+      /^<(?:\/?[a-zA-Z][a-zA-Z0-9:-]*(?:\s+[^"'<>\s]+|\s*=\s*(?:"[^"]*"|'[^']*'|[^"'<>\s]+))*\s*\/?>|!--[\s\S]*?-->|![a-zA-Z][^>]*>)/,
     );
     if (tagMatch) {
       i = open + tagMatch[0].length;

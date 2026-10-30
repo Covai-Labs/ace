@@ -4,7 +4,7 @@ export function stripEncodedImages(content) {
   if (!content) return '';
   // 1. Replace markdown images with base64 data URIs: ![alt](data:image/...) -> [Image: alt]
   let cleaned = content.replace(
-    /!\[([^\]]*)\]\(data:image\/[^;]+;base64,[^)]+\)/gi,
+    /!\[([^\]\\[\r\n]*)\]\(data:image\/[^;]+;base64,[^)]+\)/gi,
     (match, alt) => {
       const label = alt && alt.trim() && !alt.startsWith('http') ? alt.trim() : 'Image';
       return `[${label}]`;
