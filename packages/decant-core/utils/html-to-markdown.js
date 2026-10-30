@@ -103,8 +103,21 @@ export function convertToMarkdown(htmlContent, options = {}) {
   turndownService.addRule("tables", {
     filter: "table",
     replacement: function (content, node) {
-      // Convert HTML table to markdown table
-      const rows = Array.from(node.querySelectorAll("tr"));
+      // Convert HTML table to markdown table.
+      // Traverse direct table children (thead/tbody/tfoot/direct tr) to avoid descendant tree scanning
+      const rows = [];
+      for (const child of Array.from(node.children || [])) {
+        const tag = (child.tagName || "").toLowerCase();
+        if (tag === "tr") {
+          rows.push(child);
+        } else if (tag === "thead" || tag === "tbody" || tag === "tfoot") {
+          for (const sectionChild of Array.from(child.children || [])) {
+            if ((sectionChild.tagName || "").toLowerCase() === "tr") {
+              rows.push(sectionChild);
+            }
+          }
+        }
+      }
       if (rows.length === 0) return content;
 
       // Create a separate Turndown service for cell content to avoid recursion/state issues
@@ -125,7 +138,10 @@ export function convertToMarkdown(htmlContent, options = {}) {
 
       let markdown = "\n";
       rows.forEach((row, rowIndex) => {
-        const cells = Array.from(row.querySelectorAll("th, td"));
+        const cells = Array.from(row.children || []).filter((c) => {
+          const t = (c.tagName || "").toLowerCase();
+          return t === "th" || t === "td";
+        });
 
         // Convert each cell's HTML to markdown using the isolated service
         const cellContents = cells.map((cell) => {

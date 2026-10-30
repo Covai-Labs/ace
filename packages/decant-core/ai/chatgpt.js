@@ -188,16 +188,52 @@ export function extractSharedConversationFromDom(
       const convo = findMappingInObj(parsed);
       if (convo) return convo;
     } catch {
-      const matches = text.match(/\{[\s\S]*"mapping"[\s\S]*\}/g);
-      if (matches) {
-        for (const match of matches) {
-          try {
-            const parsed = JSON.parse(match);
-            const convo = findMappingInObj(parsed);
-            if (convo) return convo;
-          } catch {
-            // Ignore JSON parse errors in script segments
+      // Find balanced JSON object containing "mapping" without unbounded regex backtracking
+      const mappingIdx = text.indexOf('"mapping"');
+      if (mappingIdx !== -1) {
+        let start = text.lastIndexOf('{', mappingIdx);
+        while (start !== -1) {
+          let depth = 0;
+          let inString = false;
+          let escape = false;
+          let matched = false;
+          for (let i = start; i < text.length; i++) {
+            const ch = text[i];
+            if (escape) {
+              escape = false;
+              continue;
+            }
+            if (ch === '\\') {
+              escape = true;
+              continue;
+            }
+            if (ch === '"') {
+              inString = !inString;
+              continue;
+            }
+            if (!inString) {
+              if (ch === '{') depth++;
+              else if (ch === '}') {
+                depth--;
+                if (depth === 0) {
+                  if (i > mappingIdx) {
+                    try {
+                      const candidate = text.slice(start, i + 1);
+                      const parsed = JSON.parse(candidate);
+                      const convo = findMappingInObj(parsed);
+                      if (convo) return convo;
+                    } catch {
+                      // Ignore parse errors on candidate segment
+                    }
+                  }
+                  matched = true;
+                  break;
+                }
+              }
+            }
           }
+          if (matched) break;
+          start = text.lastIndexOf('{', start - 1);
         }
       }
     }

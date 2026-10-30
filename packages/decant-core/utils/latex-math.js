@@ -53,16 +53,19 @@ export function normalizeLatexMath(text) {
   });
 
   // 5. Convert display math: \[ ... \] or \\[ ... \\]
+  // Negative lookahead (?!(?:(?:\n|^)\s*\\{1,2}\[|\\{1,2}\[\s)) prevents spanning across subsequent openers
+  // while preserving aligned line breaks such as \\[1ex] or \\[2pt] inside the math block
   processed = processed.replace(
-    /(?:\\{1,2}\[)([\s\S]+?)(?:\\{1,2}\])/g,
+    /\\{1,2}\[((?:(?!(?:(?:\n|^)\s*\\{1,2}\[|\\{1,2}\[\s))[\s\S])+?)\\{1,2}\]/g,
     (match, math) => {
       return `$$${cleanLatexMath(math).trim()}$$`;
     },
   );
 
   // 6. Convert inline math: \( ... \) or \\( ... \\)
+  // Negative lookahead (?![\\{1,2}\() prevents spanning across subsequent openers
   processed = processed.replace(
-    /(?:\\{1,2}\()([\s\S]+?)(?:\\{1,2}\))/g,
+    /\\{1,2}\(((?:(?!(?:\\{1,2}\())[\s\S])+?)\\{1,2}\)/g,
     (match, math) => {
       return `$${cleanLatexMath(math).trim()}$`;
     },
