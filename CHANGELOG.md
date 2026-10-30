@@ -1,5 +1,15 @@
 # Changelog
 
+## [1.24.1](https://github.com/Covai-Labs/ace/compare/v1.24.0...v1.24.1) (2026-10-30)
+
+
+### Bug Fixes
+
+* **ci:** prevent shell injection from commit author metadata in sync-decant workflow ([#161](https://github.com/Covai-Labs/ace/issues/161)) ([5a2a653](https://github.com/Covai-Labs/ace/commit/5a2a653f271c1d2a7216b6e77c4bda12ca8f595a))
+* **decant-core:** harden parsers and utilities against ReDoS and nested complexity ([#165](https://github.com/Covai-Labs/ace/issues/165)) ([a477349](https://github.com/Covai-Labs/ace/commit/a4773497e8e578adc8f86d86f2ead28c2860aa55))
+* **security:** resolve image formatter XSS and test server path traversal ([#164](https://github.com/Covai-Labs/ace/issues/164)) ([1c44758](https://github.com/Covai-Labs/ace/commit/1c4475849c641252d81f0b4842eb3391081e8772))
+* **security:** resolve SARIF security vulnerabilities and privacy leaks ([#163](https://github.com/Covai-Labs/ace/issues/163)) ([37ca9ab](https://github.com/Covai-Labs/ace/commit/37ca9ab2b9b2249d7e98775f41e476f618eaf720))
+
 ## [1.24.0](https://github.com/Covai-Labs/ace/compare/v1.23.1...v1.24.0) (2026-10-26)
 
 
