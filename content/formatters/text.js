@@ -161,8 +161,8 @@ export function markdownToPlainText(markdown) {
   const ANGLE_DEST = '<((?:\\\\.|[^<>\\r\\n\\\\])*)>';
   const BARE_DEST = `(${p4}*)`;
   const destPattern = `\\((?:${ANGLE_DEST}|${BARE_DEST})(?:\\s+["'][^"']*["'])?\\)`;
-  const imgRe = new RegExp(`!\\[([^\\]]*)\\]${destPattern}`, 'g');
-  const linkRe = new RegExp(`\\[([^\\]]+)\\]${destPattern}`, 'g');
+  const imgRe = new RegExp(`!\\[([^\\]\\[\\r\\n]*)\\]${destPattern}`, 'g');
+  const linkRe = new RegExp(`\\[([^\\]\\[\\r\\n]+)\\]${destPattern}`, 'g');
 
   // Normalize images: ![alt](url) -> [Image: alt]
   text = text.replace(imgRe, (match, alt) => {

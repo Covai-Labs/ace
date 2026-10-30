@@ -129,7 +129,7 @@ export function formatCombinedMarkdown(results, dateStr = new Date().toISOString
       // Namespace only image reference links emitted for base64 images:
       // First find all image reference labels actually used: ![alt][label]
       const imgLabels = new Set();
-      text = text.replace(/!\[([^\]]*)\]\[([^\]]+)\]/g, (match, alt, label) => {
+      text = text.replace(/!\[([^\]\\[\r\n]*)\]\[([^\]\\[\r\n]+)\]/g, (match, alt, label) => {
         imgLabels.add(label);
         return `![${alt}][${prefix}${label}]`;
       });
