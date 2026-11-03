@@ -1267,15 +1267,19 @@ function inlineParse(text, mathBlockPlaceholders = null, referenceDefs = null) {
   );
 
   // 6.5 Replace images ![alt](url)
-  text = text.replace(/!\[(.*?)\]\((.*?)\)/g, (match, altText, url) => {
-    const safeUrl = sanitizeUrl(url, true);
-    if (!safeUrl) return '';
-    return `<img src="${safeUrl}" alt="${altText}" style="max-width: 350px; width: 100%; height: auto; border-radius: 8px; margin: 0.5rem 0; display: block;" />`;
-  });
+  text = text.replace(
+    /!\[([^\]\n]*)\]\(([^)\s]+(?:\s+["'][^"']*["'])?)\)/g,
+    (match, altText, url) => {
+      const cleanUrl = url.replace(/\s+["'][^"']*["']$/, '').trim();
+      const safeUrl = sanitizeUrl(cleanUrl, true);
+      if (!safeUrl) return '';
+      return `<img src="${safeUrl}" alt="${altText}" style="max-width: 350px; width: 100%; height: auto; border-radius: 8px; margin: 0.5rem 0; display: block;" />`;
+    },
+  );
 
   // Reference-style images ![alt][label]
   if (referenceDefs && referenceDefs.size > 0) {
-    text = text.replace(/!\[(.*?)\]\[(.*?)\]/g, (match, altText, refId) => {
+    text = text.replace(/!\[([^\]\n]*)\]\[([^\]\n]*)\]/g, (match, altText, refId) => {
       const key = (refId || altText).trim().toLowerCase();
       const url = referenceDefs.get(key);
       if (url) {
@@ -1288,15 +1292,19 @@ function inlineParse(text, mathBlockPlaceholders = null, referenceDefs = null) {
   }
 
   // 7. Replace links [text](url)
-  text = text.replace(/\[(.*?)\]\((.*?)\)/g, (match, linkText, url) => {
-    const safeUrl = sanitizeUrl(url, false);
-    if (!safeUrl) return linkText;
-    return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
-  });
+  text = text.replace(
+    /\[([^\]\n]+)\]\(([^)\s]+(?:\s+["'][^"']*["'])?)\)/g,
+    (match, linkText, url) => {
+      const cleanUrl = url.replace(/\s+["'][^"']*["']$/, '').trim();
+      const safeUrl = sanitizeUrl(cleanUrl, false);
+      if (!safeUrl) return linkText;
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer">${linkText}</a>`;
+    },
+  );
 
   // Reference-style links [text][label]
   if (referenceDefs && referenceDefs.size > 0) {
-    text = text.replace(/\[(.*?)\]\[(.*?)\]/g, (match, linkText, refId) => {
+    text = text.replace(/\[([^\]\n]+)\]\[([^\]\n]*)\]/g, (match, linkText, refId) => {
       const key = (refId || linkText).trim().toLowerCase();
       const url = referenceDefs.get(key);
       if (url) {
