@@ -90,7 +90,8 @@ export async function inlineImagesInContent(content, fetcher = fetchUrlAsDataUri
   const urlSet = new Set();
 
   // 1. Markdown images: ![alt](url)
-  const mdImageRegex = /!\[([^\]\\[\r\n]*)\]\(\s*<?([^\s)>]+)>?(?:\s+["'][^"']*["'])?\s*\)/g;
+  const mdImageRegex =
+    /!\[((?:\\.|[^\]\\[\r\n])*)\]\(\s*<?([^\s)>]+)>?(?:\s+["'][^"']*["'])?\s*\)/g;
   let match;
   while ((match = mdImageRegex.exec(content)) !== null) {
     const url = match[2];
@@ -133,7 +134,7 @@ export async function inlineImagesInContent(content, fetcher = fetchUrlAsDataUri
 
   // 1. Replace markdown images: ![alt](url)
   let updated = content.replace(
-    /!\[([^\]]*)\]\(\s*<?([^\s)>]+)>?((?:\s+["'][^"']*["'])?)\s*\)/g,
+    /!\[((?:\\.|[^\]\\[\r\n])*)\]\(\s*<?([^\s)>]+)>?((?:\s+["'][^"']*["'])?)\s*\)/g,
     (match, alt, url, title) => {
       const dataUri = urlMap.get(url);
       if (dataUri) {

@@ -278,24 +278,85 @@ export function stripTags(text) {
   const input = String(text || '');
   let output = '';
   let i = 0;
-  while (i < input.length) {
+  const n = input.length;
+
+  while (i < n) {
     const open = input.indexOf('<', i);
     if (open === -1) {
       output += input.slice(i);
       break;
     }
     output += input.slice(i, open);
-    const rest = input.slice(open);
-    const tagMatch = rest.match(
-      /^<(?:\/?[a-zA-Z][a-zA-Z0-9:-]*(?:\s+[^"'<>\s]+|\s*=\s*(?:"[^"]*"|'[^']*'|[^"'<>\s]+))*\s*\/?>|!--[\s\S]*?-->|![a-zA-Z][^>]*>)/,
-    );
-    if (tagMatch) {
-      i = open + tagMatch[0].length;
+
+    // Comment: <!-- ... -->
+    if (input.startsWith('<!--', open)) {
+      const close = input.indexOf('-->', open + 4);
+      if (close !== -1) {
+        i = close + 3;
+        continue;
+      }
+      output += '<';
+      i = open + 1;
+      continue;
+    }
+
+    // Directive / doctype: <!DOCTYPE ...> or <![CDATA[ ... ]]>
+    if (open + 1 < n && input[open + 1] === '!') {
+      const close = input.indexOf('>', open + 2);
+      if (close !== -1) {
+        i = close + 1;
+        continue;
+      }
+      output += '<';
+      i = open + 1;
+      continue;
+    }
+
+    // Element tag: <tag ...> or </tag>
+    let pos = open + 1;
+    if (pos < n && input[pos] === '/') {
+      pos++;
+    }
+    const nameStart = pos;
+    while (pos < n && /[a-zA-Z0-9:-]/.test(input[pos])) {
+      pos++;
+    }
+
+    if (pos === nameStart || !/[a-zA-Z]/.test(input[nameStart])) {
+      output += '<';
+      i = open + 1;
+      continue;
+    }
+
+    // Traverse attributes until unquoted '>'
+    let inQuote = null;
+    let tagEnd = -1;
+    while (pos < n) {
+      const ch = input[pos];
+      if (inQuote) {
+        if (ch === inQuote) {
+          inQuote = null;
+        }
+      } else if (ch === '"' || ch === "'") {
+        inQuote = ch;
+      } else if (ch === '>') {
+        tagEnd = pos;
+        break;
+      } else if (ch === '<') {
+        // Encountered a new tag opener before previous closed
+        break;
+      }
+      pos++;
+    }
+
+    if (tagEnd !== -1) {
+      i = tagEnd + 1;
     } else {
       output += '<';
       i = open + 1;
     }
   }
+
   return output;
 }
 
