@@ -82,12 +82,20 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (articleEngineSelectPopup) {
     articleEngineSelectPopup.addEventListener('change', async (e) => {
+      const prevEngine = storedSettings.articleEngine || 'auto';
       const selected = e.target.value;
-      storedSettings.articleEngine = selected;
-      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
-        await chrome.storage.sync.set({ articleEngine: selected });
+      try {
+        storedSettings.articleEngine = selected;
+        if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+          await chrome.storage.sync.set({ articleEngine: selected });
+        }
+        await checkAvailability({ force: true, articleEngine: selected });
+      } catch (err) {
+        logger.error('Failed to update article extraction engine:', err);
+        storedSettings.articleEngine = prevEngine;
+        articleEngineSelectPopup.value = prevEngine;
+        setStatus('error', 'Failed to save engine selection: ' + (err.message || 'Storage error'));
       }
-      await checkAvailability({ force: true, articleEngine: selected });
     });
   }
 

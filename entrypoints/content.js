@@ -913,10 +913,26 @@ export default defineContentScript({
 
           (async () => {
             try {
+              let parserMode = request.parserMode || 'auto';
+              let articleEngine = request.articleEngine || 'auto';
+              try {
+                if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+                  const syncSettings = await chrome.storage.sync.get([
+                    'parserMode',
+                    'articleEngine',
+                  ]);
+                  if (syncSettings?.parserMode) parserMode = syncSettings.parserMode;
+                  if (syncSettings?.articleEngine) articleEngine = syncSettings.articleEngine;
+                }
+              } catch {
+                // Use defaults
+              }
+
               const conversation = enrichConversation(
                 await activeParser.parse({
                   full: true,
-                  parserMode: 'auto',
+                  parserMode,
+                  articleEngine,
                   includeImages: true,
                 }),
               );
