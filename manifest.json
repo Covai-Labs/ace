@@ -79,7 +79,11 @@
     "*://characterhub.org/*",
     "*://www.characterhub.org/*",
     "*://grok.com/*",
-    "*://www.grok.com/*"
+    "*://www.grok.com/*",
+    "*://duck.ai/*",
+    "*://*.duck.ai/*",
+    "*://duckduckgo.com/*",
+    "*://*.duckduckgo.com/*"
   ],
   "action": {
     "default_popup": "popup/popup.html",
@@ -129,6 +133,10 @@
         "*://www.characterhub.org/*",
         "*://grok.com/*",
         "*://www.grok.com/*",
+        "*://duck.ai/*",
+        "*://*.duck.ai/*",
+        "*://duckduckgo.com/*",
+        "*://*.duckduckgo.com/*",
         "*://www.google.com/*",
         "*://www.google.co.in/*",
         "*://www.google.co.uk/*",

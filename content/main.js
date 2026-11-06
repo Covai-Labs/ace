@@ -18,6 +18,7 @@ import {
   JoylandParser,
   ChubParser,
   GrokParser,
+  DuckAIParser,
   ArticleParser,
 } from 'decant-core';
 
@@ -196,6 +197,7 @@ const parsers = [
   new JoylandParser(),
   new ChubParser(),
   new GrokParser(),
+  new DuckAIParser(),
   new ArticleParser(),
 ];
 
