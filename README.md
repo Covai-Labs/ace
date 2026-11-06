@@ -157,18 +157,6 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 </details>
 
-### Choosing Between AI Chat Exporter and Decant
-
-AI Chat Exporter and [Decant](https://github.com/Covai-Labs/decant-browser-extension) share an extraction engine ([decant-core](https://github.com/Covai-Labs/decant)) but solve different jobs:
-
-| Your goal                                                                                               | Use                  |
-| :------------------------------------------------------------------------------------------------------ | :------------------- |
-| Export, back up, or **continue a conversation** between AI platforms                                    | **AI Chat Exporter** |
-| Trim generic AI search overviews (and single pages) into Markdown                                       | **AI Chat Exporter** |
-| **Clip arbitrary web pages** — batch whole tabs into a research ZIP, or hand one page to your PKM vault | **Decant**           |
-
-As a convenience, AI Chat Exporter's single-page export walks any web article through the same local pipeline — handy for saving one page next to a chat. For serious web clipping — multi-tab batches, frontmatter-driven note hand-off, and reading view — use **Decant**.
-
 ---
 
 ## Contributing

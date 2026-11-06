@@ -153,14 +153,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  const decantLink = document.getElementById('decant-link');
-  if (decantLink) {
-    decantLink.addEventListener('click', (e) => {
-      e.preventDefault();
-      chrome.tabs.create({ url: decantLink.href });
-    });
-  }
-
   const copilotRedirectBox = document.getElementById('copilot-redirect-box');
   const copilotRedirectBtn = document.getElementById('copilot-redirect-btn');
   if (copilotRedirectBtn) {

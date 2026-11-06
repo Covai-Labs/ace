@@ -687,58 +687,6 @@ select:focus {
   margin-top: 10px;
 }
 
-.decant-promo-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%);
-  border: 1px solid rgba(59, 130, 246, 0.25);
-  border-radius: 8px;
-  padding: 10px 12px;
-  font-size: 12px;
-  line-height: 1.45;
-  color: var(--text-secondary);
-}
-
-.decant-promo-icon {
-  font-size: 16px;
-  flex-shrink: 0;
-}
-
-.decant-promo-text {
-  flex: 1;
-}
-
-.decant-link {
-  color: var(--accent-color, #3b82f6);
-  font-weight: 600;
-  text-decoration: none;
-  margin-left: 3px;
-  white-space: nowrap;
-}
-
-.decant-link:hover {
-  color: var(--accent-hover, #2563eb);
-  text-decoration: underline;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) .decant-promo-box {
-    background: linear-gradient(135deg, rgba(59, 130, 246, 0.14) 0%, rgba(99, 102, 241, 0.08) 100%);
-    border-color: rgba(59, 130, 246, 0.35);
-  }
-}
-
-html[data-theme='dark'] .decant-promo-box {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.14) 0%, rgba(99, 102, 241, 0.08) 100%);
-  border-color: rgba(59, 130, 246, 0.35);
-}
-
-html[data-theme='light'] .decant-promo-box {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.08) 0%, rgba(99, 102, 241, 0.05) 100%);
-  border-color: rgba(59, 130, 246, 0.25);
-}
-
 .copilot-redirect-box {
   display: flex;
   align-items: flex-start;

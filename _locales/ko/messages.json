@@ -541,14 +541,6 @@
     "message": "내용을 불러오는 중...",
     "description": "Placeholder text while preview loads"
   },
-  "decantPromoText": {
-    "message": "AI 채팅이 아닌 웹사이트를 내보내고 싶으신가요? 다음을 사용해 보세요:",
-    "description": "Promo text for non-AI website export"
-  },
-  "decantPromoLink": {
-    "message": "Decant ↗",
-    "description": "Link text to try Decant website exporter"
-  },
   "copilotRedirectTitle": {
     "message": "Microsoft Copilot 안내"
   },
