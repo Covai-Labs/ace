@@ -784,5 +784,53 @@
   "permissionDeniedToast": {
     "message": "Permission request was cancelled or denied.",
     "description": "Toast message shown when user cancels or denies an optional permission request"
+  },
+  "articleEngineLabel": {
+    "message": "Web記事抽出エンジン",
+    "description": "Label for web article extraction engine select"
+  },
+  "articleEngineHelp": {
+    "message": "一般的なWebページや記事を保存する際に使用する抽出エンジンを設定します。",
+    "description": "Help text for web article extraction engine"
+  },
+  "articleEngineAuto": {
+    "message": "自動（品質スコアによる自動判定）",
+    "description": "Auto article engine option"
+  },
+  "articleEngineReadability": {
+    "message": "Mozilla Readability（一般的な記事・ニュース向け）",
+    "description": "Readability article engine option"
+  },
+  "articleEngineDefuddle": {
+    "message": "Defuddle（Markdown・コード向けに最適化）",
+    "description": "Defuddle article engine option"
+  },
+  "webArticleModeTitle": {
+    "message": "📄 Web記事モード",
+    "description": "Title in popup web article mode banner"
+  },
+  "webArticleEngineLabel": {
+    "message": "エンジン:",
+    "description": "Engine label in popup web article mode banner"
+  },
+  "webArticleEngineAuto": {
+    "message": "自動（推奨）",
+    "description": "Auto engine option in popup banner"
+  },
+  "webArticleEngineReadability": {
+    "message": "Readability",
+    "description": "Readability engine option in popup banner"
+  },
+  "webArticleEngineDefuddle": {
+    "message": "Defuddle",
+    "description": "Defuddle engine option in popup banner"
+  },
+  "webArticleNotArticle": {
+    "message": "記事ではありませんか？",
+    "description": "Question prompt in popup web article footer"
+  },
+  "webArticleRequestSupport": {
+    "message": "AIチャット対応をリクエスト ↗",
+    "description": "Link to request AI chat support for unsupported page"
   }
 }

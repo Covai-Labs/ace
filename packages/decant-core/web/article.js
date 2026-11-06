@@ -155,6 +155,10 @@ export async function extractArticleIntelligent(docOrHtml, options = {}) {
   const image = mData?.image || dData?.image || "";
 
   // 3. Content Quality Scoring & Arbitration
+  const requestedEngine = String(
+    options.engine || options.articleEngine || "auto",
+  ).toLowerCase();
+
   const rHtml = rData?.content || "";
   const dHtml = dData?.content || "";
 
@@ -164,23 +168,43 @@ export async function extractArticleIntelligent(docOrHtml, options = {}) {
   let bestHtml;
   let winningEngine;
 
-  if (rScore === 0 && dScore === 0) {
-    // Fallback: take main/article or body
-    const mainEl = doc.querySelector(
-      "main, article, #content, .content, .post",
-    );
-    bestHtml = mainEl
-      ? mainEl.innerHTML
-      : doc.body
-        ? doc.body.innerHTML
-        : rawHtml;
-    winningEngine = "raw";
-  } else if (rScore >= dScore) {
-    bestHtml = rHtml || dHtml;
-    winningEngine = "readability";
-  } else {
-    bestHtml = dHtml || rHtml;
-    winningEngine = "defuddle";
+  if (requestedEngine === "readability") {
+    if (rHtml && rHtml.trim().length > 0) {
+      bestHtml = rHtml;
+      winningEngine = "readability";
+    } else if (dHtml && dHtml.trim().length > 0) {
+      bestHtml = dHtml;
+      winningEngine = "defuddle";
+    }
+  } else if (requestedEngine === "defuddle") {
+    if (dHtml && dHtml.trim().length > 0) {
+      bestHtml = dHtml;
+      winningEngine = "defuddle";
+    } else if (rHtml && rHtml.trim().length > 0) {
+      bestHtml = rHtml;
+      winningEngine = "readability";
+    }
+  }
+
+  if (!bestHtml) {
+    if (rScore === 0 && dScore === 0) {
+      // Fallback: take main/article or body
+      const mainEl = doc.querySelector(
+        "main, article, #content, .content, .post",
+      );
+      bestHtml = mainEl
+        ? mainEl.innerHTML
+        : doc.body
+          ? doc.body.innerHTML
+          : rawHtml;
+      winningEngine = "raw";
+    } else if (rScore >= dScore) {
+      bestHtml = rHtml || dHtml;
+      winningEngine = "readability";
+    } else {
+      bestHtml = dHtml || rHtml;
+      winningEngine = "defuddle";
+    }
   }
 
   // 4. Convert to Markdown using decant-core convertToMarkdown

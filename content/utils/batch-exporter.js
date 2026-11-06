@@ -293,6 +293,24 @@ export async function extractAllTabsData(options = {}, windowId = null, onProgre
     throw new Error('No compatible tabs found in this window.');
   }
 
+  let batchArticleEngine = options.articleEngine;
+  let batchParserMode = options.parserMode;
+  if (!batchArticleEngine || !batchParserMode) {
+    try {
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        const syncSettings = await chrome.storage.sync.get(['articleEngine', 'parserMode']);
+        if (!batchArticleEngine && syncSettings?.articleEngine) {
+          batchArticleEngine = syncSettings.articleEngine;
+        }
+        if (!batchParserMode && syncSettings?.parserMode) {
+          batchParserMode = syncSettings.parserMode;
+        }
+      }
+    } catch {
+      // Use defaults
+    }
+  }
+
   const concurrencyLimit = 4;
   const results = new Array(validTabs.length).fill(null);
   let processed = 0;
@@ -305,6 +323,8 @@ export async function extractAllTabsData(options = {}, windowId = null, onProgre
           action: 'COPY_CHAT',
           format: 'markdown',
           includeImages: options.includeImages !== false,
+          articleEngine: batchArticleEngine || 'auto',
+          parserMode: batchParserMode || 'auto',
         },
         1,
         100,
@@ -322,6 +342,8 @@ export async function extractAllTabsData(options = {}, windowId = null, onProgre
               action: 'COPY_CHAT',
               format: 'markdown',
               includeImages: options.includeImages !== false,
+              articleEngine: batchArticleEngine || 'auto',
+              parserMode: batchParserMode || 'auto',
             },
             3,
             150,

@@ -298,10 +298,17 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onConnect) {
   });
 }
 
-function isCacheValid(requestedMode) {
+function isCacheValid(requestedMode, requestedArticleEngine) {
   if (!parseCache || parseCache.dirty || !parseCache.report) return false;
   if (parseCache.url !== window.location.href) return false;
   if (requestedMode && parseCache.parserMode && parseCache.parserMode !== requestedMode) {
+    return false;
+  }
+  if (
+    requestedArticleEngine &&
+    parseCache.articleEngine &&
+    parseCache.articleEngine !== requestedArticleEngine
+  ) {
     return false;
   }
   const age = Date.now() - parseCache.timestamp;
@@ -408,11 +415,12 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       const queryId = request.queryId;
       const isForce = Boolean(request.force);
       const parserMode = request.parserMode || 'auto';
+      const articleEngine = request.articleEngine || 'auto';
 
       if (activeParser) {
         (async () => {
           try {
-            if (!isForce && isCacheValid(parserMode)) {
+            if (!isForce && isCacheValid(parserMode, articleEngine)) {
               logger.debug('DISCOVER_FRAMES returning cached report');
               chrome.runtime.sendMessage({
                 action: 'FRAME_REPORT',
@@ -423,7 +431,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             }
 
             const conversation = enrichConversation(
-              await activeParser.parse({ full: false, parserMode }),
+              await activeParser.parse({ full: false, parserMode, articleEngine }),
             );
             const count = conversation?.messages?.length || 0;
             if (!currentFrameIsTop && count === 0) {
@@ -450,6 +458,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               url: window.location.href,
               timestamp: Date.now(),
               parserMode,
+              articleEngine,
               report: reportData,
               conversation,
               dirty: false,
@@ -501,19 +510,22 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
       setupDomObserver();
       const isForce = Boolean(request.force);
       const parserMode = request.parserMode || 'auto';
+      const articleEngine = request.articleEngine || 'auto';
 
       if (activeParser) {
         (async () => {
           try {
-            if (!isForce && isCacheValid(parserMode)) {
+            if (!isForce && isCacheValid(parserMode, articleEngine)) {
               logger.debug('CHECK_AVAILABILITY returning cached report');
               sendResponse(parseCache.report);
               return;
             }
 
-            logger.debug('Executing activeParser.parse({ full: false, parserMode })...');
+            logger.debug(
+              'Executing activeParser.parse({ full: false, parserMode, articleEngine })...',
+            );
             const conversation = enrichConversation(
-              await activeParser.parse({ full: false, parserMode }),
+              await activeParser.parse({ full: false, parserMode, articleEngine }),
             );
             const count = conversation?.messages?.length || 0;
             logger.debug(
@@ -542,6 +554,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
               url: window.location.href,
               timestamp: Date.now(),
               parserMode,
+              articleEngine,
               report: responseData,
               conversation,
               dirty: false,
@@ -595,6 +608,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             await activeParser.parse({
               full: true,
               parserMode: request.parserMode || 'auto',
+              articleEngine: request.articleEngine || 'auto',
               includeImages: request.includeImages !== false,
             }),
           );
@@ -719,6 +733,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             await activeParser.parse({
               full: true,
               parserMode: request.parserMode || 'auto',
+              articleEngine: request.articleEngine || 'auto',
               includeImages: request.includeImages !== false,
             }),
           );
@@ -823,6 +838,7 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
             await activeParser.parse({
               full: true,
               parserMode: request.parserMode || 'auto',
+              articleEngine: request.articleEngine || 'auto',
               includeImages: request.includeImages !== false,
             }),
           );
@@ -888,10 +904,23 @@ if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
 
       (async () => {
         try {
+          let parserMode = request.parserMode || 'auto';
+          let articleEngine = request.articleEngine || 'auto';
+          try {
+            if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+              const syncSettings = await chrome.storage.sync.get(['parserMode', 'articleEngine']);
+              if (syncSettings?.parserMode) parserMode = syncSettings.parserMode;
+              if (syncSettings?.articleEngine) articleEngine = syncSettings.articleEngine;
+            }
+          } catch {
+            // Use defaults
+          }
+
           const conversation = enrichConversation(
             await activeParser.parse({
               full: true,
-              parserMode: 'auto',
+              parserMode,
+              articleEngine,
               includeImages: true,
             }),
           );

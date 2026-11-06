@@ -757,5 +757,53 @@
   "openGithubIssue": {
     "message": "Сообщить на GitHub",
     "description": "Button label for opening GitHub issues in options feedback section"
+  },
+  "articleEngineLabel": {
+    "message": "Движок извлечения веб-статей",
+    "description": "Label for web article extraction engine select"
+  },
+  "articleEngineHelp": {
+    "message": "Определяет движок извлечения, используемый при сохранении обычных веб-страниц и статей.",
+    "description": "Help text for web article extraction engine"
+  },
+  "articleEngineAuto": {
+    "message": "Авто (Интеллектуальный выбор по оценке качества)",
+    "description": "Auto article engine option"
+  },
+  "articleEngineReadability": {
+    "message": "Mozilla Readability (Классический текст и новости)",
+    "description": "Readability article engine option"
+  },
+  "articleEngineDefuddle": {
+    "message": "Defuddle (Оптимизирован для Markdown и кода)",
+    "description": "Defuddle article engine option"
+  },
+  "webArticleModeTitle": {
+    "message": "📄 Режим веб-статьи",
+    "description": "Title in popup web article mode banner"
+  },
+  "webArticleEngineLabel": {
+    "message": "Движок:",
+    "description": "Engine label in popup web article mode banner"
+  },
+  "webArticleEngineAuto": {
+    "message": "Авто (Лучший)",
+    "description": "Auto engine option in popup banner"
+  },
+  "webArticleEngineReadability": {
+    "message": "Readability",
+    "description": "Readability engine option in popup banner"
+  },
+  "webArticleEngineDefuddle": {
+    "message": "Defuddle",
+    "description": "Defuddle engine option in popup banner"
+  },
+  "webArticleNotArticle": {
+    "message": "Не статья?",
+    "description": "Question prompt in popup web article footer"
+  },
+  "webArticleRequestSupport": {
+    "message": "Запросить поддержку ИИ-чата ↗",
+    "description": "Link to request AI chat support for unsupported page"
   }
 }

@@ -172,3 +172,64 @@ test("extractArticle handles GFM strikethrough and task lists", async () => {
       result.content.includes("Core Parser Engine"),
   );
 });
+
+test("extractArticle honors engine option for readability, defuddle, and auto", async () => {
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head><title>Dual Engine Test - Covai</title></head>
+    <body>
+      <main>
+        <article>
+          <h1>Dual Engine Test</h1>
+          <p>${"This is a rich article that both Mozilla Readability and Defuddle can successfully parse and extract with high fidelity. ".repeat(6)}</p>
+        </article>
+      </main>
+    </body>
+    </html>
+  `;
+
+  // Test forcing readability
+  const resReadability = await extractArticleIntelligent(html, {
+    url: "https://example.com/test-readability",
+    engine: "readability",
+  });
+  assert.equal(resReadability.engine, "readability");
+  assert.ok(resReadability.content.includes("Mozilla Readability"));
+
+  // Test forcing defuddle
+  const resDefuddle = await extractArticleIntelligent(html, {
+    url: "https://example.com/test-defuddle",
+    engine: "defuddle",
+  });
+  assert.equal(resDefuddle.engine, "defuddle");
+  assert.ok(resDefuddle.content.includes("Mozilla Readability"));
+
+  // Test auto engine arbitration (defaults or explicit auto)
+  const resAutoExplicit = await extractArticleIntelligent(html, {
+    url: "https://example.com/test-auto",
+    engine: "auto",
+  });
+  assert.ok(resAutoExplicit.engine === "readability" || resAutoExplicit.engine === "defuddle");
+  assert.ok(resAutoExplicit.content.includes("Mozilla Readability"));
+
+  // Test ArticleParser forwarding articleEngine
+  const parser = new ArticleParser();
+  const { document } = parseHTML(html);
+  globalThis.document = document;
+  try {
+    const parsedReadability = await parser.parse({
+      articleEngine: "readability",
+    });
+    assert.equal(parsedReadability.metadata.Engine, "readability");
+
+    const parsedDefuddle = await parser.parse({ articleEngine: "defuddle" });
+    assert.equal(parsedDefuddle.metadata.Engine, "defuddle");
+
+    const parsedAuto = await parser.parse({ articleEngine: "auto" });
+    assert.ok(parsedAuto.metadata.Engine === "readability" || parsedAuto.metadata.Engine === "defuddle");
+  } finally {
+    delete globalThis.document;
+  }
+});
+

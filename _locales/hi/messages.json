@@ -756,5 +756,53 @@
   "openGithubIssue": {
     "message": "GitHub पर रिपोर्ट करें",
     "description": "Button label for opening GitHub issues in options feedback section"
+  },
+  "articleEngineLabel": {
+    "message": "वेब आलेख निष्कर्षण इंजन",
+    "description": "Label for web article extraction engine select"
+  },
+  "articleEngineHelp": {
+    "message": "सामान्य वेब पेजों और आलेखों को कैप्चर करते समय उपयोग किए जाने वाले निष्कर्षण इंजन को नियंत्रित करता है।",
+    "description": "Help text for web article extraction engine"
+  },
+  "articleEngineAuto": {
+    "message": "स्वचालित (बुद्धिमान गुणवत्ता स्कोर मध्यस्थता)",
+    "description": "Auto article engine option"
+  },
+  "articleEngineReadability": {
+    "message": "Mozilla Readability (क्लासिक गद्य और समाचार)",
+    "description": "Readability article engine option"
+  },
+  "articleEngineDefuddle": {
+    "message": "Defuddle (मार्कडाउन और कोड के लिए अनुकूलित)",
+    "description": "Defuddle article engine option"
+  },
+  "webArticleModeTitle": {
+    "message": "📄 वेब आलेख मोड",
+    "description": "Title in popup web article mode banner"
+  },
+  "webArticleEngineLabel": {
+    "message": "इंजन:",
+    "description": "Engine label in popup web article mode banner"
+  },
+  "webArticleEngineAuto": {
+    "message": "स्वचालित (सर्वोत्तम)",
+    "description": "Auto engine option in popup banner"
+  },
+  "webArticleEngineReadability": {
+    "message": "Readability",
+    "description": "Readability engine option in popup banner"
+  },
+  "webArticleEngineDefuddle": {
+    "message": "Defuddle",
+    "description": "Defuddle engine option in popup banner"
+  },
+  "webArticleNotArticle": {
+    "message": "कोई आलेख नहीं है?",
+    "description": "Question prompt in popup web article footer"
+  },
+  "webArticleRequestSupport": {
+    "message": "एआई चैट समर्थन का अनुरोध करें ↗",
+    "description": "Link to request AI chat support for unsupported page"
   }
 }

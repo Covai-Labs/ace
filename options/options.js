@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filenameTemplateInput = document.getElementById('filename-template-input');
   const filenamePreview = document.getElementById('filename-preview');
   const parserModeSelect = document.getElementById('parser-mode-select');
+  const articleEngineSelect = document.getElementById('article-engine-select');
   const defaultTransferSelect = document.getElementById('default-transfer-select');
   const toast = document.getElementById('toast');
 
@@ -111,6 +112,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'messageNumbering',
     'filenameTemplate',
     'parserMode',
+    'articleEngine',
     'defaultTransferTarget',
     'obsidianVaultName',
     'launchMode',
@@ -153,6 +155,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateFilenamePreview(filenameTemplateInput.value);
   }
   if (stored.parserMode) parserModeSelect.value = stored.parserMode;
+  if (stored.articleEngine && articleEngineSelect) articleEngineSelect.value = stored.articleEngine;
   if (stored.defaultTransferTarget) defaultTransferSelect.value = stored.defaultTransferTarget;
   if (stored.obsidianVaultName && obsidianVaultInput)
     obsidianVaultInput.value = stored.obsidianVaultName;
@@ -243,6 +246,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ parserMode: parserModeSelect.value });
     showToast();
   });
+
+  if (articleEngineSelect) {
+    articleEngineSelect.addEventListener('change', () => {
+      chrome.storage.sync.set({ articleEngine: articleEngineSelect.value });
+      showToast();
+    });
+  }
 
   defaultTransferSelect.addEventListener('change', () => {
     chrome.storage.sync.set({ defaultTransferTarget: defaultTransferSelect.value });

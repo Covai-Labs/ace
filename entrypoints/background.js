@@ -723,11 +723,23 @@ export default defineBackground(() => {
       }
     } else if (command === 'open_preview') {
       try {
+        let parserMode = 'auto';
+        let articleEngine = 'auto';
+        try {
+          const syncSettings = await chrome.storage.sync.get(['parserMode', 'articleEngine']);
+          if (syncSettings?.parserMode) parserMode = syncSettings.parserMode;
+          if (syncSettings?.articleEngine) articleEngine = syncSettings.articleEngine;
+        } catch {
+          // Use defaults
+        }
+
         const response = await chrome.tabs.sendMessage(tab.id, {
           action: 'COPY_CHAT',
           // The preview applies the attachments option itself, so it needs them all.
           includeAttachments: true,
           format: format === 'pdf' ? 'html' : 'markdown',
+          parserMode,
+          articleEngine,
         });
         if (response && response.success) {
           await chrome.storage.local.set({
