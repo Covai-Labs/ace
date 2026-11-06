@@ -557,14 +557,6 @@
     "message": "Loading content...",
     "description": "Placeholder text while preview loads"
   },
-  "decantPromoText": {
-    "message": "Want to export non-AI chat websites? Try",
-    "description": "Promo text for non-AI website export"
-  },
-  "decantPromoLink": {
-    "message": "Decant ↗",
-    "description": "Link text to try Decant website exporter"
-  },
   "copilotRedirectTitle": {
     "message": "Microsoft Copilot Notice"
   },

@@ -549,14 +549,6 @@
     "message": "正在載入內容...",
     "description": "Placeholder text while preview loads"
   },
-  "decantPromoText": {
-    "message": "想要匯除非 AI 對話網頁？試試",
-    "description": "Promo text for non-AI website export"
-  },
-  "decantPromoLink": {
-    "message": "Decant ↗",
-    "description": "Link text to try Decant website exporter"
-  },
   "copilotRedirectTitle": {
     "message": "Microsoft Copilot 提示"
   },
