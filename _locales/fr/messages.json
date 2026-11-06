@@ -541,14 +541,6 @@
     "message": "Chargement du contenu...",
     "description": "Placeholder text while preview loads"
   },
-  "decantPromoText": {
-    "message": "Vous souhaitez exporter des sites web sans IA ? Essayez",
-    "description": "Promo text for non-AI website export"
-  },
-  "decantPromoLink": {
-    "message": "Decant ↗",
-    "description": "Link text to try Decant website exporter"
-  },
   "copilotRedirectTitle": {
     "message": "Avis Microsoft Copilot"
   },

@@ -541,14 +541,6 @@
     "message": "सामग्री लोड हो रही है...",
     "description": "Placeholder text while preview loads"
   },
-  "decantPromoText": {
-    "message": "गैर-AI चैट वेबसाइटों को निर्यात करना चाहते हैं? आज़माएं",
-    "description": "Promo text for non-AI website export"
-  },
-  "decantPromoLink": {
-    "message": "Decant ↗",
-    "description": "Link text to try Decant website exporter"
-  },
   "copilotRedirectTitle": {
     "message": "माइक्रोसॉफ्ट कोपायलट सूचना"
   },

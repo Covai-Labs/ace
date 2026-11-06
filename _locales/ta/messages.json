@@ -541,14 +541,6 @@
     "message": "உள்ளடக்கம் ஏற்றப்படுகிறது...",
     "description": "Placeholder text while preview loads"
   },
-  "decantPromoText": {
-    "message": "AI அல்லாத இணையதளங்களை ஏற்றுமதி செய்ய வேண்டுமா? முயற்சித்துப் பார்க்கவும்",
-    "description": "Promo text for non-AI website export"
-  },
-  "decantPromoLink": {
-    "message": "Decant ↗",
-    "description": "Link text to try Decant website exporter"
-  },
   "copilotRedirectTitle": {
     "message": "மைக்ரோசாப்ட் கோபைலட் அறிவிப்பு"
   },
