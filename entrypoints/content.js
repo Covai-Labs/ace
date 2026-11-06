@@ -17,6 +17,7 @@ import {
   JoylandParser,
   ChubParser,
   GrokParser,
+  DuckAIParser,
   ArticleParser,
 } from 'decant-core';
 
@@ -205,6 +206,7 @@ export default defineContentScript({
       new JoylandParser(),
       new ChubParser(),
       new GrokParser(),
+      new DuckAIParser(),
       new ArticleParser(),
     ];
 
