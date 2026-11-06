@@ -280,10 +280,17 @@ export default defineContentScript({
       });
     }
 
-    function isCacheValid(requestedMode) {
+    function isCacheValid(requestedMode, requestedArticleEngine) {
       if (!parseCache || parseCache.dirty || !parseCache.report) return false;
       if (parseCache.url !== window.location.href) return false;
       if (requestedMode && parseCache.parserMode && parseCache.parserMode !== requestedMode) {
+        return false;
+      }
+      if (
+        requestedArticleEngine &&
+        parseCache.articleEngine &&
+        parseCache.articleEngine !== requestedArticleEngine
+      ) {
         return false;
       }
       const age = Date.now() - parseCache.timestamp;
@@ -390,11 +397,12 @@ export default defineContentScript({
           const queryId = request.queryId;
           const isForce = Boolean(request.force);
           const parserMode = request.parserMode || 'auto';
+          const articleEngine = request.articleEngine || 'auto';
 
           if (activeParser) {
             (async () => {
               try {
-                if (!isForce && isCacheValid(parserMode)) {
+                if (!isForce && isCacheValid(parserMode, articleEngine)) {
                   logger.debug('DISCOVER_FRAMES returning cached report');
                   chrome.runtime.sendMessage({
                     action: 'FRAME_REPORT',
@@ -405,7 +413,7 @@ export default defineContentScript({
                 }
 
                 const conversation = enrichConversation(
-                  await activeParser.parse({ full: false, parserMode }),
+                  await activeParser.parse({ full: false, parserMode, articleEngine }),
                 );
                 const count = conversation?.messages?.length || 0;
                 if (!currentFrameIsTop && count === 0) {
@@ -432,6 +440,7 @@ export default defineContentScript({
                   url: window.location.href,
                   timestamp: Date.now(),
                   parserMode,
+                  articleEngine,
                   report: reportData,
                   conversation,
                   dirty: false,
@@ -483,19 +492,22 @@ export default defineContentScript({
           setupDomObserver();
           const isForce = Boolean(request.force);
           const parserMode = request.parserMode || 'auto';
+          const articleEngine = request.articleEngine || 'auto';
 
           if (activeParser) {
             (async () => {
               try {
-                if (!isForce && isCacheValid(parserMode)) {
+                if (!isForce && isCacheValid(parserMode, articleEngine)) {
                   logger.debug('CHECK_AVAILABILITY returning cached report');
                   sendResponse(parseCache.report);
                   return;
                 }
 
-                logger.debug('Executing activeParser.parse({ full: false, parserMode })...');
+                logger.debug(
+                  'Executing activeParser.parse({ full: false, parserMode, articleEngine })...',
+                );
                 const conversation = enrichConversation(
-                  await activeParser.parse({ full: false, parserMode }),
+                  await activeParser.parse({ full: false, parserMode, articleEngine }),
                 );
                 const count = conversation?.messages?.length || 0;
                 logger.debug(
@@ -524,6 +536,7 @@ export default defineContentScript({
                   url: window.location.href,
                   timestamp: Date.now(),
                   parserMode,
+                  articleEngine,
                   report: responseData,
                   conversation,
                   dirty: false,
@@ -577,6 +590,7 @@ export default defineContentScript({
                 await activeParser.parse({
                   full: true,
                   parserMode: request.parserMode || 'auto',
+                  articleEngine: request.articleEngine || 'auto',
                   includeImages: request.includeImages !== false,
                 }),
               );
@@ -709,6 +723,7 @@ export default defineContentScript({
                 await activeParser.parse({
                   full: true,
                   parserMode: request.parserMode || 'auto',
+                  articleEngine: request.articleEngine || 'auto',
                   includeImages: request.includeImages !== false,
                 }),
               );
@@ -822,6 +837,7 @@ export default defineContentScript({
                 await activeParser.parse({
                   full: true,
                   parserMode: request.parserMode || 'auto',
+                  articleEngine: request.articleEngine || 'auto',
                   includeImages: request.includeImages !== false,
                 }),
               );

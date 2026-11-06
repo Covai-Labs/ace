@@ -79,17 +79,40 @@
             ⚠️ PNG export on long chats may take 1–2 minutes. Consider PDF or Markdown for instant
             export.
           </div>
-          <div id="unsupported-warning-banner" class="unsupported-warning-banner hidden">
-            <div class="warning-header">
-              <span class="warning-title">⚠️ Generic Web Article Extracted</span>
+          <div
+            id="unsupported-warning-banner"
+            class="web-article-banner unsupported-warning-banner hidden"
+          >
+            <div class="web-article-header">
+              <span class="web-article-title" data-i18n="webArticleModeTitle"
+                >📄 Web Article Mode</span
+              >
+              <div class="web-article-engine-wrapper">
+                <label
+                  for="article-engine-select-popup"
+                  class="engine-label"
+                  data-i18n="webArticleEngineLabel"
+                  >Engine:</label
+                >
+                <select id="article-engine-select-popup" class="engine-select">
+                  <option value="auto" data-i18n="webArticleEngineAuto">Auto (Best)</option>
+                  <option value="readability" data-i18n="webArticleEngineReadability">
+                    Readability
+                  </option>
+                  <option value="defuddle" data-i18n="webArticleEngineDefuddle">Defuddle</option>
+                </select>
+              </div>
             </div>
-            <p class="warning-desc">
-              No dedicated AI parser matched this URL. If this is an AI chat, extraction quality may
-              be limited.
-            </p>
-            <button id="request-support-btn" class="support-btn">
-              🙋 Request Platform Support ↗
-            </button>
+            <div class="web-article-footer">
+              <span data-i18n="webArticleNotArticle">Not an article?</span>
+              <a
+                href="#"
+                id="request-support-btn"
+                class="support-link"
+                data-i18n="webArticleRequestSupport"
+                >Request AI chat support ↗</a
+              >
+            </div>
           </div>
           <div class="checkbox-wrapper" id="image-toggle-container">
             <label class="checkbox-label">

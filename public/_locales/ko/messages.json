@@ -784,5 +784,53 @@
   "permissionDeniedToast": {
     "message": "Permission request was cancelled or denied.",
     "description": "Toast message shown when user cancels or denies an optional permission request"
+  },
+  "articleEngineLabel": {
+    "message": "웹 기사 추출 엔진",
+    "description": "Label for web article extraction engine select"
+  },
+  "articleEngineHelp": {
+    "message": "일반 웹페이지 및 기사를 스크랩할 때 사용할 추출 엔진을 설정합니다.",
+    "description": "Help text for web article extraction engine"
+  },
+  "articleEngineAuto": {
+    "message": "자동 (지능형 품질 점수 판별)",
+    "description": "Auto article engine option"
+  },
+  "articleEngineReadability": {
+    "message": "Mozilla Readability (일반 텍스트 및 뉴스용)",
+    "description": "Readability article engine option"
+  },
+  "articleEngineDefuddle": {
+    "message": "Defuddle (Markdown 및 코드 최적화)",
+    "description": "Defuddle article engine option"
+  },
+  "webArticleModeTitle": {
+    "message": "📄 웹 기사 모드",
+    "description": "Title in popup web article mode banner"
+  },
+  "webArticleEngineLabel": {
+    "message": "엔진:",
+    "description": "Engine label in popup web article mode banner"
+  },
+  "webArticleEngineAuto": {
+    "message": "자동 (최적)",
+    "description": "Auto engine option in popup banner"
+  },
+  "webArticleEngineReadability": {
+    "message": "Readability",
+    "description": "Readability engine option in popup banner"
+  },
+  "webArticleEngineDefuddle": {
+    "message": "Defuddle",
+    "description": "Defuddle engine option in popup banner"
+  },
+  "webArticleNotArticle": {
+    "message": "기사가 아닌가요?",
+    "description": "Question prompt in popup web article footer"
+  },
+  "webArticleRequestSupport": {
+    "message": "AI 채팅 지원 요청 ↗",
+    "description": "Link to request AI chat support for unsupported page"
   }
 }

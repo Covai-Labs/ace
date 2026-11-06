@@ -785,5 +785,53 @@
   "permissionDeniedToast": {
     "message": "Permission request was cancelled or denied.",
     "description": "Toast message shown when user cancels or denies an optional permission request"
+  },
+  "articleEngineLabel": {
+    "message": "வலைக் கட்டுரை பிரித்தெடுக்கும் இயந்திரம்",
+    "description": "Label for web article extraction engine select"
+  },
+  "articleEngineHelp": {
+    "message": "பொதுவான வலைப்பக்கங்கள் மற்றும் கட்டுரைகளைச் சேமிக்கும் போது பயன்படும் பிரித்தெடுக்கும் இயந்திரத்தைக் கட்டுப்படுத்துகிறது.",
+    "description": "Help text for web article extraction engine"
+  },
+  "articleEngineAuto": {
+    "message": "தானியங்கி (அறிவார்ந்த தர மதிப்பீட்டுத் தேர்வு)",
+    "description": "Auto article engine option"
+  },
+  "articleEngineReadability": {
+    "message": "Mozilla Readability (வழக்கமான உரை & செய்திகள்)",
+    "description": "Readability article engine option"
+  },
+  "articleEngineDefuddle": {
+    "message": "Defuddle (Markdown மற்றும் நிரல் குறியீட்டுக்கு உகந்தது)",
+    "description": "Defuddle article engine option"
+  },
+  "webArticleModeTitle": {
+    "message": "📄 வலைக் கட்டுரை பயன்முறை",
+    "description": "Title in popup web article mode banner"
+  },
+  "webArticleEngineLabel": {
+    "message": "இயந்திரம்:",
+    "description": "Engine label in popup web article mode banner"
+  },
+  "webArticleEngineAuto": {
+    "message": "தானியங்கி (சிறந்தது)",
+    "description": "Auto engine option in popup banner"
+  },
+  "webArticleEngineReadability": {
+    "message": "Readability",
+    "description": "Readability engine option in popup banner"
+  },
+  "webArticleEngineDefuddle": {
+    "message": "Defuddle",
+    "description": "Defuddle engine option in popup banner"
+  },
+  "webArticleNotArticle": {
+    "message": "இது கட்டுரையா இல்லையா?",
+    "description": "Question prompt in popup web article footer"
+  },
+  "webArticleRequestSupport": {
+    "message": "AI அரட்டை ஆதரவைக் கோரவும் ↗",
+    "description": "Link to request AI chat support for unsupported page"
   }
 }

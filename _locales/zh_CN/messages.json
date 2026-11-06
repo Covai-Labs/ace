@@ -756,5 +756,53 @@
   "openGithubIssue": {
     "message": "在 GitHub 上反馈",
     "description": "Button label for opening GitHub issues in options feedback section"
+  },
+  "articleEngineLabel": {
+    "message": "网页文章提取引擎",
+    "description": "Label for web article extraction engine select"
+  },
+  "articleEngineHelp": {
+    "message": "控制剪藏常规网页与文章时使用的正文提取引擎。",
+    "description": "Help text for web article extraction engine"
+  },
+  "articleEngineAuto": {
+    "message": "自动（智能质量评分仲裁）",
+    "description": "Auto article engine option"
+  },
+  "articleEngineReadability": {
+    "message": "Mozilla Readability（经典文章与新闻）",
+    "description": "Readability article engine option"
+  },
+  "articleEngineDefuddle": {
+    "message": "Defuddle（专为 Markdown 和代码优化）",
+    "description": "Defuddle article engine option"
+  },
+  "webArticleModeTitle": {
+    "message": "📄 网页文章模式",
+    "description": "Title in popup web article mode banner"
+  },
+  "webArticleEngineLabel": {
+    "message": "引擎：",
+    "description": "Engine label in popup web article mode banner"
+  },
+  "webArticleEngineAuto": {
+    "message": "自动（推荐）",
+    "description": "Auto engine option in popup banner"
+  },
+  "webArticleEngineReadability": {
+    "message": "Readability",
+    "description": "Readability engine option in popup banner"
+  },
+  "webArticleEngineDefuddle": {
+    "message": "Defuddle",
+    "description": "Defuddle engine option in popup banner"
+  },
+  "webArticleNotArticle": {
+    "message": "不是文章？",
+    "description": "Question prompt in popup web article footer"
+  },
+  "webArticleRequestSupport": {
+    "message": "请求 AI 对话支持 ↗",
+    "description": "Link to request AI chat support for unsupported page"
   }
 }

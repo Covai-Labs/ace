@@ -253,3 +253,31 @@ test('options scripts wire the includeAttachments storage setting', () => {
     assert.match(js, /defaultIncludeAttachments/);
   }
 });
+
+test('options HTML and scripts wire articleEngine setting', () => {
+  for (const file of ['options/options.html', 'entrypoints/options/index.html']) {
+    const html = fs.readFileSync(file, 'utf8');
+    assert.match(html, /id="article-engine-select"/);
+    assert.match(html, /data-i18n="articleEngineLabel"/);
+    assert.match(html, /data-i18n="articleEngineHelp"/);
+  }
+  for (const file of ['options/options.js', 'entrypoints/options/options.js']) {
+    const js = fs.readFileSync(file, 'utf8');
+    assert.match(js, /'articleEngine'/);
+    assert.match(js, /articleEngineSelect/);
+  }
+});
+
+test('popup HTML and scripts wire article-engine-select-popup and web article banner', () => {
+  for (const file of ['popup/popup.html', 'entrypoints/popup/index.html']) {
+    const html = fs.readFileSync(file, 'utf8');
+    assert.match(html, /id="article-engine-select-popup"/);
+    assert.match(html, /class="web-article-banner/);
+    assert.match(html, /data-i18n="webArticleModeTitle"/);
+  }
+  for (const file of ['popup/popup.js', 'entrypoints/popup/popup.js']) {
+    const js = fs.readFileSync(file, 'utf8');
+    assert.match(js, /article-engine-select-popup/);
+    assert.match(js, /articleEngine/);
+  }
+});

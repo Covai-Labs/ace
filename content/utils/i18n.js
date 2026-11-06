@@ -272,6 +272,36 @@ export function applyI18n(root = document) {
       }
     }
   });
+
+  // Article engine options inside select (options page)
+  root.querySelectorAll('select#article-engine-select option').forEach((opt) => {
+    const engineKey = {
+      auto: 'articleEngineAuto',
+      readability: 'articleEngineReadability',
+      defuddle: 'articleEngineDefuddle',
+    }[opt.value];
+    if (engineKey) {
+      const translation = t(engineKey);
+      if (translation && translation !== engineKey) {
+        opt.textContent = translation;
+      }
+    }
+  });
+
+  // Article engine options inside popup select
+  root.querySelectorAll('select#article-engine-select-popup option').forEach((opt) => {
+    const engineKey = {
+      auto: 'webArticleEngineAuto',
+      readability: 'webArticleEngineReadability',
+      defuddle: 'webArticleEngineDefuddle',
+    }[opt.value];
+    if (engineKey) {
+      const translation = t(engineKey);
+      if (translation && translation !== engineKey) {
+        opt.textContent = translation;
+      }
+    }
+  });
 }
 
 /**

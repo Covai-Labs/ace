@@ -57,6 +57,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const continueTargetSelect = document.getElementById('continue-target-select');
   const unsupportedBanner = document.getElementById('unsupported-warning-banner');
   const requestSupportBtn = document.getElementById('request-support-btn');
+  const articleEngineSelectPopup = document.getElementById('article-engine-select-popup');
   const previewableFormats = new Set(['markdown', 'text', 'json', 'html', 'doc', 'png', 'pdf']);
   const copyableFormats = new Set(['markdown', 'text', 'json', 'html']);
 
@@ -64,6 +65,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!unsupportedBanner) return;
     if (shouldShowUnsupportedWarning(report)) {
       unsupportedBanner.classList.remove('hidden');
+      if (articleEngineSelectPopup) {
+        articleEngineSelectPopup.value = storedSettings.articleEngine || 'auto';
+      }
       if (requestSupportBtn) {
         requestSupportBtn.onclick = (e) => {
           e.preventDefault();
@@ -74,6 +78,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
       unsupportedBanner.classList.add('hidden');
     }
+  }
+
+  if (articleEngineSelectPopup) {
+    articleEngineSelectPopup.addEventListener('change', async (e) => {
+      const selected = e.target.value;
+      storedSettings.articleEngine = selected;
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        await chrome.storage.sync.set({ articleEngine: selected });
+      }
+      await checkAvailability({ force: true, articleEngine: selected });
+    });
   }
 
   function setStatus(state, message) {
@@ -173,6 +188,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'filenameTemplate',
     'defaultTransferTarget',
     'parserMode',
+    'articleEngine',
   ]);
   applyTheme(storedSettings.theme || 'system');
 
@@ -191,12 +207,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (changes.filenameTemplate) {
           storedSettings.filenameTemplate = changes.filenameTemplate.newValue;
         }
+        if (changes.articleEngine) {
+          storedSettings.articleEngine = changes.articleEngine.newValue || 'auto';
+          if (articleEngineSelectPopup) {
+            articleEngineSelectPopup.value = storedSettings.articleEngine;
+          }
+        }
       }
     });
   }
 
   if (storedSettings.defaultFormat && formatSelect) {
     formatSelect.value = storedSettings.defaultFormat;
+  }
+  if (storedSettings.articleEngine && articleEngineSelectPopup) {
+    articleEngineSelectPopup.value = storedSettings.articleEngine;
   }
   if (storedSettings.includeImages !== undefined && includeImagesCheckbox) {
     includeImagesCheckbox.checked = storedSettings.includeImages;
@@ -314,6 +339,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           queryId,
           force: Boolean(options.force),
           parserMode: storedSettings.parserMode || 'auto',
+          articleEngine: options.articleEngine || storedSettings.articleEngine || 'auto',
         })
         .catch(() => {});
 
@@ -370,6 +396,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             action: 'CHECK_AVAILABILITY',
             force: isForce,
             parserMode: storedSettings.parserMode || 'auto',
+            articleEngine: options.articleEngine || storedSettings.articleEngine || 'auto',
           });
           if (response && response.available) {
             activeTargetFrameId =
@@ -535,6 +562,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           format: formatToRequest,
           includeImages: includeImagesCheckbox.checked,
           parserMode: storedSettings.parserMode || 'auto',
+          articleEngine: storedSettings.articleEngine || 'auto',
           theme: storedSettings.theme || 'system',
         });
 
@@ -574,6 +602,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           customFilename: customFilename,
           highQualityPng: pngQualityCheckbox ? pngQualityCheckbox.checked : true,
           parserMode: storedSettings.parserMode || 'auto',
+          articleEngine: storedSettings.articleEngine || 'auto',
           theme: storedSettings.theme || 'system',
         });
 
@@ -605,6 +634,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         action: 'COPY_CHAT',
         format: format,
         includeImages: includeImagesCheckbox.checked,
+        parserMode: storedSettings.parserMode || 'auto',
+        articleEngine: storedSettings.articleEngine || 'auto',
         theme: storedSettings.theme || 'system',
       });
 
@@ -658,6 +689,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         format: formatToRequest,
         includeImages: includeImagesCheckbox.checked,
         parserMode: storedSettings.parserMode || 'auto',
+        articleEngine: storedSettings.articleEngine || 'auto',
       });
 
       if (response && response.success) {
@@ -708,6 +740,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         const response = await sendTabMessage({
           action: 'GET_CONTINUATION_PAYLOAD',
           includeImages: includeImagesCheckbox.checked,
+          parserMode: storedSettings.parserMode || 'auto',
+          articleEngine: storedSettings.articleEngine || 'auto',
         });
 
         if (response && response.success && response.payload) {

@@ -317,6 +317,30 @@
                   Claude.</span
                 >
               </div>
+
+              <div class="field-group" style="margin-top: 16px">
+                <label
+                  for="article-engine-select"
+                  class="field-label"
+                  data-i18n="articleEngineLabel"
+                  >Web Article Extraction Engine</label
+                >
+                <select id="article-engine-select" class="select-input">
+                  <option value="auto" data-i18n="articleEngineAuto">
+                    Auto (Intelligent quality score arbitration)
+                  </option>
+                  <option value="readability" data-i18n="articleEngineReadability">
+                    Mozilla Readability (Classic prose & news)
+                  </option>
+                  <option value="defuddle" data-i18n="articleEngineDefuddle">
+                    Defuddle (Optimized for Markdown & code)
+                  </option>
+                </select>
+                <span class="field-help" data-i18n="articleEngineHelp"
+                  >Controls the extraction engine used when clipping generic web pages and
+                  articles.</span
+                >
+              </div>
             </div>
           </section>
 
