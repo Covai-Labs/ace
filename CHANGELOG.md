@@ -1,5 +1,22 @@
 # Changelog
 
+## [1.25.0](https://github.com/Covai-Labs/ace/compare/v1.24.0...v1.25.0) (2026-11-06)
+
+
+### Features
+
+* **article:** add web article extraction engine selection and modernize popup banner ([#174](https://github.com/Covai-Labs/ace/issues/174)) ([39124da](https://github.com/Covai-Labs/ace/commit/39124da6b799a05938f60ee045c383336e25d956))
+
+
+### Bug Fixes
+
+* **ci:** prevent shell injection from commit author metadata in sync-decant workflow ([#161](https://github.com/Covai-Labs/ace/issues/161)) ([5a2a653](https://github.com/Covai-Labs/ace/commit/5a2a653f271c1d2a7216b6e77c4bda12ca8f595a))
+* **decant-core:** harden parsers and utilities against ReDoS and nested complexity ([#165](https://github.com/Covai-Labs/ace/issues/165)) ([a477349](https://github.com/Covai-Labs/ace/commit/a4773497e8e578adc8f86d86f2ead28c2860aa55))
+* **duck-ai:** register DuckAIParser in content scripts and manifest ([#170](https://github.com/Covai-Labs/ace/issues/170)) ([#171](https://github.com/Covai-Labs/ace/issues/171)) ([ff3d343](https://github.com/Covai-Labs/ace/commit/ff3d343d6933127327b74ba9cdd513f3e511412c))
+* **formatters:** harden markdown regexes and tag stripping against ReDoS ([#166](https://github.com/Covai-Labs/ace/issues/166)) ([d7e2e05](https://github.com/Covai-Labs/ace/commit/d7e2e05d4bec2520ed296e0e75ba4ee170b7b5a1))
+* **security:** resolve image formatter XSS and test server path traversal ([#164](https://github.com/Covai-Labs/ace/issues/164)) ([1c44758](https://github.com/Covai-Labs/ace/commit/1c4475849c641252d81f0b4842eb3391081e8772))
+* **security:** resolve SARIF security vulnerabilities and privacy leaks ([#163](https://github.com/Covai-Labs/ace/issues/163)) ([37ca9ab](https://github.com/Covai-Labs/ace/commit/37ca9ab2b9b2249d7e98775f41e476f618eaf720))
+
 ## [1.24.0](https://github.com/Covai-Labs/ace/compare/v1.23.1...v1.24.0) (2026-10-26)
 
 
