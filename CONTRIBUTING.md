@@ -19,6 +19,18 @@ Check out our step-by-step guide with copy-paste prompts and a 1-line capture sc
 > [!WARNING]
 > **Privacy First:** Never include personal conversations, account credentials, passwords, or sensitive API keys. When capturing fixtures, use fresh non-personal test chats and sanitize network exports as described in the guide.
 
+## Translating & Localization
+
+You can help translate AI Chat Exporter into other languages without needing to write code or submit pull requests manually!
+
+We manage all translations via **[Weblate](https://hosted.weblate.org/projects/ace/)**.
+
+- Visit the [Weblate Translation Portal](https://hosted.weblate.org/engage/ace/).
+- Pick your language or request a new one.
+- Translate or review strings in your browser.
+- Please preserve all placeholders (e.g. `$1`, `$COUNT$`) and Markdown or LaTeX markers (`$$...$$`, `$...$`).
+- New and updated translations will automatically be synced back to the repository.
+
 ## Submitting Pull Requests
 
 Before submitting a Pull Request, please ensure your changes pass all local verification checks:
