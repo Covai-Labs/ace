@@ -14,6 +14,7 @@
 [![Firefox Users](https://img.shields.io/amo/users/ai-chat-export?logo=firefox-browser&logoColor=white&label=Firefox%20Users&color=orange)](https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/)
 
 [![GitHub Stars](https://img.shields.io/github/stars/Covai-Labs/ace?logo=github&logoColor=white&color=yellow&label=Stars)](https://github.com/Covai-Labs/ace/stargazers)
+[![Translation status](https://hosted.weblate.org/widgets/ace/-/ace/svg-badge.svg)](https://hosted.weblate.org/engage/ace/)
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub_Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/deadrat-in)
 
 [Quick Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#key-features) • [Chat Continuation](#cross-model-chat-continuation) • [Sponsor](#-back-independent-development)
@@ -169,6 +170,14 @@ Platform web layouts evolve frequently. If an exporter encounters issues on a mo
 
 1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues) or open a new one with the platform name and DOM context.
 2. Submit a Pull Request following the [Contribution Guidelines](CONTRIBUTING.md).
+
+### 🌐 Translations & Localization
+
+Help translate AI Chat Exporter into your language! All translations are managed through [Weblate](https://hosted.weblate.org/projects/ace/):
+
+[![Translation status](https://hosted.weblate.org/widgets/ace/-/ace/horizontal-auto.svg)](https://hosted.weblate.org/engage/ace/)
+
+You can contribute translations directly in your browser without writing code or submitting PRs manually. See [Translating & Localization](CONTRIBUTING.md#translating--localization).
 
 ---
 
