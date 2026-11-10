@@ -16,6 +16,9 @@ If you use an AI chat platform that ACE doesn't support yet (or if a supported p
 Check out our step-by-step guide with copy-paste prompts and a 1-line capture script:
 👉 **[How to Contribute AI Platform Test Fixtures (No Coding Required!)](https://github.com/Covai-Labs/ace/discussions/182)**
 
+> [!WARNING]
+> **Privacy First:** Never include personal conversations, account credentials, passwords, or sensitive API keys. When capturing fixtures, use fresh non-personal test chats and sanitize network exports as described in the guide.
+
 ## Submitting Pull Requests
 
 Before submitting a Pull Request, please ensure your changes pass all local verification checks:

@@ -67,7 +67,7 @@ The official documentation and guide site is located in `web/` and built with [A
 - **Platform Metadata (`web/src/data/platform-details.ts`)**: Defines platform-specific copy, key features, and tailored FAQs.
 - **Guides Index (`web/src/data/guides.ts`)**: Feeds `guides.html` with links to every platform guide and export format walkthrough.
 - **Local Dev**: Run `cd web && npm run dev` to start the Astro development server at `http://localhost:4321`.
-- **Static Build**: Run `cd web && npm run build` to compile the static site into `docs/`.
+- **Static Build**: Run `cd web && npm run build` to compile the static site into `web/dist/`.
 
 ## Project Structure
 
@@ -85,7 +85,7 @@ The official documentation and guide site is located in `web/` and built with [A
 ├── tests/                # Node test suite + DOM fixtures
 ├── public/               # Static assets copied into the build
 ├── wxt.config.ts         # WXT extension configuration
-└── web/                  # Marketing site source (Astro, deploys to docs/)
+└── web/                  # Marketing site source (Astro, builds to web/dist/)
 ```
 
 For general information about the extension, installation, and usage, see [README.md](./README.md).
