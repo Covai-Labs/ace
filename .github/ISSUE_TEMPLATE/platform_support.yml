@@ -9,6 +9,8 @@ body:
       value: |
         Use this form to request support for a new AI platform or report changes to an existing platform that require parser updates.
 
+        **Help us add this platform faster:** You can capture and submit sample test fixtures (HTML + HAR) without writing any code. See the [Platform Fixtures Guide](https://github.com/Covai-Labs/ace/discussions/182) for copy-paste test prompts and capture instructions.
+
         **Privacy Warning:** Please do NOT include private conversations, personal data, API keys, credentials, or sensitive tokens.
 
   - type: dropdown

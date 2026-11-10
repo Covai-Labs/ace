@@ -9,7 +9,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build && prettier --write ../docs",
+    "build": "astro build && prettier --write ./dist",
     "preview": "astro preview"
   },
   "dependencies": {
