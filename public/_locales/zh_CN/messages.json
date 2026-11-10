@@ -832,5 +832,33 @@
   "webArticleRequestSupport": {
     "message": "请求 AI 对话支持 ↗",
     "description": "Link to request AI chat support for unsupported page"
+  },
+  "contextMenuParent": {
+    "message": "导出 AI 对话",
+    "description": "Parent context menu item title"
+  },
+  "contextMenuCopyMarkdown": {
+    "message": "复制 Markdown",
+    "description": "Context menu item to copy conversation in markdown format"
+  },
+  "contextMenuDownloadMarkdown": {
+    "message": "下载 Markdown",
+    "description": "Context menu item to download conversation as a markdown file"
+  },
+  "contextMenuOpenPreview": {
+    "message": "在预览标签页中打开",
+    "description": "Context menu item to open conversation in preview tab"
+  },
+  "contextMenuSendToAI": {
+    "message": "发送至 AI",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

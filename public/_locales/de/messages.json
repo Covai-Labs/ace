@@ -832,5 +832,33 @@
   "webArticleRequestSupport": {
     "message": "AI-Chat-Unterstützung anfordern ↗",
     "description": "Link to request AI chat support for unsupported page"
+  },
+  "contextMenuParent": {
+    "message": "KI-Chat exportieren",
+    "description": "Parent context menu item title"
+  },
+  "contextMenuCopyMarkdown": {
+    "message": "Markdown kopieren",
+    "description": "Context menu item to copy conversation in markdown format"
+  },
+  "contextMenuDownloadMarkdown": {
+    "message": "Markdown herunterladen",
+    "description": "Context menu item to download conversation as a markdown file"
+  },
+  "contextMenuOpenPreview": {
+    "message": "Im Vorschau-Tab öffnen",
+    "description": "Context menu item to open conversation in preview tab"
+  },
+  "contextMenuSendToAI": {
+    "message": "An KI senden",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

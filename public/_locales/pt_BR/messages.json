@@ -832,5 +832,33 @@
   "webArticleRequestSupport": {
     "message": "Solicitar suporte a chat de IA ↗",
     "description": "Link to request AI chat support for unsupported page"
+  },
+  "contextMenuParent": {
+    "message": "Exportar conversa de IA",
+    "description": "Parent context menu item title"
+  },
+  "contextMenuCopyMarkdown": {
+    "message": "Copiar Markdown",
+    "description": "Context menu item to copy conversation in markdown format"
+  },
+  "contextMenuDownloadMarkdown": {
+    "message": "Baixar Markdown",
+    "description": "Context menu item to download conversation as a markdown file"
+  },
+  "contextMenuOpenPreview": {
+    "message": "Abrir na aba de pré-visualização",
+    "description": "Context menu item to open conversation in preview tab"
+  },
+  "contextMenuSendToAI": {
+    "message": "Enviar para IA",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }

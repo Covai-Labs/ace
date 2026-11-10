@@ -833,5 +833,33 @@
   "webArticleRequestSupport": {
     "message": "AI அரட்டை ஆதரவைக் கோரவும் ↗",
     "description": "Link to request AI chat support for unsupported page"
+  },
+  "contextMenuParent": {
+    "message": "AI உரையாடலை ஏற்றுமதி செய்",
+    "description": "Parent context menu item title"
+  },
+  "contextMenuCopyMarkdown": {
+    "message": "Markdown-ஐ நகலெடு",
+    "description": "Context menu item to copy conversation in markdown format"
+  },
+  "contextMenuDownloadMarkdown": {
+    "message": "Markdown-ஐ பதிவிறக்கு",
+    "description": "Context menu item to download conversation as a markdown file"
+  },
+  "contextMenuOpenPreview": {
+    "message": "முன்னோட்ட கீற்றில் திற",
+    "description": "Context menu item to open conversation in preview tab"
+  },
+  "contextMenuSendToAI": {
+    "message": "AIக்கு அனுப்புக",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Include thinking process in exported chats",
+    "description": "Label for default include thinking checkbox"
   }
 }
