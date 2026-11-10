@@ -129,7 +129,5 @@ test('preview requests fetch the conversation with attachments so the preview to
   const count = (file) =>
     (fs.readFileSync(file, 'utf8').match(/includeAttachments: true,/g) || []).length;
   assert.equal(count('entrypoints/popup/popup.js'), 2);
-  assert.equal(count('popup/popup.js'), 2);
   assert.equal(count('entrypoints/background.js'), 1);
-  assert.equal(count('background/background.js'), 1);
 });

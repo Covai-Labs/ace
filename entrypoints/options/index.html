@@ -46,6 +46,10 @@
               <span class="nav-icon">⌨️</span>
               <span class="nav-label" data-i18n="shortcutsSectionTitle">Shortcuts</span>
             </a>
+            <a href="#section-permissions" class="nav-item" id="nav-permissions">
+              <span class="nav-icon">🛡️</span>
+              <span class="nav-label" data-i18n="permissionsSectionTitle">Permissions</span>
+            </a>
             <a href="#feedback-section" class="nav-item" id="nav-feedback">
               <span class="nav-icon">💬</span>
               <span class="nav-label" data-i18n="feedbackTitle">Feedback</span>
@@ -576,6 +580,136 @@
                       "
                     >
                       <span data-i18n="copyAboutAddons">Copy about:addons</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Section 4.6: Optional Permissions -->
+          <section class="card" id="section-permissions">
+            <div class="card-header">
+              <span class="card-icon">🛡️</span>
+              <h2 data-i18n="permissionsSectionTitle">Permissions &amp; Privacy</h2>
+            </div>
+            <div class="card-body">
+              <span
+                class="field-help"
+                data-i18n="permissionsSectionHelp"
+                style="margin-bottom: 16px; display: block"
+              >
+                ACE follows a strict least-privilege approach. Certain features require optional
+                browser permissions that you can grant or revoke at any time.
+              </span>
+
+              <div class="permission-rows" style="display: flex; flex-direction: column; gap: 12px">
+                <!-- Downloads Permission Row -->
+                <div
+                  class="permission-row"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 10px 14px;
+                    border: 1px solid var(--border-color, #334155);
+                    border-radius: 8px;
+                    background: var(--bg-tertiary, #1e293b);
+                  "
+                >
+                  <div style="flex: 1; margin-right: 12px">
+                    <div
+                      style="font-weight: 500; font-size: 13px"
+                      data-i18n="permissionsDownloadsTitle"
+                    >
+                      Downloads Permission
+                    </div>
+                    <div
+                      style="
+                        font-size: 11px;
+                        color: var(--text-secondary, #94a3b8);
+                        margin-top: 2px;
+                      "
+                      data-i18n="permissionsDownloadsDesc"
+                    >
+                      Required for batch exporting multiple open tabs into a ZIP archive or merged
+                      markdown file. Single-chat exports work without this.
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span
+                      id="perm-downloads-status"
+                      style="
+                        font-size: 12px;
+                        font-weight: 500;
+                        color: var(--text-secondary, #94a3b8);
+                      "
+                      data-i18n="permissionNotGranted"
+                    >
+                      Not granted
+                    </span>
+                    <button
+                      id="perm-downloads-toggle"
+                      class="secondary-btn"
+                      style="padding: 4px 12px; font-size: 12px"
+                      data-i18n="permissionGrant"
+                    >
+                      Grant
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Clipboard Write Permission Row -->
+                <div
+                  class="permission-row"
+                  style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    padding: 10px 14px;
+                    border: 1px solid var(--border-color, #334155);
+                    border-radius: 8px;
+                    background: var(--bg-tertiary, #1e293b);
+                  "
+                >
+                  <div style="flex: 1; margin-right: 12px">
+                    <div
+                      style="font-weight: 500; font-size: 13px"
+                      data-i18n="permissionsClipboardTitle"
+                    >
+                      Clipboard Write Permission
+                    </div>
+                    <div
+                      style="
+                        font-size: 11px;
+                        color: var(--text-secondary, #94a3b8);
+                        margin-top: 2px;
+                      "
+                      data-i18n="permissionsClipboardDesc"
+                    >
+                      Allows copying prompts to your clipboard when continuing conversations to
+                      target AI platforms.
+                    </div>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 10px">
+                    <span
+                      id="perm-clipboard-status"
+                      style="
+                        font-size: 12px;
+                        font-weight: 500;
+                        color: var(--text-secondary, #94a3b8);
+                      "
+                      data-i18n="permissionNotGranted"
+                    >
+                      Not granted
+                    </span>
+                    <button
+                      id="perm-clipboard-toggle"
+                      class="secondary-btn"
+                      style="padding: 4px 12px; font-size: 12px"
+                      data-i18n="permissionGrant"
+                    >
+                      Grant
                     </button>
                   </div>
                 </div>

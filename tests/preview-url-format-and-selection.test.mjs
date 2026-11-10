@@ -5,9 +5,6 @@ import assert from 'node:assert/strict';
 const previewHtml = fs.readFileSync('entrypoints/preview/index.html', 'utf8');
 const previewJs = fs.readFileSync('entrypoints/preview/preview.js', 'utf8');
 const previewCss = fs.readFileSync('entrypoints/preview/preview.css', 'utf8');
-const popupPreviewHtml = fs.readFileSync('popup/preview.html', 'utf8');
-const popupPreviewJs = fs.readFileSync('popup/preview.js', 'utf8');
-const popupPreviewCss = fs.readFileSync('popup/preview.css', 'utf8');
 const messagesJson = JSON.parse(fs.readFileSync('public/_locales/en/messages.json', 'utf8'));
 
 test('preview html includes explicit favicon link tags for webextension tab rendering', () => {
@@ -20,10 +17,6 @@ test('preview html includes explicit favicon link tags for webextension tab rend
     /<link rel="icon" type="image\/png" sizes="16x16" href="\/icons\/favicon-16x16\.png"/,
   );
   assert.match(previewHtml, /<link rel="shortcut icon" href="\/icons\/favicon\.ico"/);
-  assert.match(
-    popupPreviewHtml,
-    /<link rel="icon" type="image\/png" sizes="32x32" href="\/icons\/favicon-32x32\.png"/,
-  );
 });
 
 test('preview drawer includes All, Prompts, Responses, and None selection buttons', () => {
@@ -49,7 +42,6 @@ test('preview layout configures side-by-side flex row layout with min-width 0', 
   assert.match(previewCss, /\.preview-main\s*\{[^}]*flex-direction:\s*row;/);
   assert.match(previewCss, /\.code-wrapper\s*\{[^}]*min-width:\s*0;/);
   assert.match(previewCss, /\.render-wrapper\s*\{[^}]*min-width:\s*0;/);
-  assert.match(popupPreviewCss, /\.preview-main\s*\{[^}]*flex-direction:\s*row;/);
 });
 
 test('preview script parses URL export_format parameter and synchronizes on tab switch', () => {
@@ -60,21 +52,10 @@ test('preview script parses URL export_format parameter and synchronizes on tab 
   assert.match(previewJs, /history\.replaceState/);
 });
 
-test('popup preview script parses URL export_format parameter and synchronizes on tab switch', () => {
-  assert.match(popupPreviewJs, /mapTabToFormatParam/);
-  assert.match(popupPreviewJs, /mapFormatParamToTab/);
-  assert.match(popupPreviewJs, /syncUrlFormat/);
-  assert.match(popupPreviewJs, /searchParams\.get\(['"]export_format['"]\)/);
-  assert.match(popupPreviewJs, /history\.replaceState/);
-});
-
 test('preview HTML and scripts wire plain text tab and format mappings', () => {
   assert.match(previewHtml, /data-tab="text"/);
-  assert.match(popupPreviewHtml, /data-tab="text"/);
   assert.match(previewJs, /case 'text':\s*return 'text';/);
-  assert.match(popupPreviewJs, /case 'text':\s*return 'text';/);
   assert.match(previewJs, /p === 'txt' \|\| p === 'text'/);
-  assert.match(popupPreviewJs, /p === 'txt' \|\| p === 'text'/);
   assert.equal(messagesJson.textTab.message, '📄 Plain Text');
   assert.equal(messagesJson.downloadPlainText.message, 'Download Plain Text');
   assert.equal(messagesJson.formatText.message, '📄 Plain Text (.txt)');

@@ -7,11 +7,11 @@ import {
   buildAppUri,
 } from '../content/utils/uri-transfer.js';
 
-const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
-const previewHtml = fs.readFileSync('popup/preview.html', 'utf8');
-const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
-const optionsJs = fs.readFileSync('options/options.js', 'utf8');
-const backgroundJs = fs.readFileSync('background/background.js', 'utf8');
+const popupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
+const previewHtml = fs.readFileSync('entrypoints/preview/index.html', 'utf8');
+const optionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+const optionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+const backgroundJs = fs.readFileSync('entrypoints/background.js', 'utf8');
 
 test('cleanObsidianTitle strips invalid filename and Obsidian reserved characters', () => {
   assert.equal(

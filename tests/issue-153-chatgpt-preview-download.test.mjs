@@ -59,8 +59,6 @@ test('Issue #153: Content and preview scripts defer URL.revokeObjectURL to avoid
     path.join(__dirname, '../entrypoints/preview/preview.js'),
     'utf8',
   );
-  const mainContentSrc = fs.readFileSync(path.join(__dirname, '../content/main.js'), 'utf8');
-  const popupPreviewSrc = fs.readFileSync(path.join(__dirname, '../popup/preview.js'), 'utf8');
 
   // Verify that immediate URL.revokeObjectURL(url) is NOT called right after click/removeChild
   const immediatePattern = /document\.body\.removeChild\([^)]+\);\s*URL\.revokeObjectURL\(/;
@@ -71,14 +69,6 @@ test('Issue #153: Content and preview scripts defer URL.revokeObjectURL to avoid
   assert.ok(
     !immediatePattern.test(previewSrc),
     'entrypoints/preview/preview.js should not immediately revoke ObjectURL',
-  );
-  assert.ok(
-    !immediatePattern.test(mainContentSrc),
-    'content/main.js should not immediately revoke ObjectURL',
-  );
-  assert.ok(
-    !immediatePattern.test(popupPreviewSrc),
-    'popup/preview.js should not immediately revoke ObjectURL',
   );
 
   // Verify deferred timeout pattern is present

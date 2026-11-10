@@ -15,16 +15,13 @@ test('package.json version is valid SemVer string', () => {
   );
 });
 
-test('manifest.json does not hardcode version', () => {
+test('legacy root manifest.json is not present (WXT generates manifests dynamically)', () => {
   const manifestPath = path.resolve('manifest.json');
-  if (fs.existsSync(manifestPath)) {
-    const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
-    assert.strictEqual(
-      manifest.version,
-      undefined,
-      'manifest.json should not hardcode version so WXT inherits it dynamically from package.json',
-    );
-  }
+  assert.strictEqual(
+    fs.existsSync(manifestPath),
+    false,
+    'manifest.json should not exist in root; WXT generates manifests dynamically from wxt.config.ts and package.json',
+  );
 });
 
 test('built extension manifests match package.json version if built', () => {

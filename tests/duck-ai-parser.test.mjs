@@ -59,17 +59,3 @@ test('entrypoints/content.js imports and registers DuckAIParser', () => {
     'content.js must instantiate DuckAIParser in parsers array',
   );
 });
-
-test('content/main.js imports and registers DuckAIParser', () => {
-  const mainCode = fs.readFileSync(path.join(__dirname, '../content/main.js'), 'utf8');
-  assert.match(
-    mainCode,
-    /\bDuckAIParser\b/,
-    'content/main.js must import DuckAIParser from decant-core',
-  );
-  assert.match(
-    mainCode,
-    /const\s+parsers\s*=\s*\[[\s\S]*?new\s+DuckAIParser\(\)[\s\S]*?\]/,
-    'content/main.js must instantiate DuckAIParser in parsers array',
-  );
-});

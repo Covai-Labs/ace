@@ -2,13 +2,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import test from 'node:test';
 
-const mainJs = fs.readFileSync('content/main.js', 'utf8');
-const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
+const contentJs = fs.readFileSync('entrypoints/content.js', 'utf8');
+const popupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
 const wxtConfig = fs.readFileSync('wxt.config.ts', 'utf8');
 
 test('content script registers the JSON formatter', () => {
-  assert.match(mainJs, /import \{ JsonFormatter \} from '\.\/formatters\/json\.js';/);
-  assert.match(mainJs, /json: new JsonFormatter\(/);
+  assert.match(contentJs, /import \{ JsonFormatter \} from '\.\.\/content\/formatters\/json\.js';/);
+  assert.match(contentJs, /json: new JsonFormatter\(/);
 });
 
 test('popup enables JSON exports', () => {

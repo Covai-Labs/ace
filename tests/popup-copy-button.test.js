@@ -2,8 +2,8 @@ import fs from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
-const popupJs = fs.readFileSync('popup/popup.js', 'utf8');
+const popupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
+const popupJs = fs.readFileSync('entrypoints/popup/popup.js', 'utf8');
 
 test('popup includes a copy button next to export', () => {
   assert.match(popupHtml, /id="copy-btn"/);
@@ -32,7 +32,7 @@ test('popup includes an open in tab button', () => {
 
 test('preview button triggers local storage and opens preview.html tab', () => {
   assert.match(popupJs, /chrome\.storage\.local\.set/);
-  assert.match(popupJs, /url:\s*chrome\.runtime\.getURL\(\s*["']popup\/preview\.html["']\s*\)/);
+  assert.match(popupJs, /url:\s*chrome\.runtime\.getURL\(\s*["']preview\.html["']\s*\)/);
 });
 
 test('popup includes a custom filename input field', () => {
