@@ -4,8 +4,17 @@ Thank you for your interest in contributing to AI Chat Exporter! I welcome bug r
 
 ## Getting Started
 
-1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues) and [Pull Requests](https://github.com/Covai-Labs/ace/pulls) before submitting new ones to avoid duplicates.
+1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues), [Pull Requests](https://github.com/Covai-Labs/ace/pulls), and [Discussions](https://github.com/Covai-Labs/ace/discussions) before submitting new ones to avoid duplicates.
 2. For local setup, prerequisites, build steps, and codebase architecture, refer to the [Development Guide](DEVELOPMENT.md).
+
+## Contributing Without Code: Requesting & Adding New Platforms
+
+You don't need to write code to help us support new AI platforms!
+
+If you use an AI chat platform that ACE doesn't support yet (or if a supported platform changed its layout), you can contribute by capturing and providing test fixtures (a 5-turn chat HTML and HAR log).
+
+Check out our step-by-step guide with copy-paste prompts and a 1-line capture script:
+👉 **[How to Contribute AI Platform Test Fixtures (No Coding Required!)](https://github.com/Covai-Labs/ace/discussions/182)**
 
 ## Submitting Pull Requests
 

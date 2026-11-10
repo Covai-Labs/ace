@@ -16,7 +16,8 @@ web-ext-artifacts/
 *.xpi
 
 # Site build output (generated from web/ by CI)
-docs/
+web/dist/
+packages/decant-core/docs/
 
 # Environment & local configurations
 .env

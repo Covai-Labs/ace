@@ -5,7 +5,7 @@ import sitemap from '@astrojs/sitemap';
 export default defineConfig({
   site: 'https://ace.covai.org',
   integrations: [sitemap()],
-  outDir: '../docs',
+  outDir: './dist',
   build: {
     format: 'file',
     inlineStylesheets: 'always',
