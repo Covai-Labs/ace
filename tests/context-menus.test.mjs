@@ -62,34 +62,25 @@ test('entrypoints/background.js sets up context menus with documentUrlPatterns a
   assert.match(bg, /chrome\.contextMenus\.onClicked\.addListener/);
 });
 
-test('background scripts query GET_CURRENT_SELECTION fallback and support COPY_TO_CLIPBOARD', () => {
+test('background script queries GET_CURRENT_SELECTION fallback and supports COPY_TO_CLIPBOARD', () => {
   const bgEntry = fs.readFileSync('entrypoints/background.js', 'utf8');
-  const bgClassic = fs.readFileSync('background/background.js', 'utf8');
 
-  for (const bg of [bgEntry, bgClassic]) {
-    assert.match(bg, /GET_CURRENT_SELECTION/);
-    assert.match(bg, /COPY_TO_CLIPBOARD/);
-    assert.match(bg, /transferCopyToClipboard/);
-  }
+  assert.match(bgEntry, /GET_CURRENT_SELECTION/);
+  assert.match(bgEntry, /COPY_TO_CLIPBOARD/);
+  assert.match(bgEntry, /transferCopyToClipboard/);
 });
 
-test('content scripts handle GET_CURRENT_SELECTION and COPY_TO_CLIPBOARD', () => {
+test('content script handles GET_CURRENT_SELECTION and COPY_TO_CLIPBOARD', () => {
   const contentEntry = fs.readFileSync('entrypoints/content.js', 'utf8');
-  const contentClassic = fs.readFileSync('content/main.js', 'utf8');
 
-  for (const content of [contentEntry, contentClassic]) {
-    assert.match(content, /request\.action === 'GET_CURRENT_SELECTION'/);
-    assert.match(content, /request\.action === 'COPY_TO_CLIPBOARD'/);
-  }
+  assert.match(contentEntry, /request\.action === 'GET_CURRENT_SELECTION'/);
+  assert.match(contentEntry, /request\.action === 'COPY_TO_CLIPBOARD'/);
 });
 
-test('background scripts check showContextMenu preference and listen for storage changes', () => {
+test('background script checks showContextMenu preference and listens for storage changes', () => {
   const bgEntry = fs.readFileSync('entrypoints/background.js', 'utf8');
-  const bgClassic = fs.readFileSync('background/background.js', 'utf8');
 
-  for (const bg of [bgEntry, bgClassic]) {
-    assert.match(bg, /showContextMenu/);
-    assert.match(bg, /chrome\.storage\.sync\.get\(['"]showContextMenu['"]\)/);
-    assert.match(bg, /chrome\.storage\.onChanged\.addListener/);
-  }
+  assert.match(bgEntry, /showContextMenu/);
+  assert.match(bgEntry, /chrome\.storage\.sync\.get\(['"]showContextMenu['"]\)/);
+  assert.match(bgEntry, /chrome\.storage\.onChanged\.addListener/);
 });

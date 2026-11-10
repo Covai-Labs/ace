@@ -2,9 +2,9 @@ import fs from 'node:fs';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 
-const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
-const popupJs = fs.readFileSync('popup/popup.js', 'utf8');
-const backgroundJs = fs.readFileSync('background/background.js', 'utf8');
+const popupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
+const popupJs = fs.readFileSync('entrypoints/popup/popup.js', 'utf8');
+const backgroundJs = fs.readFileSync('entrypoints/background.js', 'utf8');
 
 test('popup includes transfer section and continue button', () => {
   assert.match(popupHtml, /id="continue-target-select"/);

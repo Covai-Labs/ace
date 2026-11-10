@@ -135,19 +135,16 @@ test('HtmlFormatter uses only explicit numbering in the table of contents when e
 });
 
 test('options pages wire messageNumbering storage setting', () => {
-  for (const htmlPath of ['options/options.html', 'entrypoints/options/index.html']) {
-    const html = fs.readFileSync(htmlPath, 'utf8');
-    assert.match(html, /id="message-numbering-select"/);
-  }
-  for (const jsPath of ['options/options.js', 'entrypoints/options/options.js']) {
-    const js = fs.readFileSync(jsPath, 'utf8');
-    assert.match(js, /'messageNumbering'/);
-    assert.match(js, /messageNumberingSelect/);
-    assert.match(
-      js,
-      /messageNumberingSelect\.value = normalizeMessageNumbering\(stored\.messageNumbering\)/,
-    );
-  }
+  const html = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+  assert.match(html, /id="message-numbering-select"/);
+
+  const js = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+  assert.match(js, /'messageNumbering'/);
+  assert.match(js, /messageNumberingSelect/);
+  assert.match(
+    js,
+    /messageNumberingSelect\.value = normalizeMessageNumbering\(stored\.messageNumbering\)/,
+  );
 });
 
 test('ImageFormatter numbers screenshot headers when enabled', () => {
@@ -167,44 +164,19 @@ test('ImageFormatter numbers screenshot headers when enabled', () => {
   assert.ok(!plain.innerHTML.includes('User [1]'));
 });
 
-test('preview pages load and forward messageNumbering/exportOptions to formatters', () => {
-  for (const previewPath of ['entrypoints/preview/preview.js', 'popup/preview.js']) {
-    const js = fs.readFileSync(previewPath, 'utf8');
-    assert.match(
-      js,
-      /'messageNumbering'|getExportOptions/,
-      `${previewPath} should read the export setting`,
-    );
-    assert.match(
-      js,
-      /markdownFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
-      `${previewPath} should forward numbering to Markdown`,
-    );
-    assert.match(
-      js,
-      /htmlFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
-      `${previewPath} should forward numbering to HTML`,
-    );
-    assert.match(
-      js,
-      /docFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
-      `${previewPath} should forward numbering to Word`,
-    );
-    assert.match(
-      js,
-      /imageFormatter\.format\(.*(?:messageNumbering|exportOptions)/s,
-      `${previewPath} should forward numbering to PNG`,
-    );
-  }
+test('preview page loads and forwards messageNumbering/exportOptions to formatters', () => {
+  const js = fs.readFileSync('entrypoints/preview/preview.js', 'utf8');
+  assert.match(js, /'messageNumbering'|getExportOptions/);
+  assert.match(js, /markdownFormatter\.format\(.*(?:messageNumbering|exportOptions)/s);
+  assert.match(js, /htmlFormatter\.format\(.*(?:messageNumbering|exportOptions)/s);
+  assert.match(js, /docFormatter\.format\(.*(?:messageNumbering|exportOptions)/s);
+  assert.match(js, /imageFormatter\.format\(.*(?:messageNumbering|exportOptions)/s);
 });
 
-test('preview scripts invoke recalculateContent on live export option changes', () => {
-  for (const previewPath of ['entrypoints/preview/preview.js', 'popup/preview.js']) {
-    const js = fs.readFileSync(previewPath, 'utf8');
-    assert.match(
-      js,
-      /chrome\.storage\.onChanged\.addListener\([^)]*\)\s*=>\s*\{[\s\S]*?applyExportOptionChanges\(exportOptions,\s*changes\)[\s\S]*?recalculateContent\(\)[\s\S]*?\}\);/,
-      `${previewPath} should recalculate content within the storage change listener`,
-    );
-  }
+test('preview script invokes recalculateContent on live export option changes', () => {
+  const js = fs.readFileSync('entrypoints/preview/preview.js', 'utf8');
+  assert.match(
+    js,
+    /chrome\.storage\.onChanged\.addListener\([^)]*\)\s*=>\s*\{[\s\S]*?applyExportOptionChanges\(exportOptions,\s*changes\)[\s\S]*?recalculateContent\(\)[\s\S]*?\}\);/,
+  );
 });

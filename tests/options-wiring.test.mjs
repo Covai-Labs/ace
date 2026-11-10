@@ -122,74 +122,50 @@ test('transferCopyToClipboard defaults to false in options system', () => {
   assert.equal(defaultOptions.transferCopyToClipboard, false);
 });
 
-test('options HTML pages define transfer-copy-clipboard-checkbox', () => {
-  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+test('options HTML page defines transfer-copy-clipboard-checkbox', () => {
   const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
 
-  assert.match(optionsHtml, /id="transfer-copy-clipboard-checkbox"/);
-  assert.match(optionsHtml, /data-i18n="transferCopyClipboardLabel"/);
   assert.match(entrypointsOptionsHtml, /id="transfer-copy-clipboard-checkbox"/);
   assert.match(entrypointsOptionsHtml, /data-i18n="transferCopyClipboardLabel"/);
 });
 
-test('options scripts wire transferCopyToClipboard storage setting', () => {
-  const optionsJs = fs.readFileSync('options/options.js', 'utf8');
+test('options script wires transferCopyToClipboard storage setting', () => {
   const entrypointsOptionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
 
-  assert.match(optionsJs, /'transferCopyToClipboard'/);
-  assert.match(optionsJs, /transferCopyClipboardCheckbox/);
   assert.match(entrypointsOptionsJs, /'transferCopyToClipboard'/);
   assert.match(entrypointsOptionsJs, /transferCopyClipboardCheckbox/);
 });
 
-test('options HTML pages define default-include-thinking checkbox', () => {
-  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+test('options HTML page defines default-include-thinking checkbox', () => {
   const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
 
-  assert.match(optionsHtml, /id="default-include-thinking"/);
-  assert.match(optionsHtml, /data-i18n="includeThinkingDefault"/);
   assert.match(entrypointsOptionsHtml, /id="default-include-thinking"/);
   assert.match(entrypointsOptionsHtml, /data-i18n="includeThinkingDefault"/);
 });
 
-test('options scripts wire includeThinking storage setting', () => {
-  const optionsJs = fs.readFileSync('options/options.js', 'utf8');
+test('options script wires includeThinking storage setting', () => {
   const entrypointsOptionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
 
-  assert.match(optionsJs, /'includeThinking'/);
-  assert.match(optionsJs, /defaultIncludeThinking/);
   assert.match(entrypointsOptionsJs, /'includeThinking'/);
   assert.match(entrypointsOptionsJs, /defaultIncludeThinking/);
 });
 
-test('options HTML pages define show-context-menu-checkbox', () => {
-  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+test('options HTML page defines show-context-menu-checkbox', () => {
   const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
 
-  assert.match(optionsHtml, /id="show-context-menu-checkbox"/);
-  assert.match(optionsHtml, /data-i18n="showContextMenuLabel"/);
   assert.match(entrypointsOptionsHtml, /id="show-context-menu-checkbox"/);
   assert.match(entrypointsOptionsHtml, /data-i18n="showContextMenuLabel"/);
 });
 
-test('options scripts wire showContextMenu storage setting', () => {
-  const optionsJs = fs.readFileSync('options/options.js', 'utf8');
+test('options script wires showContextMenu storage setting', () => {
   const entrypointsOptionsJs = fs.readFileSync('entrypoints/options/options.js', 'utf8');
 
-  assert.match(optionsJs, /'showContextMenu'/);
-  assert.match(optionsJs, /showContextMenuCheckbox/);
   assert.match(entrypointsOptionsJs, /'showContextMenu'/);
   assert.match(entrypointsOptionsJs, /showContextMenuCheckbox/);
 });
 
-test('options HTML pages define #love section and #nav-love link', () => {
-  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+test('options HTML page defines #love section and #nav-love link', () => {
   const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
-
-  assert.match(optionsHtml, /id="nav-love"/);
-  assert.match(optionsHtml, /href="#love"/);
-  assert.match(optionsHtml, /id="love"/);
-  assert.ok(optionsHtml.includes('/sponsors/deadrat-in'));
 
   assert.match(entrypointsOptionsHtml, /id="nav-love"/);
   assert.match(entrypointsOptionsHtml, /href="#love"/);
@@ -198,86 +174,67 @@ test('options HTML pages define #love section and #nav-love link', () => {
 });
 
 test('popup header includes #support-btn opening options.html#love', () => {
-  const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
   const entrypointsPopupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
-  const popupJs = fs.readFileSync('popup/popup.js', 'utf8');
   const entrypointsPopupJs = fs.readFileSync('entrypoints/popup/popup.js', 'utf8');
 
-  assert.match(popupHtml, /id="support-btn"/);
   assert.match(entrypointsPopupHtml, /id="support-btn"/);
-  assert.match(popupJs, /supportBtn/);
-  assert.match(popupJs, /options\.html#love/);
   assert.match(entrypointsPopupJs, /supportBtn/);
   assert.match(entrypointsPopupJs, /options\.html#love/);
 });
 
 test('options HTML and popup HTML include text format in format selects', () => {
-  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
   const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
-  const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
   const entrypointsPopupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
 
-  assert.match(optionsHtml, /<option value="text">Plain Text \(\.txt\)<\/option>/);
   assert.match(entrypointsOptionsHtml, /<option value="text">Plain Text \(\.txt\)<\/option>/);
-  assert.match(popupHtml, /<option value="text"[^>]*>📄 Plain Text \(\.txt\)<\/option>/);
   assert.match(entrypointsPopupHtml, /<option value="text"[^>]*>📄 Plain Text \(\.txt\)<\/option>/);
 });
 
-test('options HTML pages define #feedback-section with feedback and GitHub issues links', () => {
-  const optionsHtml = fs.readFileSync('options/options.html', 'utf8');
+test('options HTML page defines #feedback-section with feedback and GitHub issues links', () => {
   const entrypointsOptionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
 
-  for (const html of [optionsHtml, entrypointsOptionsHtml]) {
-    assert.match(html, /id="feedback-section"/);
-    assert.match(html, /id="feedback-link"/);
-    assert.match(html, /id="github-issues-link"/);
-    assert.match(html, /href="https:\/\/github\.com\/Covai-Labs\/ace\/issues\/new\/choose"/);
-    assert.match(html, /id="copy-system-info-btn"/);
-    assert.doesNotMatch(html, /data-i18n="feedbackStoryHelp"/);
-  }
+  assert.match(entrypointsOptionsHtml, /id="feedback-section"/);
+  assert.match(entrypointsOptionsHtml, /id="feedback-link"/);
+  assert.match(entrypointsOptionsHtml, /id="github-issues-link"/);
+  assert.match(
+    entrypointsOptionsHtml,
+    /href="https:\/\/github\.com\/Covai-Labs\/ace\/issues\/new\/choose"/,
+  );
+  assert.match(entrypointsOptionsHtml, /id="copy-system-info-btn"/);
+  assert.doesNotMatch(entrypointsOptionsHtml, /data-i18n="feedbackStoryHelp"/);
 });
 
-test('options HTML pages define the include-attachments checkbox and help text', () => {
-  for (const file of ['options/options.html', 'entrypoints/options/index.html']) {
-    const html = fs.readFileSync(file, 'utf8');
-    assert.match(html, /id="default-include-attachments"/);
-    assert.match(html, /data-i18n="includeAttachmentsDefault"/);
-    assert.match(html, /data-i18n="includeAttachmentsHelp"/);
-  }
+test('options HTML page defines the include-attachments checkbox and help text', () => {
+  const html = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+  assert.match(html, /id="default-include-attachments"/);
+  assert.match(html, /data-i18n="includeAttachmentsDefault"/);
+  assert.match(html, /data-i18n="includeAttachmentsHelp"/);
 });
 
-test('options scripts wire the includeAttachments storage setting', () => {
-  for (const file of ['options/options.js', 'entrypoints/options/options.js']) {
-    const js = fs.readFileSync(file, 'utf8');
-    assert.match(js, /'includeAttachments'/);
-    assert.match(js, /defaultIncludeAttachments/);
-  }
+test('options script wires the includeAttachments storage setting', () => {
+  const js = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+  assert.match(js, /'includeAttachments'/);
+  assert.match(js, /defaultIncludeAttachments/);
 });
 
-test('options HTML and scripts wire articleEngine setting', () => {
-  for (const file of ['options/options.html', 'entrypoints/options/index.html']) {
-    const html = fs.readFileSync(file, 'utf8');
-    assert.match(html, /id="article-engine-select"/);
-    assert.match(html, /data-i18n="articleEngineLabel"/);
-    assert.match(html, /data-i18n="articleEngineHelp"/);
-  }
-  for (const file of ['options/options.js', 'entrypoints/options/options.js']) {
-    const js = fs.readFileSync(file, 'utf8');
-    assert.match(js, /'articleEngine'/);
-    assert.match(js, /articleEngineSelect/);
-  }
+test('options HTML and script wire articleEngine setting', () => {
+  const html = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+  assert.match(html, /id="article-engine-select"/);
+  assert.match(html, /data-i18n="articleEngineLabel"/);
+  assert.match(html, /data-i18n="articleEngineHelp"/);
+
+  const js = fs.readFileSync('entrypoints/options/options.js', 'utf8');
+  assert.match(js, /'articleEngine'/);
+  assert.match(js, /articleEngineSelect/);
 });
 
-test('popup HTML and scripts wire article-engine-select-popup and web article banner', () => {
-  for (const file of ['popup/popup.html', 'entrypoints/popup/index.html']) {
-    const html = fs.readFileSync(file, 'utf8');
-    assert.match(html, /id="article-engine-select-popup"/);
-    assert.match(html, /class="web-article-banner/);
-    assert.match(html, /data-i18n="webArticleModeTitle"/);
-  }
-  for (const file of ['popup/popup.js', 'entrypoints/popup/popup.js']) {
-    const js = fs.readFileSync(file, 'utf8');
-    assert.match(js, /article-engine-select-popup/);
-    assert.match(js, /articleEngine/);
-  }
+test('popup HTML and script wire article-engine-select-popup and web article banner', () => {
+  const html = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
+  assert.match(html, /id="article-engine-select-popup"/);
+  assert.match(html, /class="web-article-banner/);
+  assert.match(html, /data-i18n="webArticleModeTitle"/);
+
+  const js = fs.readFileSync('entrypoints/popup/popup.js', 'utf8');
+  assert.match(js, /article-engine-select-popup/);
+  assert.match(js, /articleEngine/);
 });

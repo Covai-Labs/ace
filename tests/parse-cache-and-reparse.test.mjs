@@ -2,59 +2,47 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 
-test('popup.html and entrypoints/popup/index.html include reparse button and status structure', () => {
-  const popupHtml = fs.readFileSync('popup/popup.html', 'utf8');
+test('entrypoints/popup/index.html includes reparse button and status structure', () => {
   const indexHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
 
-  for (const html of [popupHtml, indexHtml]) {
-    assert.match(html, /id="reparse-btn"/, 'Must contain reparse button');
-    assert.match(html, /data-i18n-title="reparseChat"/, 'Must have reparseChat i18n title');
-    assert.match(html, /class="status-indicator/, 'Must have status indicator');
-    assert.match(html, /class="status-text"/, 'Must have status text');
-  }
+  assert.match(indexHtml, /id="reparse-btn"/, 'Must contain reparse button');
+  assert.match(indexHtml, /data-i18n-title="reparseChat"/, 'Must have reparseChat i18n title');
+  assert.match(indexHtml, /class="status-indicator/, 'Must have status indicator');
+  assert.match(indexHtml, /class="status-text"/, 'Must have status text');
 });
 
-test('popup.css contains status states, pulse animation, and spin keyframes', () => {
-  const popupCss = fs.readFileSync('popup/popup.css', 'utf8');
+test('entrypoints/popup/popup.css contains status states, pulse animation, and spin keyframes', () => {
   const entryCss = fs.readFileSync('entrypoints/popup/popup.css', 'utf8');
 
-  for (const css of [popupCss, entryCss]) {
-    assert.match(css, /@keyframes pulse-dot/);
-    assert.match(css, /@keyframes spin-btn/);
-    assert.match(css, /\.status\.status-connecting/);
-    assert.match(css, /\.status\.status-scanning/);
-    assert.match(css, /\.status\.status-ready/);
-    assert.match(css, /\.sidepanel-icon-btn\.spin/);
-  }
+  assert.match(entryCss, /@keyframes pulse-dot/);
+  assert.match(entryCss, /@keyframes spin-btn/);
+  assert.match(entryCss, /\.status\.status-connecting/);
+  assert.match(entryCss, /\.status\.status-scanning/);
+  assert.match(entryCss, /\.status\.status-ready/);
+  assert.match(entryCss, /\.sidepanel-icon-btn\.spin/);
 });
 
-test('popup.js wires reparse-btn and establishes tab session port', () => {
-  const popupJs = fs.readFileSync('popup/popup.js', 'utf8');
+test('entrypoints/popup/popup.js wires reparse-btn and establishes tab session port', () => {
   const entryPopupJs = fs.readFileSync('entrypoints/popup/popup.js', 'utf8');
 
-  for (const js of [popupJs, entryPopupJs]) {
-    assert.match(js, /getElementById\(['"]reparse-btn['"]\)/);
-    assert.match(js, /reparseBtn\.addEventListener\(['"]click['"]/);
-    assert.match(js, /checkAvailability\(\{\s*force:\s*true\s*\}\)/);
-    assert.match(js, /popup-tab-session/);
-    assert.match(js, /setStatus\(/);
-  }
+  assert.match(entryPopupJs, /getElementById\(['"]reparse-btn['"]\)/);
+  assert.match(entryPopupJs, /reparseBtn\.addEventListener\(['"]click['"]/);
+  assert.match(entryPopupJs, /checkAvailability\(\{\s*force:\s*true\s*\}\)/);
+  assert.match(entryPopupJs, /popup-tab-session/);
+  assert.match(entryPopupJs, /setStatus\(/);
 });
 
 test('content script implements 90s parse cache, DOM mutation observer, and toast notification', () => {
-  const mainJs = fs.readFileSync('content/main.js', 'utf8');
   const entryContentJs = fs.readFileSync('entrypoints/content.js', 'utf8');
 
-  for (const js of [mainJs, entryContentJs]) {
-    assert.match(js, /PARSE_CACHE_TTL_MS\s*=\s*90\s*\*\s*1000/);
-    assert.match(js, /isCacheValid/);
-    assert.match(js, /setupDomObserver/);
-    assert.match(js, /MutationObserver/);
-    assert.match(js, /popup-tab-session/);
-    assert.match(js, /showExporterToast/);
-    assert.match(js, /request\.action === ['"]CLEAR_CACHE['"]/);
-    assert.match(js, /request\.action === ['"]SHOW_TOAST['"]/);
-  }
+  assert.match(entryContentJs, /PARSE_CACHE_TTL_MS\s*=\s*90\s*\*\s*1000/);
+  assert.match(entryContentJs, /isCacheValid/);
+  assert.match(entryContentJs, /setupDomObserver/);
+  assert.match(entryContentJs, /MutationObserver/);
+  assert.match(entryContentJs, /popup-tab-session/);
+  assert.match(entryContentJs, /showExporterToast/);
+  assert.match(entryContentJs, /request\.action === ['"]CLEAR_CACHE['"]/);
+  assert.match(entryContentJs, /request\.action === ['"]SHOW_TOAST['"]/);
 });
 
 test('parse cache logic behaves correctly with TTL, dirty flag, and force bypass', () => {

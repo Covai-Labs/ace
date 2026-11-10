@@ -53,17 +53,3 @@ test('entrypoints/content.js imports and registers GrokParser', () => {
     'content.js must instantiate GrokParser in parsers array',
   );
 });
-
-test('content/main.js imports and registers GrokParser', () => {
-  const mainCode = fs.readFileSync(path.join(__dirname, '../content/main.js'), 'utf8');
-  assert.match(
-    mainCode,
-    /\bGrokParser\b/,
-    'content/main.js must import GrokParser from decant-core',
-  );
-  assert.match(
-    mainCode,
-    /const\s+parsers\s*=\s*\[[\s\S]*?new\s+GrokParser\(\)[\s\S]*?\]/,
-    'content/main.js must instantiate GrokParser in parsers array',
-  );
-});

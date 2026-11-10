@@ -368,11 +368,9 @@ test('stripAttachments escapes backslashes as well as asterisks in file names', 
   assert.ok(stripAttachments(both).includes('***[File: a\\\\\\*b.txt · 1 KB]***'));
 });
 
-test('content scripts apply the option on export, copy and shortcut paths', () => {
-  for (const path of ['entrypoints/content.js', 'content/main.js']) {
-    const code = fs.readFileSync(path, 'utf8');
-    assert.match(code, /import \{ applyAttachmentOption \} from '[^']*strip-attachments\.js'/);
-    const uses = code.match(/applyAttachmentOption\(msg, \w+\)/g) || [];
-    assert.equal(uses.length, 3, `${path} should filter on export, copy and shortcut`);
-  }
+test('content script applies the option on export, copy and shortcut paths', () => {
+  const code = fs.readFileSync('entrypoints/content.js', 'utf8');
+  assert.match(code, /import \{ applyAttachmentOption \} from '[^']*strip-attachments\.js'/);
+  const uses = code.match(/applyAttachmentOption\(msg, \w+\)/g) || [];
+  assert.equal(uses.length, 3, 'entrypoints/content.js should filter on export, copy and shortcut');
 });

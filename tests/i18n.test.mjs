@@ -153,17 +153,13 @@ test('options UI includes Language selector and options.js handles uiLanguage', 
   assert.match(optionsJs, /applyI18n/);
 });
 
-test('manifest.json and wxt.config.ts configure default_locale and names for web extension localization', () => {
-  const manifest = JSON.parse(fs.readFileSync('manifest.json', 'utf8'));
+test('wxt.config.ts configures default_locale and names for web extension localization', () => {
   const wxtConfig = fs.readFileSync('wxt.config.ts', 'utf8');
 
-  assert.equal(manifest.default_locale, 'en');
-  assert.match(manifest.name, /__MSG_extensionName__/);
-  assert.match(manifest.short_name, /__MSG_extensionShortName__/);
-  assert.match(manifest.description, /__MSG_extensionDescription__/);
-
   assert.match(wxtConfig, /default_locale:\s*'en'/);
+  assert.match(wxtConfig, /'__MSG_extensionName__'/);
   assert.match(wxtConfig, /short_name:\s*'__MSG_extensionShortName__'/);
+  assert.match(wxtConfig, /description:\s*'__MSG_extensionDescription__'/);
   assert.match(wxtConfig, /__MSG_extensionNameEdge__/);
   assert.match(wxtConfig, /__MSG_extensionNameFirefox__/);
 });
