@@ -264,23 +264,23 @@
     "description": "Label for default include attribution credit checkbox"
   },
   "messageNumberingLabel": {
-    "message": "Message Numbering",
+    "message": "Нумерация сообщений",
     "description": "Label for message numbering dropdown"
   },
   "messageNumberingHelp": {
-    "message": "Adds a number to each message header in Markdown, HTML, and Word exports.",
+    "message": "Добавляет номер к заголовку каждого сообщения при экспорте в Markdown, HTML и Word.",
     "description": "Help text for message numbering setting"
   },
   "messageNumberingOff": {
-    "message": "Off (no numbers)",
+    "message": "Откл. (без номеров)",
     "description": "Message numbering off option"
   },
   "messageNumberingPerMessage": {
-    "message": "Per message (1, 2, 3, 4…)",
+    "message": "Каждое сообщение (1, 2, 3, 4…)",
     "description": "Message numbering per message option"
   },
   "messageNumberingPerTurn": {
-    "message": "Per turn (1, 1, 2, 2…)",
+    "message": "За ход (1, 1, 2, 2…)",
     "description": "Message numbering per turn option"
   },
   "parserModeTitle": {
@@ -324,7 +324,7 @@
     "description": "Label for obsidian vault input"
   },
   "obsidianVaultPlaceholder": {
-    "message": "например, Мое Хранилище",
+    "message": "например, Мое хранилище",
     "description": "Placeholder for obsidian vault input"
   },
   "obsidianVaultHelp": {
@@ -332,27 +332,27 @@
     "description": "Help text for obsidian vault setting"
   },
   "transferAutoSendLabel": {
-    "message": "Auto-send prompt after transfer",
+    "message": "Автоотправка промпта после переноса",
     "description": "Label for transfer auto-send checkbox"
   },
   "transferAutoSendHelp": {
-    "message": "When on, the target chat submits the transferred prompt automatically. Login-walled targets (Meta AI) always prefill only.",
+    "message": "Когда функция включена, целевой чат автоматически отправляет переданный запрос. В целевых сервисах с обязательным входом (Meta AI) запрос всегда только подставляется в поле ввода.",
     "description": "Help for transfer auto-send checkbox"
   },
   "transferPromptLabel": {
-    "message": "Transfer prompt template",
+    "message": "Шаблон промпта при переносе",
     "description": "Label for transfer prompt template textarea"
   },
   "transferPromptHelp": {
-    "message": "Wraps the conversation sent to the target chat. Placeholders: {source} {title} {history} {instruction}. Must contain {history}.",
+    "message": "Оборачивает беседу, отправленную в целевой чат. Заполнители: {source} {title} {history} {instruction}. Должен содержать {history}.",
     "description": "Help for transfer prompt template"
   },
   "transferPromptReset": {
-    "message": "Reset to default",
+    "message": "Сбросить до значений по умолчанию",
     "description": "Reset transfer prompt template button"
   },
   "transferGroupAiChats": {
-    "message": "AI chats",
+    "message": "ИИ-чаты",
     "description": "Transfer target group: AI chat platforms"
   },
   "transferGroupNoteApps": {
@@ -655,7 +655,7 @@
     "description": "Checkbox label for including per-message timestamps"
   },
   "includeTimestampsDefault": {
-    "message": "Include per-message date / time when available",
+    "message": "Указывать дату / время для каждого сообщения, если они доступны",
     "description": "Label for default include timestamps checkbox"
   },
   "supportLove": {
@@ -833,5 +833,33 @@
   "webArticleRequestSupport": {
     "message": "Запросить поддержку ИИ-чата ↗",
     "description": "Link to request AI chat support for unsupported page"
+  },
+  "contextMenuParent": {
+    "message": "Экспортировать чат ИИ",
+    "description": "Parent context menu item title"
+  },
+  "contextMenuCopyMarkdown": {
+    "message": "Копировать Markdown",
+    "description": "Context menu item to copy conversation in markdown format"
+  },
+  "contextMenuDownloadMarkdown": {
+    "message": "Скачать Markdown",
+    "description": "Context menu item to download conversation as a markdown file"
+  },
+  "contextMenuOpenPreview": {
+    "message": "Открыть во вкладке предпросмотра",
+    "description": "Context menu item to open conversation in preview tab"
+  },
+  "contextMenuSendToAI": {
+    "message": "Отправить в ИИ",
+    "description": "Context menu item to transfer selected text or conversation to an AI chat"
+  },
+  "includeThinking": {
+    "message": "Include Thoughts",
+    "description": "Checkbox label for including thinking process"
+  },
+  "includeThinkingDefault": {
+    "message": "Включить текст процесса мышления в экспортированные чаты",
+    "description": "Label for default include thinking checkbox"
   }
 }

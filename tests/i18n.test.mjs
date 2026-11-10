@@ -77,6 +77,8 @@ test('Russian and Tamil locales contain accurate native translations', () => {
   assert.match(ruCatalog.statusReady.message, /Готово/);
   assert.match(ruCatalog.exportChat.message, /Экспортировать/);
   assert.match(ruCatalog.optionsTitle.message, /Настройки/);
+  assert.match(ruCatalog.messageNumberingLabel.message, /Нумерация/);
+  assert.match(ruCatalog.contextMenuParent.message, /Экспортировать чат ИИ/);
 
   // Tamil specific checks
   assert.match(taCatalog.statusReady.message, /தயார்/);
