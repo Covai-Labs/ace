@@ -16,9 +16,8 @@ test('package.json version is valid SemVer string', () => {
 });
 
 test('legacy root manifest.json is not present (WXT generates manifests dynamically)', () => {
-  const manifestPath = path.resolve('manifest.json');
   assert.strictEqual(
-    fs.existsSync(manifestPath),
+    fs.existsSync('manifest.json'),
     false,
     'manifest.json should not exist in root; WXT generates manifests dynamically from wxt.config.ts and package.json',
   );
