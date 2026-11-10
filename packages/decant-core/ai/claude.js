@@ -822,8 +822,7 @@ export class ClaudeParser extends ChatParser {
           if (
             typeof window !== "undefined" &&
             window.location?.origin &&
-            event.origin &&
-            event.origin !== window.location.origin
+            (!event.origin || event.origin !== window.location.origin)
           ) {
             return;
           }
