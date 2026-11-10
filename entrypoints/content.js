@@ -400,7 +400,7 @@ export default defineContentScript({
           const articleEngine = request.articleEngine || 'auto';
 
           if (activeParser) {
-            (async () => {
+            void (async () => {
               try {
                 if (!isForce && isCacheValid(parserMode, articleEngine)) {
                   logger.debug('DISCOVER_FRAMES returning cached report');
@@ -495,7 +495,7 @@ export default defineContentScript({
           const articleEngine = request.articleEngine || 'auto';
 
           if (activeParser) {
-            (async () => {
+            void (async () => {
               try {
                 if (!isForce && isCacheValid(parserMode, articleEngine)) {
                   logger.debug('CHECK_AVAILABILITY returning cached report');
@@ -584,7 +584,7 @@ export default defineContentScript({
             return true;
           }
 
-          (async () => {
+          void (async () => {
             try {
               const conversation = enrichConversation(
                 await activeParser.parse({
@@ -717,7 +717,7 @@ export default defineContentScript({
             return true;
           }
 
-          (async () => {
+          void (async () => {
             try {
               const conversation = enrichConversation(
                 await activeParser.parse({
@@ -809,7 +809,7 @@ export default defineContentScript({
         }
 
         if (request.action === 'COPY_TO_CLIPBOARD') {
-          (async () => {
+          void (async () => {
             try {
               const ok = await copyToClipboard(request.text || '');
               sendResponse({ success: ok });
@@ -831,7 +831,7 @@ export default defineContentScript({
             return true;
           }
 
-          (async () => {
+          void (async () => {
             try {
               const conversation = enrichConversation(
                 await activeParser.parse({
@@ -911,7 +911,7 @@ export default defineContentScript({
           const shortcut = request.shortcutAction;
           const targetFormat = request.format || 'markdown';
 
-          (async () => {
+          void (async () => {
             try {
               let parserMode = request.parserMode || 'auto';
               let articleEngine = request.articleEngine || 'auto';
@@ -1128,6 +1128,6 @@ export default defineContentScript({
     }
 
     detectParser();
-    checkAndInjectContinuation();
+    void checkAndInjectContinuation();
   },
 });

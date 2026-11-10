@@ -22,6 +22,7 @@
                 class="preview-filename-input"
                 placeholder="Export Filename"
                 title="Click to edit export filename"
+                aria-label="Export Filename"
                 data-i18n-placeholder="filenamePlaceholder"
                 data-i18n-title="filenameTooltip"
                 autocomplete="off"
@@ -118,7 +119,12 @@
 
           <div class="theme-control-group">
             <span class="transfer-label">Theme:</span>
-            <select id="preview-theme-select" class="transfer-select" title="Switch Theme">
+            <select
+              id="preview-theme-select"
+              class="transfer-select"
+              title="Switch Theme"
+              aria-label="Switch Theme"
+            >
               <option value="system">🎨 System Theme</option>
               <option value="modern-light">☀️ Modern Light</option>
               <option value="modern-dark">🌙 Modern Dark</option>
@@ -188,6 +194,7 @@
                   id="preview-numbering-select"
                   class="transfer-select"
                   title="Message Numbering"
+                  aria-label="Message Numbering"
                 >
                   <option value="off" data-i18n="messageNumberingOff">Off</option>
                   <option value="per-message" data-i18n="messageNumberingPerMessage">
@@ -205,6 +212,7 @@
               id="transfer-target-select"
               class="transfer-select"
               title="Transfer Chat Context To"
+              aria-label="Transfer Chat Context To"
             >
               <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
                 <option value="claude">Claude</option>

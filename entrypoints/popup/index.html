@@ -1,7 +1,8 @@
 <!doctype html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <title>AI Chat Exporter</title>
     <link rel="stylesheet" href="popup.css" />
   </head>
   <body>
@@ -58,6 +59,7 @@
               rows="2"
               placeholder="Filename"
               title="Click to edit filename"
+              aria-label="Export Filename"
               data-i18n-placeholder="filenamePlaceholder"
               data-i18n-title="filenameTooltip"
             ></textarea>
@@ -66,7 +68,7 @@
         </div>
 
         <div class="actions hidden" id="actions">
-          <select id="format-select">
+          <select id="format-select" aria-label="Export Format">
             <option value="markdown">📝 Markdown (.md)</option>
             <option value="text" data-i18n="formatText">📄 Plain Text (.txt)</option>
             <option value="json">⚙️ JSON (.json)</option>
@@ -149,7 +151,7 @@
               <span class="transfer-badge" data-i18n="crossAiTransfer">🔀 CROSS-AI TRANSFER</span>
             </div>
             <div class="transfer-row">
-              <select id="continue-target-select">
+              <select id="continue-target-select" aria-label="Cross-AI Transfer Target">
                 <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
                   <option value="chatgpt">ChatGPT</option>
                   <option value="claude">Claude</option>
@@ -217,7 +219,7 @@
         <div class="batch-section" id="batch-section">
           <div class="batch-row">
             <span class="batch-pill-label">BATCH TABS</span>
-            <select id="batch-mode-select">
+            <select id="batch-mode-select" aria-label="Batch Mode">
               <option value="zip">📦 ZIP (.zip)</option>
               <option value="combined">📑 Note (.md)</option>
               <option value="ai">🤖 AI Synthesis</option>

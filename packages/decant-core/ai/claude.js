@@ -819,7 +819,15 @@ export class ClaudeParser extends ChatParser {
     const getArtifactInfo = (index) => {
       return new Promise((resolve) => {
         const handler = (event) => {
-          if (event.data.type === "RspAtftInfo" && event.data.idx === index) {
+          if (
+            typeof window !== "undefined" &&
+            window.location?.origin &&
+            event.origin &&
+            event.origin !== window.location.origin
+          ) {
+            return;
+          }
+          if (event.data?.type === "RspAtftInfo" && event.data?.idx === index) {
             window.removeEventListener("message", handler);
             resolve(event.data.atftInfo);
           }

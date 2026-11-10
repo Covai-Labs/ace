@@ -127,7 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       clearTimeout(refreshDebounceTimer);
     }
     refreshDebounceTimer = setTimeout(() => {
-      refreshAllPanels();
+      void refreshAllPanels();
     }, delayMs);
   }
 

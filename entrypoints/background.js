@@ -205,8 +205,8 @@ export default defineBackground(() => {
 
   if (typeof chrome !== 'undefined' && chrome.runtime?.onStartup) {
     chrome.runtime.onStartup.addListener(() => {
-      syncSidePanelBehavior();
-      setupContextMenus();
+      void syncSidePanelBehavior();
+      void setupContextMenus();
     });
   }
 
@@ -228,7 +228,7 @@ export default defineBackground(() => {
         console.warn('[AI Exporter Background] Failed to remove obsolete launchMode setting:', e);
       }
       await syncSidePanelBehavior();
-      setupContextMenus();
+      await setupContextMenus();
 
       // Inject content script into existing tabs on install/reload
       if (typeof chrome !== 'undefined' && chrome.scripting?.executeScript && chrome.tabs?.query) {
@@ -254,7 +254,7 @@ export default defineBackground(() => {
   if (typeof chrome !== 'undefined' && chrome.storage?.onChanged) {
     chrome.storage.onChanged.addListener((changes, areaName) => {
       if (areaName === 'sync' && ('showContextMenu' in changes || 'defaultFormat' in changes)) {
-        setupContextMenus();
+        void setupContextMenus();
       }
     });
   }
@@ -517,7 +517,7 @@ export default defineBackground(() => {
   if (typeof chrome !== 'undefined' && chrome.runtime?.onMessage) {
     chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       if (request.action === 'OPEN_SIDE_PANEL') {
-        (async () => {
+        void (async () => {
           try {
             const sidePanelApi = typeof chrome !== 'undefined' ? chrome['sidePanel'] : undefined;
             if (sidePanelApi && typeof sidePanelApi['open'] === 'function') {
@@ -547,7 +547,7 @@ export default defineBackground(() => {
       }
 
       if (request.action === 'TRANSFER_CHAT') {
-        (async () => {
+        void (async () => {
           try {
             const res = await performTransfer(
               request.targetPlatform,
@@ -565,7 +565,7 @@ export default defineBackground(() => {
       }
 
       if (request.action === 'BATCH_EXPORT_TABS') {
-        (async () => {
+        void (async () => {
           try {
             const mode = request.mode || 'zip';
             const windowId = request.windowId || null;
@@ -763,7 +763,7 @@ export default defineBackground(() => {
 
   if (typeof chrome !== 'undefined' && chrome.commands?.onCommand) {
     chrome.commands.onCommand.addListener((command) => {
-      handleCommand(command, 'preview.html', 'markdown');
+      void handleCommand(command, 'preview.html', 'markdown');
     });
   }
 
@@ -780,7 +780,7 @@ export default defineBackground(() => {
         const copyFormat = ['markdown', 'text', 'json', 'html'].includes(format)
           ? format
           : 'markdown';
-        handleCommand('copy_format', 'preview.html', copyFormat, tab);
+        void handleCommand('copy_format', 'preview.html', copyFormat, tab);
       } else if (info.menuItemId === 'ai-exporter-download-markdown') {
         let format = lastKnownDefaultFormat || 'markdown';
         try {
@@ -789,9 +789,9 @@ export default defineBackground(() => {
         } catch {
           // Use last known format
         }
-        handleCommand('download_format', 'preview.html', format, tab);
+        void handleCommand('download_format', 'preview.html', format, tab);
       } else if (info.menuItemId === 'ai-exporter-open-preview') {
-        handleCommand('open_preview', 'preview.html', 'markdown', tab);
+        void handleCommand('open_preview', 'preview.html', 'markdown', tab);
       } else if (
         typeof info.menuItemId === 'string' &&
         info.menuItemId.startsWith('ai-exporter-transfer-')
@@ -840,7 +840,7 @@ export default defineBackground(() => {
   // Best-effort cleanup of other tabs' records. Only expired entries are
   // removed, so a concurrent fresh transfer is never touched.
   function pruneTransferKeys() {
-    (async () => {
+    void (async () => {
       try {
         const dump = (await chrome.storage.local.get(null)) || {};
         const now = Date.now();

@@ -42,6 +42,7 @@ test('ClaudeParser extracts standard messages and Claude Artifacts via DOM fallb
     if (msg && msg.type === 'ReqAtftInfo') {
       setTimeout(() => {
         const event = new window.Event('message');
+        event.origin = 'https://claude.ai';
         event.data = {
           type: 'RspAtftInfo',
           idx: msg.idx,
