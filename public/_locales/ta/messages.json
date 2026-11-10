@@ -514,11 +514,11 @@
     "description": "Title of message selector drawer"
   },
   "selectAll": {
-    "message": "அனைத்தையும் தேர்ந்தெடு",
+    "message": "அனைத்தும்",
     "description": "Select all button in turn selector"
   },
   "deselectAll": {
-    "message": "அனைத்து தேர்வையும் நீக்கு",
+    "message": "எதுவுமில்லை",
     "description": "Deselect all button in turn selector"
   },
   "done": {
@@ -861,5 +861,13 @@
   "includeThinkingDefault": {
     "message": "Include thinking process in exported chats",
     "description": "Label for default include thinking checkbox"
+  },
+  "selectPrompts": {
+    "message": "தூண்டுதல்கள்",
+    "description": "Select prompts button in turn selector"
+  },
+  "selectResponses": {
+    "message": "பதில்கள்",
+    "description": "Select responses button in turn selector"
   }
 }

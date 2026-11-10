@@ -514,11 +514,11 @@
     "description": "Title of message selector drawer"
   },
   "selectAll": {
-    "message": "모두 선택",
+    "message": "전체",
     "description": "Select all button in turn selector"
   },
   "deselectAll": {
-    "message": "선택 모두 해제",
+    "message": "선택 안 함",
     "description": "Deselect all button in turn selector"
   },
   "done": {
@@ -860,5 +860,13 @@
   "includeThinkingDefault": {
     "message": "Include thinking process in exported chats",
     "description": "Label for default include thinking checkbox"
+  },
+  "selectPrompts": {
+    "message": "프롬프트",
+    "description": "Select prompts button in turn selector"
+  },
+  "selectResponses": {
+    "message": "응답",
+    "description": "Select responses button in turn selector"
   }
 }

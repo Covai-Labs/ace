@@ -514,11 +514,11 @@
     "description": "Title of message selector drawer"
   },
   "selectAll": {
-    "message": "Выбрать все",
+    "message": "Все",
     "description": "Select all button in turn selector"
   },
   "deselectAll": {
-    "message": "Снять выбор со всех",
+    "message": "Ничего",
     "description": "Deselect all button in turn selector"
   },
   "done": {
@@ -861,5 +861,13 @@
   "includeThinkingDefault": {
     "message": "Включить текст процесса мышления в экспортированные чаты",
     "description": "Label for default include thinking checkbox"
+  },
+  "selectPrompts": {
+    "message": "Промпты",
+    "description": "Select prompts button in turn selector"
+  },
+  "selectResponses": {
+    "message": "Ответы",
+    "description": "Select responses button in turn selector"
   }
 }

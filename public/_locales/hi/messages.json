@@ -514,11 +514,11 @@
     "description": "Title of message selector drawer"
   },
   "selectAll": {
-    "message": "सभी चुनें",
+    "message": "सभी",
     "description": "Select all button in turn selector"
   },
   "deselectAll": {
-    "message": "सभी अचयनित करें",
+    "message": "कोई नहीं",
     "description": "Deselect all button in turn selector"
   },
   "done": {
@@ -860,5 +860,13 @@
   "includeThinkingDefault": {
     "message": "Include thinking process in exported chats",
     "description": "Label for default include thinking checkbox"
+  },
+  "selectPrompts": {
+    "message": "प्रॉम्प्ट",
+    "description": "Select prompts button in turn selector"
+  },
+  "selectResponses": {
+    "message": "उत्तर",
+    "description": "Select responses button in turn selector"
   }
 }

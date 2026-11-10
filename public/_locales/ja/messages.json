@@ -514,11 +514,11 @@
     "description": "Title of message selector drawer"
   },
   "selectAll": {
-    "message": "すべて選択",
+    "message": "すべて",
     "description": "Select all button in turn selector"
   },
   "deselectAll": {
-    "message": "選択を全解除",
+    "message": "なし",
     "description": "Deselect all button in turn selector"
   },
   "done": {
@@ -860,5 +860,13 @@
   "includeThinkingDefault": {
     "message": "Include thinking process in exported chats",
     "description": "Label for default include thinking checkbox"
+  },
+  "selectPrompts": {
+    "message": "プロンプト",
+    "description": "Select prompts button in turn selector"
+  },
+  "selectResponses": {
+    "message": "回答",
+    "description": "Select responses button in turn selector"
   }
 }

@@ -514,11 +514,11 @@
     "description": "Title of message selector drawer"
   },
   "selectAll": {
-    "message": "Seleccionar todo",
+    "message": "Todo",
     "description": "Select all button in turn selector"
   },
   "deselectAll": {
-    "message": "Deseleccionar todo",
+    "message": "Ninguno",
     "description": "Deselect all button in turn selector"
   },
   "done": {
@@ -861,5 +861,13 @@
   "includeThinkingDefault": {
     "message": "Include thinking process in exported chats",
     "description": "Label for default include thinking checkbox"
+  },
+  "selectPrompts": {
+    "message": "Prompts",
+    "description": "Select prompts button in turn selector"
+  },
+  "selectResponses": {
+    "message": "Respuestas",
+    "description": "Select responses button in turn selector"
   }
 }
