@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.25.1](https://github.com/Covai-Labs/ace/compare/v1.25.0...v1.25.1) (2026-11-10)
+
+
+### Bug Fixes
+
+* **quality:** address Sonar security, unhandled promises, and a11y label issues ([#180](https://github.com/Covai-Labs/ace/issues/180)) ([39e8844](https://github.com/Covai-Labs/ace/commit/39e8844d03d5c590ac95df5416cdbeac23ff59f2))
+
 ## [1.25.0](https://github.com/Covai-Labs/ace/compare/v1.24.0...v1.25.0) (2026-11-06)
 
 
