@@ -177,7 +177,7 @@ Help translate AI Chat Exporter into your language! All translations are managed
 
 [![Translation status](https://hosted.weblate.org/widgets/ace/-/ace/horizontal-auto.svg)](https://hosted.weblate.org/engage/ace/)
 
-You can contribute translations directly in your browser without writing code or submitting PRs manually. See [Contributing Translations](CONTRIBUTING.md#translating--localization).
+You can contribute translations directly in your browser without writing code or submitting PRs manually. See [Translating & Localization](CONTRIBUTING.md#translating--localization).
 
 ---
 

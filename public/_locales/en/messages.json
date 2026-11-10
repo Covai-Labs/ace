@@ -232,8 +232,8 @@
     "description": "Call to action text inviting translation contributions"
   },
   "languageContributeLink": {
-    "message": "Help translate on GitHub ↗",
-    "description": "Link text to contribute translations on GitHub"
+    "message": "Help translate on Weblate ↗",
+    "description": "Link text to contribute translations on Weblate"
   },
   "exportDefaultsTitle": {
     "message": "Export Defaults",
@@ -707,8 +707,8 @@
     "description": "Description for translations contribution card in options"
   },
   "loveTranslateBtn": {
-    "message": "Translate on GitHub ↗",
-    "description": "Button label for GitHub translations directory link in options"
+    "message": "Translate on Weblate ↗",
+    "description": "Button label for Weblate translations portal link in options"
   },
   "loveGitHubTitle": {
     "message": "Code, Tests & Issues",

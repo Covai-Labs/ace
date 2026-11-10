@@ -29,7 +29,7 @@ We manage all translations via **[Weblate](https://hosted.weblate.org/projects/a
 - Pick your language or request a new one.
 - Translate or review strings in your browser.
 - Please preserve all placeholders (e.g. `$1`, `$COUNT$`) and Markdown or LaTeX markers (`$$...$$`, `$...$`).
-- New and updated translations will automatically be synced back to the repository.
+- New and updated translations will automatically be synced back to the repository. For a newly added language, a maintainer will also register it in the language selector in `entrypoints/options/index.html`.
 
 ## Submitting Pull Requests
 
