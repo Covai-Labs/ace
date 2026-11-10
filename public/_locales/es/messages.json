@@ -863,7 +863,7 @@
     "description": "Label for default include thinking checkbox"
   },
   "selectPrompts": {
-    "message": "Mensajes",
+    "message": "Prompts",
     "description": "Select prompts button in turn selector"
   },
   "selectResponses": {
