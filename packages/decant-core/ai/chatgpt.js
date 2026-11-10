@@ -37,6 +37,14 @@ function fetchConversation(convId, token, includeImages) {
         ? crypto.randomUUID()
         : Math.random().toString(36).substring(2) + Date.now().toString(36);
 
+    const targetOrigin =
+      typeof window !== "undefined" &&
+      window.location &&
+      window.location.origin &&
+      window.location.origin.startsWith("http")
+        ? window.location.origin
+        : "https://chatgpt.com";
+
     let responseTimer;
     const ackTimer = setTimeout(() => {
       window.removeEventListener("message", handler);
@@ -44,6 +52,13 @@ function fetchConversation(convId, token, includeImages) {
     }, 5000);
 
     const handler = (event) => {
+      if (
+        event.origin !== targetOrigin &&
+        event.origin !== "https://chatgpt.com" &&
+        event.origin !== "https://chat.openai.com"
+      ) {
+        return;
+      }
       if (event.data?.source !== "chatgpt-exporter-page") return;
       if (event.data?.requestId !== requestId) return;
       if (event.data.ack) {
@@ -66,14 +81,6 @@ function fetchConversation(convId, token, includeImages) {
         resolve({ data: event.data.data, images: event.data.images ?? {} });
       }
     };
-
-    const targetOrigin =
-      typeof window !== "undefined" &&
-      window.location &&
-      window.location.origin &&
-      window.location.origin.startsWith("http")
-        ? window.location.origin
-        : "https://chatgpt.com";
 
     window.addEventListener("message", handler);
     window.postMessage(

@@ -172,6 +172,15 @@ export const getMessage = t;
 export function applyI18n(root = document) {
   if (!root || !root.querySelectorAll) return;
 
+  const doc = root.ownerDocument || root;
+  if (doc?.documentElement) {
+    const activeLocale =
+      currentLocale !== 'auto'
+        ? currentLocale
+        : (typeof chrome !== 'undefined' && chrome.i18n?.getUILanguage?.()) || 'en';
+    doc.documentElement.lang = activeLocale.replace('_', '-');
+  }
+
   // Text content
   root.querySelectorAll('[data-i18n]').forEach((el) => {
     const key = el.getAttribute('data-i18n');
