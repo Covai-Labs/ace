@@ -8,42 +8,41 @@ test('wxt.config.ts configures contextMenus permission', () => {
 });
 
 test('locales define all context menu messages across all catalogs', () => {
-  for (const localesDir of ['_locales', 'public/_locales']) {
-    const dirs = fs.readdirSync(localesDir);
+  const localesDir = 'public/_locales';
+  const dirs = fs.readdirSync(localesDir);
 
-    for (const dir of dirs) {
-      const filePath = `${localesDir}/${dir}/messages.json`;
-      if (fs.existsSync(filePath)) {
-        const messages = JSON.parse(fs.readFileSync(filePath, 'utf8'));
-        assert.ok(
-          messages.contextMenuParent?.message,
-          `Missing contextMenuParent in ${localesDir}/${dir}`,
-        );
-        assert.ok(
-          messages.contextMenuCopyMarkdown?.message,
-          `Missing contextMenuCopyMarkdown in ${localesDir}/${dir}`,
-        );
-        assert.ok(
-          messages.contextMenuDownloadMarkdown?.message,
-          `Missing contextMenuDownloadMarkdown in ${localesDir}/${dir}`,
-        );
-        assert.ok(
-          messages.contextMenuOpenPreview?.message,
-          `Missing contextMenuOpenPreview in ${localesDir}/${dir}`,
-        );
-        assert.ok(
-          messages.contextMenuSendToAI?.message,
-          `Missing contextMenuSendToAI in ${localesDir}/${dir}`,
-        );
-        assert.ok(
-          messages.showContextMenuLabel?.message,
-          `Missing showContextMenuLabel in ${localesDir}/${dir}`,
-        );
-        assert.ok(
-          messages.showContextMenuHelp?.message,
-          `Missing showContextMenuHelp in ${localesDir}/${dir}`,
-        );
-      }
+  for (const dir of dirs) {
+    const filePath = `${localesDir}/${dir}/messages.json`;
+    if (fs.existsSync(filePath)) {
+      const messages = JSON.parse(fs.readFileSync(filePath, 'utf8'));
+      assert.ok(
+        messages.contextMenuParent?.message,
+        `Missing contextMenuParent in ${localesDir}/${dir}`,
+      );
+      assert.ok(
+        messages.contextMenuCopyMarkdown?.message,
+        `Missing contextMenuCopyMarkdown in ${localesDir}/${dir}`,
+      );
+      assert.ok(
+        messages.contextMenuDownloadMarkdown?.message,
+        `Missing contextMenuDownloadMarkdown in ${localesDir}/${dir}`,
+      );
+      assert.ok(
+        messages.contextMenuOpenPreview?.message,
+        `Missing contextMenuOpenPreview in ${localesDir}/${dir}`,
+      );
+      assert.ok(
+        messages.contextMenuSendToAI?.message,
+        `Missing contextMenuSendToAI in ${localesDir}/${dir}`,
+      );
+      assert.ok(
+        messages.showContextMenuLabel?.message,
+        `Missing showContextMenuLabel in ${localesDir}/${dir}`,
+      );
+      assert.ok(
+        messages.showContextMenuHelp?.message,
+        `Missing showContextMenuHelp in ${localesDir}/${dir}`,
+      );
     }
   }
 });

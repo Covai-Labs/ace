@@ -514,11 +514,11 @@
     "description": "Title of message selector drawer"
   },
   "selectAll": {
-    "message": "全选",
+    "message": "全部",
     "description": "Select all button in turn selector"
   },
   "deselectAll": {
-    "message": "取消全选",
+    "message": "无",
     "description": "Deselect all button in turn selector"
   },
   "done": {
@@ -860,5 +860,13 @@
   "includeThinkingDefault": {
     "message": "Include thinking process in exported chats",
     "description": "Label for default include thinking checkbox"
+  },
+  "selectPrompts": {
+    "message": "提示词",
+    "description": "Select prompts button in turn selector"
+  },
+  "selectResponses": {
+    "message": "回复",
+    "description": "Select responses button in turn selector"
   }
 }

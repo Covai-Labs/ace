@@ -8,7 +8,7 @@ const previewCss = fs.readFileSync('entrypoints/preview/preview.css', 'utf8');
 const popupPreviewHtml = fs.readFileSync('popup/preview.html', 'utf8');
 const popupPreviewJs = fs.readFileSync('popup/preview.js', 'utf8');
 const popupPreviewCss = fs.readFileSync('popup/preview.css', 'utf8');
-const messagesJson = JSON.parse(fs.readFileSync('_locales/en/messages.json', 'utf8'));
+const messagesJson = JSON.parse(fs.readFileSync('public/_locales/en/messages.json', 'utf8'));
 
 test('preview html includes explicit favicon link tags for webextension tab rendering', () => {
   assert.match(
