@@ -19,23 +19,38 @@ function syncDecantLockfile() {
 
   const isCheck = process.argv.includes('--check');
 
-  if (!fs.existsSync(pkgJsonPath)) {
-    console.error(`package.json not found at ${pkgJsonPath}`);
-    process.exit(1);
+  let pkgJsonContent;
+  try {
+    pkgJsonContent = fs.readFileSync(pkgJsonPath, 'utf8');
+  } catch (err) {
+    if (err && err.code === 'ENOENT') {
+      console.error(`package.json not found at ${pkgJsonPath}`);
+      process.exit(1);
+    }
+    throw err;
   }
 
   // Resolve absolute npm binary path to avoid OS PATH resolution vulnerabilities (Sonar S4036)
   const nodeDir = path.dirname(process.execPath);
   const npmBin = path.join(nodeDir, process.platform === 'win32' ? 'npm.cmd' : 'npm');
-  const npmExec = fs.existsSync(npmBin) ? npmBin : 'npm';
+  let npmExec = npmBin;
+  try {
+    fs.accessSync(npmBin, fs.constants.X_OK);
+  } catch {
+    npmExec = 'npm';
+  }
 
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'decant-lockfile-'));
   try {
-    fs.copyFileSync(pkgJsonPath, path.join(tmpDir, 'package.json'));
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), pkgJsonContent, 'utf8');
 
     // Seed temporary directory with existing standalone lockfile to preserve resolved versions
-    if (fs.existsSync(lockfilePath)) {
+    try {
       fs.copyFileSync(lockfilePath, path.join(tmpDir, 'package-lock.json'));
+    } catch (err) {
+      if (err && err.code !== 'ENOENT') {
+        throw err;
+      }
     }
 
     execFileSync(
@@ -50,11 +65,17 @@ function syncDecantLockfile() {
     const generatedLock = fs.readFileSync(path.join(tmpDir, 'package-lock.json'), 'utf8');
 
     if (isCheck) {
-      if (!fs.existsSync(lockfilePath)) {
-        console.error('Error: packages/decant-core/package-lock.json does not exist.');
-        process.exit(1);
+      let currentLock;
+      try {
+        currentLock = fs.readFileSync(lockfilePath, 'utf8');
+      } catch (err) {
+        if (err && err.code === 'ENOENT') {
+          console.error('Error: packages/decant-core/package-lock.json does not exist.');
+          process.exit(1);
+        }
+        throw err;
       }
-      const currentLock = fs.readFileSync(lockfilePath, 'utf8');
+
       if (currentLock !== generatedLock) {
         console.error(
           'Error: packages/decant-core/package-lock.json is out of sync with package.json.\n' +
