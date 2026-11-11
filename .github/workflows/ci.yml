@@ -39,7 +39,9 @@ jobs:
         run: |
           npm run lint
           npm run format:check
+          npm run --workspace=packages/decant-core lint
           npm run --workspace=packages/decant-core sync:check
+          npm run sync:decant-lockfile:check
 
       - name: Build extensions
         run: |

@@ -27,9 +27,7 @@ export function extractSourcesFromRhs(turnEl) {
       try {
         const parsed = new URL(url, "https://www.google.com");
         url =
-          parsed.searchParams.get("url") ||
-          parsed.searchParams.get("q") ||
-          url;
+          parsed.searchParams.get("url") || parsed.searchParams.get("q") || url;
       } catch {
         // Keep original url
       }
@@ -77,8 +75,11 @@ export function sanitizeResponseContainer(container) {
     const a = chip.querySelector("a[href]");
     const btn = chip.querySelector("button");
     if (a && !a.textContent.trim()) {
-      let label = a.getAttribute("aria-label") || btn?.getAttribute("aria-label") || "";
-      label = cleanAriaLabel(label).replace(/\s*–\s*.*$/, "").trim();
+      let label =
+        a.getAttribute("aria-label") || btn?.getAttribute("aria-label") || "";
+      label = cleanAriaLabel(label)
+        .replace(/\s*–.*$/, "")
+        .trim();
       if (!label && chip.textContent.trim()) {
         label = chip.textContent.trim();
       }
@@ -120,7 +121,9 @@ export function sanitizeResponseContainer(container) {
     if (!a.textContent.trim() && !a.querySelector("img, svg")) {
       const aria = a.getAttribute("aria-label");
       if (aria) {
-        const label = cleanAriaLabel(aria).replace(/\s*–\s*.*$/, "").trim();
+        const label = cleanAriaLabel(aria)
+          .replace(/\s*–.*$/, "")
+          .trim();
         if (label) {
           a.textContent = label;
         }

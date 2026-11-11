@@ -198,7 +198,7 @@ export function extractSharedConversationFromDom(
       // Find balanced JSON object containing "mapping" without unbounded regex backtracking
       const mappingIdx = text.indexOf('"mapping"');
       if (mappingIdx !== -1) {
-        let start = text.lastIndexOf('{', mappingIdx);
+        let start = text.lastIndexOf("{", mappingIdx);
         while (start !== -1) {
           let depth = 0;
           let inString = false;
@@ -210,7 +210,7 @@ export function extractSharedConversationFromDom(
               escape = false;
               continue;
             }
-            if (ch === '\\') {
+            if (ch === "\\") {
               escape = true;
               continue;
             }
@@ -219,8 +219,8 @@ export function extractSharedConversationFromDom(
               continue;
             }
             if (!inString) {
-              if (ch === '{') depth++;
-              else if (ch === '}') {
+              if (ch === "{") depth++;
+              else if (ch === "}") {
                 depth--;
                 if (depth === 0) {
                   if (i > mappingIdx) {
@@ -240,7 +240,7 @@ export function extractSharedConversationFromDom(
             }
           }
           if (matched) break;
-          start = text.lastIndexOf('{', start - 1);
+          start = text.lastIndexOf("{", start - 1);
         }
       }
     }

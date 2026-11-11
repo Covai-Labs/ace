@@ -210,7 +210,10 @@ test("extractArticle honors engine option for readability, defuddle, and auto", 
     url: "https://example.com/test-auto",
     engine: "auto",
   });
-  assert.ok(resAutoExplicit.engine === "readability" || resAutoExplicit.engine === "defuddle");
+  assert.ok(
+    resAutoExplicit.engine === "readability" ||
+      resAutoExplicit.engine === "defuddle",
+  );
   assert.ok(resAutoExplicit.content.includes("Mozilla Readability"));
 
   // Test ArticleParser forwarding articleEngine
@@ -227,9 +230,11 @@ test("extractArticle honors engine option for readability, defuddle, and auto", 
     assert.equal(parsedDefuddle.metadata.Engine, "defuddle");
 
     const parsedAuto = await parser.parse({ articleEngine: "auto" });
-    assert.ok(parsedAuto.metadata.Engine === "readability" || parsedAuto.metadata.Engine === "defuddle");
+    assert.ok(
+      parsedAuto.metadata.Engine === "readability" ||
+        parsedAuto.metadata.Engine === "defuddle",
+    );
   } finally {
     delete globalThis.document;
   }
 });
-

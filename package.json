@@ -28,8 +28,10 @@
     "test:e2e:update-snapshots": "playwright test --update-snapshots",
     "lint": "eslint .",
     "lint:ext": "web-ext lint --source-dir .output/firefox-mv3",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier --write . && npm run --workspace=packages/decant-core format",
+    "format:check": "prettier --check . && npm run --workspace=packages/decant-core format:check",
+    "sync:decant-lockfile": "node scripts/sync-decant-lockfile.js",
+    "sync:decant-lockfile:check": "node scripts/sync-decant-lockfile.js --check"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

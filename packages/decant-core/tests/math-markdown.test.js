@@ -110,9 +110,14 @@ And inline \`array[0]\` code.`;
   assert.ok(output.includes("`array[0]`"));
 
   // Check aligned line breaks inside display math \\[1ex\\] are preserved
-  const alignedInput = "\\[\\begin{aligned} a &= b \\\\[1ex] c &= d \\end{aligned}\\]";
+  const alignedInput =
+    "\\[\\begin{aligned} a &= b \\\\[1ex] c &= d \\end{aligned}\\]";
   const alignedOutput = normalizeLatexMath(alignedInput);
-  assert.ok(alignedOutput.includes("$$\\begin{aligned} a &= b \\[1ex] c &= d \\end{aligned}$$"));
+  assert.ok(
+    alignedOutput.includes(
+      "$$\\begin{aligned} a &= b \\[1ex] c &= d \\end{aligned}$$",
+    ),
+  );
 
   // Check repeated openers do not span across subsequent blocks
   const repeatedInput = "\\[ a \\[ valid \\]";

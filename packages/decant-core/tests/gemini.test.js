@@ -260,9 +260,7 @@ test("GeminiParser API resolves <Image> tags and YouTube media placeholders in c
 
   // Check turn with YouTube media placeholder
   const ytModelMsg = result.messages.find(
-    (m) =>
-      m.role === "Model" &&
-      m.content.includes("Focus Tamil Nadu"),
+    (m) => m.role === "Model" && m.content.includes("Focus Tamil Nadu"),
   );
   assert.ok(ytModelMsg, "YouTube media turn found");
   assert.match(
@@ -384,7 +382,8 @@ test("GeminiParser resolveImageTags preserves code blocks containing <Image> tag
   );
 
   // Test paired tag with closing </Image>
-  const pairedInput = 'Diagram: <Image src="image_agent_tag_1" alt="Paired [V1]"></Image>';
+  const pairedInput =
+    'Diagram: <Image src="image_agent_tag_1" alt="Paired [V1]"></Image>';
   const pairedResolved = parser.resolveImageTags(pairedInput, cand);
   assert.equal(
     pairedResolved,
@@ -500,4 +499,3 @@ test("GeminiParser extractActivitySources does not leak citations from alternate
     "Citations from inactive draft 1 should not leak into sources",
   );
 });
-
