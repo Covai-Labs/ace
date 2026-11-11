@@ -40,9 +40,20 @@ jobs:
             AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae')
           fi
           COMMIT_SUBJECT=$(git log -1 --pretty=format:'%s')
+          COMMIT_BODY=$(git log -1 --pretty=format:'%b')
           echo "name=${AUTHOR_NAME:-github-actions[bot]}" >> "$GITHUB_OUTPUT"
           echo "email=${AUTHOR_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}" >> "$GITHUB_OUTPUT"
-          echo "subject=${COMMIT_SUBJECT:-sync decant-core}" >> "$GITHUB_OUTPUT"
+
+          EOF=$(openssl rand -hex 8)
+          echo "message<<$EOF" >> "$GITHUB_OUTPUT"
+          echo "${COMMIT_SUBJECT:-sync decant-core}" >> "$GITHUB_OUTPUT"
+          echo "" >> "$GITHUB_OUTPUT"
+          if [ -n "$COMMIT_BODY" ]; then
+            echo "$COMMIT_BODY" >> "$GITHUB_OUTPUT"
+            echo "" >> "$GITHUB_OUTPUT"
+          fi
+          echo "Synced from ORIGIN_COMMIT" >> "$GITHUB_OUTPUT"
+          echo "$EOF" >> "$GITHUB_OUTPUT"
 
       - name: Setup Node.js
         uses: actions/setup-node@v7
@@ -62,8 +73,5 @@ jobs:
           destination-repository-name: 'decant'
           user-name: ${{ steps.author.outputs.name }}
           user-email: ${{ steps.author.outputs.email }}
-          commit-message: |
-            ${{ steps.author.outputs.subject }}
-
-            Synced from ORIGIN_COMMIT
+          commit-message: ${{ steps.author.outputs.message }}
           target-branch: 'main'

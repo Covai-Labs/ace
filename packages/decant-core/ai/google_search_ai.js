@@ -78,7 +78,7 @@ export function sanitizeResponseContainer(container) {
       let label =
         a.getAttribute("aria-label") || btn?.getAttribute("aria-label") || "";
       label = cleanAriaLabel(label)
-        .replace(/\s*–\s*.*$/, "")
+        .replace(/\s*–.*$/, "")
         .trim();
       if (!label && chip.textContent.trim()) {
         label = chip.textContent.trim();
@@ -122,7 +122,7 @@ export function sanitizeResponseContainer(container) {
       const aria = a.getAttribute("aria-label");
       if (aria) {
         const label = cleanAriaLabel(aria)
-          .replace(/\s*–\s*.*$/, "")
+          .replace(/\s*–.*$/, "")
           .trim();
         if (label) {
           a.textContent = label;
