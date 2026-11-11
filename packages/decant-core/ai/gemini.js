@@ -1119,8 +1119,9 @@ export class GeminiParser extends ChatParser {
                   link.textContent = label || href;
                   btn.replaceWith(link);
                 } else if (label) {
-                  const textNode =
-                    clone.ownerDocument.createTextNode(` [${label}]`);
+                  const textNode = clone.ownerDocument.createTextNode(
+                    ` [${label}]`,
+                  );
                   btn.replaceWith(textNode);
                 } else {
                   btn.remove();

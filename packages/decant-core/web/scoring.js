@@ -61,8 +61,12 @@ export function cleanTitle(title, siteName = "") {
       const sepIdx = cleaned.lastIndexOf(sep);
       if (sepIdx !== -1) {
         const candidate = cleaned.slice(sepIdx + 1).trim();
-        if (candidate.localeCompare(rawSite, undefined, { sensitivity: "accent" }) === 0 ||
-            candidate.toLowerCase() === rawSite.toLowerCase()) {
+        if (
+          candidate.localeCompare(rawSite, undefined, {
+            sensitivity: "accent",
+          }) === 0 ||
+          candidate.toLowerCase() === rawSite.toLowerCase()
+        ) {
           cleaned = cleaned.slice(0, sepIdx).trim();
           break;
         }

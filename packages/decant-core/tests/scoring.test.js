@@ -67,12 +67,12 @@ test("cleanTitle strips site and brand suffixes cleanly", () => {
     "Clean Title Without Suffix",
   );
   assert.equal(
-    cleanTitle("Story |  The International Newspaper", "The International Newspaper"),
+    cleanTitle(
+      "Story |  The International Newspaper",
+      "The International Newspaper",
+    ),
     "Story",
   );
-  assert.equal(
-    cleanTitle("Story|İstanbul", "İstanbul"),
-    "Story",
-  );
+  assert.equal(cleanTitle("Story|İstanbul", "İstanbul"), "Story");
   assert.equal(cleanTitle(""), "Untitled");
 });

@@ -267,7 +267,10 @@ test("sanitizeResponseContainer preserves inline citation chips (.NMq1me) and un
 
   const links = clean.querySelectorAll("a");
   assert.equal(links.length, 1);
-  assert.equal(links[0].getAttribute("href"), "https://royalsociety.org/article");
+  assert.equal(
+    links[0].getAttribute("href"),
+    "https://royalsociety.org/article",
+  );
   assert.equal(links[0].textContent, "Royal Society (+3)");
   assert.equal(clean.querySelector("button"), null);
 
@@ -311,4 +314,3 @@ test("GoogleSearchAIParser parse() appends RHS sources and handles missing initi
   assert.equal(result.messages[4].role, "User");
   assert.match(result.messages[4].content, /You cannot evolve out of a clade/);
 });
-

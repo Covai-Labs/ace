@@ -44,6 +44,14 @@ jobs:
           echo "email=${AUTHOR_EMAIL:-41898282+github-actions[bot]@users.noreply.github.com}" >> "$GITHUB_OUTPUT"
           echo "subject=${COMMIT_SUBJECT:-sync decant-core}" >> "$GITHUB_OUTPUT"
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: Ensure standalone decant-core lockfile is synchronized
+        run: node scripts/sync-decant-lockfile.js
+
       - name: Push packages/decant-core to Covai-Labs/decant
         uses: cpina/github-action-push-to-another-repository@55306faa4ed53b815ae49e564af8cfb359d32ae2 # v1.7.3
         env:
@@ -54,5 +62,8 @@ jobs:
           destination-repository-name: 'decant'
           user-name: ${{ steps.author.outputs.name }}
           user-email: ${{ steps.author.outputs.email }}
-          commit-message: 'Update from ORIGIN_COMMIT: ${{ steps.author.outputs.subject }}'
+          commit-message: |
+            ${{ steps.author.outputs.subject }}
+
+            Synced from ORIGIN_COMMIT
           target-branch: 'main'
