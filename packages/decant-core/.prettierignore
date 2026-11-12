@@ -4,3 +4,5 @@ packages/
 *.log
 tests/fixtures/
 web-docs/
+LICENSE
+LICENSE-EXCEPTION
