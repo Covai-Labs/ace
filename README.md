@@ -4,7 +4,7 @@
 
 # ACE — AI Chat Exporter
 
-### Save, back up, and transfer your AI chats in 1 click.
+## Save, back up, and transfer your AI chats in 1 click.
 
 **ChatGPT, Claude, Gemini, DeepSeek & 18+ models → Markdown, PDF, Word, PNG, or Obsidian.**  
 _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
@@ -38,7 +38,7 @@ _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
 
 <br /><br />
 
-[Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#-why-people-switch-to-ace) • [Chat Continuation](#cross-model-chat-continuation) • [Permissions](#-technical-details-permissions--privacy-audit) • [Sponsor](#-back-independent-development)
+[Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#features) • [Chat Continuation](#chat-continuation) • [Permissions](#permissions) • [Sponsor](#sponsor)
 
 </div>
 
@@ -61,6 +61,8 @@ https://github.com/user-attachments/assets/141d0d7f-4928-42bb-8ca6-81823b0672d3
 
 ---
 
+<a id="features"></a>
+
 ## ✨ Why People Switch to ACE
 
 <table>
@@ -71,7 +73,7 @@ https://github.com/user-attachments/assets/141d0d7f-4928-42bb-8ca6-81823b0672d3
     </td>
     <td width="50%">
       <h3>📝 Clean Notes & Intact Math</h3>
-      Exports clean Markdown, PDF, or Word docs with intact code blocks, tables, and <b>LaTeX math equations</b> (<code>$$...$$</code> and <code>$...$</code>). Send in 1 click straight to <b>Obsidian, Logseq, Bear, or Notion</b>.
+      Exports clean Markdown, PDF, or Word docs with intact code blocks, tables, and <b>LaTeX math equations</b> (<code>$$...$$</code> and <code>$...$</code>). Send in 1 click straight to <b>Obsidian, Logseq, or Bear</b>, or paste cleanly into <b>Notion</b>.
     </td>
   </tr>
   <tr>
@@ -87,6 +89,8 @@ https://github.com/user-attachments/assets/141d0d7f-4928-42bb-8ca6-81823b0672d3
 </table>
 
 ---
+
+<a id="supported-platforms"></a>
 
 ## 🌐 Supported Platforms
 
@@ -133,6 +137,8 @@ AI Chat Exporter extracts full conversation threads from all major AI chat platf
 
 ---
 
+<a id="chat-continuation"></a>
+
 ## 🔄 Cross-Model Chat Continuation
 
 Chat Continuation is the feature that sets AI Chat Exporter apart from every other exporter — it lets you hand off a live conversation from one AI to another in a single click, with full context preserved.
@@ -153,6 +159,8 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 ---
 
+<a id="quick-install"></a>
+
 ## ⚡ Quick Install
 
 ### Official Stores
@@ -166,6 +174,8 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 ---
 
+<a id="permissions"></a>
+
 ## 🛠️ Technical Details, Permissions & Privacy Audit
 
 _Click any section below to expand permissions, manual installation, or developer architecture:_
@@ -178,7 +188,7 @@ Most AI exporters and extensions send your chat history or API calls to third-pa
 
 - **Zero Remote Processing:** All DOM extraction, markdown generation, LaTeX parsing, and image rendering occur entirely inside your local browser.
 - **Zero Telemetry / Zero Tracking:** No analytics, no trackers, no external logging, and no remote dependencies.
-- **Your Data Remains Yours:** Chat threads, custom instructions, and exported files never leave your machine.
+- **Your Data Remains Yours:** Chat threads, custom instructions, and exported files stay on your machine unless you explicitly transfer them to another service, such as an AI platform through **Continue in...**.
 
 **Verifiable by design.** The extension runs client-side with zero remote code execution:
 
@@ -199,7 +209,7 @@ Zero external analytics endpoints. Zero remote dependencies. Zero outbound netwo
 <summary><b>📦 Manual / Unpacked Installation (.ZIP)</b></summary>
 <br>
 
-#### Chrome / Edge / Brave / Chromium
+### Chrome / Edge / Brave / Chromium
 
 1. Download the latest `ai-chat-exporter-chromium.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases/latest).
 2. Extract the zip file to a folder on your computer.
@@ -207,12 +217,13 @@ Zero external analytics endpoints. Zero remote dependencies. Zero outbound netwo
 4. Enable **Developer mode** using the toggle switch in the top-right corner.
 5. Click **Load unpacked** and select the extracted folder.
 
-#### Firefox
+### Firefox
 
 1. Download the latest `ai-chat-exporter-firefox.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases/latest).
-2. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
-3. Click **Load Temporary Add-on...**
-4. Select `manifest.json` inside the extracted folder.
+2. Extract the zip file to a folder on your computer.
+3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
+4. Click **Load Temporary Add-on...**
+5. Select `manifest.json` inside the extracted folder.
 
 </details>
 
@@ -235,12 +246,12 @@ cd ace
 npm install
 
 # Dev mode (hot reloading)
-npm run dev           # Chromium
-npm run dev:firefox   # Firefox
+npm run dev                 # Chromium
+npm run dev -- -b firefox   # Firefox
 
 # Production builds
-npm run build         # Chromium (.output/chrome-mv3)
-npm run build:firefox # Firefox (.output/firefox-mv2)
+npm run build               # Chromium (.output/chrome-mv3)
+npm run build:firefox       # Firefox (.output/firefox-mv3)
 ```
 
 </details>
@@ -263,6 +274,8 @@ Help translate AI Chat Exporter into your language! All translations are managed
 You can contribute translations directly in your browser without writing code or submitting PRs manually. See [Translating & Localization](.github/CONTRIBUTING.md#translating--localization).
 
 ---
+
+<a id="sponsor"></a>
 
 ## ☕ Back Independent Development
 
