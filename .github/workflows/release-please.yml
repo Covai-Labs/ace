@@ -167,7 +167,7 @@ jobs:
           path: .output/
 
       - name: Publish to Microsoft Edge Add-ons
-        run: node publish-edge.js
+        run: node scripts/publish-edge.js
         env:
           EDGE_PRODUCT_ID: ${{ secrets.EDGE_PRODUCT_ID }}
           EDGE_CLIENT_ID: ${{ secrets.EDGE_CLIENT_ID }}
@@ -202,7 +202,7 @@ jobs:
           path: .output/
 
       - name: Publish to Chrome Web Store
-        run: node publish-chrome.js
+        run: node scripts/publish-chrome.js
         env:
           CHROME_EXTENSION_ID: ${{ secrets.CHROME_EXTENSION_ID }}
           CHROME_PUBLISHER_ID: ${{ secrets.CHROME_PUBLISHER_ID }}
