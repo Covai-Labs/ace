@@ -22,6 +22,9 @@
 
 ---
 
+[AI Chat Exporter： Export & Transfer Chats Across ChatGPT, Gemini & More (Open Source) [5V2EZqDkUnU].webm](https://github.com/user-attachments/assets/141d0d7f-4928-42bb-8ca6-81823b0672d3)
+
+
 [![Watch Demo Video](https://img.youtube.com/vi/5V2EZqDkUnU/maxresdefault.jpg)](https://www.youtube.com/watch?v=5V2EZqDkUnU)
 
 <sub>▶️ **Click to watch:** 1-minute walkthrough of chat continuation, selective export, preview themes, and PNG downloads.</sub>
