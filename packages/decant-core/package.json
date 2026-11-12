@@ -24,7 +24,7 @@
     "utils",
     "data",
     "LICENSE",
-    "LICENSE-EXCEPTION",
+    "FOSS-EXCEPTION.md",
     "README.md"
   ],
   "repository": {

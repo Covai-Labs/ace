@@ -18,6 +18,5 @@ test-results/
 *-snapshots/
 *.png
 LICENSE
-LICENSE-EXCEPTION
 CHANGELOG.md
 packages/decant-core/

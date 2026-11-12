@@ -154,7 +154,7 @@ normalized `parse()` contract. For the full extraction-strategy breakdown and ma
 
 ## License
 
-`decant-core` is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with a **FOSS Linking Exception**, alongside a **Commercial License** option. See [LICENSE](LICENSE) and [LICENSE-EXCEPTION](LICENSE-EXCEPTION).
+`decant-core` is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with a **FOSS Linking Exception**, alongside a **Commercial License** option. See [LICENSE](LICENSE) and [FOSS-EXCEPTION.md](FOSS-EXCEPTION.md).
 
 ### FOSS Linking Exception (Open Source)
 
