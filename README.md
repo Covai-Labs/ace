@@ -24,17 +24,27 @@ _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
   <a href="https://github.com/Covai-Labs/ace/releases/latest">
     <img src="https://img.shields.io/badge/Releases-Download_.ZIP-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Releases" />
   </a>
+  <a href="https://github.com/sponsors/deadrat-in">
+    <img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4_Support-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" />
+  </a>
 
 <br /><br />
 
-  <!-- Live Trust & Social Proof Badges -->
+  <!-- Row 1: Store Social Proof & Active Users -->
 
-<a href="https://github.com/Covai-Labs/ace/stargazers"><img src="https://img.shields.io/github/stars/Covai-Labs/ace?style=flat-square&logo=github&color=yellow" alt="Stars" /></a>
 <a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj"><img src="https://img.shields.io/chrome-web-store/rating/cgakhbhkplndjjknhgegfcipffflcaoj?style=flat-square&logo=googlechrome&label=Chrome%20Rating&color=success" alt="Chrome Rating" /></a>
+<a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj"><img src="https://img.shields.io/chrome-web-store/users/cgakhbhkplndjjknhgegfcipffflcaoj?style=flat-square&logo=googlechrome&label=Chrome%20Users&color=blue" alt="Chrome Users" /></a>
 <a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"><img src="https://img.shields.io/amo/rating/ai-chat-export?style=flat-square&logo=firefoxbrowser&label=Firefox%20Rating&color=success" alt="Firefox Rating" /></a>
+<a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"><img src="https://img.shields.io/amo/users/ai-chat-export?style=flat-square&logo=firefoxbrowser&label=Firefox%20Users&color=orange" alt="Firefox Users" /></a>
+
+<br />
+
+  <!-- Row 2: Live Trust & Open Source Status -->
+
+<a href="https://github.com/Covai-Labs/ace"><img src="https://img.shields.io/github/stars/Covai-Labs/ace?style=flat-square&logo=github&color=yellow" alt="Stars" /></a>
 <img src="https://img.shields.io/badge/Privacy-100%25_Local-success?style=flat-square&logo=shield" alt="100% Local" />
+<a href="https://hosted.weblate.org/engage/ace/"><img src="https://hosted.weblate.org/widgets/ace/-/ace/svg-badge.svg" alt="Translation status" /></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square" alt="AGPL-3.0" /></a>
-<a href="https://github.com/sponsors/deadrat-in"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=flat-square&logo=githubsponsors" alt="Sponsor" /></a>
 
 <br /><br />
 
@@ -288,7 +298,7 @@ Because AI platforms constantly push layout updates that break DOM extraction, k
   <a href="https://github.com/sponsors/deadrat-in">
     <img src="https://img.shields.io/badge/Sponsor_on_GitHub-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=githubsponsors" alt="Sponsor on GitHub" />
   </a>
-  <a href="https://github.com/Covai-Labs/ace/stargazers">
+  <a href="https://github.com/Covai-Labs/ace">
     <img src="https://img.shields.io/badge/Star_on_GitHub-%E2%AD%90-yellow?style=for-the-badge&logo=github" alt="Star on GitHub" />
   </a>
 
@@ -301,7 +311,7 @@ Because AI platforms constantly push layout updates that break DOM extraction, k
 
 ## 📜 License
 
-This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full AGPL-3.0 license text and [FOSS-EXCEPTION.md](FOSS-EXCEPTION.md) for exception permissions and commercial licensing details.
+This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full AGPL-3.0 license text and [LICENSE-EXCEPTION](LICENSE-EXCEPTION) for exception permissions and commercial licensing details.
 
 ### Third-Party Test Fixtures Notice
 
