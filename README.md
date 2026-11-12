@@ -15,6 +15,7 @@
 
 [![GitHub Stars](https://img.shields.io/github/stars/Covai-Labs/ace?logo=github&logoColor=white&color=yellow&label=Stars)](https://github.com/Covai-Labs/ace/stargazers)
 [![Translation status](https://hosted.weblate.org/widgets/ace/-/ace/svg-badge.svg)](https://hosted.weblate.org/engage/ace/)
+
 [![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub_Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/deadrat-in)
 
 [Quick Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#key-features) • [Chat Continuation](#cross-model-chat-continuation) • [Sponsor](#-back-independent-development)
@@ -191,7 +192,7 @@ Because AI platforms constantly push layout updates that break DOM extraction, k
 
 ## License
 
-This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full license text and permissions.
+This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full AGPL-3.0 license text and [LICENSE-EXCEPTION](LICENSE-EXCEPTION) for exception permissions and commercial licensing details.
 
 ### Third-Party Test Fixtures Notice
 
