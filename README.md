@@ -53,7 +53,7 @@ _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
 <br />
 
 > [!TIP]
-> **⭐ If you find ACE helpful, click "Star" in the top-right corner!** AI platforms change their layouts frequently. Starring bookmarks the repository so you can easily find updates, and helps support independent, local-first open source without paywalls.
+> **⭐ If you find ACE helpful, click "Star" in the top-right corner!** AI platforms change their layouts frequently. Starring bookmarks the repository so you can easily find updates of this local-first open source app without paywalls.
 
 ---
 
@@ -62,7 +62,7 @@ _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
 ### 🎬 See ACE in Action
 
 <a href="https://www.youtube.com/watch?v=5V2EZqDkUnU" target="_blank">
-  <img src=".github/assets/demo-thumbnail.svg" alt="Watch ACE 1-Minute Walkthrough on YouTube" width="85%" />
+  <img src=".github/assets/demo-thumbnail.jpg" alt="Watch ACE 1-Minute Walkthrough on YouTube" width="85%" />
 </a>
 
 <br />
@@ -97,46 +97,22 @@ Many exporters secretly send your chats to their cloud servers. ACE runs **entir
 
 <a id="supported-platforms"></a>
 
-## 🌐 Supported Platforms
+## 🌐 Supported Platforms & Destinations
 
-AI Chat Exporter extracts full conversation threads from all major AI chat platforms and AI search overviews. Context continuation lets you hand off conversations directly to leading LLMs and PKM note-taking apps.
+### 📄 Formats & Note Destinations
 
-| **18+ AI Platforms We Extract From**                                                                                                                                                                                                            | **Formats & Apps You Can Send To**                                                                                                                                                                                      |
-| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **ChatGPT** · **Claude** · **Google Gemini** · **DeepSeek** (with R1 thoughts) · **Perplexity** · **Grok** · **Mistral Le Chat** · **Qwen** · **Meta AI** · **NotebookLM** · **GitHub Copilot** · **Proton Lumo** · **Google AI Studio** & more | 📄 **Files:** Markdown (`.md`), PDF, Word (`.doc`), HTML, PNG, JSON<br>🧠 **PKM Apps (1-Click URI):** Obsidian, Logseq, Bear, NotePlan, Drafts<br>📋 **Clipboard:** Smart Rich-Text + Markdown for Notion, Docs & Email |
+| Type                | Destinations & Apps                                                                                                                                       | How It Works                                                                                                            |
+| :------------------ | :-------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------- |
+| **Files**           | Markdown (`.md`), PDF, Word (`.doc`), HTML, PNG image, JSON ([Schema v1](schemas/export-v1.schema.json)), Plain Text                                      | Instant client-side download with intact LaTeX math (`$$...$$`), syntax highlighting & attachments                      |
+| **PKM Apps**        | [Obsidian](https://obsidian.md), [Logseq](https://logseq.com), [Bear](https://bear.app), [NotePlan](https://noteplan.co), [Drafts](https://getdrafts.com) | 1-click URI scheme creates a note directly in your vault with pre-populated frontmatter                                 |
+| **Smart Clipboard** | [Notion](https://notion.so), Google Docs, Apple Notes, Word, Email                                                                                        | Dual-MIME copy places clean Markdown (`text/plain`) and rich styled HTML (`text/html`) on your clipboard simultaneously |
 
-<br />
+### 🤖 Supported AI Platforms & Continuation
 
-<details>
-<summary><b>📋 View Full Platform Compatibility Matrix (20+ Platforms)</b></summary>
-<br />
-
-| Platform                                                      | Markdown | JSON | HTML / Doc / PNG |    Continuation Target     |
-| :------------------------------------------------------------ | :------: | :--: | :--------------: | :------------------------: |
-| **[ChatGPT](https://chatgpt.com)**                            |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Claude](https://claude.ai)**                               |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Google Gemini](https://gemini.google.com)**                |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[DeepSeek](https://chat.deepseek.com)**                     |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Microsoft Copilot](https://copilot.microsoft.com)**        |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[Perplexity](https://www.perplexity.ai)**                   |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Qwen](https://chat.qwenlm.ai)**                            |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Mistral / Le Chat](https://chat.mistral.ai)**              |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Google Search AI (AI Overviews)](https://www.google.com)** |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[Google AI Studio](https://aistudio.google.com)**           |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[Google Cloud Assist](https://console.cloud.google.com)**   |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[NotebookLM](https://notebooklm.google.com)**               |    ✅    |  ✅  |        ✅        | — _(Export audio & notes)_ |
-| **[Meta AI](https://www.meta.ai)**                            |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[Proton Lumo](https://lumo.proton.me)**                     |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Z.ai](https://z.ai)**                                      |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[Grok](https://grok.com)**                                  |    ✅    |  ✅  |        ✅        |             ✅             |
-| **[Duck.ai](https://duck.ai)**                                |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[Joyland](https://www.joyland.ai)**                         |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **[Chub AI](https://chub.ai)**                                |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-| **Generic Web Articles** _(single-page convenience)_          |    ✅    |  ✅  |        ✅        |     — _(Export only)_      |
-
-> **Continuation Targets:** Seamless prompt injection is supported for general-purpose chat models (ChatGPT, Claude, Gemini, DeepSeek, Grok, Proton Lumo, Perplexity, Qwen, Mistral) and PKM note-taking apps (**Obsidian**, **Logseq**, **Bear**, **NotePlan**, **Drafts**). Platforms requiring character selection (Joyland, Chub AI) or workspace setup (NotebookLM) are supported for clean export only.
-
-</details>
+| Capability                            | Supported Platforms                                                                                                                                                                                                                                                                                                                                                                                                                              | Features                                                                                              |
+| :------------------------------------ | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------- |
+| **🔄 Extract + 1-Click Continuation** | [ChatGPT](https://chatgpt.com) · [Claude](https://claude.ai) · [Google Gemini](https://gemini.google.com) · [DeepSeek](https://chat.deepseek.com) · [Perplexity](https://www.perplexity.ai) · [Grok](https://grok.com) · [Mistral Le Chat](https://chat.mistral.ai) · [Qwen](https://chat.qwenlm.ai) · [Proton Lumo](https://lumo.proton.me)                                                                                                     | **Bidirectional:** Export full conversation and seamlessly transfer context into another model        |
+| **📥 High-Fidelity Extraction Only**  | [NotebookLM](https://notebooklm.google.com) · [Microsoft Copilot](https://copilot.microsoft.com) · [Google AI Studio](https://aistudio.google.com) · [Google Search AI Overviews](https://www.google.com) · [Meta AI](https://www.meta.ai) · [Google Cloud Assist](https://console.cloud.google.com) · [Duck.ai](https://duck.ai) · [Z.ai](https://z.ai) · [Joyland](https://www.joyland.ai) · [Chub AI](https://chub.ai) · Generic Web Articles | Extracts complete conversation threads, reasoning traces (`<think>`), search sources, and audio notes |
 
 ---
 
