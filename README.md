@@ -67,7 +67,7 @@ _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
 
 <br />
 
-<sub>▶️ **1-minute walkthrough:** Chat continuation, selective export, live themes, and PNG downloads. (<a href="https://www.youtube.com/watch?v=5V2EZqDkUnU" target="_blank">Watch on YouTube with audio</a> · <a href="https://ace.covai.org/">Visit ace.covai.org</a>)</sub>
+<sub>▶️ **1-minute walkthrough:** Chat continuation, selective export, live themes, and PNG downloads · <a href="https://ace.covai.org/">ace.covai.org</a></sub>
 
 </div>
 
