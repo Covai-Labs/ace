@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.25.2](https://github.com/Covai-Labs/ace/compare/v1.25.1...v1.25.2) (2026-11-12)
+
+
+### Bug Fixes
+
+* **decant:** synchronize standalone lockfile, format core files, and fix sync release convention ([#186](https://github.com/Covai-Labs/ace/issues/186)) ([45107f4](https://github.com/Covai-Labs/ace/commit/45107f43e319d6777124f014a4e121f390b34c6c))
+* **legal:** split FOSS linking exception from LICENSE for SPDX detection ([#188](https://github.com/Covai-Labs/ace/issues/188)) ([3a17981](https://github.com/Covai-Labs/ace/commit/3a1798123be5088ad12f8c5d4246d7e30042ae3e))
+
 ## [1.25.1](https://github.com/Covai-Labs/ace/compare/v1.25.0...v1.25.1) (2026-11-10)
 
 
