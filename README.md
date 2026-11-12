@@ -1,88 +1,102 @@
 <div align="center">
 
-# AI Chat Exporter
+  <img src="public/icons/icon128.png" alt="ACE Logo" width="96" height="96" />
 
-**Export, back up, and transfer AI conversations to Markdown, JSON, HTML, Word (.doc), and PNG — 100% locally.**
+# ACE — AI Chat Exporter
 
-[![Website](https://img.shields.io/badge/Website-ace.covai.org-blueviolet)](https://ace.covai.org/)
-[![License: AGPL-3.0](https://img.shields.io/badge/License-AGPL--3.0-red.svg)](LICENSE)
+### Save, back up, and transfer your AI chats in 1 click.
 
-[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/cgakhbhkplndjjknhgegfcipffflcaoj?logo=google-chrome&logoColor=white&label=Chrome%20Web%20Store&color=blue)](https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj)
-[![Firefox Add-ons](https://img.shields.io/amo/v/ai-chat-export?logo=firefox-browser&logoColor=white&label=Firefox%20Add-ons&color=orange)](https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/)
+**ChatGPT, Claude, Gemini, DeepSeek & 18+ models → Markdown, PDF, Word, PNG, or Obsidian.**  
+_100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
 
-[![Chrome Users](https://img.shields.io/chrome-web-store/users/cgakhbhkplndjjknhgegfcipffflcaoj?logo=google-chrome&logoColor=white&label=Chrome%20Users&color=blue)](https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj)
-[![Firefox Users](https://img.shields.io/amo/users/ai-chat-export?logo=firefox-browser&logoColor=white&label=Firefox%20Users&color=orange)](https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/)
+  <br />
 
-[![GitHub Stars](https://img.shields.io/github/stars/Covai-Labs/ace?logo=github&logoColor=white&color=yellow&label=Stars)](https://github.com/Covai-Labs/ace/stargazers)
-[![Translation status](https://hosted.weblate.org/widgets/ace/-/ace/svg-badge.svg)](https://hosted.weblate.org/engage/ace/)
+  <!-- Big Clickable Store Badges -->
+  <a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj">
+    <img src="https://img.shields.io/badge/Chrome-Install_Free-4285F4?style=for-the-badge&logo=googlechrome&logoColor=white" alt="Chrome Web Store" />
+  </a>
+  <a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/">
+    <img src="https://img.shields.io/badge/Firefox-Install_Free-FF7139?style=for-the-badge&logo=firefoxbrowser&logoColor=white" alt="Firefox Add-ons" />
+  </a>
+  <a href="https://microsoftedge.microsoft.com/addons/detail/ace-%C2%B7-export-chatgpt-clau/hbgckjgfhnaedlihmkogenclfcnobicg">
+    <img src="https://img.shields.io/badge/Edge-Install_Free-0078D7?style=for-the-badge&logo=microsoftedge&logoColor=white" alt="Edge Add-ons" />
+  </a>
+  <a href="https://github.com/Covai-Labs/ace/releases/latest">
+    <img src="https://img.shields.io/badge/Releases-Download_.ZIP-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Releases" />
+  </a>
 
-[![GitHub Sponsors](https://img.shields.io/badge/Sponsor-GitHub_Sponsors-ea4aaa?logo=githubsponsors&logoColor=white)](https://github.com/sponsors/deadrat-in)
+<br /><br />
 
-[Quick Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#key-features) • [Chat Continuation](#cross-model-chat-continuation) • [Sponsor](#-back-independent-development)
+  <!-- Live Trust & Social Proof Badges -->
+
+<a href="https://github.com/Covai-Labs/ace/stargazers"><img src="https://img.shields.io/github/stars/Covai-Labs/ace?style=flat-square&logo=github&color=yellow" alt="Stars" /></a>
+<a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj"><img src="https://img.shields.io/chrome-web-store/rating/cgakhbhkplndjjknhgegfcipffflcaoj?style=flat-square&logo=googlechrome&label=Chrome%20Rating&color=success" alt="Chrome Rating" /></a>
+<a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"><img src="https://img.shields.io/amo/rating/ai-chat-export?style=flat-square&logo=firefoxbrowser&label=Firefox%20Rating&color=success" alt="Firefox Rating" /></a>
+<img src="https://img.shields.io/badge/Privacy-100%25_Local-success?style=flat-square&logo=shield" alt="100% Local" />
+<a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square" alt="AGPL-3.0" /></a>
+<a href="https://github.com/sponsors/deadrat-in"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-ea4aaa?style=flat-square&logo=githubsponsors" alt="Sponsor" /></a>
+
+<br /><br />
+
+[Install](#quick-install) • [Supported Platforms](#supported-platforms) • [Features](#-why-people-switch-to-ace) • [Chat Continuation](#cross-model-chat-continuation) • [Permissions](#-technical-details-permissions--privacy-audit) • [Sponsor](#-back-independent-development)
+
+</div>
+
+<br />
+
+> [!TIP]
+> **⭐ Star this repository to bookmark it!** AI platforms change their layouts frequently. Starring helps you easily find ACE whenever you need parser updates and supports independent, local-first open source without paywalls.
 
 ---
 
-[AI Chat Exporter： Export & Transfer Chats Across ChatGPT, Gemini & More (Open Source) [5V2EZqDkUnU].webm](https://github.com/user-attachments/assets/141d0d7f-4928-42bb-8ca6-81823b0672d3)
+<div align="center">
 
+### 🎬 See ACE in Action
 
-[![Watch Demo Video](https://img.youtube.com/vi/5V2EZqDkUnU/maxresdefault.jpg)](https://www.youtube.com/watch?v=5V2EZqDkUnU)
+https://github.com/user-attachments/assets/141d0d7f-4928-42bb-8ca6-81823b0672d3
 
-<sub>▶️ **Click to watch:** 1-minute walkthrough of chat continuation, selective export, preview themes, and PNG downloads.</sub>
+<sub>▶️ **1-minute walkthrough:** Chat continuation, selective export, live themes, and PNG downloads. (Prefer sound? <a href="https://www.youtube.com/watch?v=5V2EZqDkUnU" target="_blank">Watch on YouTube with audio</a> · <a href="https://ace.covai.org/">Visit ace.covai.org</a>)</sub>
 
 </div>
 
 ---
 
-## Why AI Chat Exporter? (Privacy First)
+## ✨ Why People Switch to ACE
 
-Most AI exporters and extensions send your chat history or API calls to third-party backend servers for conversion.
-
-**AI Chat Exporter is 100% local:**
-
-- **Zero Remote Processing:** All DOM extraction, markdown generation, LaTeX parsing, and image rendering occur entirely inside your local browser.
-- **Zero Telemetry / Zero Tracking:** No analytics, no trackers, no external logging, and no remote dependencies.
-- **Your Data Remains Yours:** Chat threads, custom instructions, and exported files never leave your machine.
-
-**Verifiable by design.** The extension runs 100% client-side with zero remote code execution:
-
-| Permission                        | Why it's needed                                                                       |
-| :-------------------------------- | :------------------------------------------------------------------------------------ |
-| `activeTab` / `tabs`              | Read the active conversation and coordinate continuation tabs                         |
-| `storage`                         | Persist local preferences (theme, format defaults)                                    |
-| `sidePanel`                       | Power the Chromium side panel UI                                                      |
-| `host_permissions` (`<all_urls>`) | Extract web articles and detect embedded chat frames (e.g., Copilot in Microsoft 365) |
-
-Zero external analytics endpoints. Zero remote dependencies. Zero outbound network fetches. Audit it yourself: [`wxt.config.ts`](wxt.config.ts).
-
----
-
-## Key Features
-
-- **📝 Clean Markdown with Math & Code:**
-  - Preserves syntax highlighting, code languages, tables, and nested lists.
-  - Standardizes LaTeX math formatting (`$$...$$` block and `$...$` inline) without broken backslashes. Ready for **Obsidian**, **Logseq**, and **Notion**.
-- **🔄 Cross-Model Chat Continuation:**
-  - Hand off active conversations between platforms in a single click (e.g., take a ChatGPT conversation and continue it directly in Claude or Gemini).
-  - See [Chat Continuation](#cross-model-chat-continuation) below for details.
-- **📓 Direct PKM App Transfer:**
-  - Export straight into **Obsidian** via `obsidian://new` URIs, or trigger URL schemes for **Logseq**, **Bear**, **Drafts**, and **NotePlan**.
-- **🗂️ Standardized JSON Schema:**
-  - Emits structured, normalized chat objects adhering to [Export Schema v1](schemas/export-v1.schema.json) for archiving, backups, and programmatic AI workflows.
-- **📸 Built-in Live Preview & Themes:**
-  - Interactive preview window supporting Dark, Light, and Solarized themes before downloading.
-  - Export high-resolution PNG snapshots of conversations or selective turns.
-- **📋 Smart Dual-MIME Copy:**
-  - One-click copy that places both clean Markdown and rich HTML on your clipboard simultaneously for seamless pasting into emails, Google Docs, or Word.
-- **📄 Word (.doc) & PDF Support:**
-  - Export formatted Word-compatible documents or print-ready PDF files with complete math rendering.
-- **⚡ Chromium Side Panel Support:**
-  - View exports, preview documents, and trigger continuation straight from the native browser side panel without leaving your active tab.
+<table>
+  <tr>
+    <td width="50%">
+      <h3>🔄 Switch AI Mid-Conversation</h3>
+      Hit a message limit on Claude? Start in ChatGPT and click <b>Continue in Claude / Gemini / DeepSeek</b>. ACE moves your entire conversation over automatically—no manual copy-pasting required.
+    </td>
+    <td width="50%">
+      <h3>📝 Clean Notes & Intact Math</h3>
+      Exports clean Markdown, PDF, or Word docs with intact code blocks, tables, and <b>LaTeX math equations</b> (<code>$$...$$</code> and <code>$...$</code>). Send in 1 click straight to <b>Obsidian, Logseq, Bear, or Notion</b>.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>📸 Pretty Screenshots & Selective Export</h3>
+      Preview chats in <b>Dark, Light, or Solarized</b> themes. Uncheck messages you don't need, and export a crisp <b>PNG image</b> or print-ready <b>PDF</b> with syntax highlighting.
+    </td>
+    <td width="50%">
+      <h3>🔒 100% Offline in Your Browser</h3>
+      Many exporters secretly send your chats to their cloud servers. ACE runs <b>entirely inside your browser</b>. Zero servers, zero telemetry, zero accounts, and zero subscriptions.
+    </td>
+  </tr>
+</table>
 
 ---
 
-## Supported Platforms
+## 🌐 Supported Platforms
 
 AI Chat Exporter extracts full conversation threads from all major AI chat platforms and AI search overviews. Context continuation lets you hand off conversations directly to leading LLMs and PKM note-taking apps.
+
+| **18+ AI Platforms We Extract From**                                                                                                                                                                                                            | **Formats & Apps You Can Send To**                                                                                                                                                                                      |
+| :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ChatGPT** · **Claude** · **Google Gemini** · **DeepSeek** (with R1 thoughts) · **Perplexity** · **Grok** · **Mistral Le Chat** · **Qwen** · **Meta AI** · **NotebookLM** · **GitHub Copilot** · **Proton Lumo** · **Google AI Studio** & more | 📄 **Files:** Markdown (`.md`), PDF, Word (`.doc`), HTML, PNG, JSON<br>🧠 **PKM Apps (1-Click URI):** Obsidian, Logseq, Bear, NotePlan, Drafts<br>📋 **Clipboard:** Smart Rich-Text + Markdown for Notion, Docs & Email |
+
+<br />
 
 | Platform                                                      | Markdown | JSON | HTML / Doc / PNG |    Continuation Target     |
 | :------------------------------------------------------------ | :------: | :--: | :--------------: | :------------------------: |
@@ -111,7 +125,15 @@ AI Chat Exporter extracts full conversation threads from all major AI chat platf
 
 ---
 
-## Cross-Model Chat Continuation
+## 🚀 How It Works (3 Clicks)
+
+1. **Open any AI chat** (ChatGPT, Claude, Gemini, DeepSeek, etc.).
+2. **Click the ACE icon** in your toolbar (or open the browser Side Panel).
+3. **Export or Transfer:** Download as a file, send straight to Obsidian, or click **Continue in...** to jump to another AI model.
+
+---
+
+## 🔄 Cross-Model Chat Continuation
 
 Chat Continuation is the feature that sets AI Chat Exporter apart from every other exporter — it lets you hand off a live conversation from one AI to another in a single click, with full context preserved.
 
@@ -131,22 +153,55 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 ---
 
-## Quick Install
+## ⚡ Quick Install
 
 ### Official Stores
 
+- 🌐 **Chrome / Brave**: [Install from Chrome Web Store](https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj)
 - 🦊 **Firefox**: [Install from Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/)
-- 🌐 **Chrome / Edge / Brave**: [Install from Chrome Web Store](https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj) (Edge users can install directly via the Chrome Web Store)
+- 🌊 **Microsoft Edge**: [Install from Microsoft Edge Add-ons](https://microsoftedge.microsoft.com/addons/detail/ace-%C2%B7-export-chatgpt-clau/hbgckjgfhnaedlihmkogenclfcnobicg)
 
 > [!NOTE]
-> Chrome Web Store updates may occasionally lag behind Firefox and GitHub releases due to store review queues.
+> Store updates may occasionally lag behind GitHub releases due to review queues.
+
+---
+
+## 🛠️ Technical Details, Permissions & Privacy Audit
+
+_Click any section below to expand permissions, manual installation, or developer architecture:_
 
 <details>
-<summary><b>📦 Manual / Unpacked Installation</b></summary>
+<summary><b>🔐 Why Does ACE Need Browser Permissions? (100% Offline Guarantee)</b></summary>
+<br>
+
+Most AI exporters and extensions send your chat history or API calls to third-party backend servers. **AI Chat Exporter is 100% local:**
+
+- **Zero Remote Processing:** All DOM extraction, markdown generation, LaTeX parsing, and image rendering occur entirely inside your local browser.
+- **Zero Telemetry / Zero Tracking:** No analytics, no trackers, no external logging, and no remote dependencies.
+- **Your Data Remains Yours:** Chat threads, custom instructions, and exported files never leave your machine.
+
+**Verifiable by design.** The extension runs client-side with zero remote code execution:
+
+| Permission                        | Why it's needed                                                                           |
+| :-------------------------------- | :---------------------------------------------------------------------------------------- |
+| `activeTab` / `tabs`              | Read the active conversation and coordinate continuation tabs                             |
+| `storage`                         | Persist local preferences (theme, format defaults, vault names) offline                   |
+| `sidePanel`                       | Power the Chromium side panel UI and message selection picker                             |
+| `clipboardWrite`                  | Used only when you click "Copy" to place clean Markdown and rich HTML onto your clipboard |
+| `downloads`                       | Save generated `.md`, `.json`, `.doc`, `.html`, or `.png` files locally to your machine   |
+| `host_permissions` (`<all_urls>`) | Extract web articles and detect embedded chat frames (e.g., Copilot in Microsoft 365)     |
+
+Zero external analytics endpoints. Zero remote dependencies. Zero outbound network fetches. Audit it yourself: [`wxt.config.ts`](wxt.config.ts).
+
+</details>
+
+<details>
+<summary><b>📦 Manual / Unpacked Installation (.ZIP)</b></summary>
+<br>
 
 #### Chrome / Edge / Brave / Chromium
 
-1. Download the latest `ai-chat-exporter-chromium.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases).
+1. Download the latest `ai-chat-exporter-chromium.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases/latest).
 2. Extract the zip file to a folder on your computer.
 3. Open your browser and navigate to `chrome://extensions/` (or `edge://extensions/`).
 4. Enable **Developer mode** using the toggle switch in the top-right corner.
@@ -154,26 +209,50 @@ Gemini   ──►  [ Export + Inject ]  ──►  DeepSeek  (or any supported 
 
 #### Firefox
 
-1. Download the latest `ai-chat-exporter-firefox.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases).
-2. Extract the zip file to a folder on your computer.
-3. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
-4. Click **Load Temporary Add-on...**
-5. Select `manifest.json` inside the extracted folder.
+1. Download the latest `ai-chat-exporter-firefox.zip` from the [Releases page](https://github.com/Covai-Labs/ace/releases/latest).
+2. Open Firefox and navigate to `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on...**
+4. Select `manifest.json` inside the extracted folder.
+
+</details>
+
+<details>
+<summary><b>🏗️ Architecture, Stack & JSON Schema v1</b></summary>
+<br>
+
+ACE is powered by auditable, local-only open-source libraries:
+
+- **[WXT Framework](https://wxt.dev/) (`entrypoints/`):** Modern cross-browser extension framework compiling cleanly to Manifest V3 (Chromium) and Firefox targets inside `.output/`.
+- **[decant-core](https://github.com/Covai-Labs/decant):** Our shared modular parsing engine for 18+ AI platforms and web articles.
+- **Sanitization & Markdown:** [DOMPurify](https://github.com/cure53/DOMPurify) for security sanitization and [Turndown.js](https://github.com/mixmark-io/turndown) for HTML to Markdown conversion.
+- **Math & Syntax Highlighting:** [KaTeX](https://github.com/KaTeX/KaTeX) for LaTeX rendering (`$$...$$` and `$...$`) and [Prism.js](https://github.com/PrismJS/prism) for code blocks.
+- **Standardized JSON Schema:** Emits normalized chat objects adhering to [Export Schema v1](schemas/export-v1.schema.json) preserving role trees, timestamps, model metadata, and reasoning traces (`<think>`) for programmatic workflows.
+
+```bash
+# Build from source
+git clone https://github.com/Covai-Labs/ace.git
+cd ace
+npm install
+
+# Dev mode (hot reloading)
+npm run dev           # Chromium
+npm run dev:firefox   # Firefox
+
+# Production builds
+npm run build         # Chromium (.output/chrome-mv3)
+npm run build:firefox # Firefox (.output/firefox-mv2)
+```
 
 </details>
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
-Contributions are welcome! If an AI chat interface updates its DOM or you want to add support for
-a new platform, see the [Development Guide](DEVELOPMENT.md) for build steps, parser guidelines, and
-the test harness.
-
-Platform web layouts evolve frequently. If an exporter encounters issues on a modified layout:
+Contributions are welcome! If an AI chat interface updates its DOM or you want to add support for a new platform, see the [Development Guide](DEVELOPMENT.md) for build steps, parser guidelines, and the test harness.
 
 1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues) or open a new one with the platform name and DOM context.
-2. Submit a Pull Request following the [Contribution Guidelines](CONTRIBUTING.md).
+2. Submit a Pull Request following the [Contribution Guidelines](.github/CONTRIBUTING.md).
 
 ### 🌐 Translations & Localization
 
@@ -181,7 +260,7 @@ Help translate AI Chat Exporter into your language! All translations are managed
 
 [![Translation status](https://hosted.weblate.org/widgets/ace/-/ace/horizontal-auto.svg)](https://hosted.weblate.org/engage/ace/)
 
-You can contribute translations directly in your browser without writing code or submitting PRs manually. See [Translating & Localization](CONTRIBUTING.md#translating--localization).
+You can contribute translations directly in your browser without writing code or submitting PRs manually. See [Translating & Localization](.github/CONTRIBUTING.md#translating--localization).
 
 ---
 
@@ -191,9 +270,23 @@ AI Chat Exporter is developed and maintained by an independent solo developer. U
 
 Because AI platforms constantly push layout updates that break DOM extraction, keeping parsers working requires continuous maintenance and rapid patching. If ACE saves you time in your daily workflow, consider [sponsoring on GitHub](https://github.com/sponsors/deadrat-in) to help keep this project alive and actively maintained.
 
+<div align="center">
+
+  <a href="https://github.com/sponsors/deadrat-in">
+    <img src="https://img.shields.io/badge/Sponsor_on_GitHub-%E2%9D%A4-ea4aaa?style=for-the-badge&logo=githubsponsors" alt="Sponsor on GitHub" />
+  </a>
+  <a href="https://github.com/Covai-Labs/ace/stargazers">
+    <img src="https://img.shields.io/badge/Star_on_GitHub-%E2%AD%90-yellow?style=for-the-badge&logo=github" alt="Star on GitHub" />
+  </a>
+
+<br /><br />
+<sub>Maintained by <a href="https://github.com/deadrat-in">Jay S (@deadrat-in)</a> at <a href="https://covai.org">Covai Labs</a> · Licensed under <a href="LICENSE">AGPL-3.0</a></sub>
+
+</div>
+
 ---
 
-## License
+## 📜 License
 
 This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full AGPL-3.0 license text and [LICENSE-EXCEPTION](LICENSE-EXCEPTION) for exception permissions and commercial licensing details.
 
@@ -203,7 +296,7 @@ Sample test fixtures located in [`tests/fixtures/`](tests/fixtures/) consist of 
 
 ---
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - [decant-core](https://github.com/Covai-Labs/decant) — Shared parser engine and intelligent article extraction.
 - [Turndown.js](https://github.com/mixmark-io/turndown) — HTML to Markdown conversion.

@@ -89,4 +89,4 @@ The official documentation and guide site is located in `web/` and built with [A
 ```
 
 For general information about the extension, installation, and usage, see [README.md](./README.md).
-For contribution guidelines and licensing terms, see [CONTRIBUTING.md](./CONTRIBUTING.md).
+For contribution guidelines and licensing terms, see [CONTRIBUTING.md](./.github/CONTRIBUTING.md).
