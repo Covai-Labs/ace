@@ -311,7 +311,7 @@ Because AI platforms constantly push layout updates that break DOM extraction, k
 
 ## 📜 License
 
-This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full AGPL-3.0 license text and [LICENSE-EXCEPTION](LICENSE-EXCEPTION) for exception permissions and commercial licensing details.
+This software is licensed under the **GNU Affero General Public License v3.0 (AGPL-3.0-only)** with an additional **FOSS Linking Exception**. See [LICENSE](LICENSE) for the full AGPL-3.0 license text and [FOSS-EXCEPTION.md](FOSS-EXCEPTION.md) for exception permissions and commercial licensing details.
 
 ### Third-Party Test Fixtures Notice
 
