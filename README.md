@@ -1,6 +1,6 @@
 <div align="center">
 
-# ACE — AI Chat Exporter
+# AI Chat Exporter
 
 ## Save, back up, and transfer your AI chats in 1 click.
 
@@ -19,32 +19,16 @@ _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
   <a href="https://microsoftedge.microsoft.com/addons/detail/ace-%C2%B7-export-chatgpt-clau/hbgckjgfhnaedlihmkogenclfcnobicg">
     <img src="https://img.shields.io/badge/Edge-Install_Free-0078D7?style=for-the-badge&logo=microsoftedge&logoColor=white" alt="Edge Add-ons" />
   </a>
-  <a href="https://github.com/Covai-Labs/ace/releases/latest">
-    <img src="https://img.shields.io/badge/Releases-Download_.ZIP-24292e?style=for-the-badge&logo=github&logoColor=white" alt="GitHub Releases" />
-  </a>
-  <a href="https://github.com/sponsors/deadrat-in">
-    <img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4_Support-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white" alt="Sponsor on GitHub" />
-  </a>
-
-<br /><br />
-
-  <!-- Row 1: Store Social Proof & Active Users -->
-
-<a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj"><img src="https://img.shields.io/chrome-web-store/rating/cgakhbhkplndjjknhgegfcipffflcaoj?style=flat-square&logo=googlechrome&label=Chrome%20Rating&color=success" alt="Chrome Rating" /></a>
-<a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj"><img src="https://img.shields.io/chrome-web-store/users/cgakhbhkplndjjknhgegfcipffflcaoj?style=flat-square&logo=googlechrome&label=Chrome%20Users&color=blue" alt="Chrome Users" /></a>
-<a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"><img src="https://img.shields.io/amo/rating/ai-chat-export?style=flat-square&logo=firefoxbrowser&label=Firefox%20Rating&color=success" alt="Firefox Rating" /></a>
-<a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"><img src="https://img.shields.io/amo/users/ai-chat-export?style=flat-square&logo=firefoxbrowser&label=Firefox%20Users&color=orange" alt="Firefox Users" /></a>
 
 <br />
 
-  <!-- Row 2: Live Trust & Open Source Status -->
+  <!-- Live Project Trust & Status -->
 
-<a href="https://github.com/Covai-Labs/ace"><img src="https://img.shields.io/github/stars/Covai-Labs/ace?style=flat-square&logo=github&color=yellow" alt="Stars" /></a>
+<img src="https://img.shields.io/github/stars/Covai-Labs/ace?style=flat-square&logo=github&color=yellow" alt="Stars" />
 <img src="https://img.shields.io/badge/Privacy-100%25_Local-success?style=flat-square&logo=shield" alt="100% Local" />
-<a href="https://hosted.weblate.org/engage/ace/"><img src="https://hosted.weblate.org/widgets/ace/-/ace/svg-badge.svg" alt="Translation status" /></a>
 <a href="LICENSE"><img src="https://img.shields.io/badge/License-AGPL--3.0-blue.svg?style=flat-square" alt="AGPL-3.0" /></a>
 
-<br /><br />
+<br />
 
 [Supported Platforms](#supported-platforms) • [Features](#features) • [Chat Continuation](#chat-continuation) • [Permissions](#permissions) • [Sponsor](#sponsor)
 
@@ -77,6 +61,13 @@ _100% Free. 100% Local in your browser. Zero accounts, zero cloud servers._
 
 ## ✨ Why People Switch to ACE
 
+<div align="center">
+
+<a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj"><img src="https://img.shields.io/chrome-web-store/rating/cgakhbhkplndjjknhgegfcipffflcaoj?style=for-the-badge&logo=googlechrome&label=Chrome%20Rating&color=success" alt="Chrome Rating" /></a>
+<a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"><img src="https://img.shields.io/amo/rating/ai-chat-export?style=for-the-badge&logo=firefoxbrowser&label=Firefox%20Rating&color=success" alt="Firefox Rating" /></a>
+
+</div>
+
 ### 🔄 Switch AI Mid-Conversation
 
 Hit a message limit on Claude? Start in ChatGPT and click **Continue in Claude / Gemini / DeepSeek**. ACE moves your entire conversation over automatically—no manual copy-pasting required.
@@ -92,6 +83,12 @@ Preview chats in **Dark, Light, or Solarized** themes. Uncheck messages you don'
 ### 🔒 100% Offline in Your Browser
 
 Many exporters secretly send your chats to their cloud servers. ACE runs **entirely inside your browser**. Zero servers, zero telemetry, zero accounts, and zero subscriptions.
+
+<div align="center">
+
+<a href="https://chromewebstore.google.com/detail/ai-chat-exporter-free-pri/cgakhbhkplndjjknhgegfcipffflcaoj"><img src="https://img.shields.io/chrome-web-store/users/cgakhbhkplndjjknhgegfcipffflcaoj?style=for-the-badge&logo=googlechrome&label=Chrome%20Users&color=blue" alt="Chrome Users" /></a>
+<a href="https://addons.mozilla.org/en-US/firefox/addon/ai-chat-export/"><img src="https://img.shields.io/amo/users/ai-chat-export?style=for-the-badge&logo=firefoxbrowser&label=Firefox%20Users&color=orange" alt="Firefox Users" /></a>
+</div>
 
 ---
 
@@ -117,6 +114,8 @@ Many exporters secretly send your chats to their cloud servers. ACE runs **entir
 ---
 
 ## 🚀 How It Works (3 Clicks)
+
+_Trusted by thousands of active users across Chrome, Firefox, and Edge._
 
 1. **Open any AI chat** (ChatGPT, Claude, Gemini, DeepSeek, etc.).
 2. **Click the ACE icon** in your toolbar (or open the browser Side Panel).
@@ -237,6 +236,8 @@ Contributions are welcome! If an AI chat interface updates its DOM or you want t
 1. Check existing [Issues](https://github.com/Covai-Labs/ace/issues) or open a new one with the platform name and DOM context.
 2. Submit a Pull Request following the [Contribution Guidelines](.github/CONTRIBUTING.md).
 
+</br>
+
 ### 🌐 Translations & Localization
 
 Help translate AI Chat Exporter into your language! All translations are managed through [Weblate](https://hosted.weblate.org/projects/ace/):
@@ -244,6 +245,8 @@ Help translate AI Chat Exporter into your language! All translations are managed
 [![Translation status](https://hosted.weblate.org/widgets/ace/-/ace/horizontal-auto.svg)](https://hosted.weblate.org/engage/ace/)
 
 You can contribute translations directly in your browser without writing code or submitting PRs manually. See [Translating & Localization](.github/CONTRIBUTING.md#translating--localization).
+
+</br>
 
 ---
 
@@ -264,8 +267,7 @@ Because AI platforms constantly push layout updates that break DOM extraction, k
     <img src="https://img.shields.io/badge/Star_on_GitHub-%E2%AD%90-yellow?style=for-the-badge&logo=github" alt="Star on GitHub" />
   </a>
 
-<br /><br />
-<sub>Maintained by <a href="https://github.com/deadrat-in">Jay S (@deadrat-in)</a> at <a href="https://covai.org">Covai Labs</a> · Licensed under <a href="LICENSE">AGPL-3.0</a></sub>
+<br />
 
 </div>
 
