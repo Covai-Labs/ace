@@ -11,7 +11,7 @@ on:
 
 jobs:
   codeql:
-    uses: Covai-Labs/.github/.github/workflows/reusable-codeql.yml@bd2d14e6167b4b9fda6767c42e14a5e2648bcdc3 # main
+    uses: Covai-Labs/.github/.github/workflows/reusable-codeql.yml@69216b853a78124199cf01649eec6c3f5a512b23 # main
     with:
       config-file: ./.github/codeql/codeql-config.yml
     permissions:
