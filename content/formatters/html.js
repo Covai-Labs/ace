@@ -919,6 +919,10 @@ ${prismJs}
         background-color: var(--bg-card) !important;
         border: 1px solid var(--border) !important;
         color: var(--text-primary) !important;
+        padding: 1.25rem 1.5rem !important;
+        box-sizing: border-box !important;
+        max-width: 100% !important;
+        width: 100% !important;
       }
       .message-header,
       h1, h2, h3, h4, h5, h6 {
@@ -994,6 +998,7 @@ ${prismJs}
         padding: 0 1.5rem !important;
         border-top: none !important;
         color: var(--text-secondary) !important;
+        box-sizing: border-box !important;
       }
       * {
         -webkit-print-color-adjust: exact !important;
