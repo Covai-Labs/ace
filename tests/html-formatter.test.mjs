@@ -561,3 +561,38 @@ test('HTML formatter preserves code blocks containing JSX <Image> tags without m
     'Inline code block should preserve <Image> tag',
   );
 });
+
+test('HTML formatter includes print media styles with @page background and aligned header/footer padding', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'Print padding test',
+    messages: [{ role: 'User', content: 'Testing print styles' }],
+  };
+
+  const output = formatter.format(conversation);
+
+  const printMatch = output.match(/@media print\s*\{([\s\S]*?)\n\s*\}\s*<\/style>/);
+  assert.ok(printMatch, 'Should contain @media print styles block');
+  const printCss = printMatch[1];
+
+  assert.ok(
+    printCss.includes('background: var(--bg-app);'),
+    '@page should set background to match theme for seamless full-bleed printing',
+  );
+  assert.ok(
+    /header\s*\{[^}]*padding:\s*0\s+1\.5rem\s+1\.25rem\s+1\.5rem\s*!important;/.test(printCss),
+    'header in print styles should have 1.5rem horizontal padding matching message-card content',
+  );
+  assert.ok(
+    /\.article-card\s*\{[^}]*padding:\s*1\.25rem\s+1\.5rem\s*!important;/.test(printCss) &&
+      /\.article-card\s*\{[^}]*box-sizing:\s*border-box\s*!important;/.test(printCss),
+    'article-card in print styles should have matching padding and border-box sizing',
+  );
+  assert.ok(
+    /\.export-footer\s*\{[^}]*padding:\s*0\s+1\.5rem\s*!important;/.test(printCss) &&
+      /\.export-footer\s*\{[^}]*box-sizing:\s*border-box\s*!important;/.test(printCss),
+    'export-footer in print styles should have 1.5rem horizontal padding and border-box sizing',
+  );
+});
