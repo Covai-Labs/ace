@@ -561,3 +561,29 @@ test('HTML formatter preserves code blocks containing JSX <Image> tags without m
     'Inline code block should preserve <Image> tag',
   );
 });
+
+test('HTML formatter includes print media styles with @page background and aligned header/footer padding', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'Print padding test',
+    messages: [{ role: 'User', content: 'Testing print styles' }],
+  };
+
+  const output = formatter.format(conversation);
+
+  assert.ok(output.includes('@media print'), 'Should contain @media print styles');
+  assert.ok(
+    output.includes('background: var(--bg-app);'),
+    '@page should set background to match theme for seamless full-bleed printing',
+  );
+  assert.ok(
+    output.includes('header {') && output.includes('padding: 0 1.5rem 1.25rem 1.5rem !important;'),
+    'header in print styles should have 1.5rem horizontal padding matching message-card content',
+  );
+  assert.ok(
+    output.includes('.export-footer {') && output.includes('padding: 0 1.5rem !important;'),
+    'export-footer in print styles should have 1.5rem horizontal padding matching message-card content',
+  );
+});

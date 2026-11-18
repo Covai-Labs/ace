@@ -868,19 +868,30 @@ ${prismJs}
       @page {
         margin: 12mm 15mm;
         size: auto;
+        background: var(--bg-app);
       }
-      body {
+      html, body {
         background-color: var(--bg-app) !important;
         color: var(--text-primary) !important;
         width: 100% !important;
         margin: 0 !important;
         padding: 0 !important;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
       }
       .container {
         padding: 0 !important;
         max-width: 100% !important;
         width: 100% !important;
         box-sizing: border-box !important;
+      }
+      header {
+        padding: 0 1.5rem 1.25rem 1.5rem !important;
+        margin-bottom: 1.5rem !important;
+        border-bottom: 1px solid var(--border) !important;
+      }
+      .header-title-section h1 {
+        margin: 0.25rem 0 0 0 !important;
       }
       .copy-code-btn,
       .copy-msg-btn,
@@ -980,6 +991,7 @@ ${prismJs}
       }
       .export-footer {
         margin-top: 1.5rem !important;
+        padding: 0 1.5rem !important;
         border-top: none !important;
         color: var(--text-secondary) !important;
       }
