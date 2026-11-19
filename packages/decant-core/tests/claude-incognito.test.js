@@ -1,26 +1,22 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseHTML } from "linkedom";
 import { ClaudeParser } from "../ai/claude.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 const INCOGNITO_HTML = fs.readFileSync(
-  path.join(__dirname, "fixtures", "claude-incognito-chat-2026-11.html"),
+  new URL("./fixtures/claude-incognito-chat-2026-11.html", import.meta.url),
   "utf-8",
 );
 
 const REGULAR_HTML = fs.readFileSync(
-  path.join(__dirname, "fixtures", "claude-chat-2026-11.html"),
+  new URL("./fixtures/claude-chat-2026-11.html", import.meta.url),
   "utf-8",
 );
 
 const API_CONVERSATION = JSON.parse(
   fs.readFileSync(
-    path.join(__dirname, "fixtures", "claude-conversation-2026-11.json"),
+    new URL("./fixtures/claude-conversation-2026-11.json", import.meta.url),
     "utf-8",
   ),
 );
