@@ -105,3 +105,63 @@ test("ClaudeParser falls back to DOM when API returns temporary chat (is_tempora
     globalThis.fetch = originalFetch;
   }
 });
+
+test("ClaudeParser DOM extracts all 14 turns from regular chat fixture (November 2026)", async () => {
+  setupDom(
+    "claude-chat-2026-11.html",
+    "https://claude.ai/chat/779c258d-43f2-45be-a67b-0fce7f65ec79",
+  );
+  const parser = new ClaudeParser();
+  const result = await parser.parse({ parserMode: "prefer_dom" });
+
+  assert.equal(result.metadata.Source, "Claude");
+  assert.equal(result.metadata.Method, "DOM");
+  assert.equal(result.messages.length, 14);
+
+  for (let i = 0; i < result.messages.length; i++) {
+    const expectedRole = i % 2 === 0 ? "User" : "Claude";
+    assert.equal(result.messages[i].role, expectedRole);
+  }
+
+  assert.ok(result.messages[0].content.includes("species that went extinct"));
+  assert.ok(result.messages[1].content.includes("| Species |"));
+});
+
+test("ClaudeParser API extracts all 14 branch turns from regular conversation fixture (November 2026)", async () => {
+  const apiData = JSON.parse(
+    fs.readFileSync(
+      path.join(__dirname, "fixtures", "claude-conversation-2026-11.json"),
+      "utf-8",
+    ),
+  );
+
+  setupDom(
+    "claude-chat-2026-11.html",
+    "https://claude.ai/chat/" + apiData.uuid,
+  );
+
+  const originalFetch = globalThis.fetch;
+  globalThis.fetch = async (url) => {
+    if (url.includes("/api/organizations/org-1/chat_conversations")) {
+      return { ok: true, json: async () => apiData };
+    }
+    if (url.includes("/api/organizations")) {
+      return { ok: true, json: async () => [{ uuid: "org-1" }] };
+    }
+    throw new Error("Unexpected url: " + url);
+  };
+
+  try {
+    const parser = new ClaudeParser();
+    const result = await parser.parse({ parserMode: "auto" });
+
+    assert.equal(result.metadata.Method, "API");
+    assert.equal(result.title, "Recent species extinctions caused by humans");
+    assert.equal(result.messages.length, 14);
+    assert.equal(result.messages[0].role, "User");
+    assert.equal(result.messages[1].role, "Claude");
+    assert.ok(result.messages[0].content.includes("species that went extinct"));
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
