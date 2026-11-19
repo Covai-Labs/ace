@@ -8,22 +8,24 @@ import { ClaudeParser } from "../ai/claude.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-const FIXTURES = {
-  incognito: path.join(
-    __dirname,
-    "fixtures",
-    "claude-incognito-chat-2026-11.html",
-  ),
-  regular: path.join(__dirname, "fixtures", "claude-chat-2026-11.html"),
-  api: path.join(__dirname, "fixtures", "claude-conversation-2026-11.json"),
-};
+const INCOGNITO_HTML = fs.readFileSync(
+  path.join(__dirname, "fixtures", "claude-incognito-chat-2026-11.html"),
+  "utf-8",
+);
 
-function setupDom(fixtureKey, url) {
-  const fixturePath = FIXTURES[fixtureKey];
-  if (!fixturePath) {
-    throw new Error(`Unknown fixture key: ${fixtureKey}`);
-  }
-  const html = fs.readFileSync(fixturePath, "utf-8");
+const REGULAR_HTML = fs.readFileSync(
+  path.join(__dirname, "fixtures", "claude-chat-2026-11.html"),
+  "utf-8",
+);
+
+const API_CONVERSATION = JSON.parse(
+  fs.readFileSync(
+    path.join(__dirname, "fixtures", "claude-conversation-2026-11.json"),
+    "utf-8",
+  ),
+);
+
+function setupDom(html, url) {
   const dom = parseHTML(html);
   globalThis.document = dom.document;
   globalThis.window = dom.window;
@@ -40,7 +42,7 @@ test("ClaudeParser - Incognito and Modern Selectors", async (t) => {
   await t.test(
     "ClaudeParser DOM extracts all 12 turns from incognito chat fixture",
     async () => {
-      setupDom("incognito", "https://claude.ai/new?incognito");
+      setupDom(INCOGNITO_HTML, "https://claude.ai/new?incognito");
       const parser = new ClaudeParser();
       assert.equal(parser.isAvailable("https://claude.ai/new?incognito"), true);
 
@@ -77,7 +79,7 @@ test("ClaudeParser - Incognito and Modern Selectors", async (t) => {
     "ClaudeParser falls back to DOM when API returns temporary chat (is_temporary: true)",
     async () => {
       setupDom(
-        "incognito",
+        INCOGNITO_HTML,
         "https://claude.ai/chat/5066fbd3-233e-41b8-a64b-577e7e153781",
       );
 
@@ -192,7 +194,7 @@ test("ClaudeParser - Incognito and Modern Selectors", async (t) => {
     "ClaudeParser DOM extracts all 14 turns from regular chat fixture (November 2026)",
     async () => {
       setupDom(
-        "regular",
+        REGULAR_HTML,
         "https://claude.ai/chat/779c258d-43f2-45be-a67b-0fce7f65ec79",
       );
       const parser = new ClaudeParser();
@@ -220,9 +222,11 @@ test("ClaudeParser - Incognito and Modern Selectors", async (t) => {
   await t.test(
     "ClaudeParser API extracts all 14 branch turns from regular conversation fixture (November 2026)",
     async () => {
-      const apiData = JSON.parse(fs.readFileSync(FIXTURES.api, "utf-8"));
-
-      setupDom("regular", "https://claude.ai/chat/" + apiData.uuid);
+      const apiData = API_CONVERSATION;
+      setupDom(
+        REGULAR_HTML,
+        "https://claude.ai/chat/779c258d-43f2-45be-a67b-0fce7f65ec79",
+      );
 
       const originalFetch = globalThis.fetch;
       globalThis.fetch = async (url) => {
