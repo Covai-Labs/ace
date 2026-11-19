@@ -499,10 +499,10 @@ export class ClaudeParser extends ChatParser {
 
   async parse(options = {}) {
     const title = document.title || "Claude Chat";
-    const messages = [];
 
     const conversationId = getConversationId();
     const parserMode = options.parserMode || "auto";
+    let apiFallbackResult = null;
 
     if (conversationId && parserMode !== "prefer_dom") {
       const orgId = await getOrganizationId();
@@ -527,6 +527,16 @@ export class ClaudeParser extends ChatParser {
           }
 
           const branch = getCurrentBranch(data);
+          const domUserMsgCount =
+            typeof document !== "undefined" &&
+            typeof document.querySelectorAll === "function"
+              ? document.querySelectorAll('[data-testid="user-message"]').length
+              : 0;
+
+          const isTruncatedTree =
+            Boolean(data.is_temporary) ||
+            (branch.length <= 2 && domUserMsgCount > 1);
+
           const foldedArtifacts = collectArtifacts(branch);
           const presentedFilesByToolUseId = collectPresentedFiles(branch);
           const emittedFileKeys = new Set();
@@ -556,6 +566,7 @@ export class ClaudeParser extends ChatParser {
           }
 
           const convTitle = data.name || title;
+          const apiMessages = [];
 
           for (const message of branch) {
             const role = message.sender === "human" ? "User" : "Claude";
@@ -744,7 +755,7 @@ export class ClaudeParser extends ChatParser {
               if (timestamp) {
                 msgObj.timestamp = timestamp;
               }
-              messages.push(msgObj);
+              apiMessages.push(msgObj);
             }
 
             // Extract and push artifacts
@@ -765,7 +776,7 @@ export class ClaudeParser extends ChatParser {
                 artContent = `\n\n> **Artifact: ${artTitle}**\n\`\`\`${artLang}\n${artText}\n\`\`\`\n\n`;
               }
 
-              messages.push({
+              apiMessages.push({
                 role: "Claude Artifact",
                 content: artContent.trim(),
                 ...(pickTimestamp(message, ["created_at", "updated_at"])
@@ -792,7 +803,23 @@ export class ClaudeParser extends ChatParser {
             Method: "API",
           };
 
-          return { title: convTitle, messages, url: currentUrl, metadata };
+          if (!isTruncatedTree) {
+            return {
+              title: convTitle,
+              messages: apiMessages,
+              url: currentUrl,
+              metadata,
+            };
+          }
+          apiFallbackResult = {
+            title: convTitle,
+            messages: apiMessages,
+            url: currentUrl,
+            metadata,
+          };
+          console.warn(
+            "[AI Exporter] Claude API returned temporary or truncated chat tree, falling back to DOM parser",
+          );
         } catch (e) {
           console.error(
             "[AI Exporter] Claude API parse failed, falling back to DOM:",
@@ -847,6 +874,8 @@ export class ClaudeParser extends ChatParser {
 
     const strictSelectors = [
       '[data-testid="user-message"]',
+      '[data-testid="assistant-message"]',
+      '[data-cds="AssistantMessage"]:not([data-testid="assistant-message"])',
       ".font-claude-message",
       ".font-claude-response",
       ".artifact-block-cell",
@@ -871,22 +900,45 @@ export class ClaudeParser extends ChatParser {
     const combinedSet = new Set([...strictCandidates, ...validFallbacks]);
     const allElements = Array.from(
       document.querySelectorAll(`${strictSelectors}, ${fallbackSelectors}`),
-    ).filter((el) => combinedSet.has(el));
+    ).filter((el) => {
+      if (!combinedSet.has(el)) return false;
+      return !strictCandidates.some(
+        (parent) =>
+          parent !== el &&
+          parent.contains(el) &&
+          !el.matches(".artifact-block-cell") &&
+          (parent.matches('[data-testid="user-message"]') ||
+            parent.matches('[data-testid="assistant-message"]') ||
+            parent.matches('[data-cds="AssistantMessage"]') ||
+            parent.matches(".font-claude-message") ||
+            parent.matches(".font-claude-response")),
+      );
+    });
 
     const artifactElements = document.querySelectorAll(".artifact-block-cell");
     const artifactMap = new Map();
     artifactElements.forEach((el, index) => artifactMap.set(el, index));
 
+    const messages = [];
+
     for (const el of allElements) {
       let role = "Unknown";
       let content = "";
+      let thinking = "";
 
       if (el.matches('[data-testid="user-message"]')) {
         role = "User";
         const clone = el.cloneNode(true);
+        clone
+          .querySelectorAll(
+            '[data-testid="user-message-actions"], [role="toolbar"]',
+          )
+          .forEach((node) => node.remove());
         unrollInteractiveElements(clone, el.ownerDocument || document);
         content = convertToMarkdown(clone);
       } else if (
+        el.matches('[data-testid="assistant-message"]') ||
+        el.matches('[data-cds="AssistantMessage"]') ||
         el.matches(".font-claude-message") ||
         el.matches(".font-claude-response") ||
         el.matches("div.font-serif")
@@ -896,12 +948,33 @@ export class ClaudeParser extends ChatParser {
         // Extract file cards first: unrollInteractiveElements strips all
         // buttons, which would destroy the card markers.
         const fileCardNames = extractFileCards(clone);
+
+        // Extract thinking / reasoning from TurnStatus before sanitizing
+        const turnStatusEl = clone.querySelector('[data-cds="TurnStatus"]');
+        if (turnStatusEl) {
+          turnStatusEl
+            .querySelectorAll(".sr-only, button")
+            .forEach((node) => node.remove());
+          thinking = turnStatusEl.textContent.trim();
+          turnStatusEl.remove();
+        }
+
+        // Clean up toolbars and screen-reader elements (e.g. 'Claude responded: ...', action buttons, relative timestamps)
+        clone
+          .querySelectorAll(
+            '.sr-only, [data-testid="message-actions"], [data-testid="user-message-actions"], [role="toolbar"]',
+          )
+          .forEach((node) => node.remove());
+
         unrollInteractiveElements(clone, el.ownerDocument || document);
         content = convertToMarkdown(clone);
         if (fileCardNames.length > 0) {
           content += formatGeneratedFilesSection(
             fileCardNames.map((name) => ({ name, path: "", mime: "" })),
           );
+        }
+        if (thinking) {
+          content = `<think>\n${thinking}\n</think>\n\n` + content;
         }
       } else if (el.matches(".artifact-block-cell")) {
         role = "Claude Artifact";
@@ -935,7 +1008,11 @@ export class ClaudeParser extends ChatParser {
       }
 
       if (content) {
-        const msgObj = { role, content };
+        const msgObj = {
+          role,
+          content,
+          ...(thinking ? { thinking } : {}),
+        };
         // Best-effort DOM timestamp. <time datetime> usually lives in the
         // sibling MessageActions toolbar inside the same transcript row —
         // not inside the message element itself. Scope to the closest row
@@ -966,6 +1043,15 @@ export class ClaudeParser extends ChatParser {
         }
         messages.push(msgObj);
       }
+    }
+
+    if (
+      messages.length === 0 &&
+      apiFallbackResult &&
+      Array.isArray(apiFallbackResult.messages) &&
+      apiFallbackResult.messages.length > 0
+    ) {
+      return apiFallbackResult;
     }
 
     const currentUrl =
