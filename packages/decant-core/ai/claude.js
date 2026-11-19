@@ -499,10 +499,10 @@ export class ClaudeParser extends ChatParser {
 
   async parse(options = {}) {
     const title = document.title || "Claude Chat";
-    const messages = [];
 
     const conversationId = getConversationId();
     const parserMode = options.parserMode || "auto";
+    let apiFallbackResult = null;
 
     if (conversationId && parserMode !== "prefer_dom") {
       const orgId = await getOrganizationId();
@@ -533,145 +533,124 @@ export class ClaudeParser extends ChatParser {
               ? document.querySelectorAll('[data-testid="user-message"]').length
               : 0;
 
-          if (
-            data.is_temporary ||
-            (branch.length <= 2 && domUserMsgCount > 1)
-          ) {
-            console.warn(
-              "[AI Exporter] Claude API returned temporary or truncated chat tree, falling back to DOM parser",
-            );
-          } else {
-            const foldedArtifacts = collectArtifacts(branch);
-            const presentedFilesByToolUseId = collectPresentedFiles(branch);
-            const emittedFileKeys = new Set();
+          const isTruncatedTree =
+            Boolean(data.is_temporary) ||
+            (branch.length <= 2 && domUserMsgCount > 1);
 
-            const toolResultMap = new Map();
-            for (const msg of branch) {
-              if (Array.isArray(msg?.content)) {
-                for (const block of msg.content) {
-                  if (block.type === "tool_result") {
-                    const toolUseId = block.tool_use_id || block.id;
-                    let answers = block.toolUseResult?.answers || {};
-                    if (
-                      (!answers || Object.keys(answers).length === 0) &&
-                      typeof block.content === "string"
-                    ) {
-                      try {
-                        const parsed = JSON.parse(block.content);
-                        answers = parsed.answers || parsed;
-                      } catch {
-                        answers = { result: block.content };
-                      }
+          const foldedArtifacts = collectArtifacts(branch);
+          const presentedFilesByToolUseId = collectPresentedFiles(branch);
+          const emittedFileKeys = new Set();
+
+          const toolResultMap = new Map();
+          for (const msg of branch) {
+            if (Array.isArray(msg?.content)) {
+              for (const block of msg.content) {
+                if (block.type === "tool_result") {
+                  const toolUseId = block.tool_use_id || block.id;
+                  let answers = block.toolUseResult?.answers || {};
+                  if (
+                    (!answers || Object.keys(answers).length === 0) &&
+                    typeof block.content === "string"
+                  ) {
+                    try {
+                      const parsed = JSON.parse(block.content);
+                      answers = parsed.answers || parsed;
+                    } catch {
+                      answers = { result: block.content };
                     }
-                    toolResultMap.set(toolUseId, answers);
                   }
+                  toolResultMap.set(toolUseId, answers);
                 }
               }
             }
+          }
 
-            const convTitle = data.name || title;
+          const convTitle = data.name || title;
+          const apiMessages = [];
 
-            for (const message of branch) {
-              const role = message.sender === "human" ? "User" : "Claude";
+          for (const message of branch) {
+            const role = message.sender === "human" ? "User" : "Claude";
 
-              let contentStr = "";
-              let thinkingStr = "";
+            let contentStr = "";
+            let thinkingStr = "";
 
-              // Construct content
-              if (message.content && Array.isArray(message.content)) {
-                for (const block of message.content) {
-                  if (block.type === "thinking") {
-                    let thoughtText = "";
-                    if (
-                      typeof block.thinking === "string" &&
-                      block.thinking.trim()
-                    ) {
-                      thoughtText = block.thinking.trim();
-                    } else if (Array.isArray(block.summaries)) {
-                      thoughtText = block.summaries
-                        .map((s) =>
-                          typeof s === "string" ? s : s?.summary || "",
-                        )
-                        .map((s) => s.trim())
-                        .filter(Boolean)
-                        .join("\n");
-                    }
-                    if (thoughtText) {
-                      thinkingStr += (thinkingStr ? "\n\n" : "") + thoughtText;
-                    }
-                  } else if (block.type === "text" && block.text) {
-                    const cleanText = block.text
-                      .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, "")
-                      .trim();
-                    if (cleanText) {
-                      contentStr += `${cleanText}\n\n`;
-                    }
-                  } else if (block.type === "tool_use") {
-                    const input = block.input || {};
-                    if (
-                      block.name === "visualize:show_widget" &&
-                      input.widget_code
-                    ) {
-                      const widgetTitle = input.title || "Interactive Widget";
-                      contentStr += `> **Interactive Widget: ${widgetTitle}**\n\n\`\`\`jsx\n${input.widget_code.trim()}\n\`\`\`\n\n`;
-                    } else if (block.name === "repl" && input.code) {
-                      contentStr += `**Analyzed data**\n\n\`\`\`javascript\n${input.code.trim()}\n\`\`\`\n\n`;
-                    } else if (
-                      block.name === "AskUserQuestion" &&
-                      Array.isArray(input.questions) &&
-                      input.questions.length > 0
-                    ) {
-                      const qCount = input.questions.length;
-                      const countLabel =
-                        qCount === 1
-                          ? "Asked 1 question"
-                          : `Asked ${qCount} questions`;
-                      let qStr = `> **${countLabel}:**\n`;
-                      const answers = toolResultMap.get(block.id) || {};
-                      for (const q of input.questions) {
-                        const qText = q.question || q.text || "";
-                        const ans = answers[qText];
-                        let ansStr = "";
-                        if (typeof ans === "string") {
-                          ansStr = ans;
-                        } else if (Array.isArray(ans)) {
-                          ansStr = ans.join(", ");
-                        } else if (ans && typeof ans === "object") {
-                          ansStr = JSON.stringify(ans);
-                        } else if (ans != null) {
-                          ansStr = String(ans);
-                        }
-                        qStr += ansStr
-                          ? `> - **${qText}** — ${ansStr}\n`
-                          : `> - ${qText}\n`;
-                      }
-                      contentStr += `${qStr}\n`;
-                    } else if (
-                      block.name === "present_files" &&
-                      presentedFilesByToolUseId.has(block.id)
-                    ) {
-                      // Files surfaced via the File Creation integration
-                      // (markdown docs, tarball, …). Without this they are
-                      // silently dropped from every export format.
-                      const files = presentedFilesByToolUseId.get(block.id);
-                      const fresh = files.filter(
-                        (file) => !emittedFileKeys.has(file.key),
-                      );
-                      fresh.forEach((file) => emittedFileKeys.add(file.key));
-                      if (fresh.length > 0) {
-                        contentStr += formatGeneratedFilesSection(fresh);
-                      }
-                    }
-                  } else if (
-                    block.type === "tool_result" &&
-                    Array.isArray(block.content)
+            // Construct content
+            if (message.content && Array.isArray(message.content)) {
+              for (const block of message.content) {
+                if (block.type === "thinking") {
+                  let thoughtText = "";
+                  if (
+                    typeof block.thinking === "string" &&
+                    block.thinking.trim()
                   ) {
-                    // Orphan file presentation: the matching tool_use block may
-                    // sit outside the current branch, so emit unseen
-                    // local_resource entries directly from the result.
-                    const toolUseId = block.tool_use_id || block.id;
-                    const files =
-                      presentedFilesByToolUseId.get(toolUseId) || [];
+                    thoughtText = block.thinking.trim();
+                  } else if (Array.isArray(block.summaries)) {
+                    thoughtText = block.summaries
+                      .map((s) =>
+                        typeof s === "string" ? s : s?.summary || "",
+                      )
+                      .map((s) => s.trim())
+                      .filter(Boolean)
+                      .join("\n");
+                  }
+                  if (thoughtText) {
+                    thinkingStr += (thinkingStr ? "\n\n" : "") + thoughtText;
+                  }
+                } else if (block.type === "text" && block.text) {
+                  const cleanText = block.text
+                    .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, "")
+                    .trim();
+                  if (cleanText) {
+                    contentStr += `${cleanText}\n\n`;
+                  }
+                } else if (block.type === "tool_use") {
+                  const input = block.input || {};
+                  if (
+                    block.name === "visualize:show_widget" &&
+                    input.widget_code
+                  ) {
+                    const widgetTitle = input.title || "Interactive Widget";
+                    contentStr += `> **Interactive Widget: ${widgetTitle}**\n\n\`\`\`jsx\n${input.widget_code.trim()}\n\`\`\`\n\n`;
+                  } else if (block.name === "repl" && input.code) {
+                    contentStr += `**Analyzed data**\n\n\`\`\`javascript\n${input.code.trim()}\n\`\`\`\n\n`;
+                  } else if (
+                    block.name === "AskUserQuestion" &&
+                    Array.isArray(input.questions) &&
+                    input.questions.length > 0
+                  ) {
+                    const qCount = input.questions.length;
+                    const countLabel =
+                      qCount === 1
+                        ? "Asked 1 question"
+                        : `Asked ${qCount} questions`;
+                    let qStr = `> **${countLabel}:**\n`;
+                    const answers = toolResultMap.get(block.id) || {};
+                    for (const q of input.questions) {
+                      const qText = q.question || q.text || "";
+                      const ans = answers[qText];
+                      let ansStr = "";
+                      if (typeof ans === "string") {
+                        ansStr = ans;
+                      } else if (Array.isArray(ans)) {
+                        ansStr = ans.join(", ");
+                      } else if (ans && typeof ans === "object") {
+                        ansStr = JSON.stringify(ans);
+                      } else if (ans != null) {
+                        ansStr = String(ans);
+                      }
+                      qStr += ansStr
+                        ? `> - **${qText}** — ${ansStr}\n`
+                        : `> - ${qText}\n`;
+                    }
+                    contentStr += `${qStr}\n`;
+                  } else if (
+                    block.name === "present_files" &&
+                    presentedFilesByToolUseId.has(block.id)
+                  ) {
+                    // Files surfaced via the File Creation integration
+                    // (markdown docs, tarball, …). Without this they are
+                    // silently dropped from every export format.
+                    const files = presentedFilesByToolUseId.get(block.id);
                     const fresh = files.filter(
                       (file) => !emittedFileKeys.has(file.key),
                     );
@@ -680,136 +659,167 @@ export class ClaudeParser extends ChatParser {
                       contentStr += formatGeneratedFilesSection(fresh);
                     }
                   }
-                }
-              } else if (message.text) {
-                const cleanText = message.text
-                  .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, "")
-                  .trim();
-                if (cleanText) {
-                  contentStr += `${cleanText}\n\n`;
-                }
-              }
-
-              // Append attachments (for user messages)
-              if (message.attachments && message.attachments.length > 0) {
-                for (const attachment of message.attachments) {
-                  if (attachment.file_name) {
-                    let header = `### Attachment: ${attachment.file_name}`;
-                    const meta = [];
-                    const sizeLabel = formatFileSize(attachment.file_size);
-                    if (sizeLabel) {
-                      meta.push(sizeLabel);
-                    }
-                    if (attachment.file_type) {
-                      meta.push(attachment.file_type);
-                    }
-                    if (meta.length > 0) {
-                      header += ` _(${meta.join(", ")})_`;
-                    }
-                    contentStr += `\n\n${header}\n`;
-                    if (attachment.extracted_content) {
-                      contentStr += `\`\`\`\`\n${attachment.extracted_content}\n\`\`\`\`\n\n`;
-                    }
-                  } else if (attachment.extracted_content) {
-                    const sizeLabel = formatFileSize(attachment.file_size);
-                    const sizeSuffix = sizeLabel ? ` _(${sizeLabel})_` : "";
-                    contentStr += `\n\n### Pasted content${sizeSuffix}\n\`\`\`\`\n${attachment.extracted_content}\n\`\`\`\`\n\n`;
+                } else if (
+                  block.type === "tool_result" &&
+                  Array.isArray(block.content)
+                ) {
+                  // Orphan file presentation: the matching tool_use block may
+                  // sit outside the current branch, so emit unseen
+                  // local_resource entries directly from the result.
+                  const toolUseId = block.tool_use_id || block.id;
+                  const files = presentedFilesByToolUseId.get(toolUseId) || [];
+                  const fresh = files.filter(
+                    (file) => !emittedFileKeys.has(file.key),
+                  );
+                  fresh.forEach((file) => emittedFileKeys.add(file.key));
+                  if (fresh.length > 0) {
+                    contentStr += formatGeneratedFilesSection(fresh);
                   }
                 }
               }
-
-              // Append files (images/documents)
-              if (message.files && Array.isArray(message.files)) {
-                for (const file of message.files) {
-                  const name = file.file_name || "file";
-                  if (
-                    file.file_kind === "image" &&
-                    (file.preview_url || file.preview_asset?.url)
-                  ) {
-                    const url = file.preview_url || file.preview_asset.url;
-                    contentStr += `\n\n**Attachment: ${name}**\n\n![${name}](${url})\n\n`;
-                  } else if (
-                    file.file_kind === "document" &&
-                    file.document_asset?.url
-                  ) {
-                    const url = file.document_asset.url;
-                    const pages = file.document_asset.page_count;
-                    const pageInfo = pages
-                      ? ` · ${pages} page${pages === 1 ? "" : "s"}`
-                      : "";
-                    contentStr += `\n\n**Attachment: [${name}](${url})** _(document${pageInfo})_\n\n`;
-                  }
-                }
-              }
-
-              if (thinkingStr) {
-                contentStr =
-                  `<think>\n${thinkingStr}\n</think>\n\n` + contentStr;
-              }
-
-              contentStr = contentStr.trim();
-              if (contentStr) {
-                const msgObj = { role, content: contentStr };
-                if (thinkingStr) {
-                  msgObj.thinking = thinkingStr;
-                }
-                const timestamp = pickTimestamp(message, [
-                  "created_at",
-                  "updated_at",
-                ]);
-                if (timestamp) {
-                  msgObj.timestamp = timestamp;
-                }
-                messages.push(msgObj);
-              }
-
-              // Extract and push artifacts
-              const artifacts = extractArtifacts(message, foldedArtifacts);
-              for (const artifact of artifacts) {
-                let artContent = "";
-                const artTitle = artifact.title || "Artifact";
-                const artText = artifact.content || "";
-                const artLang = artifact.language || "text";
-
-                if (artLang === "markdown" || artLang === "text") {
-                  const quotedContent = artText
-                    .split("\n")
-                    .map((line) => `> ${line}`)
-                    .join("\n");
-                  artContent = `\n\n> **Artifact: ${artTitle}**\n\n${quotedContent}\n\n`;
-                } else {
-                  artContent = `\n\n> **Artifact: ${artTitle}**\n\`\`\`${artLang}\n${artText}\n\`\`\`\n\n`;
-                }
-
-                messages.push({
-                  role: "Claude Artifact",
-                  content: artContent.trim(),
-                  ...(pickTimestamp(message, ["created_at", "updated_at"])
-                    ? {
-                        timestamp: pickTimestamp(message, [
-                          "created_at",
-                          "updated_at",
-                        ]),
-                      }
-                    : {}),
-                });
+            } else if (message.text) {
+              const cleanText = message.text
+                .replace(/<antArtifact[^>]*>[\s\S]*?<\/antArtifact>/g, "")
+                .trim();
+              if (cleanText) {
+                contentStr += `${cleanText}\n\n`;
               }
             }
 
-            const currentUrl =
-              typeof window !== "undefined" && window.location
-                ? window.location.href || ""
-                : "";
-            const metadata = {
-              Source: "Claude",
-              Date: new Date().toLocaleString(),
-              Link: currentUrl,
-              Model: data.model || "Claude",
-              Method: "API",
-            };
+            // Append attachments (for user messages)
+            if (message.attachments && message.attachments.length > 0) {
+              for (const attachment of message.attachments) {
+                if (attachment.file_name) {
+                  let header = `### Attachment: ${attachment.file_name}`;
+                  const meta = [];
+                  const sizeLabel = formatFileSize(attachment.file_size);
+                  if (sizeLabel) {
+                    meta.push(sizeLabel);
+                  }
+                  if (attachment.file_type) {
+                    meta.push(attachment.file_type);
+                  }
+                  if (meta.length > 0) {
+                    header += ` _(${meta.join(", ")})_`;
+                  }
+                  contentStr += `\n\n${header}\n`;
+                  if (attachment.extracted_content) {
+                    contentStr += `\`\`\`\`\n${attachment.extracted_content}\n\`\`\`\`\n\n`;
+                  }
+                } else if (attachment.extracted_content) {
+                  const sizeLabel = formatFileSize(attachment.file_size);
+                  const sizeSuffix = sizeLabel ? ` _(${sizeLabel})_` : "";
+                  contentStr += `\n\n### Pasted content${sizeSuffix}\n\`\`\`\`\n${attachment.extracted_content}\n\`\`\`\`\n\n`;
+                }
+              }
+            }
 
-            return { title: convTitle, messages, url: currentUrl, metadata };
+            // Append files (images/documents)
+            if (message.files && Array.isArray(message.files)) {
+              for (const file of message.files) {
+                const name = file.file_name || "file";
+                if (
+                  file.file_kind === "image" &&
+                  (file.preview_url || file.preview_asset?.url)
+                ) {
+                  const url = file.preview_url || file.preview_asset.url;
+                  contentStr += `\n\n**Attachment: ${name}**\n\n![${name}](${url})\n\n`;
+                } else if (
+                  file.file_kind === "document" &&
+                  file.document_asset?.url
+                ) {
+                  const url = file.document_asset.url;
+                  const pages = file.document_asset.page_count;
+                  const pageInfo = pages
+                    ? ` · ${pages} page${pages === 1 ? "" : "s"}`
+                    : "";
+                  contentStr += `\n\n**Attachment: [${name}](${url})** _(document${pageInfo})_\n\n`;
+                }
+              }
+            }
+
+            if (thinkingStr) {
+              contentStr = `<think>\n${thinkingStr}\n</think>\n\n` + contentStr;
+            }
+
+            contentStr = contentStr.trim();
+            if (contentStr) {
+              const msgObj = { role, content: contentStr };
+              if (thinkingStr) {
+                msgObj.thinking = thinkingStr;
+              }
+              const timestamp = pickTimestamp(message, [
+                "created_at",
+                "updated_at",
+              ]);
+              if (timestamp) {
+                msgObj.timestamp = timestamp;
+              }
+              apiMessages.push(msgObj);
+            }
+
+            // Extract and push artifacts
+            const artifacts = extractArtifacts(message, foldedArtifacts);
+            for (const artifact of artifacts) {
+              let artContent = "";
+              const artTitle = artifact.title || "Artifact";
+              const artText = artifact.content || "";
+              const artLang = artifact.language || "text";
+
+              if (artLang === "markdown" || artLang === "text") {
+                const quotedContent = artText
+                  .split("\n")
+                  .map((line) => `> ${line}`)
+                  .join("\n");
+                artContent = `\n\n> **Artifact: ${artTitle}**\n\n${quotedContent}\n\n`;
+              } else {
+                artContent = `\n\n> **Artifact: ${artTitle}**\n\`\`\`${artLang}\n${artText}\n\`\`\`\n\n`;
+              }
+
+              apiMessages.push({
+                role: "Claude Artifact",
+                content: artContent.trim(),
+                ...(pickTimestamp(message, ["created_at", "updated_at"])
+                  ? {
+                      timestamp: pickTimestamp(message, [
+                        "created_at",
+                        "updated_at",
+                      ]),
+                    }
+                  : {}),
+              });
+            }
           }
+
+          const currentUrl =
+            typeof window !== "undefined" && window.location
+              ? window.location.href || ""
+              : "";
+          const metadata = {
+            Source: "Claude",
+            Date: new Date().toLocaleString(),
+            Link: currentUrl,
+            Model: data.model || "Claude",
+            Method: "API",
+          };
+
+          if (!isTruncatedTree) {
+            return {
+              title: convTitle,
+              messages: apiMessages,
+              url: currentUrl,
+              metadata,
+            };
+          }
+          apiFallbackResult = {
+            title: convTitle,
+            messages: apiMessages,
+            url: currentUrl,
+            metadata,
+          };
+          console.warn(
+            "[AI Exporter] Claude API returned temporary or truncated chat tree, falling back to DOM parser",
+          );
         } catch (e) {
           console.error(
             "[AI Exporter] Claude API parse failed, falling back to DOM:",
@@ -890,11 +900,26 @@ export class ClaudeParser extends ChatParser {
     const combinedSet = new Set([...strictCandidates, ...validFallbacks]);
     const allElements = Array.from(
       document.querySelectorAll(`${strictSelectors}, ${fallbackSelectors}`),
-    ).filter((el) => combinedSet.has(el));
+    ).filter((el) => {
+      if (!combinedSet.has(el)) return false;
+      return !strictCandidates.some(
+        (parent) =>
+          parent !== el &&
+          parent.contains(el) &&
+          !el.matches(".artifact-block-cell") &&
+          (parent.matches('[data-testid="user-message"]') ||
+            parent.matches('[data-testid="assistant-message"]') ||
+            parent.matches('[data-cds="AssistantMessage"]') ||
+            parent.matches(".font-claude-message") ||
+            parent.matches(".font-claude-response")),
+      );
+    });
 
     const artifactElements = document.querySelectorAll(".artifact-block-cell");
     const artifactMap = new Map();
     artifactElements.forEach((el, index) => artifactMap.set(el, index));
+
+    const messages = [];
 
     for (const el of allElements) {
       let role = "Unknown";
@@ -904,6 +929,11 @@ export class ClaudeParser extends ChatParser {
       if (el.matches('[data-testid="user-message"]')) {
         role = "User";
         const clone = el.cloneNode(true);
+        clone
+          .querySelectorAll(
+            '[data-testid="user-message-actions"], [role="toolbar"]',
+          )
+          .forEach((node) => node.remove());
         unrollInteractiveElements(clone, el.ownerDocument || document);
         content = convertToMarkdown(clone);
       } else if (
@@ -929,8 +959,12 @@ export class ClaudeParser extends ChatParser {
           turnStatusEl.remove();
         }
 
-        // Clean up screen-reader text (e.g. 'Claude responded: ...')
-        clone.querySelectorAll(".sr-only").forEach((node) => node.remove());
+        // Clean up toolbars and screen-reader elements (e.g. 'Claude responded: ...', action buttons, relative timestamps)
+        clone
+          .querySelectorAll(
+            '.sr-only, [data-testid="message-actions"], [data-testid="user-message-actions"], [role="toolbar"]',
+          )
+          .forEach((node) => node.remove());
 
         unrollInteractiveElements(clone, el.ownerDocument || document);
         content = convertToMarkdown(clone);
@@ -1009,6 +1043,15 @@ export class ClaudeParser extends ChatParser {
         }
         messages.push(msgObj);
       }
+    }
+
+    if (
+      messages.length === 0 &&
+      apiFallbackResult &&
+      Array.isArray(apiFallbackResult.messages) &&
+      apiFallbackResult.messages.length > 0
+    ) {
+      return apiFallbackResult;
     }
 
     const currentUrl =
