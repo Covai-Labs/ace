@@ -1,4 +1,4 @@
-import { ExportFormatter, formatMessageTimestamp, shouldIncludeTimestamps } from './base.js';
+import { ExportFormatter, formatMessageTimestamp } from './base.js';
 import { normalizeRole } from './json.js';
 
 /**
@@ -26,25 +26,25 @@ export class OpenWebUIFormatter extends ExportFormatter {
    * Formats parser output as an Open-WebUI import JSON array.
    *
    * @param {object} conversation Parsed conversation returned by a platform parser.
-   * @param {object} [options] Formatter options, such as `{ includeTimestamps: boolean }`.
    * @returns {string} Pretty-printed JSON ready for Open-WebUI's Import Chats action.
    */
-  format(conversation, options = {}) {
-    return JSON.stringify([this.toImportChat(conversation, options)], null, 2);
+  format(conversation) {
+    return JSON.stringify([this.toImportChat(conversation)], null, 2);
   }
 
   /**
    * Converts one parser conversation into an Open-WebUI import object.
    *
+   * Open-WebUI stores timestamps as part of the imported chat, so this formatter
+   * always includes them when the parser supplied one.
+   *
    * @param {object} conversation Parsed conversation returned by a platform parser.
-   * @param {object} [options] Formatter options.
    * @returns {object} Standard-format Open-WebUI import entry.
    */
-  toImportChat(conversation, options = {}) {
+  toImportChat(conversation) {
     const metadata = conversation.metadata || {};
     const platform = String(metadata.Source || this.platform || 'Unknown');
     const model = resolveModel(metadata.Model, platform);
-    const includeTimestamps = shouldIncludeTimestamps(options);
     const sourceMessages = Array.isArray(conversation.messages) ? conversation.messages : [];
     const ids = sourceMessages.map(() => this.generateId());
     const messages = {};
@@ -66,7 +66,7 @@ export class OpenWebUIFormatter extends ExportFormatter {
         entry.model = model;
       }
 
-      const timestamp = includeTimestamps ? toUnixSeconds(message.timestamp) : null;
+      const timestamp = toUnixSeconds(message.timestamp);
       if (timestamp !== null) {
         entry.timestamp = timestamp;
         timestamps.push(timestamp);
@@ -78,7 +78,7 @@ export class OpenWebUIFormatter extends ExportFormatter {
     return {
       chat: {
         title: conversation.title || 'AI Chat Export',
-        models: [model],
+        models: [platform],
         history: {
           currentId: ids.length > 0 ? ids[ids.length - 1] : '',
           messages,
@@ -153,12 +153,91 @@ function resolveModel(value, platform) {
 /**
  * Converts parser timestamps (ISO, epoch, or locale strings) to Unix seconds.
  *
+ * `formatMessageTimestamp()` handles ISO, numeric epochs, and ChatGPT's en-US
+ * locale output. Other locale strings are common in ChatGPT's API data (it uses
+ * `toLocaleString()`), so fall back to a small `D.M.YYYY` / `D/M/YYYY` parser.
+ *
  * @param {unknown} timestamp Parser-provided timestamp.
  * @returns {number|null} Unix timestamp in seconds, or null when undatable.
  */
 function toUnixSeconds(timestamp) {
-  const date = Date.parse(formatMessageTimestamp(timestamp) || '');
-  return Number.isFinite(date) ? Math.floor(date / 1000) : null;
+  const formatted = formatMessageTimestamp(timestamp);
+  if (!formatted) return null;
+
+  const direct = Date.parse(formatted);
+  if (Number.isFinite(direct)) {
+    return Math.floor(direct / 1000);
+  }
+
+  const locale = parseLocaleTimestamp(formatted);
+  return locale === null ? null : Math.floor(locale / 1000);
+}
+
+/**
+ * Parses non-en-US locale date strings such as `15.11.2026, 10:00:00`.
+ *
+ * Ambiguous slash dates stay on `formatMessageTimestamp()`'s documented en-US
+ * interpretation; this fallback is only reached when that interpretation fails
+ * or the separator is a dot.
+ *
+ * @param {string} value Timestamp string.
+ * @returns {number|null} Milliseconds since epoch, or null when unparseable.
+ */
+function parseLocaleTimestamp(value) {
+  const parts = value.replace(/,/g, ' ').trim().split(/\s+/);
+  const datePart = parts[0] || '';
+  const timePart = parts[1] || '';
+  const meridiem = (parts[2] || '').toUpperCase();
+
+  const separator = datePart.includes('.') ? '.' : datePart.includes('/') ? '/' : '-';
+  const dateNumbers = datePart.split(separator).map((part) => Number(part));
+  if (dateNumbers.length !== 3 || dateNumbers.some((part) => !Number.isInteger(part))) {
+    return null;
+  }
+
+  let year;
+  let month;
+  let day;
+  if (dateNumbers[0] > 31) {
+    [year, month, day] = dateNumbers;
+  } else {
+    year = dateNumbers[2];
+    if (dateNumbers[0] > 12) {
+      [day, month] = dateNumbers;
+    } else if (dateNumbers[1] > 12) {
+      [month, day] = dateNumbers;
+    } else {
+      [day, month] = dateNumbers;
+    }
+  }
+
+  if (year < 1000 || year > 9999 || month < 1 || month > 12 || day < 1 || day > 31) {
+    return null;
+  }
+
+  let hours = 0;
+  let minutes = 0;
+  let seconds = 0;
+  if (timePart) {
+    const timeNumbers = timePart.split(':').map((part) => Number(part));
+    if (timeNumbers.length < 2 || timeNumbers.length > 3) return null;
+    [hours, minutes, seconds = 0] = timeNumbers;
+    if (meridiem === 'PM' && hours < 12) hours += 12;
+    if (meridiem === 'AM' && hours === 12) hours = 0;
+    if (hours < 0 || hours > 23 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
+      return null;
+    }
+  }
+
+  const parsed = new Date(year, month - 1, day, hours, minutes, seconds);
+  const valid =
+    parsed.getFullYear() === year &&
+    parsed.getMonth() === month - 1 &&
+    parsed.getDate() === day &&
+    parsed.getHours() === hours &&
+    parsed.getMinutes() === minutes &&
+    parsed.getSeconds() === seconds;
+  return valid ? parsed.getTime() : null;
 }
 
 /**

@@ -12,43 +12,40 @@ test('Open-WebUI formatter emits a linear message tree', () => {
   const formatter = new OpenWebUIFormatter({ generateId: sequentialIds() });
 
   const output = JSON.parse(
-    formatter.format(
-      {
-        title: 'Self-hosting notes',
-        messages: [
-          {
-            role: 'User',
-            content: 'How do I import this?',
-            timestamp: '2026-11-15T10:00:00.000Z',
-          },
-          {
-            role: 'ChatGPT',
-            content: 'Use Data Controls → Import Chats.',
-            timestamp: '2026-11-15T10:00:05.000Z',
-          },
-          {
-            role: 'Claude Artifact',
-            content: 'Artifact body',
-            timestamp: 1763200810000,
-          },
-          {
-            role: 'System',
-            content: 'Keep this system note.',
-          },
-        ],
-        metadata: {
-          Source: 'ChatGPT',
-          Model: 'gpt-5',
+    formatter.format({
+      title: 'Self-hosting notes',
+      messages: [
+        {
+          role: 'User',
+          content: 'How do I import this?',
+          timestamp: '2026-11-15T10:00:00.000Z',
         },
+        {
+          role: 'ChatGPT',
+          content: 'Use Data Controls → Import Chats.',
+          timestamp: '2026-11-15T10:00:05.000Z',
+        },
+        {
+          role: 'Claude Artifact',
+          content: 'Artifact body',
+          timestamp: 1763200810000,
+        },
+        {
+          role: 'System',
+          content: 'Keep this system note.',
+        },
+      ],
+      metadata: {
+        Source: 'ChatGPT',
+        Model: 'gpt-5',
       },
-      { includeTimestamps: true },
-    ),
+    }),
   );
 
   assert.equal(output.length, 1);
   const entry = output[0];
   assert.equal(entry.chat.title, 'Self-hosting notes');
-  assert.deepEqual(entry.chat.models, ['gpt-5']);
+  assert.deepEqual(entry.chat.models, ['ChatGPT']);
   assert.equal(entry.chat.history.currentId, 'id-4');
   assert.deepEqual(entry.meta, { tags: ['imported-chatgpt'] });
 
@@ -106,7 +103,7 @@ test('Open-WebUI formatter falls back to platform metadata', () => {
   assert.equal(entry.updated_at, null);
 });
 
-test('Open-WebUI formatter keeps timestamps opt-in', () => {
+test('Open-WebUI formatter includes parseable timestamps by default', () => {
   const formatter = new OpenWebUIFormatter({ platform: 'Claude', generateId: sequentialIds() });
   const conversation = {
     messages: [
@@ -114,25 +111,33 @@ test('Open-WebUI formatter keeps timestamps opt-in', () => {
       { role: 'Claude', content: 'Hello', timestamp: 'not a date' },
     ],
   };
-  const [defaultEntry] = JSON.parse(formatter.format(conversation));
-  assert.equal(defaultEntry.chat.history.messages['id-1'].timestamp, undefined);
-  assert.equal(defaultEntry.chat.history.messages['id-2'].timestamp, undefined);
-  assert.equal(defaultEntry.created_at, null);
-  assert.equal(defaultEntry.updated_at, null);
 
-  const enabledFormatter = new OpenWebUIFormatter({
-    platform: 'Claude',
-    generateId: sequentialIds(),
-  });
-  const [enabledEntry] = JSON.parse(
-    enabledFormatter.format(conversation, { includeTimestamps: true }),
-  );
+  const [entry] = JSON.parse(formatter.format(conversation));
   assert.equal(
-    enabledEntry.chat.history.messages['id-1'].timestamp,
+    entry.chat.history.messages['id-1'].timestamp,
     Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000),
   );
-  assert.equal(enabledEntry.chat.history.messages['id-2'].timestamp, undefined);
-  assert.equal(enabledEntry.created_at, Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000));
+  assert.equal(entry.chat.history.messages['id-2'].timestamp, undefined);
+  assert.equal(entry.created_at, Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000));
+  assert.equal(entry.updated_at, Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000));
+});
+
+test('Open-WebUI formatter parses non-en-US locale timestamps', () => {
+  const formatter = new OpenWebUIFormatter({ platform: 'ChatGPT', generateId: sequentialIds() });
+  const [entry] = JSON.parse(
+    formatter.format({
+      messages: [
+        { role: 'User', content: 'Hallo', timestamp: '15.11.2026, 10:00:00' },
+        { role: 'ChatGPT', content: 'Hi', timestamp: '15/11/2026, 10:00:05' },
+      ],
+    }),
+  );
+
+  const expected = Math.floor(new Date(2026, 10, 15, 10, 0, 0).getTime() / 1000);
+  assert.equal(entry.chat.history.messages['id-1'].timestamp, expected);
+  assert.equal(entry.chat.history.messages['id-2'].timestamp, expected + 5);
+  assert.equal(entry.created_at, expected);
+  assert.equal(entry.updated_at, expected + 5);
 });
 
 test('Open-WebUI formatter handles conversations without messages', () => {
