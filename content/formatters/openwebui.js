@@ -128,7 +128,9 @@ function toImportTag(platform) {
   const slug = String(platform || 'unknown')
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '');
+    .split('-')
+    .filter(Boolean)
+    .join('-');
   return `imported-${slug || 'unknown'}`;
 }
 
@@ -140,7 +142,8 @@ function toImportTag(platform) {
  * @returns {string} Trimmed single-line model identifier.
  */
 function resolveModel(value, platform) {
-  const model = String(value || '')
+  const raw = typeof value === 'string' || typeof value === 'number' ? String(value) : '';
+  const model = raw
     .replace(/[\r\n\t]+/g, ' ')
     .replace(/\s{2,}/g, ' ')
     .trim();
@@ -164,8 +167,19 @@ function toUnixSeconds(timestamp) {
  * @returns {string} Unique message identifier.
  */
 function generateMessageId() {
-  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
-    return crypto.randomUUID();
+  if (typeof crypto !== 'undefined') {
+    if (typeof crypto.randomUUID === 'function') {
+      return crypto.randomUUID();
+    }
+    if (typeof crypto.getRandomValues === 'function') {
+      const bytes = crypto.getRandomValues(new Uint8Array(16));
+      const hex = Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+      return `ace-${hex}`;
+    }
   }
-  return `ace-${Date.now().toString(36)}-${Math.random().toString(36).slice(2)}`;
+
+  fallbackIdCounter += 1;
+  return `ace-${Date.now().toString(36)}-${fallbackIdCounter.toString(36)}`;
 }
+
+let fallbackIdCounter = 0;

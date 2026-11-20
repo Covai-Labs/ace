@@ -1,32 +1,14 @@
 import assert from 'node:assert/strict';
-import fs from 'node:fs/promises';
-import os from 'node:os';
-import path from 'node:path';
 import test from 'node:test';
 
-async function importFormatter() {
-  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ace-openwebui-'));
-  await fs.mkdir(path.join(tempDir, 'content', 'formatters'), {
-    recursive: true,
-  });
-  await fs.writeFile(path.join(tempDir, 'package.json'), '{"type":"module"}');
-  for (const file of ['base.js', 'json.js', 'openwebui.js']) {
-    await fs.copyFile(
-      path.resolve('content/formatters', file),
-      path.join(tempDir, 'content', 'formatters', file),
-    );
-  }
-
-  return import(path.join(tempDir, 'content', 'formatters', 'openwebui.js'));
-}
+import { OpenWebUIFormatter } from '../content/formatters/openwebui.js';
 
 function sequentialIds() {
   let next = 0;
   return () => `id-${++next}`;
 }
 
-test('Open-WebUI formatter emits a linear message tree', async () => {
-  const { OpenWebUIFormatter } = await importFormatter();
+test('Open-WebUI formatter emits a linear message tree', () => {
   const formatter = new OpenWebUIFormatter({ generateId: sequentialIds() });
 
   const output = JSON.parse(
@@ -101,8 +83,7 @@ test('Open-WebUI formatter emits a linear message tree', async () => {
   assert.equal(formatter.getMimeType(), 'application/json');
 });
 
-test('Open-WebUI formatter falls back to platform metadata', async () => {
-  const { OpenWebUIFormatter } = await importFormatter();
+test('Open-WebUI formatter falls back to platform metadata', () => {
   const formatter = new OpenWebUIFormatter({
     platform: 'Gemini',
     generateId: sequentialIds(),
@@ -125,8 +106,7 @@ test('Open-WebUI formatter falls back to platform metadata', async () => {
   assert.equal(entry.updated_at, null);
 });
 
-test('Open-WebUI formatter keeps timestamps opt-in', async () => {
-  const { OpenWebUIFormatter } = await importFormatter();
+test('Open-WebUI formatter keeps timestamps opt-in', () => {
   const formatter = new OpenWebUIFormatter({ platform: 'Claude', generateId: sequentialIds() });
   const conversation = {
     messages: [
@@ -155,8 +135,7 @@ test('Open-WebUI formatter keeps timestamps opt-in', async () => {
   assert.equal(enabledEntry.created_at, Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000));
 });
 
-test('Open-WebUI formatter handles conversations without messages', async () => {
-  const { OpenWebUIFormatter } = await importFormatter();
+test('Open-WebUI formatter handles conversations without messages', () => {
   const formatter = new OpenWebUIFormatter({ platform: 'Mistral' });
 
   const [entry] = JSON.parse(formatter.format({ title: 'Empty' }));
