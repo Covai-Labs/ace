@@ -100,7 +100,7 @@ export class JsonFormatter extends ExportFormatter {
  * @param {string} role Parser-provided role label.
  * @returns {'user'|'assistant'|'system'|'tool'|'artifact'|'unknown'} Normalized schema role.
  */
-function normalizeRole(role) {
+export function normalizeRole(role) {
   const normalized = String(role || '').toLowerCase();
 
   if (normalized === 'user') {

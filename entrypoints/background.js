@@ -65,6 +65,7 @@ export default defineBackground(() => {
     const titles = {
       text: 'Download Plain Text',
       json: 'Download JSON',
+      openwebui: 'Download Open-WebUI JSON',
       html: 'Download HTML',
       doc: 'Download Word (.doc)',
       png: 'Download PNG',
