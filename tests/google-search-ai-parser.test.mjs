@@ -94,9 +94,7 @@ test('GoogleSearchAIParser correctly parses multi-turn SGE chat content from fix
   // Turn 2
   assert.equal(result.messages[2].role, 'User');
   assert.ok(
-    result.messages[2].content.includes(
-      'What do they mean by "உலகத் தொழிலாளர்களே, ஒன்றுபடுங்கள்!"',
-    ),
+    result.messages[2].content.includes('What do they mean by "உலகத் தொழிலாளர்களே, ஒன்றுபடுங்கள்!"'),
   );
   assert.equal(result.messages[3].role, 'Model');
   assert.ok(
