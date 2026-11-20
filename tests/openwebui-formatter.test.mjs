@@ -12,34 +12,37 @@ test('Open-WebUI formatter emits a linear message tree', () => {
   const formatter = new OpenWebUIFormatter({ generateId: sequentialIds() });
 
   const output = JSON.parse(
-    formatter.format({
-      title: 'Self-hosting notes',
-      messages: [
-        {
-          role: 'User',
-          content: 'How do I import this?',
-          timestamp: '2026-11-15T10:00:00.000Z',
+    formatter.format(
+      {
+        title: 'Self-hosting notes',
+        messages: [
+          {
+            role: 'User',
+            content: 'How do I import this?',
+            timestamp: '2026-11-15T10:00:00.000Z',
+          },
+          {
+            role: 'ChatGPT',
+            content: 'Use Data Controls → Import Chats.',
+            timestamp: '2026-11-15T10:00:05.000Z',
+          },
+          {
+            role: 'Claude Artifact',
+            content: 'Artifact body',
+            timestamp: 1763200810000,
+          },
+          {
+            role: 'System',
+            content: 'Keep this system note.',
+          },
+        ],
+        metadata: {
+          Source: 'ChatGPT',
+          Model: 'gpt-5',
         },
-        {
-          role: 'ChatGPT',
-          content: 'Use Data Controls → Import Chats.',
-          timestamp: '2026-11-15T10:00:05.000Z',
-        },
-        {
-          role: 'Claude Artifact',
-          content: 'Artifact body',
-          timestamp: 1763200810000,
-        },
-        {
-          role: 'System',
-          content: 'Keep this system note.',
-        },
-      ],
-      metadata: {
-        Source: 'ChatGPT',
-        Model: 'gpt-5',
       },
-    }),
+      { includeTimestamps: true },
+    ),
   );
 
   assert.equal(output.length, 1);
@@ -48,22 +51,27 @@ test('Open-WebUI formatter emits a linear message tree', () => {
   assert.deepEqual(entry.chat.models, ['ChatGPT']);
   assert.equal(entry.chat.history.currentId, 'id-4');
   assert.deepEqual(entry.meta, { tags: ['imported-chatgpt'] });
+  assert.equal(entry.pinned, false);
+  assert.equal(entry.folder_id, null);
 
+  // User messages must NOT carry done: true (matches official Open-WebUI schema)
   assert.deepEqual(entry.chat.history.messages['id-1'], {
     id: 'id-1',
     parentId: null,
     childrenIds: ['id-2'],
     role: 'user',
     content: 'How do I import this?',
-    done: true,
     timestamp: Math.floor(Date.parse('2026-11-15T10:00:00.000Z') / 1000),
   });
   assert.equal(entry.chat.history.messages['id-2'].parentId, 'id-1');
   assert.deepEqual(entry.chat.history.messages['id-2'].childrenIds, ['id-3']);
   assert.equal(entry.chat.history.messages['id-2'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-2'].done, true);
   assert.equal(entry.chat.history.messages['id-2'].model, 'gpt-5');
   assert.equal(entry.chat.history.messages['id-3'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-3'].done, true);
   assert.equal(entry.chat.history.messages['id-4'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-4'].done, true);
   assert.equal(entry.chat.history.messages['id-4'].content, 'Keep this system note.');
   assert.deepEqual(entry.chat.history.messages['id-4'].childrenIds, []);
   assert.equal(entry.chat.history.messages['id-4'].timestamp, undefined);
@@ -99,11 +107,13 @@ test('Open-WebUI formatter falls back to platform metadata', () => {
   assert.deepEqual(entry.chat.models, ['Gemini']);
   assert.equal(entry.chat.history.messages['id-2'].model, 'Gemini');
   assert.deepEqual(entry.meta.tags, ['imported-gemini']);
+  assert.equal(entry.pinned, false);
+  assert.equal(entry.folder_id, null);
   assert.equal(entry.created_at, null);
   assert.equal(entry.updated_at, null);
 });
 
-test('Open-WebUI formatter includes parseable timestamps by default', () => {
+test('Open-WebUI formatter includes timestamps when opt-in is enabled', () => {
   const formatter = new OpenWebUIFormatter({ platform: 'Claude', generateId: sequentialIds() });
   const conversation = {
     messages: [
@@ -112,7 +122,7 @@ test('Open-WebUI formatter includes parseable timestamps by default', () => {
     ],
   };
 
-  const [entry] = JSON.parse(formatter.format(conversation));
+  const [entry] = JSON.parse(formatter.format(conversation, { includeTimestamps: true }));
   assert.equal(
     entry.chat.history.messages['id-1'].timestamp,
     Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000),
@@ -122,15 +132,34 @@ test('Open-WebUI formatter includes parseable timestamps by default', () => {
   assert.equal(entry.updated_at, Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000));
 });
 
+test('Open-WebUI formatter omits timestamps by default', () => {
+  const formatter = new OpenWebUIFormatter({ platform: 'Claude', generateId: sequentialIds() });
+  const conversation = {
+    messages: [
+      { role: 'User', content: 'Hi', timestamp: '2026-09-30T08:48:07.000Z' },
+      { role: 'Claude', content: 'Hello', timestamp: '2026-09-30T08:48:10.000Z' },
+    ],
+  };
+
+  const [entry] = JSON.parse(formatter.format(conversation));
+  assert.equal(entry.chat.history.messages['id-1'].timestamp, undefined);
+  assert.equal(entry.chat.history.messages['id-2'].timestamp, undefined);
+  assert.equal(entry.created_at, null);
+  assert.equal(entry.updated_at, null);
+});
+
 test('Open-WebUI formatter parses non-en-US locale timestamps', () => {
   const formatter = new OpenWebUIFormatter({ platform: 'ChatGPT', generateId: sequentialIds() });
   const [entry] = JSON.parse(
-    formatter.format({
-      messages: [
-        { role: 'User', content: 'Hallo', timestamp: '15.11.2026, 10:00:00' },
-        { role: 'ChatGPT', content: 'Hi', timestamp: '15/11/2026, 10:00:05' },
-      ],
-    }),
+    formatter.format(
+      {
+        messages: [
+          { role: 'User', content: 'Hallo', timestamp: '15.11.2026, 10:00:00' },
+          { role: 'ChatGPT', content: 'Hi', timestamp: '15/11/2026, 10:00:05' },
+        ],
+      },
+      { includeTimestamps: true },
+    ),
   );
 
   const expected = Math.floor(new Date(2026, 10, 15, 10, 0, 0).getTime() / 1000);
@@ -149,6 +178,8 @@ test('Open-WebUI formatter handles conversations without messages', () => {
   assert.deepEqual(entry.chat.models, ['Mistral']);
   assert.equal(entry.chat.history.currentId, '');
   assert.deepEqual(entry.chat.history.messages, {});
+  assert.equal(entry.pinned, false);
+  assert.equal(entry.folder_id, null);
   assert.equal(entry.created_at, null);
   assert.equal(entry.updated_at, null);
 });

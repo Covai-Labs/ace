@@ -1,4 +1,4 @@
-import { ExportFormatter, formatMessageTimestamp } from './base.js';
+import { ExportFormatter, formatMessageTimestamp, shouldIncludeTimestamps } from './base.js';
 import { normalizeRole } from './json.js';
 
 /**
@@ -26,25 +26,28 @@ export class OpenWebUIFormatter extends ExportFormatter {
    * Formats parser output as an Open-WebUI import JSON array.
    *
    * @param {object} conversation Parsed conversation returned by a platform parser.
+   * @param {object} [options] Formatter options, such as `{ includeTimestamps: boolean }`.
    * @returns {string} Pretty-printed JSON ready for Open-WebUI's Import Chats action.
    */
-  format(conversation) {
-    return JSON.stringify([this.toImportChat(conversation)], null, 2);
+  format(conversation, options = {}) {
+    return JSON.stringify([this.toImportChat(conversation, options)], null, 2);
   }
 
   /**
    * Converts one parser conversation into an Open-WebUI import object.
    *
-   * Open-WebUI stores timestamps as part of the imported chat, so this formatter
-   * always includes them when the parser supplied one.
+   * Timestamps follow the shared "Include per-message date / time" preference,
+   * matching the other export formats.
    *
    * @param {object} conversation Parsed conversation returned by a platform parser.
+   * @param {object} [options] Formatter options.
    * @returns {object} Standard-format Open-WebUI import entry.
    */
-  toImportChat(conversation) {
+  toImportChat(conversation, options = {}) {
     const metadata = conversation.metadata || {};
     const platform = String(metadata.Source || this.platform || 'Unknown');
     const model = resolveModel(metadata.Model, platform);
+    const includeTimestamps = shouldIncludeTimestamps(options);
     const sourceMessages = Array.isArray(conversation.messages) ? conversation.messages : [];
     const ids = sourceMessages.map(() => this.generateId());
     const messages = {};
@@ -59,14 +62,14 @@ export class OpenWebUIFormatter extends ExportFormatter {
         childrenIds: index === sourceMessages.length - 1 ? [] : [ids[index + 1]],
         role,
         content: message.content || '',
-        done: true,
       };
 
       if (role === 'assistant') {
         entry.model = model;
+        entry.done = true;
       }
 
-      const timestamp = toUnixSeconds(message.timestamp);
+      const timestamp = includeTimestamps ? toUnixSeconds(message.timestamp) : null;
       if (timestamp !== null) {
         entry.timestamp = timestamp;
         timestamps.push(timestamp);
@@ -87,6 +90,8 @@ export class OpenWebUIFormatter extends ExportFormatter {
       meta: {
         tags: [toImportTag(platform)],
       },
+      pinned: false,
+      folder_id: null,
       created_at: timestamps.length > 0 ? Math.min(...timestamps) : null,
       updated_at: timestamps.length > 0 ? Math.max(...timestamps) : null,
     };
