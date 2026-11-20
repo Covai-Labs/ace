@@ -1,5 +1,20 @@
 # Changelog
 
+## [1.26.0](https://github.com/Covai-Labs/ace/compare/v1.25.1...v1.26.0) (2026-11-20)
+
+
+### Features
+
+* **export:** add Open-WebUI JSON export format ([#200](https://github.com/Covai-Labs/ace/issues/200)) ([594166d](https://github.com/Covai-Labs/ace/commit/594166db474476593f73ff6c4a8114903ca5ed6e))
+
+
+### Bug Fixes
+
+* **claude:** support incognito and modern assistant DOM selectors ([#199](https://github.com/Covai-Labs/ace/issues/199)) ([f8cecad](https://github.com/Covai-Labs/ace/commit/f8cecada6da612a851ab0f660c26eeea258aedf1))
+* **decant:** synchronize standalone lockfile, format core files, and fix sync release convention ([#186](https://github.com/Covai-Labs/ace/issues/186)) ([45107f4](https://github.com/Covai-Labs/ace/commit/45107f43e319d6777124f014a4e121f390b34c6c))
+* **export:** resolve PDF negative padding alignment and support full-bleed theme background ([#198](https://github.com/Covai-Labs/ace/issues/198)) ([781ef4f](https://github.com/Covai-Labs/ace/commit/781ef4fedd1bbb326abfe62b442bfceaf93f04fe))
+* **legal:** split FOSS linking exception from LICENSE for SPDX detection ([#188](https://github.com/Covai-Labs/ace/issues/188)) ([3a17981](https://github.com/Covai-Labs/ace/commit/3a1798123be5088ad12f8c5d4246d7e30042ae3e))
+
 ## [1.25.1](https://github.com/Covai-Labs/ace/compare/v1.25.0...v1.25.1) (2026-11-10)
 
 
