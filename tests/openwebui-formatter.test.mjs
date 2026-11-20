@@ -183,3 +183,26 @@ test('Open-WebUI formatter handles conversations without messages', () => {
   assert.equal(entry.created_at, null);
   assert.equal(entry.updated_at, null);
 });
+
+test('Open-WebUI formatter maps tool-role messages to assistant', () => {
+  const formatter = new OpenWebUIFormatter({ platform: 'ChatGPT', generateId: sequentialIds() });
+
+  const [entry] = JSON.parse(
+    formatter.format({
+      messages: [
+        { role: 'User', content: 'Run this tool' },
+        { role: 'Tool Result', content: 'Tool output here' },
+        { role: 'ChatGPT', content: 'Done.' },
+      ],
+    }),
+  );
+
+  // All non-user roles must map to 'assistant' — including 'tool'
+  assert.equal(entry.chat.history.messages['id-1'].role, 'user');
+  assert.equal(entry.chat.history.messages['id-2'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-2'].done, true);
+  assert.equal(entry.chat.history.messages['id-3'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-3'].done, true);
+  // User messages must not carry done
+  assert.equal(entry.chat.history.messages['id-1'].done, undefined);
+});
