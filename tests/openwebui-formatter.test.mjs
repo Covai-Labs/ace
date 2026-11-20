@@ -1,0 +1,170 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import os from 'node:os';
+import path from 'node:path';
+import test from 'node:test';
+
+async function importFormatter() {
+  const tempDir = await fs.mkdtemp(path.join(os.tmpdir(), 'ace-openwebui-'));
+  await fs.mkdir(path.join(tempDir, 'content', 'formatters'), {
+    recursive: true,
+  });
+  await fs.writeFile(path.join(tempDir, 'package.json'), '{"type":"module"}');
+  for (const file of ['base.js', 'json.js', 'openwebui.js']) {
+    await fs.copyFile(
+      path.resolve('content/formatters', file),
+      path.join(tempDir, 'content', 'formatters', file),
+    );
+  }
+
+  return import(path.join(tempDir, 'content', 'formatters', 'openwebui.js'));
+}
+
+function sequentialIds() {
+  let next = 0;
+  return () => `id-${++next}`;
+}
+
+test('Open-WebUI formatter emits a linear message tree', async () => {
+  const { OpenWebUIFormatter } = await importFormatter();
+  const formatter = new OpenWebUIFormatter({ generateId: sequentialIds() });
+
+  const output = JSON.parse(
+    formatter.format(
+      {
+        title: 'Self-hosting notes',
+        messages: [
+          {
+            role: 'User',
+            content: 'How do I import this?',
+            timestamp: '2026-11-15T10:00:00.000Z',
+          },
+          {
+            role: 'ChatGPT',
+            content: 'Use Data Controls → Import Chats.',
+            timestamp: '2026-11-15T10:00:05.000Z',
+          },
+          {
+            role: 'Claude Artifact',
+            content: 'Artifact body',
+            timestamp: 1763200810000,
+          },
+          {
+            role: 'System',
+            content: 'Keep this system note.',
+          },
+        ],
+        metadata: {
+          Source: 'ChatGPT',
+          Model: 'gpt-5',
+        },
+      },
+      { includeTimestamps: true },
+    ),
+  );
+
+  assert.equal(output.length, 1);
+  const entry = output[0];
+  assert.equal(entry.chat.title, 'Self-hosting notes');
+  assert.deepEqual(entry.chat.models, ['gpt-5']);
+  assert.equal(entry.chat.history.currentId, 'id-4');
+  assert.deepEqual(entry.meta, { tags: ['imported-chatgpt'] });
+
+  assert.deepEqual(entry.chat.history.messages['id-1'], {
+    id: 'id-1',
+    parentId: null,
+    childrenIds: ['id-2'],
+    role: 'user',
+    content: 'How do I import this?',
+    done: true,
+    timestamp: Math.floor(Date.parse('2026-11-15T10:00:00.000Z') / 1000),
+  });
+  assert.equal(entry.chat.history.messages['id-2'].parentId, 'id-1');
+  assert.deepEqual(entry.chat.history.messages['id-2'].childrenIds, ['id-3']);
+  assert.equal(entry.chat.history.messages['id-2'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-2'].model, 'gpt-5');
+  assert.equal(entry.chat.history.messages['id-3'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-4'].role, 'assistant');
+  assert.equal(entry.chat.history.messages['id-4'].content, 'Keep this system note.');
+  assert.deepEqual(entry.chat.history.messages['id-4'].childrenIds, []);
+  assert.equal(entry.chat.history.messages['id-4'].timestamp, undefined);
+
+  const timestamps = [
+    Date.parse('2026-11-15T10:00:00.000Z'),
+    Date.parse('2026-11-15T10:00:05.000Z'),
+    1763200810000,
+  ].map((value) => Math.floor(value / 1000));
+  assert.equal(entry.created_at, Math.min(...timestamps));
+  assert.equal(entry.updated_at, Math.max(...timestamps));
+
+  assert.equal(formatter.getFileExtension(), 'json');
+  assert.equal(formatter.getMimeType(), 'application/json');
+});
+
+test('Open-WebUI formatter falls back to platform metadata', async () => {
+  const { OpenWebUIFormatter } = await importFormatter();
+  const formatter = new OpenWebUIFormatter({
+    platform: 'Gemini',
+    generateId: sequentialIds(),
+  });
+
+  const [entry] = JSON.parse(
+    formatter.format({
+      messages: [
+        { role: 'User', content: 'Hi' },
+        { role: 'Model', content: 'Hello' },
+      ],
+    }),
+  );
+
+  assert.equal(entry.chat.title, 'AI Chat Export');
+  assert.deepEqual(entry.chat.models, ['Gemini']);
+  assert.equal(entry.chat.history.messages['id-2'].model, 'Gemini');
+  assert.deepEqual(entry.meta.tags, ['imported-gemini']);
+  assert.equal(entry.created_at, null);
+  assert.equal(entry.updated_at, null);
+});
+
+test('Open-WebUI formatter keeps timestamps opt-in', async () => {
+  const { OpenWebUIFormatter } = await importFormatter();
+  const formatter = new OpenWebUIFormatter({ platform: 'Claude', generateId: sequentialIds() });
+  const conversation = {
+    messages: [
+      { role: 'User', content: 'Hi', timestamp: '2026-09-30T08:48:07.000Z' },
+      { role: 'Claude', content: 'Hello', timestamp: 'not a date' },
+    ],
+  };
+  const [defaultEntry] = JSON.parse(formatter.format(conversation));
+  assert.equal(defaultEntry.chat.history.messages['id-1'].timestamp, undefined);
+  assert.equal(defaultEntry.chat.history.messages['id-2'].timestamp, undefined);
+  assert.equal(defaultEntry.created_at, null);
+  assert.equal(defaultEntry.updated_at, null);
+
+  const enabledFormatter = new OpenWebUIFormatter({
+    platform: 'Claude',
+    generateId: sequentialIds(),
+  });
+  const [enabledEntry] = JSON.parse(
+    enabledFormatter.format(conversation, { includeTimestamps: true }),
+  );
+  assert.equal(
+    enabledEntry.chat.history.messages['id-1'].timestamp,
+    Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000),
+  );
+  assert.equal(enabledEntry.chat.history.messages['id-2'].timestamp, undefined);
+  assert.equal(enabledEntry.created_at, Math.floor(Date.parse('2026-09-30T08:48:07.000Z') / 1000));
+});
+
+test('Open-WebUI formatter handles conversations without messages', async () => {
+  const { OpenWebUIFormatter } = await importFormatter();
+  const formatter = new OpenWebUIFormatter({ platform: 'Mistral' });
+
+  const [entry] = JSON.parse(formatter.format({ title: 'Empty' }));
+
+  assert.equal(entry.chat.title, 'Empty');
+  assert.deepEqual(entry.chat.models, ['Mistral']);
+  assert.equal(entry.chat.history.currentId, '');
+  assert.deepEqual(entry.chat.history.messages, {});
+  assert.equal(entry.created_at, null);
+  assert.equal(entry.updated_at, null);
+});

@@ -23,6 +23,7 @@ import {
 
 import { MarkdownFormatter } from '../content/formatters/markdown.js';
 import { JsonFormatter } from '../content/formatters/json.js';
+import { OpenWebUIFormatter } from '../content/formatters/openwebui.js';
 import { HtmlFormatter } from '../content/formatters/html.js';
 import { ImageFormatter } from '../content/formatters/image.js';
 import { ContinuationFormatter } from '../content/formatters/continuation.js';
@@ -213,6 +214,7 @@ export default defineContentScript({
     const formatters = {
       markdown: new MarkdownFormatter(),
       json: new JsonFormatter(),
+      openwebui: new OpenWebUIFormatter(),
       html: new HtmlFormatter(),
       png: new ImageFormatter(),
       doc: new DocFormatter(),
