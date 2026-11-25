@@ -4,6 +4,7 @@ import {
   extractAllTabsData,
   buildBatchAiPrompt,
 } from '../content/utils/batch-exporter.js';
+import { buildAppUri } from '../content/utils/uri-transfer.js';
 
 export default defineBackground(() => {
   const extVersion =
@@ -265,41 +266,7 @@ export default defineBackground(() => {
     if (uriAppTargets.includes(target)) {
       const syncData = await chrome.storage.sync.get('obsidianVaultName');
       const vault = syncData?.obsidianVaultName || '';
-      const cleanTitle =
-        title
-          .replace(/[#|^[\]]/g, '')
-          .replace(/[/\\?%*:|"<>]/g, '')
-          .trim()
-          .slice(0, 245) || 'AI Conversation';
-
-      let appUri = '';
-      if (target === 'obsidian') {
-        const params = new URLSearchParams();
-        params.append('name', cleanTitle);
-        if (vault && vault.trim().length > 0) params.append('vault', vault.trim());
-        if (payload) params.append('content', payload);
-        appUri = `obsidian://new?${params.toString()}`;
-      } else if (target === 'logseq') {
-        const params = new URLSearchParams();
-        params.append('page', cleanTitle);
-        if (payload) params.append('content', payload);
-        appUri = `logseq://x-callback-url/quickCapture?${params.toString()}`;
-      } else if (target === 'bear') {
-        const params = new URLSearchParams();
-        params.append('title', cleanTitle);
-        if (payload) params.append('text', payload);
-        appUri = `bear://x-callback-url/create?${params.toString()}`;
-      } else if (target === 'noteplan') {
-        const params = new URLSearchParams();
-        params.append('noteTitle', cleanTitle);
-        if (payload) params.append('text', payload);
-        appUri = `noteplan://x-callback-url/addText?${params.toString()}`;
-      } else if (target === 'drafts') {
-        const params = new URLSearchParams();
-        const fullText = cleanTitle ? `# ${cleanTitle}\n\n${payload}` : payload;
-        params.append('text', fullText);
-        appUri = `drafts://x-callback-url/create?${params.toString()}`;
-      }
+      const appUri = buildAppUri(target, { title, content: payload, vault });
 
       await chrome.tabs.create({ url: appUri });
       return { success: true, uri: appUri };
