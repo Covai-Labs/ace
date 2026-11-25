@@ -9,19 +9,33 @@ export function cleanUriTitle(title) {
   const cleaned = title
     .replace(/[#|^[\]]/g, '')
     .replace(/[/\\?%*:|"<>]/g, '')
-    .trim()
-    .slice(0, 245);
-  return cleaned || 'AI Conversation';
+    .trim();
+  // Slice by Unicode code points so surrogate pairs (e.g. emoji) are never split
+  return Array.from(cleaned).slice(0, 245).join('') || 'AI Conversation';
 }
 
 export function cleanObsidianTitle(title) {
   return cleanUriTitle(title);
 }
 
+function toWellFormedString(value) {
+  const str = String(value);
+  if (typeof str.toWellFormed === 'function') {
+    return str.toWellFormed();
+  }
+  return str.replace(
+    /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g,
+    '\uFFFD',
+  );
+}
+
 function serializeUriParams(entries) {
   return entries
     .filter(([, value]) => value !== undefined && value !== null && value !== '')
-    .map(([key, value]) => `${encodeURIComponent(key)}=${encodeURIComponent(value)}`)
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(toWellFormedString(key))}=${encodeURIComponent(toWellFormedString(value))}`,
+    )
     .join('&');
 }
 

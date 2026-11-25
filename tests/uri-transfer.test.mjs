@@ -21,6 +21,23 @@ test('cleanObsidianTitle strips invalid filename and Obsidian reserved character
   assert.equal(cleanObsidianTitle(''), 'AI Conversation');
 });
 
+test('buildObsidianUri handles emoji at truncation boundary and unpaired surrogates without URIError', () => {
+  const emojiBoundaryTitle = `${'a'.repeat(244)}😀extra`;
+  const uri = buildObsidianUri({
+    title: emojiBoundaryTitle,
+    content: 'Body with unpaired surrogate \uD800 here',
+  });
+  assert.ok(uri.startsWith('obsidian://new?'));
+  assert.ok(uri.includes(`name=${'a'.repeat(244)}%F0%9F%98%80`));
+  assert.ok(uri.includes('content=Body%20with%20unpaired%20surrogate%20%EF%BF%BD%20here'));
+
+  const unpairedTitleUri = buildObsidianUri({
+    title: 'Title \uD800 test',
+    content: 'Content',
+  });
+  assert.ok(unpairedTitleUri.includes('name=Title%20%EF%BF%BD%20test'));
+});
+
 test('buildObsidianUri formats obsidian://new URI with percent-encoded spaces', () => {
   const uriShort = buildObsidianUri({
     title: 'Research Note',
