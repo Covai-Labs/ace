@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.26.1](https://github.com/Covai-Labs/ace/compare/v1.26.0...v1.26.1) (2026-11-25)
+
+
+### Bug Fixes
+
+* **transfer:** percent-encode spaces as %20 in PKM app URIs ([#203](https://github.com/Covai-Labs/ace/issues/203)) ([84d1ca3](https://github.com/Covai-Labs/ace/commit/84d1ca3cb68a39ba210dc397c7e34c891890f541))
+
 ## [1.26.0](https://github.com/Covai-Labs/ace/compare/v1.25.1...v1.26.0) (2026-11-20)
 
 

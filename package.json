@@ -1,6 +1,6 @@
 {
   "name": "ai-chat-exporter",
-  "version": "1.26.0",
+  "version": "1.26.1",
   "license": "AGPL-3.0-only",
   "type": "module",
   "workspaces": [
