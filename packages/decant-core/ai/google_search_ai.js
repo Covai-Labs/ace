@@ -92,6 +92,20 @@ export function sanitizeResponseContainer(container) {
     }
   });
 
+  // 3b. Preserve inline Knowledge Graph entity highlights wrapped in span[role="button"]
+  // inside formatted text (e.g. <strong><span><u>...<span role="button">...</span></u></span></strong>)
+  // so html-to-markdown does not strip them as UI action buttons.
+  const entityButtons = clone.querySelectorAll
+    ? clone.querySelectorAll(
+        'u [role="button"], strong [role="button"], em [role="button"], b [role="button"], i [role="button"], span.jAOkJc[role="button"]',
+      )
+    : [];
+  entityButtons.forEach((el) => {
+    if (el.textContent && el.textContent.trim()) {
+      el.removeAttribute("role");
+    }
+  });
+
   // 4. Unwrap Google tracking redirects (/goto?url=..., /url?q=...) to direct URLs
   const links = clone.querySelectorAll ? clone.querySelectorAll("a[href]") : [];
   links.forEach((a) => {

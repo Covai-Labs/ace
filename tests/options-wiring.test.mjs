@@ -238,3 +238,14 @@ test('popup HTML and script wire article-engine-select-popup and web article ban
   assert.match(js, /article-engine-select-popup/);
   assert.match(js, /articleEngine/);
 });
+
+test('options default-format-select includes all popup export formats including doc', () => {
+  const optionsHtml = fs.readFileSync('entrypoints/options/index.html', 'utf8');
+  const selectMatch = optionsHtml.match(
+    /<select id="default-format-select"[^>]*>([\s\S]*?)<\/select>/,
+  );
+  assert.ok(selectMatch, 'default-format-select should exist in options HTML');
+  for (const fmt of ['markdown', 'text', 'json', 'openwebui', 'html', 'doc', 'png', 'pdf']) {
+    assert.match(selectMatch[1], new RegExp(`<option value="${fmt}">`));
+  }
+});

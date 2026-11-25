@@ -314,3 +314,15 @@ test("GoogleSearchAIParser parse() appends RHS sources and handles missing initi
   assert.equal(result.messages[4].role, "User");
   assert.match(result.messages[4].content, /You cannot evolve out of a clade/);
 });
+
+test("sanitizeResponseContainer preserves deeply nested span/u entity highlights with role=button", () => {
+  const html = `<div data-container-id="main-col">
+    <p>В отряд входят <strong class="rQesXe MPyX" data-sfc-cp="" data-sfc-root="c"><span class="iNqyIf" data-sfc-cp=""><u class="wfWfIf fxyaSe" data-sfc-cp=""><span data-sfc-cp=""><span data-sfc-cp=""><span class="jAOkJc" tabindex="0" role="button" data-sfc-cp=""><span class="iNqyIf" data-sfc-cp="">кошачьи (Felidae)<!--TgQPHd|||[]--></span></span></span></span></u></span></strong> и другие.</p>
+  </div>`;
+  const { document } = parseHTML(html);
+  const container = document.querySelector('[data-container-id="main-col"]');
+  const clean = sanitizeResponseContainer(container);
+  const md = cleanMarkdownSpacing(convertToMarkdown(clean));
+
+  assert.equal(md, "В отряд входят **кошачьи (Felidae)** и другие.");
+});
