@@ -326,3 +326,15 @@ test("sanitizeResponseContainer preserves deeply nested span/u entity highlights
 
   assert.equal(md, "В отряд входят **кошачьи (Felidae)** и другие.");
 });
+
+test("sanitizeResponseContainer still strips non-entity controls inside formatted tags", () => {
+  const html = `<div data-container-id="main-col">
+    <p><strong>Text <span role="button">Show more</span></strong></p>
+  </div>`;
+  const { document } = parseHTML(html);
+  const container = document.querySelector('[data-container-id="main-col"]');
+  const clean = sanitizeResponseContainer(container);
+  const md = cleanMarkdownSpacing(convertToMarkdown(clean));
+
+  assert.equal(md, "**Text**");
+});

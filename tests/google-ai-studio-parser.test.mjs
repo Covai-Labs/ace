@@ -137,3 +137,36 @@ test('GoogleAIStudioParser scrolls virtualized unmounted turns into view and res
   assert.equal(result.messages[1].content, 'Final answer.');
   assert.equal(scroller.scrollTop, 1400);
 });
+
+test('GoogleAIStudioParser reads live textarea.value and retains user prompt "Thinking..."', async () => {
+  const html = `<!DOCTYPE html><html><body>
+    <ms-chat-turn id="turn-ta">
+      <div class="virtual-scroll-container" data-turn-role="User">
+        <div class="turn-content"><textarea></textarea></div>
+      </div>
+    </ms-chat-turn>
+    <ms-chat-turn id="turn-thinking-prompt">
+      <div class="virtual-scroll-container" data-turn-role="User">
+        <div class="turn-content">
+          <ms-prompt-chunk><ms-text-chunk><ms-cmark-node><p>Thinking...</p></ms-cmark-node></ms-text-chunk></ms-prompt-chunk>
+        </div>
+      </div>
+    </ms-chat-turn>
+  </body></html>`;
+
+  const { window, document, HTMLElement, Node, DOMParser } = parseHTML(html);
+  document.querySelector('textarea').value = 'Live textarea prompt';
+  global.window = window;
+  global.document = document;
+  global.HTMLElement = HTMLElement;
+  global.Node = Node;
+  global.DOMParser = DOMParser;
+
+  const { GoogleAIStudioParser } = await import('decant-core');
+  const parser = new GoogleAIStudioParser();
+  const result = await parser.parse();
+
+  assert.equal(result.messages.length, 2);
+  assert.equal(result.messages[0].content, 'Live textarea prompt');
+  assert.equal(result.messages[1].content, 'Thinking...');
+});

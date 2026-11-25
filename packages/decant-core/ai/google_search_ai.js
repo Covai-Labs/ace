@@ -93,11 +93,11 @@ export function sanitizeResponseContainer(container) {
   });
 
   // 3b. Preserve inline Knowledge Graph entity highlights wrapped in span[role="button"]
-  // inside formatted text (e.g. <strong><span><u>...<span role="button">...</span></u></span></strong>)
+  // inside formatted text (e.g. <strong><span><u>...<span data-sfc-cp role="button">...</span></u></span></strong>)
   // so html-to-markdown does not strip them as UI action buttons.
   const entityButtons = clone.querySelectorAll
     ? clone.querySelectorAll(
-        'u [role="button"], strong [role="button"], em [role="button"], b [role="button"], i [role="button"], span.jAOkJc[role="button"]',
+        'u [data-sfc-cp][role="button"], strong [data-sfc-cp][role="button"], em [data-sfc-cp][role="button"], b [data-sfc-cp][role="button"], i [data-sfc-cp][role="button"], span.jAOkJc[role="button"]',
       )
     : [];
   entityButtons.forEach((el) => {

@@ -67,11 +67,19 @@ function extractModernTurn(turn) {
     turn.classList?.contains("thought-activity-host") ||
     Boolean(contentRoot.querySelector("ms-thought-chunk"));
 
-  const text = cleanTurnContent(contentRoot);
+  const textarea =
+    turnRole === "User" &&
+    !contentRoot.querySelector("ms-text-chunk, ms-cmark-node")
+      ? contentRoot.querySelector("textarea")
+      : null;
+  const text = textarea
+    ? (textarea.value || textarea.textContent || "").trim()
+    : cleanTurnContent(contentRoot);
+
   if (
     !text ||
-    text === "Thinking..." ||
-    text.includes("model_thought_output")
+    (turnRole !== "User" &&
+      (text === "Thinking..." || text.includes("model_thought_output")))
   ) {
     return null;
   }
