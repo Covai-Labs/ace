@@ -1,6 +1,176 @@
 import { ChatParser } from "./base.js";
 import { convertToMarkdown } from "../utils/html-to-markdown.js";
 
+const NOISE_SELECTOR = [
+  "button",
+  "mat-expansion-panel-header",
+  ".mat-expansion-panel-header",
+  ".actions-container",
+  "ms-chat-turn-options",
+  ".author-label",
+  ".timestamp",
+  ".turn-separator",
+  "ms-prompt-options-menu",
+  ".navigator-container",
+].join(", ");
+
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function findScrollRoot(turns) {
+  const firstTurn = turns.find(Boolean);
+  let node = firstTurn?.parentElement || null;
+  while (node && node !== document.body && node !== document.documentElement) {
+    if (node.scrollHeight > node.clientHeight + 80) {
+      return node;
+    }
+    node = node.parentElement;
+  }
+  const scrollingEl = document.scrollingElement || document.documentElement;
+  if (scrollingEl && scrollingEl.scrollHeight > scrollingEl.clientHeight + 80) {
+    return scrollingEl;
+  }
+  return null;
+}
+
+function cleanTurnContent(element) {
+  const clone = element.cloneNode(true);
+  clone.querySelectorAll(NOISE_SELECTOR).forEach((el) => el.remove());
+
+  // Unwrap <pre><code> inside inline <ms-katex> so KaTeX spans convert as inline math
+  clone.querySelectorAll("ms-katex.inline").forEach((katexHost) => {
+    const katexSpan = katexHost.querySelector(".katex");
+    if (katexSpan) {
+      katexHost.replaceChildren(katexSpan);
+    }
+  });
+
+  return convertToMarkdown(clone).trim();
+}
+
+function extractModernTurn(turn) {
+  const roleContainer = turn.querySelector("[data-turn-role]");
+  const turnRole = roleContainer?.getAttribute("data-turn-role");
+  if (!turnRole) return null;
+
+  const contentRoot =
+    roleContainer.querySelector(".turn-content") || roleContainer;
+  const hasPromptContent = Boolean(
+    contentRoot.querySelector(
+      "ms-prompt-chunk, ms-thought-chunk, ms-text-chunk, ms-cmark-node, textarea, img",
+    ),
+  );
+  if (!hasPromptContent) return null;
+
+  const isThought =
+    turn.classList?.contains("thought-activity-host") ||
+    Boolean(contentRoot.querySelector("ms-thought-chunk"));
+
+  const textarea =
+    turnRole === "User" &&
+    !contentRoot.querySelector("ms-text-chunk, ms-cmark-node")
+      ? contentRoot.querySelector("textarea")
+      : null;
+  const text = textarea
+    ? (textarea.value || textarea.textContent || "").trim()
+    : cleanTurnContent(contentRoot);
+
+  if (
+    !text ||
+    (turnRole !== "User" &&
+      (text === "Thinking..." || text.includes("model_thought_output")))
+  ) {
+    return null;
+  }
+
+  return {
+    key: turn.getAttribute("id") || "",
+    role: turnRole === "User" ? "User" : "Google AI Studio",
+    content: text,
+    isThought,
+  };
+}
+
+async function collectVirtualizedTurns(turns) {
+  const collected = new Map();
+  turns.forEach((turn, idx) => {
+    const extracted = extractModernTurn(turn);
+    if (extracted) {
+      collected.set(extracted.key || `idx-${idx}`, { idx, ...extracted });
+    }
+  });
+
+  const hasUnmounted = turns.some((t) => {
+    const roleEl = t.querySelector("[data-turn-role]");
+    return roleEl && !extractModernTurn(t);
+  });
+
+  const scrollRoot = hasUnmounted ? findScrollRoot(turns) : null;
+  if (!scrollRoot || typeof window === "undefined") {
+    return Array.from(collected.values()).sort((a, b) => a.idx - b.idx);
+  }
+
+  const prevScrollTop = scrollRoot.scrollTop;
+  const prevBehavior = scrollRoot.style?.scrollBehavior;
+  if (scrollRoot.style) scrollRoot.style.scrollBehavior = "auto";
+
+  try {
+    for (let idx = 0; idx < turns.length; idx++) {
+      const turn = turns[idx];
+      const key = turn.getAttribute("id") || `idx-${idx}`;
+      if (collected.has(key)) continue;
+
+      if (typeof turn.scrollIntoView === "function") {
+        turn.scrollIntoView({ block: "center", behavior: "instant" });
+      }
+      await delay(150);
+
+      // Harvest any newly mounted turns in view
+      turns.forEach((candidate, cIdx) => {
+        const cKey = candidate.getAttribute("id") || `idx-${cIdx}`;
+        if (collected.has(cKey)) return;
+        const extracted = extractModernTurn(candidate);
+        if (extracted) {
+          collected.set(cKey, { idx: cIdx, ...extracted });
+        }
+      });
+    }
+  } finally {
+    scrollRoot.scrollTop = prevScrollTop;
+    if (scrollRoot.style) scrollRoot.style.scrollBehavior = prevBehavior || "";
+  }
+
+  return Array.from(collected.values()).sort((a, b) => a.idx - b.idx);
+}
+
+function mergeThoughtMessages(rawMessages) {
+  const merged = [];
+  for (let i = 0; i < rawMessages.length; i++) {
+    const current = rawMessages[i];
+    if (current.isThought && current.role === "Google AI Studio") {
+      const next = rawMessages[i + 1];
+      if (next && !next.isThought && next.role === "Google AI Studio") {
+        merged.push({
+          role: "Google AI Studio",
+          thinking: current.content,
+          content: `<think>\n${current.content}\n</think>\n\n${next.content}`,
+        });
+        i++;
+        continue;
+      }
+      merged.push({
+        role: "Google AI Studio",
+        thinking: current.content,
+        content: `<think>\n${current.content}\n</think>`,
+      });
+      continue;
+    }
+    merged.push({ role: current.role, content: current.content });
+  }
+  return merged;
+}
+
 export class GoogleAIStudioParser extends ChatParser {
   name = "Google AI Studio";
   isAvailable(url) {
@@ -30,7 +200,7 @@ export class GoogleAIStudioParser extends ChatParser {
     }
     title = title.replace(/\s+/g, " ").trim();
 
-    const messages = [];
+    let messages = [];
 
     // Selectors for chat turns
     const allTurnElements = Array.from(
@@ -45,7 +215,17 @@ export class GoogleAIStudioParser extends ChatParser {
         !allTurnElements.some((parent) => parent !== el && parent.contains(el)),
     );
 
-    if (turnElements.length > 0) {
+    const hasModernTurns = turnElements.some((el) =>
+      el.querySelector?.("[data-turn-role]"),
+    );
+
+    if (hasModernTurns) {
+      const modernTurns = turnElements.filter((el) =>
+        el.querySelector?.("[data-turn-role]"),
+      );
+      const rawMessages = await collectVirtualizedTurns(modernTurns);
+      messages = mergeThoughtMessages(rawMessages);
+    } else if (turnElements.length > 0) {
       turnElements.forEach((turn) => {
         // User prompt element
         const userEl =
@@ -75,15 +255,7 @@ export class GoogleAIStudioParser extends ChatParser {
         }
 
         if (aiEl) {
-          const clone = aiEl.cloneNode(true);
-          // Remove noise elements like copy buttons or action menus
-          clone
-            .querySelectorAll(
-              "button, .mat-expansion-panel-header, .author-label, .timestamp, ms-prompt-options-menu, .navigator-container",
-            )
-            .forEach((el) => el.remove());
-
-          let text = convertToMarkdown(clone).trim();
+          const text = cleanTurnContent(aiEl);
           if (
             text &&
             text !== "Thinking..." &&
