@@ -1,0 +1,44 @@
+name: Sync decant-core Lockfile on Renovate PRs
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    branches: [main]
+    paths:
+      - 'packages/decant-core/package.json'
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: 'true'
+
+jobs:
+  sync-lockfile:
+    if: github.actor == 'renovate[bot]' && github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v7
+        with:
+          node-version: 26
+
+      - name: Sync decant-core standalone lockfile
+        run: npm run sync:decant-lockfile
+
+      - name: Commit and push updated lockfile
+        run: |
+          if git diff --quiet packages/decant-core/package-lock.json; then
+            echo "packages/decant-core/package-lock.json is already in sync."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add packages/decant-core/package-lock.json
+          git commit -m "chore(deps): sync decant-core standalone lockfile"
+          git push
