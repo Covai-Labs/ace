@@ -9,70 +9,81 @@ export function cleanUriTitle(title) {
   const cleaned = title
     .replace(/[#|^[\]]/g, '')
     .replace(/[/\\?%*:|"<>]/g, '')
-    .trim()
-    .slice(0, 245);
-  return cleaned || 'AI Conversation';
+    .trim();
+  // Slice by Unicode code points so surrogate pairs (e.g. emoji) are never split
+  return Array.from(cleaned).slice(0, 245).join('') || 'AI Conversation';
 }
 
 export function cleanObsidianTitle(title) {
   return cleanUriTitle(title);
 }
 
+function toWellFormedString(value) {
+  const str = String(value);
+  if (typeof str.toWellFormed === 'function') {
+    return str.toWellFormed();
+  }
+  return str.replace(
+    /[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?<![\uD800-\uDBFF])[\uDC00-\uDFFF]/g,
+    '\uFFFD',
+  );
+}
+
+function serializeUriParams(entries) {
+  return entries
+    .filter(([, value]) => value !== undefined && value !== null && value !== '')
+    .map(
+      ([key, value]) =>
+        `${encodeURIComponent(toWellFormedString(key))}=${encodeURIComponent(toWellFormedString(value))}`,
+    )
+    .join('&');
+}
+
 export function buildObsidianUri({ title, content, vault, useClipboard = false }) {
   const cleanTitle = cleanUriTitle(title);
-  const params = new URLSearchParams();
-
-  params.append('name', cleanTitle);
+  const entries = [['name', cleanTitle]];
 
   if (vault && vault.trim().length > 0) {
-    params.append('vault', vault.trim());
+    entries.push(['vault', vault.trim()]);
   }
 
   if (useClipboard) {
-    params.append('clipboard', 'true');
+    entries.push(['clipboard', 'true']);
   } else if (content) {
-    params.append('content', content);
+    entries.push(['content', content]);
   }
 
-  return `obsidian://new?${params.toString()}`;
+  return `obsidian://new?${serializeUriParams(entries)}`;
 }
 
 export function buildLogseqUri({ title, content }) {
   const cleanTitle = cleanUriTitle(title);
-  const params = new URLSearchParams();
-  params.append('page', cleanTitle);
-  if (content) {
-    params.append('content', content);
-  }
-  return `logseq://x-callback-url/quickCapture?${params.toString()}`;
+  return `logseq://x-callback-url/quickCapture?${serializeUriParams([
+    ['page', cleanTitle],
+    ['content', content],
+  ])}`;
 }
 
 export function buildBearUri({ title, content }) {
   const cleanTitle = cleanUriTitle(title);
-  const params = new URLSearchParams();
-  params.append('title', cleanTitle);
-  if (content) {
-    params.append('text', content);
-  }
-  return `bear://x-callback-url/create?${params.toString()}`;
+  return `bear://x-callback-url/create?${serializeUriParams([
+    ['title', cleanTitle],
+    ['text', content],
+  ])}`;
 }
 
 export function buildNotePlanUri({ title, content }) {
   const cleanTitle = cleanUriTitle(title);
-  const params = new URLSearchParams();
-  params.append('noteTitle', cleanTitle);
-  if (content) {
-    params.append('text', content);
-  }
-  return `noteplan://x-callback-url/addText?${params.toString()}`;
+  return `noteplan://x-callback-url/addText?${serializeUriParams([
+    ['noteTitle', cleanTitle],
+    ['text', content],
+  ])}`;
 }
 
 export function buildDraftsUri({ title, content }) {
   const cleanTitle = cleanUriTitle(title);
   const fullText = title ? `# ${cleanTitle}\n\n${content || ''}` : content || '';
-  const params = new URLSearchParams();
-  params.append('text', fullText);
-  return `drafts://x-callback-url/create?${params.toString()}`;
+  return `drafts://x-callback-url/create?${serializeUriParams([['text', fullText]])}`;
 }
 
 export function buildAppUri(target, { title, content, vault }) {

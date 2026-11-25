@@ -21,16 +21,34 @@ test('cleanObsidianTitle strips invalid filename and Obsidian reserved character
   assert.equal(cleanObsidianTitle(''), 'AI Conversation');
 });
 
-test('buildObsidianUri formats obsidian://new URI with title, content, and optional vault', () => {
+test('buildObsidianUri handles emoji at truncation boundary and unpaired surrogates without URIError', () => {
+  const emojiBoundaryTitle = `${'a'.repeat(244)}😀extra`;
+  const uri = buildObsidianUri({
+    title: emojiBoundaryTitle,
+    content: 'Body with unpaired surrogate \uD800 here',
+  });
+  assert.ok(uri.startsWith('obsidian://new?'));
+  assert.ok(uri.includes(`name=${'a'.repeat(244)}%F0%9F%98%80`));
+  assert.ok(uri.includes('content=Body%20with%20unpaired%20surrogate%20%EF%BF%BD%20here'));
+
+  const unpairedTitleUri = buildObsidianUri({
+    title: 'Title \uD800 test',
+    content: 'Content',
+  });
+  assert.ok(unpairedTitleUri.includes('name=Title%20%EF%BF%BD%20test'));
+});
+
+test('buildObsidianUri formats obsidian://new URI with percent-encoded spaces', () => {
   const uriShort = buildObsidianUri({
     title: 'Research Note',
-    content: 'Some markdown content',
+    content: 'Some markdown + extra content',
     vault: 'Personal Vault',
   });
   assert.ok(uriShort.startsWith('obsidian://new?'));
-  assert.ok(uriShort.includes('name=Research+Note'));
-  assert.ok(uriShort.includes('vault=Personal+Vault'));
-  assert.ok(uriShort.includes('content=Some+markdown+content'));
+  assert.ok(uriShort.includes('name=Research%20Note'));
+  assert.ok(uriShort.includes('vault=Personal%20Vault'));
+  assert.ok(uriShort.includes('content=Some%20markdown%20%2B%20extra%20content'));
+  assert.ok(!uriShort.includes('+'));
 
   const uriNoVault = buildObsidianUri({
     title: 'Basic Note',
@@ -39,22 +57,25 @@ test('buildObsidianUri formats obsidian://new URI with title, content, and optio
   assert.ok(!uriNoVault.includes('vault='));
 });
 
-test('buildAppUri generates URIs for Logseq, Bear, NotePlan, and Drafts', () => {
+test('buildAppUri generates URIs for Logseq, Bear, NotePlan, and Drafts with %20 spaces', () => {
   const logseq = buildAppUri('logseq', { title: 'Journal Note', content: 'Chat content' });
   assert.ok(logseq.startsWith('logseq://x-callback-url/quickCapture?'));
-  assert.ok(logseq.includes('page=Journal+Note'));
+  assert.ok(logseq.includes('page=Journal%20Note'));
+  assert.ok(logseq.includes('content=Chat%20content'));
 
   const bear = buildAppUri('bear', { title: 'Bear Note', content: 'Chat content' });
   assert.ok(bear.startsWith('bear://x-callback-url/create?'));
-  assert.ok(bear.includes('title=Bear+Note'));
+  assert.ok(bear.includes('title=Bear%20Note'));
+  assert.ok(bear.includes('text=Chat%20content'));
 
   const noteplan = buildAppUri('noteplan', { title: 'Plan Note', content: 'Chat content' });
   assert.ok(noteplan.startsWith('noteplan://x-callback-url/addText?'));
-  assert.ok(noteplan.includes('noteTitle=Plan+Note'));
+  assert.ok(noteplan.includes('noteTitle=Plan%20Note'));
+  assert.ok(noteplan.includes('text=Chat%20content'));
 
   const drafts = buildAppUri('drafts', { title: 'Draft Note', content: 'Chat content' });
   assert.ok(drafts.startsWith('drafts://x-callback-url/create?'));
-  assert.ok(drafts.includes('text=%23+Draft+Note'));
+  assert.ok(drafts.includes('text=%23%20Draft%20Note%0A%0AChat%20content'));
 });
 
 test('popup, preview, and options UI include PKM app options', () => {
