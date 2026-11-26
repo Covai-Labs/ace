@@ -138,87 +138,24 @@
         </div>
 
         <div class="header-toolbar">
-          <div id="format-tabs" class="segmented-control">
-            <button
-              data-tab="html-render"
-              class="control-btn active"
-              data-i18n="htmlLiveTab"
-              data-tooltip="Rendered HTML preview"
-              data-shortcut="1"
+          <div class="format-control-group">
+            <label for="format-tabs" class="transfer-label">Format:</label>
+            <select
+              id="format-tabs"
+              class="transfer-select"
+              aria-label="Preview & Export Format"
+              data-tooltip="Switch format (1-9)"
             >
-              Live
-            </button>
-            <button
-              data-tab="html-source"
-              class="control-btn"
-              data-i18n="htmlCodeTab"
-              data-tooltip="HTML source code"
-              data-shortcut="2"
-            >
-              HTML
-            </button>
-            <button
-              data-tab="markdown"
-              class="control-btn"
-              data-i18n="markdownTab"
-              data-tooltip="Markdown source"
-              data-shortcut="3"
-            >
-              Markdown
-            </button>
-            <button
-              data-tab="text"
-              class="control-btn"
-              data-i18n="textTab"
-              data-tooltip="Plain text"
-              data-shortcut="4"
-            >
-              Plain Text
-            </button>
-            <button
-              data-tab="json"
-              class="control-btn"
-              data-i18n="jsonTab"
-              data-tooltip="ACE JSON schema"
-              data-shortcut="5"
-            >
-              JSON
-            </button>
-            <button
-              data-tab="openwebui"
-              class="control-btn"
-              data-tooltip="Open-WebUI compatible JSON"
-              data-shortcut="6"
-            >
-              Open-WebUI
-            </button>
-            <button
-              data-tab="doc"
-              class="control-btn"
-              data-i18n="wordDocTab"
-              data-tooltip="Word document (.doc)"
-              data-shortcut="7"
-            >
-              Word (.doc)
-            </button>
-            <button
-              data-tab="png"
-              class="control-btn"
-              data-i18n="imageTab"
-              data-tooltip="Shareable image (.png)"
-              data-shortcut="8"
-            >
-              Image (.png)
-            </button>
-            <button
-              data-tab="pdf"
-              class="control-btn"
-              data-i18n="pdfTab"
-              data-tooltip="Print or save PDF"
-              data-shortcut="9"
-            >
-              PDF (.pdf)
-            </button>
+              <option value="html-render">HTML Live</option>
+              <option value="html-source">HTML Code</option>
+              <option value="markdown">Markdown</option>
+              <option value="text">Plain Text</option>
+              <option value="json">JSON</option>
+              <option value="openwebui">Open-WebUI JSON</option>
+              <option value="doc">Word (.doc)</option>
+              <option value="png">Image (.png)</option>
+              <option value="pdf">PDF (.pdf)</option>
+            </select>
           </div>
 
           <div class="theme-control-group">
@@ -248,12 +185,19 @@
           <div class="options-menu-group">
             <button
               id="options-menu-btn"
-              class="transfer-select options-menu-btn"
-              title="Export Options"
+              class="options-menu-btn"
+              type="button"
+              data-tooltip="Export options"
+              data-shortcut="P"
               aria-haspopup="true"
               aria-expanded="false"
             >
-              ⚙️ <span data-i18n="exportOptions">Options</span>
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                <path
+                  d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"
+                />
+              </svg>
+              <span data-i18n="exportOptions">Options</span>
             </button>
             <div id="options-menu" class="options-menu hidden" role="menu">
               <label class="options-menu-item checkbox-label" style="cursor: pointer">

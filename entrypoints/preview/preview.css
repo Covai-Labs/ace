@@ -214,6 +214,7 @@ h1 {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
+.format-control-group,
 .theme-control-group,
 .transfer-control-group,
 .image-control-group,
@@ -236,11 +237,21 @@ h1 {
 .options-menu-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   background-color: var(--secondary-bg);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
-  padding: 7px 12px;
+  padding: 6px 12px;
   border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.options-menu-btn:hover {
+  background-color: var(--secondary-hover);
 }
 
 .options-menu {

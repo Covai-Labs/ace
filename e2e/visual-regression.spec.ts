@@ -47,8 +47,8 @@ test.describe('Visual Regression', () => {
 
     const page = await openExtensionPage('preview.html');
 
-    const htmlLiveTab = page.locator('[data-tab="html-render"]');
-    await htmlLiveTab.click();
+    const formatSelect = page.locator('#format-tabs');
+    await formatSelect.selectOption('html-render');
 
     const iframe = page.frameLocator('#preview-rendered');
     const messageCard = iframe.locator('.message-card').last();

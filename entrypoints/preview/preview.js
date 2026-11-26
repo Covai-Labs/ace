@@ -834,14 +834,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const switchTab = (tabName) => {
     currentActiveTab = tabName;
     syncUrlFormat(tabName);
-    const buttons = formatTabsContainer.querySelectorAll('.control-btn');
-    buttons.forEach((btn) => {
-      if (btn.getAttribute('data-tab') === tabName) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
+    if (formatTabsContainer && formatTabsContainer.tagName === 'SELECT') {
+      formatTabsContainer.value = tabName;
+    } else if (formatTabsContainer) {
+      const buttons = formatTabsContainer.querySelectorAll('.control-btn');
+      buttons.forEach((btn) => {
+        if (btn.getAttribute('data-tab') === tabName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
 
     if (pngWarningBanner) {
       pngWarningBanner.classList.toggle('hidden', tabName !== 'png');
@@ -940,12 +944,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDownloadButtonLabel(activeExtension);
   };
 
-  formatTabsContainer.addEventListener('click', (e) => {
-    const btn = e.target.closest('.control-btn');
-    if (btn && btn.hasAttribute('data-tab')) {
-      switchTab(btn.getAttribute('data-tab'));
-    }
-  });
+  if (formatTabsContainer && formatTabsContainer.tagName === 'SELECT') {
+    formatTabsContainer.addEventListener('change', (e) => {
+      switchTab(e.target.value);
+    });
+  } else if (formatTabsContainer) {
+    formatTabsContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.control-btn');
+      if (btn && btn.hasAttribute('data-tab')) {
+        switchTab(btn.getAttribute('data-tab'));
+      }
+    });
+  }
 
   if (printBtn) {
     printBtn.addEventListener('click', () => printIframe());
