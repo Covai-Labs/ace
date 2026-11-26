@@ -310,6 +310,7 @@ test("getThreadSlug supports /thread/ URLs and formatApiResult appends deduplica
               sources_mode_block: {
                 web_results: [
                   { name: "BBC Duplicate", url: "https://bbc.com/news/1" },
+                  { name: "Paren Query", url: "https://example.com/?q=)" },
                 ],
               },
             },
@@ -329,6 +330,10 @@ test("getThreadSlug supports /thread/ URLs and formatApiResult appends deduplica
   assert.match(
     result.messages[1].content,
     /2\. \[Variety\]\(https:\/\/variety\.com\/2\)/,
+  );
+  assert.match(
+    result.messages[1].content,
+    /3\. \[Paren Query\]\(https:\/\/example\.com\/\?q=%29\)/,
   );
   assert.doesNotMatch(result.messages[1].content, /BBC Duplicate/);
 });

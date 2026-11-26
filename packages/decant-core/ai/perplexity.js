@@ -128,9 +128,20 @@ export function formatApiResult(threadData, currentUrl, fallbackTitle) {
       let normalizedAnswer = normalizeLatexMath(rawAnswer);
       const sources = extractEntrySources(entry);
       if (sources.length > 0) {
-        const sourceLines = sources.map(
-          (s, idx) => `${idx + 1}. [${s.title}](${s.url})`,
-        );
+        const mdEscapeMap = {
+          "(": "%28",
+          ")": "%29",
+          "<": "%3C",
+          ">": "%3E",
+          "\\": "%5C",
+        };
+        const sourceLines = sources.map((s, idx) => {
+          const safeUrl = s.url.replace(
+            /[()<>\\\s]/g,
+            (ch) => mdEscapeMap[ch] || encodeURIComponent(ch),
+          );
+          return `${idx + 1}. [${s.title}](${safeUrl})`;
+        });
         normalizedAnswer += `\n\n**Sources:**\n${sourceLines.join("\n")}`;
       }
       const assistantMsg = { role: "Perplexity", content: normalizedAnswer };
