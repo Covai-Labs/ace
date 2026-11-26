@@ -18,13 +18,21 @@ import {
 
 const logger = createLogger('Popup');
 
+function stripLeadingEmoji(text) {
+  return String(text || '').replace(
+    /^[\p{Emoji_Presentation}\p{Extended_Pictographic}\uFE0F\s]+/u,
+    '',
+  );
+}
+
 function setBtnLabel(btn, text) {
   if (!btn) return;
+  const cleaned = stripLeadingEmoji(text);
   const label = btn.querySelector('.btn-label');
   if (label) {
-    label.textContent = text;
+    label.textContent = cleaned;
   } else {
-    btn.textContent = text;
+    btn.textContent = cleaned;
   }
 }
 
@@ -56,6 +64,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Initialize localization & tooltips
   await initI18n();
   applyI18n();
+  document.querySelectorAll('.btn-label').forEach((el) => {
+    el.textContent = stripLeadingEmoji(el.textContent);
+  });
   initTooltips();
 
   const statusEl = document.getElementById('status');
@@ -213,6 +224,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!indicator || !textNode) {
       statusEl.innerHTML = `<span class="status-indicator ${state}"></span><span class="status-text"></span>`;
       textNode = statusEl.querySelector('.status-text');
+      indicator = statusEl.querySelector('.status-indicator');
+    }
+    if (indicator) {
+      indicator.className = `status-indicator ${state}`;
     }
     if (textNode) {
       textNode.textContent = message;
@@ -320,17 +335,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     ['popup-page-break', 'pageBreakPerPrompt', false],
   ];
 
+  const optionsSummaryEl = document.getElementById('options-summary');
+  function updateOptionsSummary() {
+    if (!optionsSummaryEl) return;
+    const enabled = [];
+    if (includeImagesCheckbox?.checked) enabled.push('Images');
+    if (document.getElementById('popup-include-attachments')?.checked) enabled.push('Files');
+    if (document.getElementById('popup-include-thinking')?.checked) enabled.push('Thoughts');
+    if (document.getElementById('popup-include-timestamps')?.checked) enabled.push('Dates');
+    if (document.getElementById('popup-include-toc')?.checked) enabled.push('TOC');
+    optionsSummaryEl.textContent = enabled.length ? enabled.join(', ') : 'Default options';
+  }
+
   popupOptionsSyncMap.forEach(([elId, key, defaultVal]) => {
     const el = document.getElementById(elId);
     if (!el) return;
     el.checked = storedSettings[key] !== undefined ? Boolean(storedSettings[key]) : defaultVal;
     el.addEventListener('change', () => {
       storedSettings[key] = el.checked;
+      updateOptionsSummary();
       if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
         chrome.storage.sync.set({ [key]: el.checked });
       }
     });
   });
+  if (includeImagesCheckbox) {
+    includeImagesCheckbox.addEventListener('change', updateOptionsSummary);
+  }
+  updateOptionsSummary();
 
   const popupNumberingSelect = document.getElementById('popup-numbering-select');
   if (popupNumberingSelect) {
@@ -380,6 +412,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (storedSettings.includeImages !== undefined && includeImagesCheckbox) {
     includeImagesCheckbox.checked = storedSettings.includeImages;
   }
+  updateOptionsSummary();
 
   async function getActiveTab() {
     if (typeof chrome === 'undefined' || !chrome.tabs) return null;
