@@ -109,6 +109,13 @@ export default defineConfig({
       },
       options_page: 'options.html',
       commands: {
+        _execute_action: {
+          suggested_key: {
+            default: 'Alt+Shift+A',
+            mac: 'Alt+Shift+A',
+          },
+          description: 'Open AI Chat Exporter popup',
+        },
         copy_markdown: {
           suggested_key: {
             default: 'Alt+Shift+C',
@@ -129,6 +136,18 @@ export default defineConfig({
             mac: 'Alt+Shift+P',
           },
           description: '__MSG_commandOpenPreview__',
+        },
+        open_sidepanel: {
+          description: 'Open AI Chat Exporter side panel',
+        },
+        transfer_last_target: {
+          description: 'Transfer chat to last selected AI or note app',
+        },
+        copy_json: {
+          description: 'Copy chat as JSON',
+        },
+        download_pdf: {
+          description: 'Open PDF export in Workspace',
         },
       },
       web_accessible_resources: [
