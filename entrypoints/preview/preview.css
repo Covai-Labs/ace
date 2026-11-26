@@ -214,6 +214,13 @@ h1 {
   align-items: center;
 }
 
+.meta-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 6px;
+  align-items: center;
+}
+
 .btn {
   display: inline-flex;
   align-items: center;
@@ -862,6 +869,7 @@ html[data-theme='dark'] .png-warning-banner {
   .preview-header,
   .segmented-control,
   .action-buttons,
+  .meta-actions,
   .turn-selector-drawer,
   #code-wrapper {
     display: none !important;
