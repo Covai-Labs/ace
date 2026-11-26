@@ -28,36 +28,41 @@ body {
   border: none;
   border-bottom: 1px solid var(--border-color);
   border-radius: 0;
-  padding: 12px 24px;
+  padding: 8px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   box-shadow: var(--shadow);
   flex-shrink: 0;
   z-index: 10;
 }
 
 html.in-iframe .preview-header {
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 6px 10px;
+  gap: 6px;
 }
 
-html.in-iframe .header-top-row h1,
-html.in-iframe .header-top-row .preview-filename-wrapper {
+html.in-iframe .header-single-row h1,
+html.in-iframe .header-single-row .preview-filename-wrapper {
   display: none;
 }
 
-.header-top-row {
+.header-single-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   width: 100%;
 }
 
 .header-main {
-  flex: 1;
-  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 180px;
+  min-width: 150px;
+  max-width: 300px;
   overflow: hidden;
 }
 
@@ -65,13 +70,13 @@ html.in-iframe .header-top-row .preview-filename-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
-  max-width: 600px;
+  flex: 1;
+  min-width: 0;
 }
 
 .preview-filename-input {
   width: 100%;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   font-family: inherit;
   color: var(--text-color);
@@ -100,13 +105,13 @@ html.in-iframe .header-top-row .preview-filename-wrapper {
 
 .header-toolbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  width: 100%;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border-color);
+  gap: 6px;
+}
+
+#github-star-btn:hover {
+  color: #f59e0b;
 }
 
 .transfer-label {
