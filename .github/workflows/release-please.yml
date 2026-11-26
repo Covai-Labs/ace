@@ -60,9 +60,7 @@ jobs:
           cache-dependency-path: package.json
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npm install decant-core@latest --no-save
+        run: npm ci
 
       - name: Run lint & formatting checks
         run: |
@@ -126,9 +124,7 @@ jobs:
           node-version: 26
 
       - name: Install dependencies
-        run: |
-          npm ci
-          npm install decant-core@latest --no-save
+        run: npm ci
 
       - name: Build Firefox extension with WXT
         run: npm run build:firefox
