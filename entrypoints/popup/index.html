@@ -7,97 +7,182 @@
   </head>
   <body>
     <div class="container">
-      <header>
+      <header class="popup-header">
         <div class="header-row">
-          <div id="status" class="status">
-            <span class="status-indicator detecting"></span>
-            <span class="status-text" data-i18n="statusDetecting">Detecting...</span>
+          <div class="status-cluster">
+            <div id="status" class="status">
+              <span class="status-indicator detecting"></span>
+              <span class="status-text" data-i18n="statusDetecting">Detecting...</span>
+            </div>
+            <span id="message-count" class="msg-badge hidden">0 msgs</span>
           </div>
           <div class="header-actions">
             <button
               id="reparse-btn"
-              class="sidepanel-icon-btn"
-              title="Reparse Chat"
+              class="icon-btn"
+              type="button"
               aria-label="Reparse Chat"
               data-i18n-title="reparseChat"
               data-i18n-aria-label="reparseChat"
+              data-tooltip="Reparse conversation"
+              data-shortcut="R"
             >
-              ↻
+              <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                <path
+                  d="M17.65 6.35A7.958 7.958 0 0012 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0112 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"
+                />
+              </svg>
+            </button>
+            <button
+              id="shortcut-help-btn"
+              class="icon-btn"
+              type="button"
+              aria-label="Keyboard Shortcuts"
+              data-tooltip="Keyboard shortcuts"
+              data-shortcut="?"
+            >
+              <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                <path
+                  d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"
+                />
+              </svg>
             </button>
             <button
               id="support-btn"
-              class="sidepanel-icon-btn"
-              title="Support & Love"
+              class="icon-btn"
+              type="button"
               aria-label="Support & Love"
-              data-i18n-title="supportLove"
               data-i18n-aria-label="supportLove"
+              data-tooltip="Support & feedback"
             >
-              ❤️
+              <svg viewBox="0 0 24 24" class="icon-svg icon-heart" aria-hidden="true">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
+                />
+              </svg>
             </button>
             <button
               id="open-options-btn"
-              class="sidepanel-icon-btn"
-              title="Open Options"
-              data-i18n-title="openOptions"
+              class="icon-btn"
+              type="button"
+              aria-label="Open Options"
+              data-i18n-aria-label="openOptions"
+              data-tooltip="Extension settings"
             >
-              ⚙️
+              <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                <path
+                  d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
+                />
+              </svg>
             </button>
           </div>
         </div>
+
+        <nav class="popup-tabs" role="tablist" aria-label="Popup sections">
+          <button
+            type="button"
+            class="popup-tab-btn active"
+            role="tab"
+            aria-selected="true"
+            data-popup-tab="export"
+            data-tooltip="Export current page"
+            data-shortcut="1"
+          >
+            <span>Export</span>
+            <kbd class="ace-kbd tab-kbd">1</kbd>
+          </button>
+          <button
+            type="button"
+            class="popup-tab-btn"
+            role="tab"
+            aria-selected="false"
+            data-popup-tab="transfer"
+            data-tooltip="Transfer to another AI or note app"
+            data-shortcut="2"
+          >
+            <span>Transfer</span>
+            <kbd class="ace-kbd tab-kbd">2</kbd>
+          </button>
+          <button
+            type="button"
+            class="popup-tab-btn"
+            role="tab"
+            aria-selected="false"
+            data-popup-tab="batch"
+            data-tooltip="Batch export open tabs"
+            data-shortcut="3"
+          >
+            <span>Batch</span>
+            <span id="batch-tab-count" class="tab-count-pill hidden">0</span>
+            <kbd class="ace-kbd tab-kbd">3</kbd>
+          </button>
+        </nav>
       </header>
 
-      <main>
-        <div class="chat-info hidden" id="chat-info">
-          <div class="card-header-row">
-            <span class="field-label-small" data-i18n="exportFilename">EXPORT FILENAME</span>
-            <span id="message-count" class="msg-badge">0 messages found</span>
-          </div>
-          <div class="filename-input-wrapper">
-            <textarea
+      <main class="popup-main">
+        <!-- TAB 1: EXPORT -->
+        <section id="tab-panel-export" class="popup-tab-panel active" role="tabpanel">
+          <div class="chat-info hidden" id="chat-info">
+            <label for="filename-input" class="field-label-small" data-i18n="exportFilename"
+              >EXPORT FILENAME</label
+            >
+            <input
+              type="text"
               id="filename-input"
-              class="chat-filename-textarea"
-              rows="2"
+              class="chat-filename-input"
               placeholder="Filename"
-              title="Click to edit filename"
               aria-label="Export Filename"
               data-i18n-placeholder="filenamePlaceholder"
-              data-i18n-title="filenameTooltip"
-            ></textarea>
+              autocomplete="off"
+              spellcheck="false"
+            />
+            <span id="chat-title" class="hidden"></span>
           </div>
-          <span id="chat-title" class="hidden"></span>
-        </div>
 
-        <div class="actions hidden" id="actions">
-          <select id="format-select" aria-label="Export Format">
-            <option value="markdown">📝 Markdown (.md)</option>
-            <option value="text" data-i18n="formatText">📄 Plain Text (.txt)</option>
-            <option value="json">⚙️ JSON (.json)</option>
-            <option value="openwebui">🖥️ Open-WebUI JSON (.json)</option>
-            <option value="html">🌐 HTML (.html)</option>
-            <option value="doc">📄 Word Document (.doc)</option>
-            <option value="png">🖼️ Shareable Image (.png)</option>
-            <option value="pdf">📄 PDF (.pdf)</option>
-          </select>
-          <div id="png-warning-banner" class="png-warning-banner hidden" data-i18n="pngWarning">
-            ⚠️ PNG export on long chats may take 1–2 minutes. Consider PDF or Markdown for instant
-            export.
-          </div>
-          <div
-            id="unsupported-warning-banner"
-            class="web-article-banner unsupported-warning-banner hidden"
-          >
-            <div class="web-article-header">
-              <span class="web-article-title" data-i18n="webArticleModeTitle"
-                >📄 Web Article Mode</span
-              >
-              <div class="web-article-engine-wrapper">
+          <div class="actions hidden" id="actions">
+            <div class="controls-grid">
+              <div class="control-col">
+                <label for="format-select" class="field-label-small">FORMAT</label>
+                <select id="format-select" aria-label="Export Format">
+                  <option value="markdown">Markdown (.md)</option>
+                  <option value="text" data-i18n="formatText">Plain Text (.txt)</option>
+                  <option value="json">JSON (.json)</option>
+                  <option value="openwebui">Open-WebUI JSON (.json)</option>
+                  <option value="html">HTML (.html)</option>
+                  <option value="doc">Word Document (.doc)</option>
+                  <option value="png">Shareable Image (.png)</option>
+                  <option value="pdf">PDF (.pdf)</option>
+                </select>
+              </div>
+
+              <div class="control-col" id="parser-mode-container">
+                <label for="parser-mode-select" class="field-label-small">EXTRACTION</label>
+                <select
+                  id="parser-mode-select"
+                  aria-label="Chat Extraction Mode"
+                  data-tooltip="Cycle extraction mode (Auto / API / DOM)"
+                  data-shortcut="M"
+                >
+                  <option value="auto">Auto (API → DOM)</option>
+                  <option value="prefer_api">API First</option>
+                  <option value="prefer_dom">DOM Only</option>
+                </select>
+              </div>
+
+              <div class="web-article-banner control-col hidden" id="unsupported-warning-banner">
+                <span class="hidden" data-i18n="webArticleModeTitle">Web Article Mode</span>
                 <label
                   for="article-engine-select-popup"
-                  class="engine-label"
+                  class="field-label-small"
                   data-i18n="webArticleEngineLabel"
-                  >Engine:</label
+                  >ENGINE</label
                 >
-                <select id="article-engine-select-popup" class="engine-select">
+                <select
+                  id="article-engine-select-popup"
+                  aria-label="Web Article Engine"
+                  data-tooltip="Cycle article extraction engine"
+                  data-shortcut="M"
+                >
                   <option value="auto" data-i18n="webArticleEngineAuto">Auto (Best)</option>
                   <option value="readability" data-i18n="webArticleEngineReadability">
                     Readability
@@ -106,7 +191,8 @@
                 </select>
               </div>
             </div>
-            <div class="web-article-footer">
+
+            <div id="article-support-row" class="article-support-row hidden">
               <span data-i18n="webArticleNotArticle">Not an article?</span>
               <a
                 href="#"
@@ -116,119 +202,251 @@
                 >Request AI chat support ↗</a
               >
             </div>
-          </div>
-          <div class="checkbox-wrapper" id="image-toggle-container">
-            <label class="checkbox-label">
-              <input type="checkbox" id="include-images-checkbox" checked />
-              <span data-i18n="includeImages">Include Images</span>
-            </label>
-          </div>
-          <div class="checkbox-wrapper hidden" id="png-quality-container">
-            <label class="checkbox-label">
-              <input type="checkbox" id="png-quality-checkbox" checked />
-              <span data-i18n="highQualityPng">High Quality PNG (2x)</span>
-            </label>
-          </div>
-          <div class="button-group">
-            <div class="primary-row">
-              <button id="preview-btn" class="primary-btn" data-i18n="openInTab">
-                👁️ Open in Tab
-              </button>
-            </div>
-            <div class="secondary-row">
-              <button id="export-btn" class="secondary-btn" data-i18n="exportChat">
-                📥 Export Chat
-              </button>
-              <button id="copy-btn" class="secondary-btn hidden" data-i18n="copyChat">
-                📋 Copy Chat
-              </button>
-            </div>
-          </div>
 
-          <div class="divider"></div>
-
-          <div class="transfer-section" id="transfer-section">
-            <div class="transfer-header">
-              <span class="transfer-badge" data-i18n="crossAiTransfer">🔀 CROSS-AI TRANSFER</span>
+            <div id="png-warning-banner" class="png-warning-banner hidden" data-i18n="pngWarning">
+              ⚠️ PNG export on long chats may take 1–2 minutes. Consider PDF or Markdown for instant
+              export.
             </div>
-            <div class="transfer-row">
-              <select id="continue-target-select" aria-label="Cross-AI Transfer Target">
-                <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
-                  <option value="chatgpt">ChatGPT</option>
-                  <option value="claude">Claude</option>
-                  <option value="gemini">Gemini</option>
-                  <option value="deepseek">DeepSeek</option>
-                  <option value="qwen">Qwen</option>
-                  <option value="perplexity">Perplexity</option>
-                  <option value="mistral">Mistral</option>
-                  <option value="lumo">Lumo</option>
-                  <option value="copilot">Copilot</option>
-                  <option value="meta">Meta AI</option>
-                  <option value="z_ai">Z.ai</option>
-                  <option value="grok">Grok</option>
-                </optgroup>
-                <optgroup label="Note apps" data-i18n-label="transferGroupNoteApps">
-                  <option value="obsidian">Obsidian</option>
-                  <option value="logseq">Logseq</option>
-                  <option value="bear">Bear</option>
-                  <option value="noteplan">NotePlan</option>
-                  <option value="drafts">Drafts</option>
-                </optgroup>
-              </select>
-              <button id="transfer-btn" class="transfer-btn-primary" data-i18n="transferBtn">
-                ↗ Transfer
-              </button>
-            </div>
-          </div>
-        </div>
 
-        <div class="error-container hidden" id="error-msg">
-          <div class="copilot-redirect-box hidden" id="copilot-redirect-box">
-            <span class="copilot-redirect-icon">💡</span>
-            <div class="copilot-redirect-content">
-              <div class="copilot-redirect-title" data-i18n="copilotRedirectTitle">
-                Microsoft Copilot Notice
+            <div class="options-bar">
+              <div class="options-toggles">
+                <div class="checkbox-wrapper" id="image-toggle-container">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="include-images-checkbox" checked />
+                    <span data-i18n="includeImages">Include Images</span>
+                  </label>
+                </div>
+                <div class="checkbox-wrapper hidden" id="png-quality-container">
+                  <label class="checkbox-label">
+                    <input type="checkbox" id="png-quality-checkbox" checked />
+                    <span data-i18n="highQualityPng">2x PNG</span>
+                  </label>
+                </div>
               </div>
-              <div class="copilot-redirect-desc" data-i18n="copilotRedirectDesc">
-                Exporting is supported on copilot.com. Switch to copilot.com to export this chat.
+
+              <div class="popup-options-wrapper">
+                <button
+                  type="button"
+                  id="popup-options-btn"
+                  class="options-trigger-btn"
+                  aria-haspopup="true"
+                  aria-expanded="false"
+                  data-tooltip="More export options"
+                  data-shortcut="P"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-svg-sm" aria-hidden="true">
+                    <path
+                      d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"
+                    />
+                  </svg>
+                  <span data-i18n="exportOptions">Options</span>
+                </button>
+                <div id="popup-options-menu" class="popup-options-menu hidden" role="menu">
+                  <label class="options-menu-item checkbox-label">
+                    <input type="checkbox" id="popup-include-attachments" checked />
+                    <span data-i18n="includeAttachments">Include Files</span>
+                  </label>
+                  <label class="options-menu-item checkbox-label">
+                    <input type="checkbox" id="popup-include-thinking" checked />
+                    <span data-i18n="includeThinking">Include Thoughts</span>
+                  </label>
+                  <label class="options-menu-item checkbox-label">
+                    <input type="checkbox" id="popup-include-timestamps" />
+                    <span data-i18n="includeTimestamps">Include Dates</span>
+                  </label>
+                  <label class="options-menu-item checkbox-label">
+                    <input type="checkbox" id="popup-include-toc" />
+                    <span data-i18n="includeToc">Include Table of Contents</span>
+                  </label>
+                  <label class="options-menu-item checkbox-label">
+                    <input type="checkbox" id="popup-page-break" />
+                    <span data-i18n="pageBreakPerPrompt">Page Break Per Prompt</span>
+                  </label>
+                  <div class="options-menu-item options-menu-numbering">
+                    <span class="field-label-small" data-i18n="messageNumberingLabel"
+                      >Numbering</span
+                    >
+                    <select id="popup-numbering-select" aria-label="Message Numbering">
+                      <option value="off" data-i18n="messageNumberingOff">Off</option>
+                      <option value="per-message" data-i18n="messageNumberingPerMessage">
+                        Per Message
+                      </option>
+                      <option value="per-turn" data-i18n="messageNumberingPerTurn">Per Turn</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-              <button
-                id="copilot-redirect-btn"
-                class="copilot-redirect-btn"
-                data-i18n="copilotRedirectBtn"
+            </div>
+
+            <div class="button-group">
+              <div class="primary-row">
+                <button
+                  id="preview-btn"
+                  class="primary-btn"
+                  type="button"
+                  data-tooltip="Open in full Workspace tab"
+                  data-shortcut="O"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                    <path
+                      d="M19 19H5V5h7V3H5a2 2 0 00-2 2v14a2 2 0 002 2h14c1.1 0 2-.9 2-2v-7h-2v7zM14 3v2h3.59l-9.83 9.83 1.41 1.41L19 6.41V10h2V3h-7z"
+                    />
+                  </svg>
+                  <span class="btn-label" data-i18n="openInTab">Open in Workspace</span>
+                  <kbd class="ace-kbd btn-kbd">O</kbd>
+                </button>
+              </div>
+              <div class="secondary-row">
+                <button
+                  id="export-btn"
+                  class="secondary-btn"
+                  type="button"
+                  data-tooltip="Download selected format"
+                  data-shortcut="E"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                    <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
+                  </svg>
+                  <span class="btn-label" data-i18n="exportChat">Export</span>
+                  <kbd class="ace-kbd btn-kbd">E</kbd>
+                </button>
+                <button
+                  id="copy-btn"
+                  class="secondary-btn hidden"
+                  type="button"
+                  data-tooltip="Copy to clipboard"
+                  data-shortcut="C"
+                >
+                  <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                    <path
+                      d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
+                    />
+                  </svg>
+                  <span class="btn-label" data-i18n="copyChat">Copy</span>
+                  <kbd class="ace-kbd btn-kbd">C</kbd>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="error-container hidden" id="error-msg">
+            <div class="copilot-redirect-box hidden" id="copilot-redirect-box">
+              <span class="copilot-redirect-icon">💡</span>
+              <div class="copilot-redirect-content">
+                <div class="copilot-redirect-title" data-i18n="copilotRedirectTitle">
+                  Microsoft Copilot Notice
+                </div>
+                <div class="copilot-redirect-desc" data-i18n="copilotRedirectDesc">
+                  Exporting is supported on copilot.com. Switch to copilot.com to export this chat.
+                </div>
+                <button
+                  id="copilot-redirect-btn"
+                  class="copilot-redirect-btn"
+                  type="button"
+                  data-i18n="copilotRedirectBtn"
+                >
+                  ↗ Open in copilot.com
+                </button>
+              </div>
+            </div>
+            <div class="error-box">
+              <span data-i18n="noChatFound"
+                >No compatible chat found on this tab. You can navigate to a supported AI chat tab
+                and trigger this extension again or</span
               >
-                ↗ Open in copilot.com
-              </button>
+              <a
+                href="https://ace.covai.org/feedback.html"
+                id="report-issue-link"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-i18n="reportIssue"
+                >report the issue</a
+              >.
             </div>
           </div>
-          <div class="error-box">
-            <span data-i18n="noChatFound"
-              >No compatible chat found on this tab. You can navigate to a supported AI chat tab and
-              trigger this extension again or</span
-            >
-            <a
-              href="https://ace.covai.org/feedback.html"
-              id="report-issue-link"
-              target="_blank"
-              rel="noopener noreferrer"
-              data-i18n="reportIssue"
-              >report the issue</a
-            >.
-          </div>
-        </div>
+        </section>
 
-        <div class="batch-section" id="batch-section">
-          <div class="batch-row">
-            <span class="batch-pill-label">BATCH TABS</span>
-            <select id="batch-mode-select" aria-label="Batch Mode">
-              <option value="zip">📦 ZIP (.zip)</option>
-              <option value="combined">📑 Note (.md)</option>
-              <option value="ai">🤖 AI Synthesis</option>
+        <!-- TAB 2: TRANSFER -->
+        <section id="tab-panel-transfer" class="popup-tab-panel" role="tabpanel">
+          <div class="transfer-section" id="transfer-section">
+            <label
+              for="continue-target-select"
+              class="field-label-small"
+              data-i18n="crossAiTransfer"
+              >CONTINUE OR SAVE IN</label
+            >
+            <select id="continue-target-select" aria-label="Cross-AI Transfer Target">
+              <optgroup label="AI chats" data-i18n-label="transferGroupAiChats">
+                <option value="chatgpt">ChatGPT</option>
+                <option value="claude">Claude</option>
+                <option value="gemini">Gemini</option>
+                <option value="deepseek">DeepSeek</option>
+                <option value="qwen">Qwen</option>
+                <option value="perplexity">Perplexity</option>
+                <option value="mistral">Mistral</option>
+                <option value="lumo">Lumo</option>
+                <option value="copilot">Copilot</option>
+                <option value="meta">Meta AI</option>
+                <option value="z_ai">Z.ai</option>
+                <option value="grok">Grok</option>
+              </optgroup>
+              <optgroup label="Note apps" data-i18n-label="transferGroupNoteApps">
+                <option value="obsidian">Obsidian</option>
+                <option value="logseq">Logseq</option>
+                <option value="bear">Bear</option>
+                <option value="noteplan">NotePlan</option>
+                <option value="drafts">Drafts</option>
+              </optgroup>
             </select>
-            <button id="batch-export-btn" class="batch-btn-primary">Export</button>
+            <p class="panel-hint">
+              Copies conversation context and opens your selected AI chat or PKM app.
+            </p>
+            <button
+              id="transfer-btn"
+              class="primary-btn"
+              type="button"
+              data-tooltip="Transfer conversation context"
+              data-shortcut="T"
+            >
+              <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
+              </svg>
+              <span class="btn-label" data-i18n="transferBtn">Transfer</span>
+              <kbd class="ace-kbd btn-kbd">T</kbd>
+            </button>
           </div>
-          <div id="batch-progress" class="batch-progress hidden">Processing tabs...</div>
-        </div>
+        </section>
+
+        <!-- TAB 3: BATCH -->
+        <section id="tab-panel-batch" class="popup-tab-panel" role="tabpanel">
+          <div class="batch-section" id="batch-section">
+            <label for="batch-mode-select" class="field-label-small">BATCH EXPORT FORMAT</label>
+            <select id="batch-mode-select" aria-label="Batch Mode">
+              <option value="zip">ZIP Archive (.zip)</option>
+              <option value="combined">Merged Markdown (.md)</option>
+              <option value="ai">AI Synthesis Prompt</option>
+            </select>
+            <p class="panel-hint">
+              Exports all open AI chat tabs in the current window into one package.
+            </p>
+            <button
+              id="batch-export-btn"
+              class="primary-btn"
+              type="button"
+              data-tooltip="Export all open AI chat tabs"
+              data-shortcut="E"
+            >
+              <svg viewBox="0 0 24 24" class="icon-svg" aria-hidden="true">
+                <path
+                  d="M20 6h-8l-2-2H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zm-6 10H6v-2h8v2zm4-4H6v-2h12v2z"
+                />
+              </svg>
+              <span class="btn-label">Export All Tabs</span>
+              <kbd class="ace-kbd btn-kbd">E</kbd>
+            </button>
+            <div id="batch-progress" class="batch-progress hidden">Processing tabs...</div>
+          </div>
+        </section>
       </main>
     </div>
     <script type="module" src="popup.js"></script>

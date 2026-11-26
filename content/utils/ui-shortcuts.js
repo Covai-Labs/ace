@@ -32,14 +32,18 @@ export function openBrowserShortcutsPage() {
   const isFirefox =
     typeof chrome !== 'undefined' &&
     Boolean(chrome.runtime?.getURL?.('')?.startsWith('moz-extension://'));
-  const url = isFirefox ? 'about:addons' : 'chrome://extensions/shortcuts';
+  if (isFirefox) {
+    return false;
+  }
   try {
     if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
-      chrome.tabs.create({ url });
+      Promise.resolve(chrome.tabs.create({ url: 'chrome://extensions/shortcuts' })).catch(() => {});
+      return true;
     }
   } catch {
     // Ignore when tabs API is unavailable
   }
+  return false;
 }
 
 /**
@@ -81,11 +85,11 @@ export function initTooltips() {
   };
 
   const show = (target) => {
-    const text = target?.getAttribute('data-tooltip');
+    const text = target?.dataset?.tooltip;
     if (!text) return;
     activeTarget = target;
     labelSpan.textContent = text;
-    const shortcut = target.getAttribute('data-shortcut');
+    const shortcut = target.dataset.shortcut;
     if (shortcut) {
       kbdEl.textContent = shortcut;
       kbdEl.style.display = 'inline-flex';
@@ -220,12 +224,21 @@ export function createShortcutSheet({ title = 'Keyboard Shortcuts', localShortcu
 
   const footer = document.createElement('div');
   footer.className = 'ace-shortcut-footer';
+  const configHint = document.createElement('span');
+  configHint.className = 'ace-shortcut-hint';
+  configHint.style.fontSize = '11.5px';
+  configHint.style.color = 'var(--text-muted)';
   const configBtn = document.createElement('button');
   configBtn.type = 'button';
   configBtn.className = 'ace-shortcut-config-btn';
   configBtn.textContent = 'Configure Browser Shortcuts ↗';
-  configBtn.addEventListener('click', openBrowserShortcutsPage);
-  footer.appendChild(configBtn);
+  configBtn.addEventListener('click', () => {
+    const opened = openBrowserShortcutsPage();
+    if (!opened) {
+      configHint.textContent = 'Open about:addons → ⚙ → Manage Extension Shortcuts';
+    }
+  });
+  footer.append(configHint, configBtn);
 
   dialog.append(header, localTitle, localList, globalTitle, globalList, footer);
   backdrop.appendChild(dialog);
