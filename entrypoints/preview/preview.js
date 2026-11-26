@@ -1547,6 +1547,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     codeCardCopyBtn.addEventListener('click', () => copyBtn.click());
   }
 
+  const transferMenuBtn = document.getElementById('transfer-menu-btn');
+  const transferMenu = document.getElementById('transfer-menu');
+
+  if (transferMenuBtn && transferMenu && transferTargetSelect && transferBtn) {
+    const buildTransferMenu = () => {
+      transferMenu.textContent = '';
+      const groups = transferTargetSelect.querySelectorAll('optgroup');
+      groups.forEach((group) => {
+        const groupLabel = document.createElement('div');
+        groupLabel.className = 'transfer-menu-group-label';
+        groupLabel.textContent = group.label;
+        transferMenu.appendChild(groupLabel);
+        group.querySelectorAll('option').forEach((opt) => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'transfer-menu-item';
+          item.setAttribute('role', 'menuitem');
+          item.textContent = opt.textContent;
+          item.addEventListener('click', () => {
+            transferTargetSelect.value = opt.value;
+            transferMenu.classList.add('hidden');
+            transferMenuBtn.setAttribute('aria-expanded', 'false');
+            transferBtn.click();
+          });
+          transferMenu.appendChild(item);
+        });
+      });
+    };
+
+    buildTransferMenu();
+
+    transferMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = transferMenu.classList.contains('hidden');
+      transferMenu.classList.toggle('hidden', !willOpen);
+      transferMenuBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (
+        !transferMenu.classList.contains('hidden') &&
+        !transferMenu.contains(e.target) &&
+        e.target !== transferMenuBtn &&
+        !transferMenuBtn.contains(e.target)
+      ) {
+        transferMenu.classList.add('hidden');
+        transferMenuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   const shortcutSheet = createShortcutSheet({
     title: 'Workspace Shortcuts',
     localShortcuts: [
@@ -1588,7 +1639,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e: () => downloadBtn?.click(),
     m: () => turnSelectBtn?.click(),
     p: () => document.getElementById('options-menu-btn')?.click(),
-    t: () => transferBtn?.click(),
+    t: () => (transferMenuBtn ? transferMenuBtn.click() : transferBtn?.click()),
     '?': () => shortcutSheet.toggle(),
   };
   formatTabOrder.forEach((tabId, idx) => {

@@ -14,7 +14,6 @@
       <header class="preview-header">
         <div class="header-single-row">
           <div class="header-main">
-            <span class="badge" data-i18n="previewWorkspaceBadge">Workspace</span>
             <div class="preview-filename-wrapper">
               <input
                 type="text"
@@ -52,36 +51,12 @@
               </select>
             </div>
 
-            <div class="theme-control-group">
-              <select
-                id="preview-theme-select"
-                class="transfer-select"
-                title="Switch Theme"
-                aria-label="Switch Theme"
-                data-tooltip="Switch theme"
-              >
-                <option value="system">🎨 System Theme</option>
-                <option value="modern-light">☀️ Modern Light</option>
-                <option value="modern-dark">🌙 Modern Dark</option>
-                <option value="github-light">🐙 GitHub Light</option>
-                <option value="github-dark">🐙 GitHub Dark</option>
-                <option value="nord">❄️ Nord Slate</option>
-                <option value="dracula">🧛 Dracula</option>
-                <option value="solarized-light">🌅 Solarized Light</option>
-                <option value="solarized-dark">🌌 Solarized Dark</option>
-                <option value="catppuccin">🌸 Catppuccin Mocha</option>
-                <option value="monokai">⚡ Monokai</option>
-                <option value="synthwave">🌆 Synthwave '84</option>
-                <option value="gruvbox">📻 Gruvbox</option>
-              </select>
-            </div>
-
             <div class="options-menu-group">
               <button
                 id="options-menu-btn"
                 class="options-menu-btn"
                 type="button"
-                data-tooltip="Export options"
+                data-tooltip="Theme & export options"
                 data-shortcut="P"
                 aria-haspopup="true"
                 aria-expanded="false"
@@ -94,6 +69,29 @@
                 <span data-i18n="exportOptions">Options</span>
               </button>
               <div id="options-menu" class="options-menu hidden" role="menu">
+                <div class="options-menu-item options-menu-numbering">
+                  <span class="transfer-label">Theme:</span>
+                  <select
+                    id="preview-theme-select"
+                    class="transfer-select"
+                    title="Switch Theme"
+                    aria-label="Switch Theme"
+                  >
+                    <option value="system">🎨 System Theme</option>
+                    <option value="modern-light">☀️ Modern Light</option>
+                    <option value="modern-dark">🌙 Modern Dark</option>
+                    <option value="github-light">🐙 GitHub Light</option>
+                    <option value="github-dark">🐙 GitHub Dark</option>
+                    <option value="nord">❄️ Nord Slate</option>
+                    <option value="dracula">🧛 Dracula</option>
+                    <option value="solarized-light">🌅 Solarized Light</option>
+                    <option value="solarized-dark">🌌 Solarized Dark</option>
+                    <option value="catppuccin">🌸 Catppuccin Mocha</option>
+                    <option value="monokai">⚡ Monokai</option>
+                    <option value="synthwave">🌆 Synthwave '84</option>
+                    <option value="gruvbox">📻 Gruvbox</option>
+                  </select>
+                </div>
                 <label class="options-menu-item checkbox-label" style="cursor: pointer">
                   <input type="checkbox" id="include-images-checkbox" checked />
                   <span data-i18n="includeImages">Include Images</span>
@@ -148,10 +146,10 @@
               </div>
             </div>
 
-            <div class="transfer-control-group">
+            <div class="transfer-dropdown-group">
               <select
                 id="transfer-target-select"
-                class="transfer-select"
+                class="hidden"
                 title="Transfer Chat Context To"
                 aria-label="Transfer Chat Context To"
               >
@@ -179,17 +177,27 @@
               </select>
               <button
                 id="transfer-btn"
+                class="hidden"
+                type="button"
+                aria-hidden="true"
+                tabindex="-1"
+              ></button>
+              <button
+                id="transfer-menu-btn"
                 class="btn transfer-btn-highlight"
                 type="button"
-                data-tooltip="Transfer conversation context"
+                data-tooltip="Continue in another AI or note app"
                 data-shortcut="T"
-                data-i18n-title="transferTooltip"
+                aria-haspopup="true"
+                aria-expanded="false"
               >
                 <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
                   <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
                 </svg>
                 <span data-i18n="transferBtn">Transfer</span>
+                <span class="caret-down" aria-hidden="true">▾</span>
               </button>
+              <div id="transfer-menu" class="transfer-menu hidden" role="menu"></div>
             </div>
           </div>
 
@@ -259,6 +267,22 @@
               <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
                 <path
                   d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"
+                />
+              </svg>
+            </a>
+
+            <a
+              id="github-sponsor-btn"
+              class="btn secondary-btn icon-only-btn"
+              href="https://github.com/sponsors/deadrat-in"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Sponsor on GitHub"
+              data-tooltip="Back solo development — Sponsor on GitHub"
+            >
+              <svg viewBox="0 0 24 24" class="icon icon-sponsor-heart" aria-hidden="true">
+                <path
+                  d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"
                 />
               </svg>
             </a>
