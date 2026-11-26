@@ -29,17 +29,17 @@ export async function getBrowserCommands() {
  * Opens the browser's extension shortcut configuration page.
  */
 export function openBrowserShortcutsPage() {
-  const isFirefox = typeof navigator !== 'undefined' && /Firefox/i.test(navigator.userAgent);
+  const isFirefox =
+    typeof chrome !== 'undefined' &&
+    Boolean(chrome.runtime?.getURL?.('')?.startsWith('moz-extension://'));
   const url = isFirefox ? 'about:addons' : 'chrome://extensions/shortcuts';
   try {
     if (typeof chrome !== 'undefined' && chrome.tabs?.create) {
       chrome.tabs.create({ url });
-      return;
     }
   } catch {
-    // Fallback below
+    // Ignore when tabs API is unavailable
   }
-  window.open(url, '_blank', 'noopener');
 }
 
 /**
@@ -141,6 +141,8 @@ export function initTooltips() {
  * @returns {() => void} cleanup function
  */
 export function registerShortcutHandler(bindings, options = {}) {
+  const handlerMap = new Map(Object.entries(bindings));
+
   const onKeyDown = (e) => {
     if (e.key === 'Escape') {
       if (isEditableTarget(e.target)) {
@@ -154,7 +156,7 @@ export function registerShortcutHandler(bindings, options = {}) {
     if (isEditableTarget(e.target)) return;
 
     const key = e.key.length === 1 ? e.key.toLowerCase() : e.key;
-    const handler = bindings[key];
+    const handler = handlerMap.get(key);
     if (handler) {
       e.preventDefault();
       handler(e);
