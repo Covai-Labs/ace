@@ -1,5 +1,14 @@
 # Changelog
 
+## [1.26.2](https://github.com/Covai-Labs/ace/compare/v1.26.1...v1.26.2) (2026-11-26)
+
+
+### Bug Fixes
+
+* **perplexity:** paginate thread API, extract Sources links, and clean DOM timestamps ([#209](https://github.com/Covai-Labs/ace/issues/209)) ([9f11245](https://github.com/Covai-Labs/ace/commit/9f1124571db9096e1b4ecb0f7c4c8f3cd03ebe4e))
+* preferences .doc option, Search AI entity links, and AI Studio virtualized turns ([#207](https://github.com/Covai-Labs/ace/issues/207)) ([74032cc](https://github.com/Covai-Labs/ace/commit/74032cc5165122b7cb563f10e9319f001adf8631))
+* **qwen:** add API-first extraction and multi-block DOM fallback ([#208](https://github.com/Covai-Labs/ace/issues/208)) ([4264bd6](https://github.com/Covai-Labs/ace/commit/4264bd66b9ddfe47a5417f36a84e48ff2066b4c6))
+
 ## [1.26.1](https://github.com/Covai-Labs/ace/compare/v1.26.0...v1.26.1) (2026-11-25)
 
 
