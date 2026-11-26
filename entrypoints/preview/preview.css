@@ -209,7 +209,8 @@ h1 {
 
 .action-buttons {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
   align-items: center;
 }
 
@@ -575,8 +576,11 @@ code.code-wrap-active {
     width: 100%;
   }
   .btn {
-    flex: 1;
+    flex: 1 1 auto;
     justify-content: center;
+  }
+  .icon-only-btn {
+    flex: 0 0 auto;
   }
 }
 
