@@ -32,6 +32,12 @@ test.describe('Visual Regression', () => {
     const headerToolbar = page.locator('.header-toolbar');
     await expect(headerToolbar).toBeVisible();
 
+    // Lock dimensions across environments to eliminate headless subpixel/font width variances
+    await headerToolbar.evaluate((el) => {
+      el.style.width = '392px';
+      el.style.boxSizing = 'border-box';
+    });
+
     // Verify visual stability of the toolbar
     await expect(headerToolbar).toHaveScreenshot('preview-header-toolbar.png', {
       maxDiffPixelRatio: 0.05,
@@ -47,8 +53,8 @@ test.describe('Visual Regression', () => {
 
     const page = await openExtensionPage('preview.html');
 
-    const htmlLiveTab = page.locator('[data-tab="html-render"]');
-    await htmlLiveTab.click();
+    const formatSelect = page.locator('#format-tabs');
+    await formatSelect.selectOption('html-render');
 
     const iframe = page.frameLocator('#preview-rendered');
     const messageCard = iframe.locator('.message-card').last();

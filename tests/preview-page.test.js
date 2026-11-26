@@ -5,15 +5,16 @@ import assert from 'node:assert/strict';
 const previewHtml = fs.readFileSync('entrypoints/preview/index.html', 'utf8');
 const previewJs = fs.readFileSync('entrypoints/preview/preview.js', 'utf8');
 
-test('preview page includes format tabs and action buttons', () => {
+test('preview page includes format selector and action buttons', () => {
   assert.match(previewHtml, /id="format-tabs"/);
-  assert.match(previewHtml, /data-tab="html-render"/);
-  assert.match(previewHtml, /data-tab="html-source"/);
-  assert.match(previewHtml, /data-tab="markdown"/);
-  assert.match(previewHtml, /data-tab="json"/);
-  assert.match(previewHtml, /data-tab="doc"/);
-  assert.match(previewHtml, /data-tab="png"/);
-  assert.match(previewHtml, /data-tab="pdf"/);
+  assert.match(previewHtml, /value="html-render"/);
+  assert.match(previewHtml, /value="html-source"/);
+  assert.match(previewHtml, /value="markdown"/);
+  assert.match(previewHtml, /value="json"/);
+  assert.match(previewHtml, /value="openwebui"/);
+  assert.match(previewHtml, /value="doc"/);
+  assert.match(previewHtml, /value="png"/);
+  assert.match(previewHtml, /value="pdf"/);
 });
 
 test('preview page includes editable filename input and wrapper', () => {

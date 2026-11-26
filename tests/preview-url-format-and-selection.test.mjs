@@ -53,7 +53,7 @@ test('preview script parses URL export_format parameter and synchronizes on tab 
 });
 
 test('preview HTML and scripts wire plain text tab and format mappings', () => {
-  assert.match(previewHtml, /data-tab="text"/);
+  assert.match(previewHtml, /value="text"/);
   assert.match(previewJs, /case 'text':\s*return 'text';/);
   assert.match(previewJs, /p === 'txt' \|\| p === 'text'/);
   assert.equal(messagesJson.textTab.message, '📄 Plain Text');

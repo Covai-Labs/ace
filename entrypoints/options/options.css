@@ -1,160 +1,23 @@
+@import '../../content/styles/theme-tokens.css';
+
 :root {
-  /* Light Mode Palette (Default) */
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --border-color: #e2e8f0;
-  --input-bg: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --accent-color: #3b82f6;
-  --accent-hover: #2563eb;
   --toast-bg: #10b981;
   --font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme]) {
-    --bg-color: #0f172a;
-    --card-bg: #1e293b;
-    --border-color: #334155;
-    --input-bg: #0f172a;
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-  }
+.secondary-btn {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-fg);
+  border: 1px solid var(--btn-secondary-border);
+  border-radius: 6px;
+  font-family: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
-html[data-theme='dark'],
-html[data-theme='modern-dark'] {
-  --bg-color: #0f172a;
-  --card-bg: #1e293b;
-  --border-color: #334155;
-  --input-bg: #0f172a;
-  --text-primary: #f8fafc;
-  --text-secondary: #94a3b8;
-  --accent-color: #6366f1;
-  --accent-hover: #4f46e5;
-}
-
-html[data-theme='light'],
-html[data-theme='modern-light'] {
-  --bg-color: #f8fafc;
-  --card-bg: #ffffff;
-  --border-color: #e2e8f0;
-  --input-bg: #f1f5f9;
-  --text-primary: #0f172a;
-  --text-secondary: #475569;
-  --accent-color: #4f46e5;
-  --accent-hover: #4338ca;
-}
-
-html[data-theme='github-dark'] {
-  --bg-color: #0d1117;
-  --card-bg: #161b22;
-  --border-color: #30363d;
-  --input-bg: #0d1117;
-  --text-primary: #e6edf3;
-  --text-secondary: #8d96a0;
-  --accent-color: #2f81f7;
-  --accent-hover: #388bfd;
-}
-
-html[data-theme='github-light'] {
-  --bg-color: #ffffff;
-  --card-bg: #ffffff;
-  --border-color: #d0d7de;
-  --input-bg: #f6f8fa;
-  --text-primary: #1f2328;
-  --text-secondary: #656d76;
-  --accent-color: #0969da;
-  --accent-hover: #0860ca;
-}
-
-html[data-theme='nord'] {
-  --bg-color: #2e3440;
-  --card-bg: #3b4252;
-  --border-color: #4c566a;
-  --input-bg: #2e3440;
-  --text-primary: #eceff4;
-  --text-secondary: #d8dee9;
-  --accent-color: #88c0d0;
-  --accent-hover: #81a1c1;
-}
-
-html[data-theme='dracula'] {
-  --bg-color: #282a36;
-  --card-bg: #343746;
-  --border-color: #44475a;
-  --input-bg: #21222c;
-  --text-primary: #f8f8f2;
-  --text-secondary: #bd93f9;
-  --accent-color: #bd93f9;
-  --accent-hover: #ff79c6;
-}
-
-html[data-theme='solarized-dark'] {
-  --bg-color: #002b36;
-  --card-bg: #073642;
-  --border-color: #095264;
-  --input-bg: #002b36;
-  --text-primary: #839496;
-  --text-secondary: #93a1a1;
-  --accent-color: #2aa198;
-  --accent-hover: #268bd2;
-}
-
-html[data-theme='solarized-light'] {
-  --bg-color: #fdf6e3;
-  --card-bg: #eee8d5;
-  --border-color: #d3cbb7;
-  --input-bg: #fdf6e3;
-  --text-primary: #657b83;
-  --text-secondary: #586e75;
-  --accent-color: #268bd2;
-  --accent-hover: #2aa198;
-}
-
-html[data-theme='catppuccin'] {
-  --bg-color: #1e1e2e;
-  --card-bg: #252538;
-  --border-color: #313244;
-  --input-bg: #181825;
-  --text-primary: #cdd6f4;
-  --text-secondary: #bac2de;
-  --accent-color: #b4befe;
-  --accent-hover: #cba6f7;
-}
-
-html[data-theme='monokai'] {
-  --bg-color: #272822;
-  --card-bg: #34352f;
-  --border-color: #49483e;
-  --input-bg: #1e1f1c;
-  --text-primary: #f8f8f2;
-  --text-secondary: #e6db74;
-  --accent-color: #a6e22e;
-  --accent-hover: #f92672;
-}
-
-html[data-theme='synthwave'] {
-  --bg-color: #262335;
-  --card-bg: #34294f;
-  --border-color: #493b67;
-  --input-bg: #1e1a2b;
-  --text-primary: #f8f8f2;
-  --text-secondary: #ff7edb;
-  --accent-color: #ff7edb;
-  --accent-hover: #36f9f6;
-}
-
-html[data-theme='gruvbox'] {
-  --bg-color: #282828;
-  --card-bg: #3c3836;
-  --border-color: #504945;
-  --input-bg: #1d2021;
-  --text-primary: #ebdbb2;
-  --text-secondary: #d5c4a1;
-  --accent-color: #fe8019;
-  --accent-hover: #fabd2f;
+.secondary-btn:hover {
+  background-color: var(--btn-secondary-hover);
 }
 
 * {

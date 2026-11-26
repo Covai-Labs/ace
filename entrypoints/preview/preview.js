@@ -834,14 +834,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const switchTab = (tabName) => {
     currentActiveTab = tabName;
     syncUrlFormat(tabName);
-    const buttons = formatTabsContainer.querySelectorAll('.control-btn');
-    buttons.forEach((btn) => {
-      if (btn.getAttribute('data-tab') === tabName) {
-        btn.classList.add('active');
-      } else {
-        btn.classList.remove('active');
-      }
-    });
+    if (formatTabsContainer && formatTabsContainer.tagName === 'SELECT') {
+      formatTabsContainer.value = tabName;
+    } else if (formatTabsContainer) {
+      const buttons = formatTabsContainer.querySelectorAll('.control-btn');
+      buttons.forEach((btn) => {
+        if (btn.getAttribute('data-tab') === tabName) {
+          btn.classList.add('active');
+        } else {
+          btn.classList.remove('active');
+        }
+      });
+    }
 
     if (pngWarningBanner) {
       pngWarningBanner.classList.toggle('hidden', tabName !== 'png');
@@ -940,12 +944,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateDownloadButtonLabel(activeExtension);
   };
 
-  formatTabsContainer.addEventListener('click', (e) => {
-    const btn = e.target.closest('.control-btn');
-    if (btn && btn.hasAttribute('data-tab')) {
-      switchTab(btn.getAttribute('data-tab'));
-    }
-  });
+  if (formatTabsContainer && formatTabsContainer.tagName === 'SELECT') {
+    formatTabsContainer.addEventListener('change', (e) => {
+      switchTab(e.target.value);
+    });
+  } else if (formatTabsContainer) {
+    formatTabsContainer.addEventListener('click', (e) => {
+      const btn = e.target.closest('.control-btn');
+      if (btn && btn.hasAttribute('data-tab')) {
+        switchTab(btn.getAttribute('data-tab'));
+      }
+    });
+  }
 
   if (printBtn) {
     printBtn.addEventListener('click', () => printIframe());
@@ -1537,6 +1547,73 @@ document.addEventListener('DOMContentLoaded', async () => {
     codeCardCopyBtn.addEventListener('click', () => copyBtn.click());
   }
 
+  const transferMenuBtn = document.getElementById('transfer-menu-btn');
+  const transferMenu = document.getElementById('transfer-menu');
+
+  if (transferMenuBtn && transferMenu && transferTargetSelect && transferBtn) {
+    const buildTransferMenu = () => {
+      transferMenu.textContent = '';
+      const groups = transferTargetSelect.querySelectorAll('optgroup');
+      groups.forEach((group) => {
+        const groupLabel = document.createElement('div');
+        groupLabel.className = 'transfer-menu-group-label';
+        groupLabel.textContent = group.label;
+        transferMenu.appendChild(groupLabel);
+        group.querySelectorAll('option').forEach((opt) => {
+          const item = document.createElement('button');
+          item.type = 'button';
+          item.className = 'transfer-menu-item';
+          item.setAttribute('role', 'menuitem');
+          item.textContent = opt.textContent;
+          item.addEventListener('click', () => {
+            transferTargetSelect.value = opt.value;
+            transferMenu.classList.add('hidden');
+            transferMenuBtn.setAttribute('aria-expanded', 'false');
+            transferBtn.click();
+          });
+          transferMenu.appendChild(item);
+        });
+      });
+    };
+
+    buildTransferMenu();
+
+    transferMenuBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = transferMenu.classList.contains('hidden');
+      transferMenu.classList.toggle('hidden', !willOpen);
+      transferMenuBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      if (willOpen) {
+        transferMenu.querySelector('.transfer-menu-item')?.focus();
+      }
+    });
+
+    transferMenu.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      const items = Array.from(transferMenu.querySelectorAll('.transfer-menu-item'));
+      if (!items.length) return;
+      e.preventDefault();
+      const currentIdx = items.indexOf(document.activeElement);
+      const nextIdx =
+        e.key === 'ArrowDown'
+          ? (currentIdx + 1) % items.length
+          : (currentIdx - 1 + items.length) % items.length;
+      items[nextIdx]?.focus();
+    });
+
+    document.addEventListener('click', (e) => {
+      if (
+        !transferMenu.classList.contains('hidden') &&
+        !transferMenu.contains(e.target) &&
+        e.target !== transferMenuBtn &&
+        !transferMenuBtn.contains(e.target)
+      ) {
+        transferMenu.classList.add('hidden');
+        transferMenuBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
   const shortcutSheet = createShortcutSheet({
     title: 'Workspace Shortcuts',
     localShortcuts: [
@@ -1578,7 +1655,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e: () => downloadBtn?.click(),
     m: () => turnSelectBtn?.click(),
     p: () => document.getElementById('options-menu-btn')?.click(),
-    t: () => transferBtn?.click(),
+    t: () => (transferMenuBtn ? transferMenuBtn.click() : transferBtn?.click()),
     '?': () => shortcutSheet.toggle(),
   };
   formatTabOrder.forEach((tabId, idx) => {
@@ -1589,6 +1666,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     onEscape: () => {
       if (shortcutSheet.isOpen()) {
         shortcutSheet.close();
+      } else if (transferMenu && !transferMenu.classList.contains('hidden')) {
+        transferMenu.classList.add('hidden');
+        transferMenuBtn?.setAttribute('aria-expanded', 'false');
+        transferMenuBtn?.focus();
       } else if (workspaceMoreMenu && !workspaceMoreMenu.classList.contains('hidden')) {
         workspaceMoreMenu.classList.add('hidden');
         workspaceMoreBtn?.setAttribute('aria-expanded', 'false');

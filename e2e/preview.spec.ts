@@ -36,13 +36,13 @@ test.describe('Preview Workspace', () => {
     const filenameInput = page.locator('#preview-filename-input');
     await expect(filenameInput).toHaveValue(/Quantum Mechanics/);
 
-    // Default view shows HTML live tab or Markdown
-    const markdownTab = page.locator('[data-tab="markdown"]');
-    await expect(markdownTab).toBeVisible();
+    // Format selector
+    const formatSelect = page.locator('#format-tabs');
+    await expect(formatSelect).toBeVisible();
 
-    // Click Markdown tab
-    await markdownTab.click();
-    await expect(markdownTab).toHaveClass(/active/);
+    // Select Markdown format
+    await formatSelect.selectOption('markdown');
+    await expect(formatSelect).toHaveValue('markdown');
 
     // Verify rendered code contains markdown content
     const codeEl = page.locator('#preview-code');
@@ -50,17 +50,15 @@ test.describe('Preview Workspace', () => {
     await expect(codeEl).toContainText('Quantum Mechanics');
     await expect(codeEl).toContainText('Schrödinger');
 
-    // Click JSON tab
-    const jsonTab = page.locator('[data-tab="json"]');
-    await jsonTab.click();
-    await expect(jsonTab).toHaveClass(/active/);
+    // Select JSON format
+    await formatSelect.selectOption('json');
+    await expect(formatSelect).toHaveValue('json');
     await expect(codeEl).toContainText('"title": "Quantum Mechanics Notes"');
     await expect(codeEl).toContainText('"schemaVersion": 1');
 
-    // Click Plain Text tab
-    const textTab = page.locator('[data-tab="text"]');
-    await textTab.click();
-    await expect(textTab).toHaveClass(/active/);
+    // Select Plain Text format
+    await formatSelect.selectOption('text');
+    await expect(formatSelect).toHaveValue('text');
     await expect(codeEl).toContainText('Prompt:');
     await expect(codeEl).toContainText('Response:');
   });
@@ -77,10 +75,10 @@ test.describe('Preview Workspace', () => {
 
     const page = await openExtensionPage('preview.html');
 
-    // Click HTML Live tab
-    const htmlLiveTab = page.locator('[data-tab="html-render"]');
-    await htmlLiveTab.click();
-    await expect(htmlLiveTab).toHaveClass(/active/);
+    // Select HTML Live format
+    const formatSelect = page.locator('#format-tabs');
+    await formatSelect.selectOption('html-render');
+    await expect(formatSelect).toHaveValue('html-render');
 
     // Render wrapper and iframe should be visible
     const renderWrapper = page.locator('#render-wrapper');

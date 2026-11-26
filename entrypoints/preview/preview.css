@@ -28,36 +28,41 @@ body {
   border: none;
   border-bottom: 1px solid var(--border-color);
   border-radius: 0;
-  padding: 12px 24px;
+  padding: 8px 16px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
   box-shadow: var(--shadow);
   flex-shrink: 0;
   z-index: 10;
 }
 
 html.in-iframe .preview-header {
-  padding: 8px 12px;
-  gap: 8px;
+  padding: 6px 10px;
+  gap: 6px;
 }
 
-html.in-iframe .header-top-row h1,
-html.in-iframe .header-top-row .preview-filename-wrapper {
+html.in-iframe .header-single-row h1,
+html.in-iframe .header-single-row .preview-filename-wrapper {
   display: none;
 }
 
-.header-top-row {
+.header-single-row {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 16px;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 10px;
   width: 100%;
 }
 
 .header-main {
-  flex: 1;
-  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 240px;
+  min-width: 180px;
+  max-width: 480px;
   overflow: hidden;
 }
 
@@ -65,13 +70,13 @@ html.in-iframe .header-top-row .preview-filename-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-  width: 100%;
-  max-width: 600px;
+  flex: 1;
+  min-width: 0;
 }
 
 .preview-filename-input {
   width: 100%;
-  font-size: 18px;
+  font-size: 14px;
   font-weight: 600;
   font-family: inherit;
   color: var(--text-color);
@@ -100,13 +105,75 @@ html.in-iframe .header-top-row .preview-filename-wrapper {
 
 .header-toolbar {
   display: flex;
-  justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 6px;
+}
+
+#github-star-btn:hover {
+  color: #f59e0b;
+}
+
+.icon-sponsor-heart {
+  color: #f472b6;
+}
+
+.transfer-dropdown-group {
+  position: relative;
+  display: inline-flex;
+}
+
+.caret-down {
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+.transfer-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 300;
+  min-width: 190px;
+  max-height: 360px;
+  overflow-y: auto;
+  background-color: var(--surface-elevated);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  padding: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.transfer-menu-group-label {
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  padding: 6px 10px 3px;
+}
+
+.transfer-menu-item {
   width: 100%;
-  padding-top: 8px;
-  border-top: 1px dashed var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.transfer-menu-item:hover {
+  background-color: var(--secondary-bg);
 }
 
 .transfer-label {
@@ -142,7 +209,15 @@ h1 {
 
 .action-buttons {
   display: flex;
-  gap: 10px;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.meta-actions {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: 6px;
   align-items: center;
 }
 
@@ -214,6 +289,7 @@ h1 {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
 }
 
+.format-control-group,
 .theme-control-group,
 .transfer-control-group,
 .image-control-group,
@@ -236,11 +312,21 @@ h1 {
 .options-menu-btn {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   background-color: var(--secondary-bg);
+  color: var(--text-primary);
   border: 1px solid var(--border-color);
-  padding: 7px 12px;
+  padding: 6px 12px;
   border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.options-menu-btn:hover {
+  background-color: var(--secondary-hover);
 }
 
 .options-menu {
@@ -497,8 +583,11 @@ code.code-wrap-active {
     width: 100%;
   }
   .btn {
-    flex: 1;
+    flex: 1 1 auto;
     justify-content: center;
+  }
+  .icon-only-btn {
+    flex: 0 0 auto;
   }
 }
 
@@ -780,6 +869,7 @@ html[data-theme='dark'] .png-warning-banner {
   .preview-header,
   .segmented-control,
   .action-buttons,
+  .meta-actions,
   .turn-selector-drawer,
   #code-wrapper {
     display: none !important;
