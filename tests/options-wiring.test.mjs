@@ -187,7 +187,10 @@ test('options HTML and popup HTML include text format in format selects', () => 
   const entrypointsPopupHtml = fs.readFileSync('entrypoints/popup/index.html', 'utf8');
 
   assert.match(entrypointsOptionsHtml, /<option value="text">Plain Text \(\.txt\)<\/option>/);
-  assert.match(entrypointsPopupHtml, /<option value="text"[^>]*>📄 Plain Text \(\.txt\)<\/option>/);
+  assert.match(
+    entrypointsPopupHtml,
+    /<option value="text"[^>]*>(?:📄\s*)?Plain Text \(\.txt\)<\/option>/,
+  );
 });
 
 test('options HTML page defines #feedback-section with feedback and GitHub issues links', () => {

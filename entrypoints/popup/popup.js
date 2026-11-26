@@ -10,8 +10,23 @@ import {
   buildPlatformSupportIssueUrl,
 } from '../../content/utils/feedback.js';
 import { hasPermission, requestPermission } from '../../content/utils/permissions.js';
+import {
+  initTooltips,
+  registerShortcutHandler,
+  createShortcutSheet,
+} from '../../content/utils/ui-shortcuts.js';
 
 const logger = createLogger('Popup');
+
+function setBtnLabel(btn, text) {
+  if (!btn) return;
+  const label = btn.querySelector('.btn-label');
+  if (label) {
+    label.textContent = text;
+  } else {
+    btn.textContent = text;
+  }
+}
 
 function applyTheme(theme) {
   if (theme && theme !== 'system') {
@@ -38,12 +53,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.documentElement.classList.add('in-iframe');
   }
 
-  // Initialize localization
+  // Initialize localization & tooltips
   await initI18n();
   applyI18n();
+  initTooltips();
 
   const statusEl = document.getElementById('status');
   const reparseBtn = document.getElementById('reparse-btn');
+  const shortcutHelpBtn = document.getElementById('shortcut-help-btn');
   const chatInfoEl = document.getElementById('chat-info');
   const actionsEl = document.getElementById('actions');
   const errorEl = document.getElementById('error-msg');
@@ -57,15 +74,63 @@ document.addEventListener('DOMContentLoaded', async () => {
   const filenameInput = document.getElementById('filename-input');
   const continueTargetSelect = document.getElementById('continue-target-select');
   const unsupportedBanner = document.getElementById('unsupported-warning-banner');
+  const articleSupportRow = document.getElementById('article-support-row');
+  const parserModeContainer = document.getElementById('parser-mode-container');
+  const parserModeSelect = document.getElementById('parser-mode-select');
   const requestSupportBtn = document.getElementById('request-support-btn');
   const articleEngineSelectPopup = document.getElementById('article-engine-select-popup');
-  const previewableFormats = new Set(['markdown', 'text', 'json', 'html', 'doc', 'png', 'pdf']);
-  const copyableFormats = new Set(['markdown', 'text', 'json', 'html']);
+  const popupOptionsBtn = document.getElementById('popup-options-btn');
+  const popupOptionsMenu = document.getElementById('popup-options-menu');
+  const previewableFormats = new Set([
+    'markdown',
+    'text',
+    'json',
+    'openwebui',
+    'html',
+    'doc',
+    'png',
+    'pdf',
+  ]);
+  const copyableFormats = new Set(['markdown', 'text', 'json', 'openwebui', 'html']);
+  let isCurrentArticle = false;
+
+  // Segmented tabs
+  const popupTabBtns = Array.from(document.querySelectorAll('[data-popup-tab]'));
+  const popupTabPanels = {
+    export: document.getElementById('tab-panel-export'),
+    transfer: document.getElementById('tab-panel-transfer'),
+    batch: document.getElementById('tab-panel-batch'),
+  };
+
+  function switchPopupTab(tabName) {
+    if (!popupTabPanels[tabName]) return;
+    popupTabBtns.forEach((btn) => {
+      const isActive = btn.dataset.popupTab === tabName;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    });
+    Object.entries(popupTabPanels).forEach(([name, panel]) => {
+      if (panel) panel.classList.toggle('active', name === tabName);
+    });
+  }
+
+  popupTabBtns.forEach((btn) => {
+    btn.addEventListener('click', () => switchPopupTab(btn.dataset.popupTab));
+  });
 
   function updateUnsupportedWarning(report, pageUrl) {
-    if (!unsupportedBanner) return;
-    if (shouldShowUnsupportedWarning(report)) {
-      unsupportedBanner.classList.remove('hidden');
+    const isArticle = shouldShowUnsupportedWarning(report);
+    isCurrentArticle = isArticle;
+    if (unsupportedBanner) {
+      unsupportedBanner.classList.toggle('hidden', !isArticle);
+    }
+    if (articleSupportRow) {
+      articleSupportRow.classList.toggle('hidden', !isArticle);
+    }
+    if (parserModeContainer) {
+      parserModeContainer.classList.toggle('hidden', isArticle);
+    }
+    if (isArticle) {
       if (articleEngineSelectPopup) {
         articleEngineSelectPopup.value = storedSettings.articleEngine || 'auto';
       }
@@ -76,9 +141,49 @@ document.addEventListener('DOMContentLoaded', async () => {
           chrome.tabs.create({ url: issueUrl });
         };
       }
-    } else {
-      unsupportedBanner.classList.add('hidden');
+    } else if (parserModeSelect) {
+      parserModeSelect.value = storedSettings.parserMode || 'auto';
     }
+  }
+
+  if (parserModeSelect) {
+    parserModeSelect.addEventListener('change', async (e) => {
+      const prevMode = storedSettings.parserMode || 'auto';
+      const selected = e.target.value;
+      try {
+        storedSettings.parserMode = selected;
+        if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+          await chrome.storage.sync.set({ parserMode: selected });
+        }
+        await checkAvailability({ force: true, parserMode: selected });
+      } catch (err) {
+        logger.error('Failed to update parser mode:', err);
+        storedSettings.parserMode = prevMode;
+        parserModeSelect.value = prevMode;
+        setStatus('error', 'Failed to save mode: ' + (err.message || 'Storage error'));
+      }
+    });
+  }
+
+  if (popupOptionsBtn && popupOptionsMenu) {
+    popupOptionsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = popupOptionsMenu.classList.contains('hidden');
+      popupOptionsMenu.classList.toggle('hidden', !willOpen);
+      popupOptionsBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (
+        !popupOptionsMenu.classList.contains('hidden') &&
+        !popupOptionsMenu.contains(e.target) &&
+        e.target !== popupOptionsBtn &&
+        !popupOptionsBtn.contains(e.target)
+      ) {
+        popupOptionsMenu.classList.add('hidden');
+        popupOptionsBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
   }
 
   if (articleEngineSelectPopup) {
@@ -194,12 +299,49 @@ document.addEventListener('DOMContentLoaded', async () => {
     'uiLanguage',
     'defaultFormat',
     'includeImages',
+    'includeAttachments',
+    'includeThinking',
+    'includeTimestamps',
+    'includeToc',
+    'pageBreakPerPrompt',
+    'messageNumbering',
     'filenameTemplate',
     'defaultTransferTarget',
     'parserMode',
     'articleEngine',
   ]);
   applyTheme(storedSettings.theme || 'system');
+
+  const popupOptionsSyncMap = [
+    ['popup-include-attachments', 'includeAttachments', true],
+    ['popup-include-thinking', 'includeThinking', true],
+    ['popup-include-timestamps', 'includeTimestamps', false],
+    ['popup-include-toc', 'includeToc', false],
+    ['popup-page-break', 'pageBreakPerPrompt', false],
+  ];
+
+  popupOptionsSyncMap.forEach(([elId, key, defaultVal]) => {
+    const el = document.getElementById(elId);
+    if (!el) return;
+    el.checked = storedSettings[key] !== undefined ? Boolean(storedSettings[key]) : defaultVal;
+    el.addEventListener('change', () => {
+      storedSettings[key] = el.checked;
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        chrome.storage.sync.set({ [key]: el.checked });
+      }
+    });
+  });
+
+  const popupNumberingSelect = document.getElementById('popup-numbering-select');
+  if (popupNumberingSelect) {
+    popupNumberingSelect.value = storedSettings.messageNumbering || 'off';
+    popupNumberingSelect.addEventListener('change', () => {
+      storedSettings.messageNumbering = popupNumberingSelect.value;
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        chrome.storage.sync.set({ messageNumbering: popupNumberingSelect.value });
+      }
+    });
+  }
 
   if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.onChanged) {
     chrome.storage.onChanged.addListener(async (changes, areaName) => {
@@ -228,6 +370,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (storedSettings.defaultFormat && formatSelect) {
     formatSelect.value = storedSettings.defaultFormat;
+  }
+  if (storedSettings.parserMode && parserModeSelect) {
+    parserModeSelect.value = storedSettings.parserMode;
   }
   if (storedSettings.articleEngine && articleEngineSelectPopup) {
     articleEngineSelectPopup.value = storedSettings.articleEngine;
@@ -435,7 +580,15 @@ document.addEventListener('DOMContentLoaded', async () => {
           });
           chatTitleEl.textContent = displayTitle;
           const count = response.count || 0;
-          msgCountEl.textContent = t('messagesFound', count) || `${count} messages found`;
+          const isArticle = shouldShowUnsupportedWarning(response);
+          if (msgCountEl) {
+            if (isArticle || count === 0) {
+              msgCountEl.classList.add('hidden');
+            } else {
+              msgCountEl.textContent = `${count} ${count === 1 ? 'msg' : 'msgs'}`;
+              msgCountEl.classList.remove('hidden');
+            }
+          }
           if (filenameInput) {
             const formattedDefault = formatFilename(
               storedSettings.filenameTemplate || DEFAULT_FILENAME_TEMPLATE,
@@ -459,6 +612,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           chatInfoEl.classList.remove('hidden');
           actionsEl.classList.remove('hidden');
           updateUnsupportedWarning(response, tab?.url);
+          updateCopyButtonVisibility();
           errorEl.classList.add('hidden');
           if (copilotRedirectBox) {
             copilotRedirectBox.classList.add('hidden');
@@ -525,10 +679,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     copyBtn.classList.toggle('hidden', !isCopyable);
     previewBtn.classList.toggle('hidden', !isPreviewable);
     if (format === 'pdf') {
-      exportBtn.textContent = '📄 ' + (t('printSavePdf') || 'Export & Print PDF');
+      setBtnLabel(exportBtn, t('printSavePdf') || 'Export & Print PDF');
     } else {
-      exportBtn.textContent = t('exportChat') || '📥 Export Chat';
+      setBtnLabel(exportBtn, isCurrentArticle ? 'Export' : t('exportChat') || 'Export');
     }
+    setBtnLabel(copyBtn, isCurrentArticle ? 'Copy' : t('copyChat') || 'Copy');
     if (pngWarningBanner) {
       pngWarningBanner.classList.toggle('hidden', format !== 'png');
     }
@@ -558,12 +713,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     const format = formatSelect.value;
     const customFilename = filenameInput ? filenameInput.value.trim() : '';
     exportBtn.disabled = true;
-    exportBtn.textContent =
+    setBtnLabel(
+      exportBtn,
       format === 'png'
         ? t('loadingContent') || 'Opening Preview...'
         : format === 'pdf'
           ? t('loadingContent') || 'Opening PDF Preview...'
-          : t('statusExporting') || 'Exporting...';
+          : t('statusExporting') || 'Exporting...',
+    );
 
     try {
       if (format === 'pdf' || format === 'png') {
@@ -639,7 +796,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   copyBtn.addEventListener('click', async () => {
     const format = formatSelect.value;
     copyBtn.disabled = true;
-    copyBtn.textContent = t('statusExporting') || 'Copying...';
+    setBtnLabel(copyBtn, t('statusExporting') || 'Copying...');
     setStatus('exporting', t('statusExporting') || 'Copying...');
 
     try {
@@ -683,14 +840,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       setStatus('error', 'Error: ' + e.message);
     } finally {
       copyBtn.disabled = false;
-      copyBtn.textContent = t('copyChat') || '📋 Copy Chat';
+      setBtnLabel(copyBtn, isCurrentArticle ? 'Copy' : t('copyChat') || 'Copy');
     }
   });
 
   previewBtn.addEventListener('click', async () => {
     const format = formatSelect.value;
     previewBtn.disabled = true;
-    previewBtn.textContent = t('loadingContent') || 'Opening...';
+    setBtnLabel(previewBtn, t('loadingContent') || 'Opening...');
     setStatus('exporting', t('loadingContent') || 'Opening...');
 
     try {
@@ -736,7 +893,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       setStatus('error', 'Error: ' + e.message);
     } finally {
       previewBtn.disabled = false;
-      previewBtn.textContent = t('openInTab') || '👁️ Open in Tab';
+      setBtnLabel(previewBtn, t('openInTab') || 'Open in Workspace');
     }
   });
 
@@ -746,8 +903,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     transferBtn.addEventListener('click', async () => {
       const targetPlatform = continueTargetSelect ? continueTargetSelect.value : 'chatgpt';
       transferBtn.disabled = true;
-      transferBtn.textContent = t('statusExporting') || 'Transferring...';
+      setBtnLabel(transferBtn, t('statusExporting') || 'Transferring...');
       setStatus('exporting', t('statusExporting') || 'Transferring...');
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        chrome.storage.sync.set({ lastTransferTarget: targetPlatform });
+      }
 
       try {
         const response = await sendTabMessage({
@@ -798,7 +958,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         setStatus('error', 'Error: ' + e.message);
       } finally {
         transferBtn.disabled = false;
-        transferBtn.textContent = t('transferBtn') || '↗ Transfer';
+        setBtnLabel(transferBtn, t('transferBtn') || 'Transfer');
       }
     });
   }
@@ -905,4 +1065,94 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+
+  // Update batch tab count badge
+  const batchTabCountEl = document.getElementById('batch-tab-count');
+  if (batchTabCountEl && typeof chrome !== 'undefined' && chrome.tabs?.query) {
+    chrome.tabs
+      .query({ currentWindow: true })
+      .then((tabs) => {
+        const httpTabs = (tabs || []).filter(
+          (tItem) =>
+            tItem.url && (tItem.url.startsWith('http://') || tItem.url.startsWith('https://')),
+        );
+        if (httpTabs.length > 0) {
+          batchTabCountEl.textContent = String(httpTabs.length);
+          batchTabCountEl.classList.remove('hidden');
+        }
+      })
+      .catch(() => {});
+  }
+
+  // Shortcut Cheat Sheet & Local Single-Key Dispatcher
+  const shortcutSheet = createShortcutSheet({
+    title: 'Popup Shortcuts',
+    localShortcuts: [
+      { key: '1 / 2 / 3', label: 'Switch Export / Transfer / Batch tab' },
+      { key: 'O', label: 'Open in Workspace' },
+      { key: 'E', label: 'Export current tab (or Batch in Batch tab)' },
+      { key: 'C', label: 'Copy to clipboard' },
+      { key: 'T', label: 'Transfer conversation' },
+      { key: 'M', label: 'Cycle Extraction Mode / Article Engine' },
+      { key: 'P', label: 'Toggle Options menu' },
+      { key: 'R', label: 'Reparse conversation' },
+      { key: '?', label: 'Show / hide shortcuts' },
+    ],
+  });
+
+  if (shortcutHelpBtn) {
+    shortcutHelpBtn.addEventListener('click', () => shortcutSheet.toggle());
+  }
+
+  function cycleSelectValue(selectEl) {
+    if (!selectEl || !selectEl.options.length) return;
+    const nextIdx = (selectEl.selectedIndex + 1) % selectEl.options.length;
+    selectEl.selectedIndex = nextIdx;
+    selectEl.dispatchEvent(new Event('change'));
+  }
+
+  registerShortcutHandler(
+    {
+      1: () => switchPopupTab('export'),
+      2: () => switchPopupTab('transfer'),
+      3: () => switchPopupTab('batch'),
+      o: () => {
+        if (previewBtn && !previewBtn.classList.contains('hidden')) previewBtn.click();
+      },
+      e: () => {
+        if (popupTabPanels.batch?.classList.contains('active')) {
+          batchExportBtn?.click();
+        } else if (exportBtn && !exportBtn.classList.contains('hidden')) {
+          exportBtn.click();
+        }
+      },
+      c: () => {
+        if (copyBtn && !copyBtn.classList.contains('hidden')) copyBtn.click();
+      },
+      t: () => {
+        switchPopupTab('transfer');
+        transferBtn?.click();
+      },
+      m: () => {
+        if (isCurrentArticle) {
+          cycleSelectValue(articleEngineSelectPopup);
+        } else {
+          cycleSelectValue(parserModeSelect);
+        }
+      },
+      p: () => popupOptionsBtn?.click(),
+      r: () => reparseBtn?.click(),
+      '?': () => shortcutSheet.toggle(),
+    },
+    {
+      onEscape: () => {
+        if (shortcutSheet.isOpen()) {
+          shortcutSheet.close();
+        } else if (popupOptionsMenu && !popupOptionsMenu.classList.contains('hidden')) {
+          popupOptionsMenu.classList.add('hidden');
+          popupOptionsBtn?.setAttribute('aria-expanded', 'false');
+        }
+      },
+    },
+  );
 });

@@ -27,7 +27,7 @@ test('copy button is enabled for markdown and json formats only', () => {
 
 test('popup includes an open in tab button', () => {
   assert.match(popupHtml, /id="preview-btn"/);
-  assert.match(popupHtml, /Open in Tab/);
+  assert.match(popupHtml, /Open in (Tab|Workspace)/);
 });
 
 test('preview button triggers local storage and opens preview.html tab', () => {
@@ -50,10 +50,10 @@ test('popup supports dual-MIME Smart Copy using ClipboardItem', () => {
 test('popup places open in tab as primary button and export chat as secondary', () => {
   assert.match(
     popupHtml,
-    /<div class="primary-row">\s*<button id="preview-btn" class="primary-btn"/,
+    /<div class="primary-row">\s*<button[\s\S]*?id="preview-btn"[\s\S]*?class="primary-btn"/,
   );
   assert.match(
     popupHtml,
-    /<div class="secondary-row">\s*<button id="export-btn" class="secondary-btn"/,
+    /<div class="secondary-row">\s*<button[\s\S]*?id="export-btn"[\s\S]*?class="secondary-btn"/,
   );
 });
