@@ -89,7 +89,6 @@
             data-shortcut="1"
           >
             <span>Export</span>
-            <kbd class="ace-kbd tab-kbd">1</kbd>
           </button>
           <button
             type="button"
@@ -101,7 +100,6 @@
             data-shortcut="2"
           >
             <span>Transfer</span>
-            <kbd class="ace-kbd tab-kbd">2</kbd>
           </button>
           <button
             type="button"
@@ -114,7 +112,6 @@
           >
             <span>Batch</span>
             <span id="batch-tab-count" class="tab-count-pill hidden">0</span>
-            <kbd class="ace-kbd tab-kbd">3</kbd>
           </button>
         </nav>
       </header>
@@ -140,56 +137,18 @@
           </div>
 
           <div class="actions hidden" id="actions">
-            <div class="controls-grid">
-              <div class="control-col">
-                <label for="format-select" class="field-label-small">FORMAT</label>
-                <select id="format-select" aria-label="Export Format">
-                  <option value="markdown">Markdown (.md)</option>
-                  <option value="text" data-i18n="formatText">Plain Text (.txt)</option>
-                  <option value="json">JSON (.json)</option>
-                  <option value="openwebui">Open-WebUI JSON (.json)</option>
-                  <option value="html">HTML (.html)</option>
-                  <option value="doc">Word Document (.doc)</option>
-                  <option value="png">Shareable Image (.png)</option>
-                  <option value="pdf">PDF (.pdf)</option>
-                </select>
-              </div>
-
-              <div class="control-col" id="parser-mode-container">
-                <label for="parser-mode-select" class="field-label-small">EXTRACTION</label>
-                <select
-                  id="parser-mode-select"
-                  aria-label="Chat Extraction Mode"
-                  data-tooltip="Cycle extraction mode (Auto / API / DOM)"
-                  data-shortcut="M"
-                >
-                  <option value="auto">Auto (API → DOM)</option>
-                  <option value="prefer_api">API First</option>
-                  <option value="prefer_dom">DOM Only</option>
-                </select>
-              </div>
-
-              <div class="web-article-banner control-col hidden" id="unsupported-warning-banner">
-                <span class="hidden" data-i18n="webArticleModeTitle">Web Article Mode</span>
-                <label
-                  for="article-engine-select-popup"
-                  class="field-label-small"
-                  data-i18n="webArticleEngineLabel"
-                  >ENGINE</label
-                >
-                <select
-                  id="article-engine-select-popup"
-                  aria-label="Web Article Engine"
-                  data-tooltip="Cycle article extraction engine"
-                  data-shortcut="M"
-                >
-                  <option value="auto" data-i18n="webArticleEngineAuto">Auto (Best)</option>
-                  <option value="readability" data-i18n="webArticleEngineReadability">
-                    Readability
-                  </option>
-                  <option value="defuddle" data-i18n="webArticleEngineDefuddle">Defuddle</option>
-                </select>
-              </div>
+            <div class="control-col">
+              <label for="format-select" class="field-label-small">FORMAT</label>
+              <select id="format-select" aria-label="Export Format">
+                <option value="markdown">Markdown (.md)</option>
+                <option value="text" data-i18n="formatText">Plain Text (.txt)</option>
+                <option value="json">JSON (.json)</option>
+                <option value="openwebui">Open-WebUI JSON (.json)</option>
+                <option value="html">HTML (.html)</option>
+                <option value="doc">Word Document (.doc)</option>
+                <option value="png">Shareable Image (.png)</option>
+                <option value="pdf">PDF (.pdf)</option>
+              </select>
             </div>
 
             <div id="article-support-row" class="article-support-row hidden">
@@ -208,40 +167,37 @@
               export.
             </div>
 
-            <div class="options-bar">
-              <div class="options-toggles">
-                <div class="checkbox-wrapper" id="image-toggle-container">
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="include-images-checkbox" checked />
-                    <span data-i18n="includeImages">Include Images</span>
-                  </label>
-                </div>
-                <div class="checkbox-wrapper hidden" id="png-quality-container">
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="png-quality-checkbox" checked />
-                    <span data-i18n="highQualityPng">2x PNG</span>
-                  </label>
-                </div>
-              </div>
-
-              <div class="popup-options-wrapper">
-                <button
-                  type="button"
-                  id="popup-options-btn"
-                  class="options-trigger-btn"
-                  aria-haspopup="true"
-                  aria-expanded="false"
-                  data-tooltip="More export options"
-                  data-shortcut="P"
-                >
+            <div class="options-accordion">
+              <button
+                type="button"
+                id="popup-options-btn"
+                class="options-accordion-trigger"
+                aria-haspopup="true"
+                aria-expanded="false"
+                data-tooltip="Export options & extraction mode"
+                data-shortcut="P"
+              >
+                <span id="options-summary" class="options-summary">Images, Files, Thoughts</span>
+                <span class="options-trigger-label">
                   <svg viewBox="0 0 24 24" class="icon-svg-sm" aria-hidden="true">
                     <path
                       d="M3 17v2h6v-2H3zM3 5v2h10V5H3zm10 16v-2h8v-2h-8v-2h-2v6h2zM7 9v2H3v2h4v2h2V9H7zm14 4v-2H11v2h10zm-6-4h2V7h4V5h-4V3h-2v6z"
                     />
                   </svg>
                   <span data-i18n="exportOptions">Options</span>
-                </button>
-                <div id="popup-options-menu" class="popup-options-menu hidden" role="menu">
+                </span>
+              </button>
+
+              <div
+                id="popup-options-menu"
+                class="popup-options-accordion-body hidden"
+                role="region"
+              >
+                <div class="options-grid-2">
+                  <label class="options-menu-item checkbox-label" id="image-toggle-container">
+                    <input type="checkbox" id="include-images-checkbox" checked />
+                    <span data-i18n="includeImages">Include Images</span>
+                  </label>
                   <label class="options-menu-item checkbox-label">
                     <input type="checkbox" id="popup-include-attachments" checked />
                     <span data-i18n="includeAttachments">Include Files</span>
@@ -256,15 +212,66 @@
                   </label>
                   <label class="options-menu-item checkbox-label">
                     <input type="checkbox" id="popup-include-toc" />
-                    <span data-i18n="includeToc">Include Table of Contents</span>
+                    <span data-i18n="includeToc">Include TOC</span>
                   </label>
                   <label class="options-menu-item checkbox-label">
                     <input type="checkbox" id="popup-page-break" />
-                    <span data-i18n="pageBreakPerPrompt">Page Break Per Prompt</span>
+                    <span data-i18n="pageBreakPerPrompt">Page Break</span>
                   </label>
-                  <div class="options-menu-item options-menu-numbering">
-                    <span class="field-label-small" data-i18n="messageNumberingLabel"
-                      >Numbering</span
+                  <label class="options-menu-item checkbox-label hidden" id="png-quality-container">
+                    <input type="checkbox" id="png-quality-checkbox" checked />
+                    <span data-i18n="highQualityPng">High Quality PNG (2x)</span>
+                  </label>
+                </div>
+
+                <div class="options-selects-row">
+                  <div class="control-col" id="parser-mode-container">
+                    <label for="parser-mode-select" class="field-label-small">EXTRACTION</label>
+                    <select
+                      id="parser-mode-select"
+                      aria-label="Chat Extraction Mode"
+                      data-tooltip="Cycle extraction mode (Auto / API / DOM)"
+                      data-shortcut="M"
+                    >
+                      <option value="auto">Auto (API → DOM)</option>
+                      <option value="prefer_api">API First</option>
+                      <option value="prefer_dom">DOM Only</option>
+                    </select>
+                  </div>
+
+                  <div
+                    class="web-article-banner control-col hidden"
+                    id="unsupported-warning-banner"
+                  >
+                    <span class="hidden" data-i18n="webArticleModeTitle">Web Article Mode</span>
+                    <label
+                      for="article-engine-select-popup"
+                      class="field-label-small"
+                      data-i18n="webArticleEngineLabel"
+                      >ENGINE</label
+                    >
+                    <select
+                      id="article-engine-select-popup"
+                      aria-label="Web Article Engine"
+                      data-tooltip="Cycle article extraction engine"
+                      data-shortcut="M"
+                    >
+                      <option value="auto" data-i18n="webArticleEngineAuto">Auto (Best)</option>
+                      <option value="readability" data-i18n="webArticleEngineReadability">
+                        Readability
+                      </option>
+                      <option value="defuddle" data-i18n="webArticleEngineDefuddle">
+                        Defuddle
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="control-col">
+                    <label
+                      for="popup-numbering-select"
+                      class="field-label-small"
+                      data-i18n="messageNumberingLabel"
+                      >NUMBERING</label
                     >
                     <select id="popup-numbering-select" aria-label="Message Numbering">
                       <option value="off" data-i18n="messageNumberingOff">Off</option>
@@ -293,7 +300,6 @@
                     />
                   </svg>
                   <span class="btn-label" data-i18n="openInTab">Open in Workspace</span>
-                  <kbd class="ace-kbd btn-kbd">O</kbd>
                 </button>
               </div>
               <div class="secondary-row">
@@ -308,7 +314,6 @@
                     <path d="M5 20h14v-2H5v2zM19 9h-4V3H9v6H5l7 7 7-7z" />
                   </svg>
                   <span class="btn-label" data-i18n="exportChat">Export</span>
-                  <kbd class="ace-kbd btn-kbd">E</kbd>
                 </button>
                 <button
                   id="copy-btn"
@@ -323,7 +328,6 @@
                     />
                   </svg>
                   <span class="btn-label" data-i18n="copyChat">Copy</span>
-                  <kbd class="ace-kbd btn-kbd">C</kbd>
                 </button>
               </div>
             </div>
@@ -412,7 +416,6 @@
                 <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z" />
               </svg>
               <span class="btn-label" data-i18n="transferBtn">Transfer</span>
-              <kbd class="ace-kbd btn-kbd">T</kbd>
             </button>
           </div>
         </section>
@@ -442,7 +445,6 @@
                 />
               </svg>
               <span class="btn-label">Export All Tabs</span>
-              <kbd class="ace-kbd btn-kbd">E</kbd>
             </button>
             <div id="batch-progress" class="batch-progress hidden">Processing tabs...</div>
           </div>

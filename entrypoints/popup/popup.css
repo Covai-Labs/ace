@@ -1,7 +1,8 @@
 @import '../../content/styles/theme-tokens.css';
 
 body {
-  width: 400px;
+  width: 440px;
+  min-height: 440px;
   font-family:
     -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   margin: 0;
@@ -132,8 +133,8 @@ html.in-iframe body {
   width: 28px;
   height: 28px;
   border-radius: 8px;
-  border: 1px solid var(--border-color);
-  background: var(--card-bg);
+  border: 1px solid transparent;
+  background: transparent;
   color: var(--text-secondary);
   display: inline-flex;
   align-items: center;
@@ -191,7 +192,7 @@ html.in-iframe body {
   gap: 4px;
   padding: 3px;
   background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
+  border: none;
   border-radius: 10px;
 }
 
@@ -358,27 +359,80 @@ select:focus {
   border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
-/* Options Bar & Popover */
-.options-bar {
+/* Options Accordion */
+.options-accordion {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-color);
+  border-radius: 9px;
+  background: var(--card-bg);
+  overflow: hidden;
+}
+
+.options-accordion-trigger {
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  position: relative;
+  padding: 8px 10px;
+  border: none;
+  background: transparent;
+  color: var(--text-primary);
+  font-family: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
 }
 
-.options-toggles {
-  display: flex;
+.options-accordion-trigger:hover {
+  background: var(--secondary-bg);
+}
+
+.options-summary {
+  font-size: 12px;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.options-trigger-label {
+  display: inline-flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+}
+
+.popup-options-accordion-body {
+  padding: 10px;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.options-grid-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 8px;
+}
+
+.options-selects-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border-color);
 }
 
 .checkbox-label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-secondary);
   cursor: pointer;
@@ -393,60 +447,8 @@ select:focus {
   cursor: pointer;
 }
 
-.popup-options-wrapper {
-  position: relative;
-}
-
-.options-trigger-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 9px;
-  border-radius: 7px;
-  border: 1px solid var(--btn-secondary-border);
-  background: var(--btn-secondary-bg);
-  color: var(--btn-secondary-fg);
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
-}
-
-.options-trigger-btn:hover {
-  background: var(--btn-secondary-hover);
-}
-
-.popup-options-menu {
-  position: absolute;
-  right: 0;
-  bottom: calc(100% + 6px);
-  z-index: 200;
-  width: 230px;
-  background: var(--surface-elevated);
-  border: 1px solid var(--border-color);
-  border-radius: 10px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-  padding: 8px;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
 .options-menu-item {
-  padding: 4px 6px;
-  border-radius: 6px;
-}
-
-.options-menu-item:hover {
-  background: var(--secondary-bg);
-}
-
-.options-menu-numbering {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding-top: 6px;
-  margin-top: 2px;
-  border-top: 1px solid var(--border-color);
+  padding: 2px 0;
 }
 
 /* Action Buttons */
