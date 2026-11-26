@@ -1583,6 +1583,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       const willOpen = transferMenu.classList.contains('hidden');
       transferMenu.classList.toggle('hidden', !willOpen);
       transferMenuBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+      if (willOpen) {
+        transferMenu.querySelector('.transfer-menu-item')?.focus();
+      }
+    });
+
+    transferMenu.addEventListener('keydown', (e) => {
+      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
+      const items = Array.from(transferMenu.querySelectorAll('.transfer-menu-item'));
+      if (!items.length) return;
+      e.preventDefault();
+      const currentIdx = items.indexOf(document.activeElement);
+      const nextIdx =
+        e.key === 'ArrowDown'
+          ? (currentIdx + 1) % items.length
+          : (currentIdx - 1 + items.length) % items.length;
+      items[nextIdx]?.focus();
     });
 
     document.addEventListener('click', (e) => {
@@ -1650,6 +1666,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     onEscape: () => {
       if (shortcutSheet.isOpen()) {
         shortcutSheet.close();
+      } else if (transferMenu && !transferMenu.classList.contains('hidden')) {
+        transferMenu.classList.add('hidden');
+        transferMenuBtn?.setAttribute('aria-expanded', 'false');
+        transferMenuBtn?.focus();
       } else if (workspaceMoreMenu && !workspaceMoreMenu.classList.contains('hidden')) {
         workspaceMoreMenu.classList.add('hidden');
         workspaceMoreBtn?.setAttribute('aria-expanded', 'false');
