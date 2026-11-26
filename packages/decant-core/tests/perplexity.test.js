@@ -278,3 +278,127 @@ test("getPerplexityAccount falls back to linked-accounts API endpoint", async ()
     globalThis.fetch = originalFetch;
   }
 });
+
+test("getThreadSlug supports /thread/ URLs and formatApiResult appends deduplicated Sources", () => {
+  assert.equal(
+    getThreadSlug(
+      "https://www.perplexity.ai/thread/c23b4136-a616-4a92-aaff-097f1fcf1e67",
+    ),
+    "c23b4136-a616-4a92-aaff-097f1fcf1e67",
+  );
+
+  const result = formatApiResult(
+    {
+      thread_title: "Sources Test",
+      entries: [
+        {
+          uuid: "e1",
+          query_str: "What happened?",
+          answer: "Here is the summary.",
+          blocks: [
+            {
+              intended_usage: "web_results",
+              web_result_block: {
+                web_results: [
+                  { name: "BBC News", url: "https://bbc.com/news/1" },
+                  { name: "Variety", url: "https://variety.com/2" },
+                ],
+              },
+            },
+            {
+              intended_usage: "sources_answer_mode",
+              sources_mode_block: {
+                web_results: [
+                  { name: "BBC Duplicate", url: "https://bbc.com/news/1" },
+                  { name: "Paren Query", url: "https://example.com/?q=)" },
+                ],
+              },
+            },
+          ],
+        },
+      ],
+    },
+    "https://www.perplexity.ai/search/sources-test",
+  );
+
+  assert.equal(result.messages.length, 2);
+  assert.match(result.messages[1].content, /\*\*Sources:\*\*/);
+  assert.match(
+    result.messages[1].content,
+    /1\. \[BBC News\]\(https:\/\/bbc\.com\/news\/1\)/,
+  );
+  assert.match(
+    result.messages[1].content,
+    /2\. \[Variety\]\(https:\/\/variety\.com\/2\)/,
+  );
+  assert.match(
+    result.messages[1].content,
+    /3\. \[Paren Query\]\(https:\/\/example\.com\/\?q=%29\)/,
+  );
+  assert.doesNotMatch(result.messages[1].content, /BBC Duplicate/);
+});
+
+test("PerplexityParser fetchThread paginates when has_next_page is true", async () => {
+  const dom = parseHTML("<html><body></body></html>");
+  globalThis.document = dom.document;
+  globalThis.window = dom.window;
+  globalThis.window.sessionStorage = {
+    getItem: () => "a1234567-89ab-cdef-0123-456789abcdef",
+  };
+
+  const originalFetch = globalThis.fetch;
+  const requestedUrls = [];
+  globalThis.fetch = async (url) => {
+    requestedUrls.push(url);
+    if (requestedUrls.length === 1) {
+      return {
+        ok: true,
+        json: async () => ({
+          entries: [{ uuid: "e1", query_str: "Q1", answer: "A1" }],
+          has_next_page: true,
+          next_cursor: "cursor-page-2",
+        }),
+      };
+    }
+    return {
+      ok: true,
+      json: async () => ({
+        entries: [{ uuid: "e2", query_str: "Q2", answer: "A2" }],
+        has_next_page: false,
+        next_cursor: null,
+      }),
+    };
+  };
+
+  try {
+    const parser = new PerplexityParser();
+    const data = await parser.fetchThread("test-slug");
+    assert.equal(requestedUrls.length, 2);
+    assert.match(requestedUrls[1], /cursor=cursor-page-2/);
+    assert.equal(data.entries.length, 2);
+    assert.equal(data.entries[0].uuid, "e1");
+    assert.equal(data.entries[1].uuid, "e2");
+  } finally {
+    globalThis.fetch = originalFetch;
+  }
+});
+
+test("PerplexityParser DOM fallback strips .text-tertiary timestamps from user prompts", async () => {
+  const dom = parseHTML(
+    `<html><body>
+      <div class="max-w-threadContentWidth">
+        <div class="group/query"><span class="text-tertiary">10:45 AM</span>User question</div>
+        <div id="markdown-content-0">Assistant answer</div>
+      </div>
+    </body></html>`,
+  );
+  globalThis.document = dom.document;
+  globalThis.window = dom.window;
+  globalThis.window.location = { href: "https://www.perplexity.ai/search/dom" };
+
+  const parser = new PerplexityParser();
+  const res = await parser.parse({ parserMode: "prefer_dom" });
+  assert.equal(res.messages.length, 2);
+  assert.equal(res.messages[0].content, "User question");
+  assert.equal(res.messages[0].timestamp, "10:45 AM");
+});

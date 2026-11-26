@@ -4,11 +4,47 @@ import { normalizeLatexMath } from "../utils/latex-math.js";
 
 export function getThreadSlug(url) {
   if (!url || typeof url !== "string") return null;
-  const match = url.match(/\/search\/([a-zA-Z0-9_-]+)/);
-  if (match) return match[1];
-  const matchPage = url.match(/\/page\/([a-zA-Z0-9_-]+)/);
-  if (matchPage) return matchPage[1];
-  return null;
+  const match = url.match(/\/(?:search|page|thread)\/([a-zA-Z0-9_-]+)/);
+  return match ? match[1] : null;
+}
+
+export function extractEntrySources(entry) {
+  if (!entry || typeof entry !== "object") return [];
+  const candidates = [];
+
+  if (Array.isArray(entry.blocks)) {
+    for (const block of entry.blocks) {
+      if (Array.isArray(block?.web_result_block?.web_results)) {
+        candidates.push(...block.web_result_block.web_results);
+      }
+      if (Array.isArray(block?.sources_mode_block?.web_results)) {
+        candidates.push(...block.sources_mode_block.web_results);
+      }
+    }
+  }
+  if (Array.isArray(entry.web_results)) {
+    candidates.push(...entry.web_results);
+  }
+  if (Array.isArray(entry.sources)) {
+    candidates.push(...entry.sources);
+  }
+
+  const seen = new Set();
+  const sources = [];
+  for (const item of candidates) {
+    const url = typeof item?.url === "string" ? item.url.trim() : "";
+    if (!url || (!url.startsWith("http://") && !url.startsWith("https://"))) {
+      continue;
+    }
+    if (seen.has(url)) continue;
+    seen.add(url);
+    const title = (item.name || item.title || url)
+      .replace(/\s+/g, " ")
+      .replace(/[[\]]/g, "")
+      .trim();
+    sources.push({ title: title || url, url });
+  }
+  return sources;
 }
 
 export function extractAssistantAnswer(entry) {
@@ -89,7 +125,25 @@ export function formatApiResult(threadData, currentUrl, fallbackTitle) {
 
     const rawAnswer = extractAssistantAnswer(entry);
     if (rawAnswer) {
-      const normalizedAnswer = normalizeLatexMath(rawAnswer);
+      let normalizedAnswer = normalizeLatexMath(rawAnswer);
+      const sources = extractEntrySources(entry);
+      if (sources.length > 0) {
+        const mdEscapeMap = {
+          "(": "%28",
+          ")": "%29",
+          "<": "%3C",
+          ">": "%3E",
+          "\\": "%5C",
+        };
+        const sourceLines = sources.map((s, idx) => {
+          const safeUrl = s.url.replace(
+            /[()<>\\\s]/g,
+            (ch) => mdEscapeMap[ch] || encodeURIComponent(ch),
+          );
+          return `${idx + 1}. [${s.title}](${safeUrl})`;
+        });
+        normalizedAnswer += `\n\n**Sources:**\n${sourceLines.join("\n")}`;
+      }
       const assistantMsg = { role: "Perplexity", content: normalizedAnswer };
       if (timestamp) assistantMsg.timestamp = timestamp;
       messages.push(assistantMsg);
@@ -195,7 +249,6 @@ export class PerplexityParser extends ChatParser {
 
   async fetchThread(slug) {
     const accountId = await getPerplexityAccount();
-    const url = `https://www.perplexity.ai/rest/thread/${slug}?with_parent_info=true&with_schematized_response=true&version=2.18&source=default&limit=100&offset=0&from_first=true`;
     const headers = {
       Accept: "application/json",
       "x-app-apiclient": "default",
@@ -205,17 +258,61 @@ export class PerplexityParser extends ChatParser {
       headers["x-pplx-account"] = accountId;
     }
 
-    const response = await fetch(url, {
-      method: "GET",
-      credentials: "include",
-      headers,
-    });
-    if (!response.ok) {
-      throw new Error(
-        `Perplexity API request failed with status ${response.status}`,
-      );
+    const pageSize = 20;
+    const maxPages = 50;
+    let offset = 0;
+    let cursor = null;
+    let firstPage = null;
+    const allEntries = [];
+
+    for (let page = 0; page < maxPages; page++) {
+      const params = new URLSearchParams({
+        with_parent_info: "true",
+        with_schematized_response: "true",
+        version: "2.18",
+        source: "default",
+        limit: String(pageSize),
+        offset: String(offset),
+        from_first: "true",
+      });
+      if (cursor) {
+        params.set("cursor", cursor);
+      }
+
+      const url = `https://www.perplexity.ai/rest/thread/${slug}?${params.toString()}`;
+      const response = await fetch(url, {
+        method: "GET",
+        credentials: "include",
+        headers,
+      });
+      if (!response.ok) {
+        throw new Error(
+          `Perplexity API request failed with status ${response.status}`,
+        );
+      }
+
+      const data = await response.json();
+      if (!firstPage) {
+        firstPage = data;
+      }
+
+      const pageEntries = Array.isArray(data?.entries) ? data.entries : [];
+      allEntries.push(...pageEntries);
+
+      if (!data?.has_next_page || pageEntries.length === 0) {
+        break;
+      }
+      if (data.next_cursor && data.next_cursor !== cursor) {
+        cursor = data.next_cursor;
+      } else {
+        offset += pageEntries.length;
+      }
     }
-    return response.json();
+
+    return {
+      ...(firstPage || {}),
+      entries: allEntries,
+    };
   }
 
   async parse(options = {}) {
@@ -306,8 +403,13 @@ export class PerplexityParser extends ChatParser {
         );
         const timestamp = timeEl ? timeEl.textContent.trim() : undefined;
 
-        // Clean user text container
-        const textEl = el.querySelector(".whitespace-pre-line") || el;
+        // Clean user text container (remove timestamp element so it doesn't leak into content)
+        const textEl = (
+          el.querySelector(".whitespace-pre-line") || el
+        ).cloneNode(true);
+        textEl
+          .querySelectorAll(".text-tertiary, [class*='text-tertiary']")
+          .forEach((t) => t.remove());
         const text = convertToMarkdown(textEl).trim();
         if (!text) return;
 
