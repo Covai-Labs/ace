@@ -35,9 +35,11 @@
             <button
               id="turn-select-btn"
               class="btn secondary-btn"
-              title="Select specific messages to export"
+              type="button"
+              data-tooltip="Select specific messages to export"
+              data-shortcut="M"
             >
-              <svg viewBox="0 0 24 24" class="icon">
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
                 <path
                   d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-9 14l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"
                 />
@@ -46,45 +48,83 @@
                 >Select Messages (<span id="turn-count-badge">0</span>)</span
               >
             </button>
-            <button id="feedback-btn" class="btn secondary-btn" title="Open feedback guidance">
-              <span data-i18n="feedback">Feedback</span>
-            </button>
-            <button
-              id="github-issue-btn"
-              class="btn secondary-btn"
-              title="Report issue on GitHub (prefilled with page details)"
-              aria-label="Report issue on GitHub"
-            >
+            <button id="print-btn" class="btn secondary-btn hidden" type="button">
               <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
-                <path
-                  d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"
-                />
-              </svg>
-            </button>
-            <button id="print-btn" class="btn secondary-btn hidden">
-              <svg viewBox="0 0 24 24" class="icon">
                 <path
                   d="M19 8H5c-1.66 0-3 1.34-3 3v6h4v4h12v-4h4v-6c0-1.66-1.34-3-3-3zm-3 11H8v-5h8v5zm3-7c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm-1-9H6v4h12V3z"
                 />
               </svg>
               <span data-i18n="printSavePdf">Print / Save PDF</span>
             </button>
-            <button id="copy-btn" class="btn secondary-btn">
-              <svg viewBox="0 0 24 24" class="icon">
+            <button
+              id="copy-btn"
+              class="btn secondary-btn"
+              type="button"
+              data-tooltip="Copy current view"
+              data-shortcut="C"
+            >
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
                 <path
                   d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"
                 />
               </svg>
               <span data-i18n="copyCode">Copy Code</span>
             </button>
-            <button id="download-btn" class="btn primary-btn">
-              <svg viewBox="0 0 24 24" class="icon">
+            <button
+              id="download-btn"
+              class="btn primary-btn"
+              type="button"
+              data-tooltip="Download current format"
+              data-shortcut="D"
+            >
+              <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
                 <path
                   d="M19 12v7H5v-7H3v7c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-7h-2zm-6 .67l2.59-2.58L17 11.5l-5 5-5-5 1.41-1.41L11 12.67V3h2v9.67z"
                 />
               </svg>
               <span id="download-btn-text" data-i18n="downloadFile">Download File</span>
             </button>
+            <div class="workspace-more-wrapper">
+              <button
+                id="workspace-more-btn"
+                class="btn secondary-btn icon-only-btn"
+                type="button"
+                aria-label="Help & more actions"
+                aria-haspopup="true"
+                aria-expanded="false"
+                data-tooltip="Shortcuts, feedback & issue report"
+                data-shortcut="?"
+              >
+                <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+                  <path
+                    d="M11 18h2v-2h-2v2zm1-16C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm0-14c-2.21 0-4 1.79-4 4h2c0-1.1.9-2 2-2s2 .9 2 2c0 2-3 1.75-3 5h2c0-2.25 3-2.5 3-5 0-2.21-1.79-4-4-4z"
+                  />
+                </svg>
+              </button>
+              <div id="workspace-more-menu" class="workspace-more-menu hidden" role="menu">
+                <button
+                  id="workspace-shortcuts-btn"
+                  class="workspace-menu-item"
+                  type="button"
+                  role="menuitem"
+                >
+                  <span>Keyboard Shortcuts</span>
+                  <kbd class="ace-kbd">?</kbd>
+                </button>
+                <button id="feedback-btn" class="workspace-menu-item" type="button" role="menuitem">
+                  <span data-i18n="feedback">Feedback</span>
+                </button>
+                <button
+                  id="github-issue-btn"
+                  class="workspace-menu-item"
+                  type="button"
+                  role="menuitem"
+                  aria-label="Report issue on GitHub"
+                >
+                  <span>Report Issue on GitHub ↗</span>
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -99,22 +139,86 @@
 
         <div class="header-toolbar">
           <div id="format-tabs" class="segmented-control">
-            <button data-tab="html-render" class="control-btn active" data-i18n="htmlLiveTab">
-              🎨 HTML Live
+            <button
+              data-tab="html-render"
+              class="control-btn active"
+              data-i18n="htmlLiveTab"
+              data-tooltip="Rendered HTML preview"
+              data-shortcut="1"
+            >
+              Live
             </button>
-            <button data-tab="html-source" class="control-btn" data-i18n="htmlCodeTab">
-              📄 HTML Code
+            <button
+              data-tab="html-source"
+              class="control-btn"
+              data-i18n="htmlCodeTab"
+              data-tooltip="HTML source code"
+              data-shortcut="2"
+            >
+              HTML
             </button>
-            <button data-tab="markdown" class="control-btn" data-i18n="markdownTab">
-              📝 Markdown
+            <button
+              data-tab="markdown"
+              class="control-btn"
+              data-i18n="markdownTab"
+              data-tooltip="Markdown source"
+              data-shortcut="3"
+            >
+              Markdown
             </button>
-            <button data-tab="text" class="control-btn" data-i18n="textTab">📄 Plain Text</button>
-            <button data-tab="json" class="control-btn" data-i18n="jsonTab">⚙️ JSON</button>
-            <button data-tab="doc" class="control-btn" data-i18n="wordDocTab">
-              📄 Word (.doc)
+            <button
+              data-tab="text"
+              class="control-btn"
+              data-i18n="textTab"
+              data-tooltip="Plain text"
+              data-shortcut="4"
+            >
+              Plain Text
             </button>
-            <button data-tab="png" class="control-btn" data-i18n="imageTab">🖼️ Image (.png)</button>
-            <button data-tab="pdf" class="control-btn" data-i18n="pdfTab">📄 PDF (.pdf)</button>
+            <button
+              data-tab="json"
+              class="control-btn"
+              data-i18n="jsonTab"
+              data-tooltip="ACE JSON schema"
+              data-shortcut="5"
+            >
+              JSON
+            </button>
+            <button
+              data-tab="openwebui"
+              class="control-btn"
+              data-tooltip="Open-WebUI compatible JSON"
+              data-shortcut="6"
+            >
+              Open-WebUI
+            </button>
+            <button
+              data-tab="doc"
+              class="control-btn"
+              data-i18n="wordDocTab"
+              data-tooltip="Word document (.doc)"
+              data-shortcut="7"
+            >
+              Word (.doc)
+            </button>
+            <button
+              data-tab="png"
+              class="control-btn"
+              data-i18n="imageTab"
+              data-tooltip="Shareable image (.png)"
+              data-shortcut="8"
+            >
+              Image (.png)
+            </button>
+            <button
+              data-tab="pdf"
+              class="control-btn"
+              data-i18n="pdfTab"
+              data-tooltip="Print or save PDF"
+              data-shortcut="9"
+            >
+              PDF (.pdf)
+            </button>
           </div>
 
           <div class="theme-control-group">
@@ -308,7 +412,31 @@
           </div>
         </aside>
         <div class="code-wrapper" id="code-wrapper">
-          <pre><code id="preview-code" data-i18n="loadingContent">Loading content...</code></pre>
+          <div class="code-card">
+            <div class="code-card-toolbar">
+              <span id="code-format-label" class="code-format-label">MARKDOWN</span>
+              <div class="code-card-actions">
+                <button
+                  id="code-wrap-btn"
+                  class="code-mini-btn active"
+                  type="button"
+                  data-tooltip="Toggle line wrapping"
+                >
+                  Wrap
+                </button>
+                <button
+                  id="code-card-copy-btn"
+                  class="code-mini-btn"
+                  type="button"
+                  data-tooltip="Copy to clipboard"
+                  data-shortcut="C"
+                >
+                  Copy
+                </button>
+              </div>
+            </div>
+            <pre><code id="preview-code" class="code-wrap-active" data-i18n="loadingContent">Loading content...</code></pre>
+          </div>
         </div>
         <div class="render-wrapper hidden" id="render-wrapper">
           <iframe

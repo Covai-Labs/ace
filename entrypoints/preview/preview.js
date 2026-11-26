@@ -1,6 +1,7 @@
 import { MarkdownFormatter } from '../../content/formatters/markdown.js';
 import { TextFormatter } from '../../content/formatters/text.js';
 import { JsonFormatter } from '../../content/formatters/json.js';
+import { OpenWebUIFormatter } from '../../content/formatters/openwebui.js';
 import { HtmlFormatter } from '../../content/formatters/html.js';
 import { DocFormatter } from '../../content/formatters/doc.js';
 import { ImageFormatter } from '../../content/formatters/image.js';
@@ -20,6 +21,11 @@ import {
 } from '../../content/utils/filename.js';
 import { buildPlatformSupportIssueUrl } from '../../content/utils/feedback.js';
 import { getExportOptions, applyExportOptionChanges } from '../../content/utils/preferences.js';
+import {
+  initTooltips,
+  registerShortcutHandler,
+  createShortcutSheet,
+} from '../../content/utils/ui-shortcuts.js';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import Prism from '../../content/lib/prismjs/prism-bundle.js';
 
@@ -144,6 +150,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const markdownFormatter = new MarkdownFormatter();
   const textFormatter = new TextFormatter();
   const jsonFormatter = new JsonFormatter();
+  const openwebuiFormatter = new OpenWebUIFormatter();
   const htmlFormatter = new HtmlFormatter();
   const docFormatter = new DocFormatter();
   const imageFormatter = new ImageFormatter();
@@ -255,6 +262,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   let markdownContent = '';
   let textContent = '';
   let jsonContent = '';
+  let openwebuiContent = '';
   let docContent = '';
 
   let activeContent = '';
@@ -597,6 +605,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       includeToc: shouldIncludeToc,
     });
     jsonContent = jsonFormatter.format(activeConv, exportOptions);
+    openwebuiContent = openwebuiFormatter.format(activeConv, exportOptions);
     docContent = docFormatter.format(activeConv, {
       ...exportOptions,
       includeToc: shouldIncludeToc,
@@ -754,6 +763,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       label = t('downloadPlainText') || 'Download Plain Text';
     } else if (extension === 'json') {
       label = t('downloadJson') || 'Download JSON';
+    } else if (extension === 'openwebui') {
+      label = 'Download Open-WebUI JSON';
     } else if (extension === 'doc') {
       label = t('downloadWordDoc') || 'Download Word Doc';
     } else if (extension === 'pdf') {
@@ -771,6 +782,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         return 'text';
       case 'json':
         return 'json';
+      case 'openwebui':
+        return 'openwebui';
       case 'html-render':
         return 'html';
       case 'html-source':
@@ -792,6 +805,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (p === 'md' || p === 'markdown') return 'markdown';
     if (p === 'txt' || p === 'text') return 'text';
     if (p === 'json') return 'json';
+    if (p === 'openwebui' || p === 'open-webui') return 'openwebui';
     if (p === 'html' || p === 'live' || p === 'html-render') return 'html-render';
     if (p === 'source' || p === 'html-source') return 'html-source';
     if (p === 'doc' || p === 'word') return 'doc';
@@ -899,9 +913,25 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (tabName === 'json') {
         activeContent = jsonContent;
         activeExtension = 'json';
+      } else if (tabName === 'openwebui') {
+        activeContent = openwebuiContent;
+        activeExtension = 'openwebui';
       } else if (tabName === 'doc') {
         activeContent = docContent;
         activeExtension = 'doc';
+      }
+
+      const codeFormatLabel = document.getElementById('code-format-label');
+      if (codeFormatLabel) {
+        const formatLabels = {
+          'html-source': 'HTML SOURCE',
+          markdown: 'MARKDOWN',
+          text: 'PLAIN TEXT',
+          json: 'JSON',
+          openwebui: 'OPEN-WEBUI JSON',
+          doc: 'WORD (.DOC)',
+        };
+        codeFormatLabel.textContent = formatLabels[tabName] || tabName.toUpperCase();
       }
 
       codeEl.textContent = activeContent;
@@ -1258,7 +1288,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    const filename = `${downloadBaseName}.${activeExtension}`;
+    const fileExt = activeExtension === 'openwebui' ? 'json' : activeExtension;
+    const filename =
+      activeExtension === 'openwebui'
+        ? `${downloadBaseName}-openwebui.${fileExt}`
+        : `${downloadBaseName}.${fileExt}`;
 
     const getActiveTheme = () => {
       if (previewThemeSelect && previewThemeSelect.value) {
@@ -1365,7 +1399,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else if (activeExtension === 'doc') {
       mimeType = 'application/msword';
       blobParts = ['\ufeff', activeContent];
-    } else if (activeExtension === 'json') {
+    } else if (activeExtension === 'json' || activeExtension === 'openwebui') {
       mimeType = 'application/json';
     } else if (activeExtension === 'md') {
       mimeType = 'text/markdown';
@@ -1461,4 +1495,106 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
   }
+
+  // Theme-aware tooltips, Help/More menu, Code Card controls, and Shortcuts
+  initTooltips();
+
+  const workspaceMoreBtn = document.getElementById('workspace-more-btn');
+  const workspaceMoreMenu = document.getElementById('workspace-more-menu');
+  const workspaceShortcutsBtn = document.getElementById('workspace-shortcuts-btn');
+
+  if (workspaceMoreBtn && workspaceMoreMenu) {
+    workspaceMoreBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const willOpen = workspaceMoreMenu.classList.contains('hidden');
+      workspaceMoreMenu.classList.toggle('hidden', !willOpen);
+      workspaceMoreBtn.setAttribute('aria-expanded', willOpen ? 'true' : 'false');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (
+        !workspaceMoreMenu.classList.contains('hidden') &&
+        !workspaceMoreMenu.contains(e.target) &&
+        e.target !== workspaceMoreBtn &&
+        !workspaceMoreBtn.contains(e.target)
+      ) {
+        workspaceMoreMenu.classList.add('hidden');
+        workspaceMoreBtn.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  const codeWrapBtn = document.getElementById('code-wrap-btn');
+  if (codeWrapBtn && codeEl) {
+    codeWrapBtn.addEventListener('click', () => {
+      const wrapped = codeEl.classList.toggle('code-wrap-active');
+      codeWrapBtn.classList.toggle('active', wrapped);
+    });
+  }
+
+  const codeCardCopyBtn = document.getElementById('code-card-copy-btn');
+  if (codeCardCopyBtn && copyBtn) {
+    codeCardCopyBtn.addEventListener('click', () => copyBtn.click());
+  }
+
+  const shortcutSheet = createShortcutSheet({
+    title: 'Workspace Shortcuts',
+    localShortcuts: [
+      { key: '1 – 9', label: 'Switch format tab (Live → PDF)' },
+      { key: 'C', label: 'Copy current view' },
+      { key: 'D / E', label: 'Download current format' },
+      { key: 'M', label: 'Select messages' },
+      { key: 'P', label: 'Toggle Options menu' },
+      { key: 'T', label: 'Transfer conversation' },
+      { key: '?', label: 'Show / hide shortcuts' },
+    ],
+  });
+
+  if (workspaceShortcutsBtn) {
+    workspaceShortcutsBtn.addEventListener('click', () => {
+      workspaceMoreMenu?.classList.add('hidden');
+      workspaceMoreBtn?.setAttribute('aria-expanded', 'false');
+      shortcutSheet.toggle();
+    });
+  }
+
+  const formatTabOrder = [
+    'html-render',
+    'html-source',
+    'markdown',
+    'text',
+    'json',
+    'openwebui',
+    'doc',
+    'png',
+    'pdf',
+  ];
+
+  const shortcutBindings = {
+    c: () => {
+      if (copyBtn && !copyBtn.classList.contains('hidden')) copyBtn.click();
+    },
+    d: () => downloadBtn?.click(),
+    e: () => downloadBtn?.click(),
+    m: () => turnSelectBtn?.click(),
+    p: () => document.getElementById('options-menu-btn')?.click(),
+    t: () => transferBtn?.click(),
+    '?': () => shortcutSheet.toggle(),
+  };
+  formatTabOrder.forEach((tabId, idx) => {
+    shortcutBindings[String(idx + 1)] = () => switchTab(tabId);
+  });
+
+  registerShortcutHandler(shortcutBindings, {
+    onEscape: () => {
+      if (shortcutSheet.isOpen()) {
+        shortcutSheet.close();
+      } else if (workspaceMoreMenu && !workspaceMoreMenu.classList.contains('hidden')) {
+        workspaceMoreMenu.classList.add('hidden');
+        workspaceMoreBtn?.setAttribute('aria-expanded', 'false');
+      } else if (turnDrawer && !turnDrawer.classList.contains('hidden')) {
+        turnDrawer.classList.add('hidden');
+      }
+    },
+  });
 });
