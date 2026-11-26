@@ -295,6 +295,14 @@ export class QwenParser extends ChatParser {
           err,
         );
       }
+
+      const latestUrl =
+        typeof window !== "undefined" && window.location
+          ? window.location.href || ""
+          : "";
+      if (latestUrl !== currentUrl) {
+        throw new Error("Navigation occurred during Qwen extraction");
+      }
     }
 
     const messages = this.extractDomMessages();

@@ -106,4 +106,11 @@ test('QwenParser extracts full conversation via API (including thinking and atta
   const fallbackRes = await parser.parse();
   assert.equal(fallbackRes.metadata.Method, 'DOM');
   assert.equal(fallbackRes.messages.length, 2);
+
+  // Rejects instead of reading stale DOM if page navigates during API request
+  parser.fetchChatData = async () => {
+    window.location = { href: 'https://chat.qwen.ai/c/other-chat-id' };
+    throw new Error('aborted');
+  };
+  await assert.rejects(() => parser.parse(), /Navigation occurred during Qwen extraction/);
 });
