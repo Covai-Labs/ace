@@ -730,8 +730,35 @@ export default defineBackground(() => {
   }
 
   if (typeof chrome !== 'undefined' && chrome.commands?.onCommand) {
-    chrome.commands.onCommand.addListener((command) => {
-      void handleCommand(command, 'preview.html', 'markdown');
+    chrome.commands.onCommand.addListener(async (command) => {
+      if (command === 'copy_json') {
+        void handleCommand('copy_format', 'preview.html', 'json');
+      } else if (command === 'download_pdf') {
+        void handleCommand('open_preview', 'preview.html', 'pdf');
+      } else if (command === 'open_sidepanel') {
+        const tab = await getActiveTab();
+        if (tab?.windowId && chrome.sidePanel?.open) {
+          void chrome.sidePanel.open({ windowId: tab.windowId }).catch(() => {});
+        }
+      } else if (command === 'transfer_last_target') {
+        const tab = await getActiveTab();
+        if (!tab?.id) return;
+        let targetId = 'claude';
+        try {
+          const syncData = await chrome.storage.sync.get('lastTransferTarget');
+          if (
+            syncData?.lastTransferTarget &&
+            TRANSFER_TARGET_IDS.includes(syncData.lastTransferTarget)
+          ) {
+            targetId = syncData.lastTransferTarget;
+          }
+        } catch {
+          // Use default target
+        }
+        await handleTransferContextMenu(targetId, {}, tab);
+      } else {
+        void handleCommand(command, 'preview.html', 'markdown');
+      }
     });
   }
 
