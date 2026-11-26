@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.27.0](https://github.com/Covai-Labs/ace/compare/v1.26.2...v1.27.0) (2026-11-26)
+
+
+### Features
+
+* **ui:** redesign popup with tabs, extraction mode, options popover, and shortcuts ([#212](https://github.com/Covai-Labs/ace/issues/212)) ([2780afa](https://github.com/Covai-Labs/ace/commit/2780afa2298d4f3c1fa13d490b0d4709f829f4ab))
+* **ui:** redesign workspace with framed code card, open-webui format, and shortcuts ([#213](https://github.com/Covai-Labs/ace/issues/213)) ([346a6ef](https://github.com/Covai-Labs/ace/commit/346a6ef8a069fd660b4effb028e5b308a899ad66))
+* **ui:** unified theme tokens, tooltip/shortcut utilities, and browser commands ([#210](https://github.com/Covai-Labs/ace/issues/210)) ([5d72a1b](https://github.com/Covai-Labs/ace/commit/5d72a1b5bcbdbda0012ea53b274d18a7a129e266))
+
+
+### Bug Fixes
+
+* **ci:** use local workspace decant-core in release builds ([#217](https://github.com/Covai-Labs/ace/issues/217)) ([358def3](https://github.com/Covai-Labs/ace/commit/358def34751a0508e0bb26ec8903fb956603a993))
+* **ui:** declutter popup with inline options accordion, larger size, and icon/dot fixes ([#214](https://github.com/Covai-Labs/ace/issues/214)) ([6f301c9](https://github.com/Covai-Labs/ace/commit/6f301c9e8c477e03699db5669ffafe9b86a3f488))
+* **ui:** options theme tokens & compact single-row workspace redesign ([#215](https://github.com/Covai-Labs/ace/issues/215)) ([9da4ca2](https://github.com/Covai-Labs/ace/commit/9da4ca282d5bb94acfdbedc29a789f725cb3e060))
+
 ## [1.26.2](https://github.com/Covai-Labs/ace/compare/v1.26.1...v1.26.2) (2026-11-26)
 
 
