@@ -396,6 +396,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             articleEngineSelectPopup.value = storedSettings.articleEngine;
           }
         }
+        if (changes.includeThinking) {
+          storedSettings.includeThinking = changes.includeThinking.newValue !== false;
+        }
+        if (changes.includeAttachments) {
+          storedSettings.includeAttachments = changes.includeAttachments.newValue !== false;
+        }
+        if (changes.includeTimestamps) {
+          storedSettings.includeTimestamps = changes.includeTimestamps.newValue === true;
+        }
+        if (changes.includeToc) {
+          storedSettings.includeToc = changes.includeToc.newValue === true;
+        }
+        if (changes.pageBreakPerPrompt) {
+          storedSettings.pageBreakPerPrompt = changes.pageBreakPerPrompt.newValue === true;
+        }
+        if (changes.messageNumbering) {
+          storedSettings.messageNumbering = changes.messageNumbering.newValue || 'off';
+        }
       }
     });
   }
