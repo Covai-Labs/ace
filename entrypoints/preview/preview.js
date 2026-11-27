@@ -1432,6 +1432,10 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Ignore iframe DOM access error
           }
 
+          if (container && typeof imageFormatter.prepareContainer === 'function') {
+            await imageFormatter.prepareContainer(container);
+          }
+
           const requestedScale = isHighQuality ? 2 : 1;
           const needsSplit =
             isSplitLongPng &&
@@ -1445,6 +1449,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               highQuality: isHighQuality,
               includeImages,
               theme: activeTheme,
+              _prepared: true,
             });
           } else {
             pngBlob = await imageFormatter.format(activeConv, {
