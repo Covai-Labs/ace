@@ -331,7 +331,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             })
             .join('')
             .toLowerCase();
-          if (normalized.startsWith('javascript:') || normalized.startsWith('vbscript:')) {
+          if (name === 'src') {
+            if (!/^(?:https?:|data:image\/|blob:|\/|\.\/)/i.test(normalized)) {
+              el.removeAttribute(attr.name);
+            }
+          } else if (!/^(?:https?:|mailto:|tel:|#|\/|\.\/)/i.test(normalized)) {
             el.removeAttribute(attr.name);
           }
         }
