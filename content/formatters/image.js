@@ -1,4 +1,5 @@
 import html2canvas from 'html2canvas';
+import JSZip from 'jszip';
 import renderMathInElement from 'katex/dist/contrib/auto-render.mjs';
 import {
   ExportFormatter,
@@ -358,11 +359,18 @@ export class ImageFormatter extends ExportFormatter {
   createScreenshotContainer(conversation, options = {}) {
     const palette = this.resolveThemePalette(options);
     const { title, messages } = conversation;
-    const messageNumbers = getMessageNumbers(messages, options?.messageNumbering);
+    const messageNumbers =
+      Array.isArray(options?._messageNumbers) &&
+      options._messageNumbers.length === (messages || []).length
+        ? options._messageNumbers
+        : getMessageNumbers(messages, options?.messageNumbering);
     const now = new Date();
     const formattedDate = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.toLocaleTimeString('en-US', { hour12: false })}`;
     const platform = conversation.metadata?.Source || 'AI';
     const model = conversation.metadata?.Model || '';
+    const partInfo = options?._partInfo;
+    const isFirstPart = options?._isFirstPart !== false;
+    const isLastPart = options?._isLastPart !== false;
 
     const container = document.createElement('div');
     container.className = 'ai-exporter-png-container';
@@ -382,7 +390,7 @@ export class ImageFormatter extends ExportFormatter {
     const includeTimestamps = shouldIncludeTimestamps(options);
     const isArticle = isArticleConversation(conversation);
     const tocItems =
-      options?.includeToc && !isArticle && (messages || []).length > 0
+      isFirstPart && options?.includeToc && !isArticle && (messages || []).length > 0
         ? getTocItems(messages, {
             messageNumbering: options?.messageNumbering,
             includeTimestamps,
@@ -422,7 +430,7 @@ export class ImageFormatter extends ExportFormatter {
         const htmlContent = sanitizeHtml(markdownToHtml(msg.content));
 
         return `
-          <div style="margin-bottom: 24px; display: flex; flex-direction: column; align-items: ${isUser ? 'flex-end' : 'flex-start'};">
+          <div class="ai-exporter-png-message" style="margin-bottom: 24px; display: flex; flex-direction: column; align-items: ${isUser ? 'flex-end' : 'flex-start'};">
             <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
               <div style="width: 24px; height: 24px; border-radius: 50%; background-color: ${avatarBg}; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700;">
                 ${escapeHtml(avatarText)}
@@ -469,6 +477,7 @@ export class ImageFormatter extends ExportFormatter {
               ${escapeHtml(platform)}
             </span>
             ${model ? `<span style="display: inline-block; background-color: ${palette.userBg}; color: ${palette.subtitleColor}; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 9999px;">Model: ${escapeHtml(model)}</span>` : ''}
+            ${partInfo ? `<span style="display: inline-block; background-color: ${palette.userBg}; color: ${palette.subtitleColor}; font-size: 11px; font-weight: 600; padding: 4px 10px; border-radius: 9999px;">Part ${partInfo.part} of ${partInfo.total}</span>` : ''}
           </div>
           <h1 style="margin: 0; font-size: 22px; font-weight: 700; color: ${palette.textColor}; line-height: 1.3;">
             ${escapeHtml(title || 'AI Conversation')}
@@ -487,7 +496,7 @@ export class ImageFormatter extends ExportFormatter {
       </div>
 
       ${
-        shouldIncludeAttribution(options)
+        isLastPart && shouldIncludeAttribution(options)
           ? `
       <!-- Footer Watermark -->
       <div style="margin-top: 40px; border-top: 1px solid ${palette.borderColor}; padding-top: 16px; text-align: center; font-size: 12px; color: ${palette.subtitleColor};">
@@ -755,7 +764,75 @@ export class ImageFormatter extends ExportFormatter {
   }
 
   /**
-   * Formats the conversation into a PNG Blob
+   * Returns the maximum crisp container height (in CSS px) that fits within browser canvas limits
+   * at the requested scale.
+   * @param {number} width
+   * @param {number} requestedScale
+   * @returns {number}
+   */
+  getMaxCrispHeight(width = 800, requestedScale = 2) {
+    const safeWidth = Math.max(width || 800, 1);
+    const scale = Math.max(requestedScale || 1, 1);
+    const MAX_SAFE_DIMENSION = 16384;
+    const MAX_SAFE_AREA = 16384 * 8192;
+    return Math.floor(
+      Math.min(MAX_SAFE_DIMENSION / scale, MAX_SAFE_AREA / (safeWidth * scale * scale)),
+    );
+  }
+
+  /**
+   * Groups messages into height-bounded chunks at message boundaries using rendered DOM heights.
+   * @param {HTMLElement} container
+   * @param {Array} messages
+   * @param {number} maxCrispHeight
+   * @returns {Array<{ startIndex: number, messages: Array }>}
+   */
+  partitionMessagesByHeight(container, messages, maxCrispHeight) {
+    const msgList = messages || [];
+    if (msgList.length <= 1) {
+      return [{ startIndex: 0, messages: msgList }];
+    }
+
+    const msgElements = Array.from(container.querySelectorAll('.ai-exporter-png-message'));
+    const totalHeight = Math.max(
+      container.offsetHeight || 0,
+      container.scrollHeight || 0,
+      container.clientHeight || 0,
+    );
+    const measuredMsgHeights = msgElements.map((el) =>
+      Math.max(el.offsetHeight || 0, el.scrollHeight || 0, el.clientHeight || 0, 120),
+    );
+    const sumMsgHeights = measuredMsgHeights.reduce((acc, h) => acc + h + 24, 0);
+    const overhead = Math.max(totalHeight - sumMsgHeights, 260);
+    const maxBodyHeight = Math.max(maxCrispHeight - overhead, 400);
+
+    const chunks = [];
+    let currentMessages = [];
+    let currentStartIndex = 0;
+    let currentHeight = 0;
+
+    for (let i = 0; i < msgList.length; i++) {
+      const msgHeight = (measuredMsgHeights[i] ?? 200) + 24;
+      if (currentMessages.length > 0 && currentHeight + msgHeight > maxBodyHeight) {
+        chunks.push({ startIndex: currentStartIndex, messages: currentMessages });
+        currentMessages = [msgList[i]];
+        currentStartIndex = i;
+        currentHeight = msgHeight;
+      } else {
+        currentMessages.push(msgList[i]);
+        currentHeight += msgHeight;
+      }
+    }
+
+    if (currentMessages.length > 0) {
+      chunks.push({ startIndex: currentStartIndex, messages: currentMessages });
+    }
+
+    return chunks;
+  }
+
+  /**
+   * Formats the conversation into a PNG Blob (or a ZIP Blob of PNG parts for long chats)
    * @param {Object} conversation
    * @param {Object} [options]
    * @returns {Promise<Blob>}
@@ -765,6 +842,63 @@ export class ImageFormatter extends ExportFormatter {
     document.body.appendChild(container);
 
     try {
+      const requestedScale = options?.highQuality !== false ? 2 : 1;
+      const safeScale = this.calculateSafeScale(container, requestedScale);
+      const messages = conversation?.messages || [];
+      const shouldSplit =
+        options?.splitLongPng !== false && safeScale < requestedScale && messages.length > 1;
+
+      if (shouldSplit) {
+        const containerWidth = Math.max(
+          container.offsetWidth || 0,
+          container.scrollWidth || 0,
+          container.clientWidth || 0,
+          800,
+        );
+        const maxCrispHeight = this.getMaxCrispHeight(containerWidth, requestedScale);
+        const chunks = this.partitionMessagesByHeight(container, messages, maxCrispHeight);
+
+        if (chunks.length > 1) {
+          if (container.parentNode) {
+            container.parentNode.removeChild(container);
+          }
+
+          const allMessageNumbers = getMessageNumbers(messages, options?.messageNumbering);
+          const zip = new JSZip();
+          const padLen = String(chunks.length).length;
+
+          for (let i = 0; i < chunks.length; i++) {
+            const chunk = chunks[i];
+            const chunkNumbers = allMessageNumbers.slice(
+              chunk.startIndex,
+              chunk.startIndex + chunk.messages.length,
+            );
+            const chunkContainer = this.createScreenshotContainer(
+              { ...conversation, messages: chunk.messages },
+              {
+                ...options,
+                _messageNumbers: chunkNumbers,
+                _partInfo: { part: i + 1, total: chunks.length },
+                _isFirstPart: i === 0,
+                _isLastPart: i === chunks.length - 1,
+              },
+            );
+            document.body.appendChild(chunkContainer);
+            try {
+              const partBlob = await this.captureElement(chunkContainer, options);
+              const partName = `part-${String(i + 1).padStart(padLen, '0')}.png`;
+              zip.file(partName, partBlob);
+            } finally {
+              if (chunkContainer.parentNode) {
+                chunkContainer.parentNode.removeChild(chunkContainer);
+              }
+            }
+          }
+
+          return await zip.generateAsync({ type: 'blob', mimeType: 'application/zip' });
+        }
+      }
+
       return await this.captureElement(container, options);
     } finally {
       if (container.parentNode) {

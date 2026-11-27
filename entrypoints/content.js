@@ -617,6 +617,7 @@ export default defineContentScript({
               }
               const options = await getExportOptions({
                 highQuality: request.highQualityPng !== false,
+                splitLongPng: request.splitLongPng,
                 theme: request.theme,
                 includeThinking: request.includeThinking,
                 includeAttachments: request.includeAttachments,
@@ -681,6 +682,10 @@ export default defineContentScript({
                   title: conversation.title || 'Conversation',
                 });
                 downloadName = `${formattedName}.${formatter.getFileExtension()}`;
+              }
+
+              if (blob.type === 'application/zip' && downloadName.endsWith('.png')) {
+                downloadName = downloadName.replace(/\.png$/, '.zip');
               }
 
               a.download = downloadName;

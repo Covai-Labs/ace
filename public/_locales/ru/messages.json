@@ -869,5 +869,17 @@
   "selectResponses": {
     "message": "Ответы",
     "description": "Select responses button in turn selector"
+  },
+  "splitLongPng": {
+    "message": "Split Long PNGs (ZIP)",
+    "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
+  },
+  "splitLongPngDefault": {
+    "message": "Split long PNG exports into crisp parts (ZIP)",
+    "description": "Default setting for splitting long PNG exports"
+  },
+  "splitLongPngHelp": {
+    "message": "Prevents blurry text on long chats by splitting into multiple full-resolution images bundled in a ZIP file.",
+    "description": "Help text for split long PNG setting"
   }
 }

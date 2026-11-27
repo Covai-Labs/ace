@@ -6,6 +6,7 @@ export const DEFAULT_INCLUDE_ATTACHMENTS = true;
 export const DEFAULT_INCLUDE_TIMESTAMPS = false;
 export const DEFAULT_INCLUDE_TOC = false;
 export const DEFAULT_PAGE_BREAK_PER_PROMPT = false;
+export const DEFAULT_SPLIT_LONG_PNG = true;
 export const DEFAULT_MESSAGE_NUMBERING = 'off';
 export const DEFAULT_THEME = 'system';
 
@@ -46,6 +47,7 @@ export async function getExportOptions(overrides = {}) {
   let includeTimestamps = DEFAULT_INCLUDE_TIMESTAMPS;
   let includeToc = DEFAULT_INCLUDE_TOC;
   let pageBreakPerPrompt = DEFAULT_PAGE_BREAK_PER_PROMPT;
+  let splitLongPng = DEFAULT_SPLIT_LONG_PNG;
   let messageNumbering = DEFAULT_MESSAGE_NUMBERING;
 
   try {
@@ -58,6 +60,7 @@ export async function getExportOptions(overrides = {}) {
         'includeTimestamps',
         'includeToc',
         'pageBreakPerPrompt',
+        'splitLongPng',
         'messageNumbering',
       ]);
       if (syncData) {
@@ -80,6 +83,9 @@ export async function getExportOptions(overrides = {}) {
         if (syncData.pageBreakPerPrompt !== undefined) {
           pageBreakPerPrompt = syncData.pageBreakPerPrompt === true;
         }
+        if (syncData.splitLongPng !== undefined) {
+          splitLongPng = syncData.splitLongPng !== false;
+        }
         if (syncData.messageNumbering !== undefined) {
           messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
         }
@@ -101,6 +107,7 @@ export async function getExportOptions(overrides = {}) {
     includeTimestamps,
     includeToc,
     pageBreakPerPrompt,
+    splitLongPng,
     messageNumbering,
     ...cleanOverrides,
   };

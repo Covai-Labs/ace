@@ -319,6 +319,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'includeTimestamps',
     'includeToc',
     'pageBreakPerPrompt',
+    'splitLongPng',
     'messageNumbering',
     'filenameTemplate',
     'defaultTransferTarget',
@@ -410,6 +411,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (changes.pageBreakPerPrompt) {
           storedSettings.pageBreakPerPrompt = changes.pageBreakPerPrompt.newValue === true;
+        }
+        if (changes.splitLongPng) {
+          storedSettings.splitLongPng = changes.splitLongPng.newValue !== false;
+          if (pngSplitCheckbox) {
+            pngSplitCheckbox.checked = storedSettings.splitLongPng;
+          }
         }
         if (changes.messageNumbering) {
           storedSettings.messageNumbering = changes.messageNumbering.newValue || 'off';
@@ -722,6 +729,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pngWarningBanner = document.getElementById('png-warning-banner');
   const pngQualityContainer = document.getElementById('png-quality-container');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
+  const pngSplitContainer = document.getElementById('png-split-container');
+  const pngSplitCheckbox = document.getElementById('png-split-checkbox');
+
+  if (pngSplitCheckbox) {
+    pngSplitCheckbox.checked = storedSettings.splitLongPng !== false;
+    pngSplitCheckbox.addEventListener('change', () => {
+      storedSettings.splitLongPng = pngSplitCheckbox.checked;
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        chrome.storage.sync.set({ splitLongPng: pngSplitCheckbox.checked });
+      }
+    });
+  }
 
   function updateCopyButtonVisibility() {
     const format = formatSelect.value;
@@ -740,6 +759,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (pngQualityContainer) {
       pngQualityContainer.classList.toggle('hidden', format !== 'png');
+    }
+    if (pngSplitContainer) {
+      pngSplitContainer.classList.toggle('hidden', format !== 'png');
     }
   }
 
@@ -798,6 +820,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             autoPrint: format === 'pdf',
             autoDownloadPng: format === 'png',
             highQualityPng: pngQualityCheckbox ? pngQualityCheckbox.checked : true,
+            splitLongPng: pngSplitCheckbox ? pngSplitCheckbox.checked : true,
             includeImages: includeImagesCheckbox ? includeImagesCheckbox.checked : true,
           });
 
@@ -822,6 +845,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           includeImages: includeImagesCheckbox.checked,
           customFilename: customFilename,
           highQualityPng: pngQualityCheckbox ? pngQualityCheckbox.checked : true,
+          splitLongPng: pngSplitCheckbox ? pngSplitCheckbox.checked : true,
           parserMode: storedSettings.parserMode || 'auto',
           articleEngine: storedSettings.articleEngine || 'auto',
           theme: storedSettings.theme || 'system',
@@ -937,6 +961,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           autoPrint: false,
           autoDownloadPng: false,
           highQualityPng: pngQualityCheckbox ? pngQualityCheckbox.checked : true,
+          splitLongPng: pngSplitCheckbox ? pngSplitCheckbox.checked : true,
           includeImages: includeImagesCheckbox ? includeImagesCheckbox.checked : true,
         });
 
