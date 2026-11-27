@@ -8,7 +8,8 @@ import {
   formatMessageTimestamp,
   getOmittedAttachmentsSuffix,
 } from './base.js';
-import { markdownToHtml, escapeHtml } from './html.js';
+import { markdownToHtml, escapeHtml, sanitizeUrl } from './html.js';
+import { sanitizeHtml } from '../utils/sanitizer.js';
 
 export class DocFormatter extends ExportFormatter {
   format(conversation, options = {}) {
@@ -28,7 +29,10 @@ export class DocFormatter extends ExportFormatter {
       );
     }
     if (link) {
-      metaParts.push(`<a href="${escapeHtml(link)}" style="color: #64748b;">Original Link</a>`);
+      const safeLink = sanitizeUrl(link, false);
+      if (safeLink) {
+        metaParts.push(`<a href="${safeLink}" style="color: #64748b;">Original Link</a>`);
+      }
     }
     if (model) {
       metaParts.push(`Model: ${escapeHtml(model)}`);
@@ -61,7 +65,7 @@ export class DocFormatter extends ExportFormatter {
     const formattedMessages = isWebArticle
       ? messages
           .map((msg) => {
-            const rawHtmlContent = markdownToHtml(msg.content);
+            const rawHtmlContent = sanitizeHtml(markdownToHtml(msg.content));
             const htmlContent = rawHtmlContent
               .replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '')
               .replace(/<svg[^>]*>[\s\S]*?<\/svg>/gi, '');
@@ -91,7 +95,7 @@ export class DocFormatter extends ExportFormatter {
               getOmittedAttachmentsSuffix(msg);
             const timestamp = includeTimestamps ? formatMessageTimestamp(msg?.timestamp) : null;
             const dateSuffix = timestamp ? ` • ${escapeHtml(timestamp)}` : '';
-            const rawHtmlContent = markdownToHtml(msg.content);
+            const rawHtmlContent = sanitizeHtml(markdownToHtml(msg.content));
             // Strip copy buttons and inline SVGs which cause LibreOffice HTML import filter errors
             const htmlContent = rawHtmlContent
               .replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '')

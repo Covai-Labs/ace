@@ -132,3 +132,17 @@ test('preview requests fetch the conversation with attachments so the preview to
   assert.equal(count('entrypoints/popup/popup.js'), 2);
   assert.equal(count('entrypoints/background.js'), 1);
 });
+
+test('preview renders Word (.doc) format using docContent in the rendered iframe instead of raw code', () => {
+  assert.match(
+    previewJs,
+    /tabName === 'html-render' \|\| tabName === 'png' \|\| tabName === 'pdf' \|\| tabName === 'doc'/,
+  );
+  assert.match(previewJs, /const renderContent = tabName === 'doc' \? docContent : htmlContent;/);
+  assert.match(
+    previewJs,
+    /renderWrapper\.classList\.toggle\('doc-preview-mode', tabName === 'doc'\)/,
+  );
+  assert.match(previewJs, /docContent = sanitizeHtml\(fallbackContent\);/);
+  assert.match(previewJs, /new DOMParser\(\)/);
+});

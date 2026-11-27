@@ -310,9 +310,38 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentBlobUrl = null;
     }
 
-    const cleanForPreview = content
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/\s*onclick="[^"]*"/gi, '');
+    const parser = new DOMParser();
+    const parsedDoc = parser.parseFromString(content, 'text/html');
+    parsedDoc.querySelectorAll('script').forEach((el) => el.remove());
+    parsedDoc.querySelectorAll('*').forEach((el) => {
+      for (const attr of Array.from(el.attributes)) {
+        const name = attr.name.toLowerCase();
+        if (name.startsWith('on')) {
+          el.removeAttribute(attr.name);
+        } else if (
+          name === 'href' ||
+          name === 'src' ||
+          name === 'action' ||
+          name === 'formaction'
+        ) {
+          const normalized = Array.from(attr.value)
+            .filter((ch) => {
+              const code = ch.charCodeAt(0);
+              return code > 32 && code !== 127;
+            })
+            .join('')
+            .toLowerCase();
+          if (name === 'src') {
+            if (!/^(?:https?:|data:image\/|blob:|\/|\.\/)/i.test(normalized)) {
+              el.removeAttribute(attr.name);
+            }
+          } else if (!/^(?:https?:|mailto:|tel:|#|\/|\.\/)/i.test(normalized)) {
+            el.removeAttribute(attr.name);
+          }
+        }
+      }
+    });
+    const cleanForPreview = `<!DOCTYPE html>\n${parsedDoc.documentElement.outerHTML}`;
     const blob = new Blob([cleanForPreview], { type: 'text/html' });
     currentBlobUrl = URL.createObjectURL(blob);
     previewRendered.src = currentBlobUrl;
@@ -896,18 +925,22 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    if (tabName === 'html-render' || tabName === 'png' || tabName === 'pdf') {
-      activeContent = htmlContent;
+    if (tabName === 'html-render' || tabName === 'png' || tabName === 'pdf' || tabName === 'doc') {
+      const renderContent = tabName === 'doc' ? docContent : htmlContent;
+      activeContent = renderContent;
       if (tabName === 'png') {
         activeExtension = 'png';
       } else if (tabName === 'pdf') {
         activeExtension = 'pdf';
+      } else if (tabName === 'doc') {
+        activeExtension = 'doc';
       } else {
         activeExtension = 'html';
       }
 
       codeWrapper.classList.add('hidden');
       renderWrapper.classList.remove('hidden');
+      renderWrapper.classList.toggle('doc-preview-mode', tabName === 'doc');
       if (printBtn) {
         printBtn.classList.add('hidden');
       }
@@ -915,10 +948,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (
         !previewRendered.src ||
         previewRendered.src === 'about:blank' ||
-        previewRendered.getAttribute('data-content') !== htmlContent
+        previewRendered.getAttribute('data-content') !== renderContent
       ) {
-        previewRendered.setAttribute('data-content', htmlContent);
-        setIframeContent(htmlContent);
+        previewRendered.setAttribute('data-content', renderContent);
+        setIframeContent(renderContent);
       }
     } else {
       renderWrapper.classList.add('hidden');
@@ -940,9 +973,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (tabName === 'openwebui') {
         activeContent = openwebuiContent;
         activeExtension = 'openwebui';
-      } else if (tabName === 'doc') {
-        activeContent = docContent;
-        activeExtension = 'doc';
       }
 
       const codeFormatLabel = document.getElementById('code-format-label');
@@ -953,7 +983,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           text: 'PLAIN TEXT',
           json: 'JSON',
           openwebui: 'OPEN-WEBUI JSON',
-          doc: 'WORD (.DOC)',
         };
         codeFormatLabel.textContent = formatLabels[tabName] || tabName.toUpperCase();
       }
@@ -1195,7 +1224,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       markdownContent = fallbackContent;
       textContent = fallbackContent;
       jsonContent = fallbackContent;
-      docContent = fallbackContent;
+      docContent = sanitizeHtml(fallbackContent);
     }
 
     renderTurnList();
