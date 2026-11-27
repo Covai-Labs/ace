@@ -911,6 +911,14 @@ ${prismJs}
         background-color: var(--bg-bubble-user) !important;
         color: var(--text-primary) !important;
       }
+      ${
+        options?.pageBreakPerPrompt
+          ? `.message-card.role-user:not(:first-of-type) {
+        page-break-before: always !important;
+        break-before: page !important;
+      }`
+          : ''
+      }
       .message-card.role-assistant {
         background-color: var(--bg-bubble-ai) !important;
         color: var(--text-primary) !important;

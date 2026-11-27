@@ -620,6 +620,10 @@ export default defineContentScript({
                 theme: request.theme,
                 includeThinking: request.includeThinking,
                 includeAttachments: request.includeAttachments,
+                includeTimestamps: request.includeTimestamps,
+                includeToc: request.includeToc,
+                pageBreakPerPrompt: request.pageBreakPerPrompt,
+                messageNumbering: request.messageNumbering,
               });
               // Imageless image cards only become omission notes when "Include
               // images" actually removed their picture (see strip-attachments.js).
@@ -754,6 +758,10 @@ export default defineContentScript({
                 theme: request.theme,
                 includeThinking: request.includeThinking,
                 includeAttachments: request.includeAttachments,
+                includeTimestamps: request.includeTimestamps,
+                includeToc: request.includeToc,
+                pageBreakPerPrompt: request.pageBreakPerPrompt,
+                messageNumbering: request.messageNumbering,
               });
               // Imageless image cards only become omission notes when "Include
               // images" actually removed their picture (see strip-attachments.js).

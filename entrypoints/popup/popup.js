@@ -396,6 +396,24 @@ document.addEventListener('DOMContentLoaded', async () => {
             articleEngineSelectPopup.value = storedSettings.articleEngine;
           }
         }
+        if (changes.includeThinking) {
+          storedSettings.includeThinking = changes.includeThinking.newValue !== false;
+        }
+        if (changes.includeAttachments) {
+          storedSettings.includeAttachments = changes.includeAttachments.newValue !== false;
+        }
+        if (changes.includeTimestamps) {
+          storedSettings.includeTimestamps = changes.includeTimestamps.newValue === true;
+        }
+        if (changes.includeToc) {
+          storedSettings.includeToc = changes.includeToc.newValue === true;
+        }
+        if (changes.pageBreakPerPrompt) {
+          storedSettings.pageBreakPerPrompt = changes.pageBreakPerPrompt.newValue === true;
+        }
+        if (changes.messageNumbering) {
+          storedSettings.messageNumbering = changes.messageNumbering.newValue || 'off';
+        }
       }
     });
   }
@@ -807,6 +825,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           parserMode: storedSettings.parserMode || 'auto',
           articleEngine: storedSettings.articleEngine || 'auto',
           theme: storedSettings.theme || 'system',
+          includeThinking: storedSettings.includeThinking !== false,
+          includeAttachments: storedSettings.includeAttachments !== false,
+          includeTimestamps: storedSettings.includeTimestamps === true,
+          includeToc: storedSettings.includeToc === true,
+          pageBreakPerPrompt: storedSettings.pageBreakPerPrompt === true,
+          messageNumbering: storedSettings.messageNumbering || 'off',
         });
 
         if (response && response.success) {
@@ -840,6 +864,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         parserMode: storedSettings.parserMode || 'auto',
         articleEngine: storedSettings.articleEngine || 'auto',
         theme: storedSettings.theme || 'system',
+        includeThinking: storedSettings.includeThinking !== false,
+        includeAttachments: storedSettings.includeAttachments !== false,
+        includeTimestamps: storedSettings.includeTimestamps === true,
+        includeToc: storedSettings.includeToc === true,
+        pageBreakPerPrompt: storedSettings.pageBreakPerPrompt === true,
+        messageNumbering: storedSettings.messageNumbering || 'off',
       });
 
       if (response && response.success) {
