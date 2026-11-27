@@ -144,4 +144,5 @@ test('preview renders Word (.doc) format using docContent in the rendered iframe
     /renderWrapper\.classList\.toggle\('doc-preview-mode', tabName === 'doc'\)/,
   );
   assert.match(previewJs, /docContent = sanitizeHtml\(fallbackContent\);/);
+  assert.match(previewJs, /new DOMParser\(\)/);
 });

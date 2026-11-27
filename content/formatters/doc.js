@@ -8,7 +8,7 @@ import {
   formatMessageTimestamp,
   getOmittedAttachmentsSuffix,
 } from './base.js';
-import { markdownToHtml, escapeHtml } from './html.js';
+import { markdownToHtml, escapeHtml, sanitizeUrl } from './html.js';
 import { sanitizeHtml } from '../utils/sanitizer.js';
 
 export class DocFormatter extends ExportFormatter {
@@ -29,7 +29,10 @@ export class DocFormatter extends ExportFormatter {
       );
     }
     if (link) {
-      metaParts.push(`<a href="${escapeHtml(link)}" style="color: #64748b;">Original Link</a>`);
+      const safeLink = sanitizeUrl(link, false);
+      if (safeLink) {
+        metaParts.push(`<a href="${safeLink}" style="color: #64748b;">Original Link</a>`);
+      }
     }
     if (model) {
       metaParts.push(`Model: ${escapeHtml(model)}`);

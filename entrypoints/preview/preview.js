@@ -310,10 +310,34 @@ document.addEventListener('DOMContentLoaded', async () => {
       currentBlobUrl = null;
     }
 
-    const cleanForPreview = content
-      .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
-      .replace(/href\s*=\s*(['"])\s*javascript:[^'"]*\1/gi, 'href="#"');
+    const parser = new DOMParser();
+    const parsedDoc = parser.parseFromString(content, 'text/html');
+    parsedDoc.querySelectorAll('script').forEach((el) => el.remove());
+    parsedDoc.querySelectorAll('*').forEach((el) => {
+      for (const attr of Array.from(el.attributes)) {
+        const name = attr.name.toLowerCase();
+        if (name.startsWith('on')) {
+          el.removeAttribute(attr.name);
+        } else if (
+          name === 'href' ||
+          name === 'src' ||
+          name === 'action' ||
+          name === 'formaction'
+        ) {
+          const normalized = Array.from(attr.value)
+            .filter((ch) => {
+              const code = ch.charCodeAt(0);
+              return code > 32 && code !== 127;
+            })
+            .join('')
+            .toLowerCase();
+          if (normalized.startsWith('javascript:') || normalized.startsWith('vbscript:')) {
+            el.removeAttribute(attr.name);
+          }
+        }
+      }
+    });
+    const cleanForPreview = `<!DOCTYPE html>\n${parsedDoc.documentElement.outerHTML}`;
     const blob = new Blob([cleanForPreview], { type: 'text/html' });
     currentBlobUrl = URL.createObjectURL(blob);
     previewRendered.src = currentBlobUrl;
