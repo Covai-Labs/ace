@@ -896,12 +896,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     }
 
-    if (tabName === 'html-render' || tabName === 'png' || tabName === 'pdf') {
-      activeContent = htmlContent;
+    if (tabName === 'html-render' || tabName === 'png' || tabName === 'pdf' || tabName === 'doc') {
+      const renderContent = tabName === 'doc' ? docContent : htmlContent;
+      activeContent = renderContent;
       if (tabName === 'png') {
         activeExtension = 'png';
       } else if (tabName === 'pdf') {
         activeExtension = 'pdf';
+      } else if (tabName === 'doc') {
+        activeExtension = 'doc';
       } else {
         activeExtension = 'html';
       }
@@ -911,14 +914,15 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (printBtn) {
         printBtn.classList.add('hidden');
       }
+      previewRendered.style.backgroundColor = tabName === 'doc' ? '#ffffff' : '';
 
       if (
         !previewRendered.src ||
         previewRendered.src === 'about:blank' ||
-        previewRendered.getAttribute('data-content') !== htmlContent
+        previewRendered.getAttribute('data-content') !== renderContent
       ) {
-        previewRendered.setAttribute('data-content', htmlContent);
-        setIframeContent(htmlContent);
+        previewRendered.setAttribute('data-content', renderContent);
+        setIframeContent(renderContent);
       }
     } else {
       renderWrapper.classList.add('hidden');
@@ -940,9 +944,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (tabName === 'openwebui') {
         activeContent = openwebuiContent;
         activeExtension = 'openwebui';
-      } else if (tabName === 'doc') {
-        activeContent = docContent;
-        activeExtension = 'doc';
       }
 
       const codeFormatLabel = document.getElementById('code-format-label');
@@ -953,7 +954,6 @@ document.addEventListener('DOMContentLoaded', async () => {
           text: 'PLAIN TEXT',
           json: 'JSON',
           openwebui: 'OPEN-WEBUI JSON',
-          doc: 'WORD (.DOC)',
         };
         codeFormatLabel.textContent = formatLabels[tabName] || tabName.toUpperCase();
       }
