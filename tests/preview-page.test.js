@@ -141,6 +141,7 @@ test('preview renders Word (.doc) format using docContent in the rendered iframe
   assert.match(previewJs, /const renderContent = tabName === 'doc' \? docContent : htmlContent;/);
   assert.match(
     previewJs,
-    /previewRendered\.style\.backgroundColor = tabName === 'doc' \? '#ffffff' : '';/,
+    /renderWrapper\.classList\.toggle\('doc-preview-mode', tabName === 'doc'\)/,
   );
+  assert.match(previewJs, /docContent = sanitizeHtml\(fallbackContent\);/);
 });

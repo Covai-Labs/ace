@@ -312,7 +312,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const cleanForPreview = content
       .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi, '')
-      .replace(/\s*onclick="[^"]*"/gi, '');
+      .replace(/\son\w+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+      .replace(/href\s*=\s*(['"])\s*javascript:[^'"]*\1/gi, 'href="#"');
     const blob = new Blob([cleanForPreview], { type: 'text/html' });
     currentBlobUrl = URL.createObjectURL(blob);
     previewRendered.src = currentBlobUrl;
@@ -911,10 +912,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       codeWrapper.classList.add('hidden');
       renderWrapper.classList.remove('hidden');
+      renderWrapper.classList.toggle('doc-preview-mode', tabName === 'doc');
       if (printBtn) {
         printBtn.classList.add('hidden');
       }
-      previewRendered.style.backgroundColor = tabName === 'doc' ? '#ffffff' : '';
 
       if (
         !previewRendered.src ||
@@ -1195,7 +1196,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       markdownContent = fallbackContent;
       textContent = fallbackContent;
       jsonContent = fallbackContent;
-      docContent = fallbackContent;
+      docContent = sanitizeHtml(fallbackContent);
     }
 
     renderTurnList();

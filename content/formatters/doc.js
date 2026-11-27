@@ -9,6 +9,7 @@ import {
   getOmittedAttachmentsSuffix,
 } from './base.js';
 import { markdownToHtml, escapeHtml } from './html.js';
+import { sanitizeHtml } from '../utils/sanitizer.js';
 
 export class DocFormatter extends ExportFormatter {
   format(conversation, options = {}) {
@@ -61,7 +62,7 @@ export class DocFormatter extends ExportFormatter {
     const formattedMessages = isWebArticle
       ? messages
           .map((msg) => {
-            const rawHtmlContent = markdownToHtml(msg.content);
+            const rawHtmlContent = sanitizeHtml(markdownToHtml(msg.content));
             const htmlContent = rawHtmlContent
               .replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '')
               .replace(/<svg[^>]*>[\s\S]*?<\/svg>/gi, '');
@@ -91,7 +92,7 @@ export class DocFormatter extends ExportFormatter {
               getOmittedAttachmentsSuffix(msg);
             const timestamp = includeTimestamps ? formatMessageTimestamp(msg?.timestamp) : null;
             const dateSuffix = timestamp ? ` • ${escapeHtml(timestamp)}` : '';
-            const rawHtmlContent = markdownToHtml(msg.content);
+            const rawHtmlContent = sanitizeHtml(markdownToHtml(msg.content));
             // Strip copy buttons and inline SVGs which cause LibreOffice HTML import filter errors
             const htmlContent = rawHtmlContent
               .replace(/<button[^>]*>[\s\S]*?<\/button>/gi, '')
