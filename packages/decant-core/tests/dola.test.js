@@ -1,17 +1,13 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseHTML } from "linkedom";
 import { DolaParser } from "../ai/dola.js";
 import { detectPlatform, isAiChatUrl } from "../detection/detect-platform.js";
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-function setupDom(fixtureFile, url) {
+function setupDom(url) {
   const html = fs.readFileSync(
-    path.join(__dirname, "fixtures", fixtureFile),
+    new URL("./fixtures/dola-chat.html", import.meta.url),
     "utf-8",
   );
   const dom = parseHTML(html);
@@ -54,7 +50,7 @@ test("detectPlatform and isAiChatUrl recognise dola.com", () => {
 
 test("DolaParser extracts title, messages, tables, attachments, and strips data-copy-ignore", async () => {
   const url = "https://www.dola.com/chat/38418651360310289";
-  setupDom("dola-chat.html", url);
+  setupDom(url);
 
   const parser = new DolaParser();
   const result = await parser.parse();

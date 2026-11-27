@@ -1,14 +1,10 @@
 import fs from 'node:fs';
-import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import { parseHTML } from 'linkedom';
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
 test('DolaParser correctly matches URL and extracts conversation', async () => {
-  const html = fs.readFileSync(path.join(__dirname, 'fixtures/dola-chat.html'), 'utf8');
+  const html = fs.readFileSync(new URL('./fixtures/dola-chat.html', import.meta.url), 'utf8');
   const { window, document, HTMLElement, Node, DOMParser } = parseHTML(html);
 
   global.window = window;
