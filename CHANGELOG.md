@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.27.1](https://github.com/Covai-Labs/ace/compare/v1.27.0...v1.27.1) (2026-11-27)
+
+
+### Bug Fixes
+
+* persist ToC & page break settings and sync Copy Chat export options ([#218](https://github.com/Covai-Labs/ace/issues/218)) ([4682dce](https://github.com/Covai-Labs/ace/commit/4682dcef8896e928f4dabda4a9ff97fc5a15d33a))
+* **preview:** render Word (.doc) format in preview iframe ([#221](https://github.com/Covai-Labs/ace/issues/221)) ([1b141f6](https://github.com/Covai-Labs/ace/commit/1b141f6b4dd93dfa1ffeb41aaf6cbeee553caf3a))
+
 ## [1.27.0](https://github.com/Covai-Labs/ace/compare/v1.26.2...v1.27.0) (2026-11-26)
 
 
