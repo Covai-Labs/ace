@@ -29,6 +29,7 @@ export { JoylandParser } from "./joyland.js";
 export { ChubParser } from "./chub.js";
 export { GrokParser } from "./grok.js";
 export { DuckAIParser } from "./duck_ai.js";
+export { DolaParser } from "./dola.js";
 
 // Utilities
 export { convertToMarkdown, cleanMarkdown } from "../utils/html-to-markdown.js";

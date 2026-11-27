@@ -28,6 +28,7 @@ export const AI_CHAT_DOMAINS = [
   "characterhub.org",
   "grok.com",
   "duck.ai",
+  "dola.com",
 ];
 
 /**

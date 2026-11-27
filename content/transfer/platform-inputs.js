@@ -54,6 +54,10 @@ export const COMPOSER_SELECTORS = {
     'div.query-bar-editor[contenteditable="true"]',
     'div.tiptap.ProseMirror[role="textbox"]',
   ],
+  dola: [
+    'div[data-testid="chat_input_input"] div.tiptap.ProseMirror[contenteditable="true"]',
+    'div[data-testid="chat_input_input"] [contenteditable="true"]',
+  ],
 };
 
 // Last-resort generics (visible + editable filter still applies).

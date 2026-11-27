@@ -111,6 +111,7 @@ export function isGenericTitle(title, platform = '') {
     'qwen',
     'z.ai',
     'lumo',
+    'dola',
   ];
   if (commonBrands.includes(t)) return true;
 

@@ -31,6 +31,7 @@ export default defineBackground(() => {
     { id: 'meta', label: 'Meta AI' },
     { id: 'z_ai', label: 'Z.ai' },
     { id: 'grok', label: 'Grok' },
+    { id: 'dola', label: 'Dola' },
   ];
 
   const TRANSFER_TARGET_IDS = TRANSFER_TARGETS.map((t) => t.id);
@@ -49,6 +50,7 @@ export default defineBackground(() => {
     meta: 'https://www.meta.ai/',
     z_ai: 'https://chat.z.ai/',
     grok: 'https://grok.com/',
+    dola: 'https://www.dola.com/',
   };
 
   const SUPPORTED_DOCUMENT_URL_PATTERNS = ['<all_urls>'];

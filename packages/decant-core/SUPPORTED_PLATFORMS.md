@@ -24,6 +24,7 @@ and installation, see [README.md](README.md).
 | **Joyland**                         | `JoylandParser`           | DOM                                        |
 | **Chub**                            | `ChubParser`              | DOM                                        |
 | **Duck.ai (DuckDuckGo AI)**         | `DuckAIParser`            | DOM                                        |
+| **Dola**                            | `DolaParser`              | DOM                                        |
 | **Generic Web Article**             | `ArticleParser`           | Readability + Defuddle + Article-Extractor |
 
 ## Maintenance model

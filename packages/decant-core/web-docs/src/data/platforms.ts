@@ -168,6 +168,15 @@ export const PLATFORMS: PlatformEntry[] = [
     notes: "DOM (client-side privacy, no server chat history API).",
   },
   {
+    id: "dola",
+    platform: "Dola",
+    parser: "DolaParser",
+    module: "decant-core/ai/dola",
+    strategy: "DOM",
+    notes:
+      "DOM extraction with attachment support and data-copy-ignore filtering.",
+  },
+  {
     id: "article",
     platform: "Generic Web Article",
     parser: "ArticleParser",

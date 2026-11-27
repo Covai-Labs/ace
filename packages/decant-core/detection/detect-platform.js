@@ -18,6 +18,7 @@ import { JoylandParser } from "../ai/joyland.js";
 import { ChubParser } from "../ai/chub.js";
 import { GrokParser } from "../ai/grok.js";
 import { DuckAIParser } from "../ai/duck_ai.js";
+import { DolaParser } from "../ai/dola.js";
 
 /**
  * Ordered list of parsers. First match wins.
@@ -43,6 +44,7 @@ export const parsers = [
   new JoylandParser(),
   new ChubParser(),
   new GrokParser(),
+  new DolaParser(),
 ];
 
 /**

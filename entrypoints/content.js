@@ -18,6 +18,7 @@ import {
   ChubParser,
   GrokParser,
   DuckAIParser,
+  DolaParser,
   ArticleParser,
 } from 'decant-core';
 
@@ -208,6 +209,7 @@ export default defineContentScript({
       new ChubParser(),
       new GrokParser(),
       new DuckAIParser(),
+      new DolaParser(),
       new ArticleParser(),
     ];
 
