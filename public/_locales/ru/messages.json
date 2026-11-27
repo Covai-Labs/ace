@@ -871,15 +871,15 @@
     "description": "Select responses button in turn selector"
   },
   "splitLongPng": {
-    "message": "Split Long PNGs (ZIP)",
+    "message": "Разделять длинные PNG (ZIP)",
     "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
   },
   "splitLongPngDefault": {
-    "message": "Split long PNG exports into crisp parts (ZIP)",
+    "message": "Разделять длинные PNG-экспорты на чёткие части (ZIP)",
     "description": "Default setting for splitting long PNG exports"
   },
   "splitLongPngHelp": {
-    "message": "Prevents blurry text on long chats by splitting into multiple full-resolution images bundled in a ZIP file.",
+    "message": "Предотвращает размытие текста в длинных чатах, разделяя их на несколько изображений в полном разрешении в ZIP-архиве.",
     "description": "Help text for split long PNG setting"
   }
 }

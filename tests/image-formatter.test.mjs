@@ -358,6 +358,7 @@ test('ImageFormatter.format splits long multi-message chats into a ZIP of crisp 
     const zipBlob = await formatter.format(conversation, {
       highQuality: true,
       messageNumbering: 'per-message',
+      includeToc: true,
     });
 
     assert.equal(zipBlob.type, 'application/zip');
@@ -366,6 +367,8 @@ test('ImageFormatter.format splits long multi-message chats into a ZIP of crisp 
     assert.deepEqual(fileNames, ['part-1.png', 'part-2.png', 'part-3.png']);
     assert.deepEqual(capturedScales, [2, 2, 2]);
     assert.ok(capturedTexts[0].includes('Part 1 of 3'));
+    assert.ok(capturedTexts[0].includes('Message one'));
+    assert.ok(capturedTexts[0].includes('Message three'));
     assert.ok(capturedTexts[1].includes('Part 2 of 3'));
     assert.ok(capturedTexts[1].includes('ChatGPT [2]'));
     assert.ok(capturedTexts[2].includes('User [3]'));

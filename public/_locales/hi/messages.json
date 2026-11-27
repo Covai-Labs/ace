@@ -870,15 +870,15 @@
     "description": "Select responses button in turn selector"
   },
   "splitLongPng": {
-    "message": "Split Long PNGs (ZIP)",
+    "message": "लंबे PNG विभाजित करें (ZIP)",
     "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
   },
   "splitLongPngDefault": {
-    "message": "Split long PNG exports into crisp parts (ZIP)",
+    "message": "लंबे PNG निर्यात को स्पष्ट भागों में विभाजित करें (ZIP)",
     "description": "Default setting for splitting long PNG exports"
   },
   "splitLongPngHelp": {
-    "message": "Prevents blurry text on long chats by splitting into multiple full-resolution images bundled in a ZIP file.",
+    "message": "लंबे चैट में धुंधले टेक्स्ट को रोकने के लिए उन्हें ZIP फ़ाइल में कई पूर्ण-रिज़ॉल्यूशन छवियों में विभाजित करता है।",
     "description": "Help text for split long PNG setting"
   }
 }

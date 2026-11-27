@@ -389,8 +389,9 @@ export class ImageFormatter extends ExportFormatter {
 
     const includeTimestamps = shouldIncludeTimestamps(options);
     const isArticle = isArticleConversation(conversation);
-    const tocItems =
-      isFirstPart && options?.includeToc && !isArticle && (messages || []).length > 0
+    const tocItems = Array.isArray(options?._tocItems)
+      ? options._tocItems
+      : isFirstPart && options?.includeToc && !isArticle && (messages || []).length > 0
         ? getTocItems(messages, {
             messageNumbering: options?.messageNumbering,
             includeTimestamps,
@@ -622,13 +623,32 @@ export class ImageFormatter extends ExportFormatter {
   }
 
   /**
-   * Captures a DOM container element (such as from a preview iframe) to a PNG Blob
+   * Preloads images, waits for in-document <img> load events, and renders KaTeX math
+   * so layout measurements reflect final rendered heights.
    * @param {HTMLElement} container
-   * @param {Object} [options]
-   * @returns {Promise<Blob>}
    */
-  async captureElement(container, options = {}) {
+  async prepareContainer(container) {
     await this.preloadImages(container);
+
+    const imgs = Array.from(container.querySelectorAll('img'));
+    if (imgs.length > 0) {
+      await Promise.all(
+        imgs.map((img) => {
+          if (img.complete || typeof img.addEventListener !== 'function') {
+            return Promise.resolve();
+          }
+          return new Promise((resolve) => {
+            const timer = setTimeout(resolve, 2500);
+            const done = () => {
+              clearTimeout(timer);
+              resolve();
+            };
+            img.addEventListener('load', done, { once: true });
+            img.addEventListener('error', done, { once: true });
+          });
+        }),
+      );
+    }
 
     try {
       if (typeof renderMathInElement === 'function') {
@@ -644,6 +664,18 @@ export class ImageFormatter extends ExportFormatter {
       }
     } catch (e) {
       console.warn('[ImageFormatter] KaTeX math rendering failed:', e);
+    }
+  }
+
+  /**
+   * Captures a DOM container element (such as from a preview iframe) to a PNG Blob
+   * @param {HTMLElement} container
+   * @param {Object} [options]
+   * @returns {Promise<Blob>}
+   */
+  async captureElement(container, options = {}) {
+    if (!options?._prepared) {
+      await this.prepareContainer(container);
     }
 
     const html2canvasFn =
@@ -842,6 +874,8 @@ export class ImageFormatter extends ExportFormatter {
     document.body.appendChild(container);
 
     try {
+      await this.prepareContainer(container);
+
       const requestedScale = options?.highQuality !== false ? 2 : 1;
       const safeScale = this.calculateSafeScale(container, requestedScale);
       const messages = conversation?.messages || [];
@@ -864,6 +898,14 @@ export class ImageFormatter extends ExportFormatter {
           }
 
           const allMessageNumbers = getMessageNumbers(messages, options?.messageNumbering);
+          const fullTocItems =
+            options?.includeToc && !isArticleConversation(conversation) && messages.length > 0
+              ? getTocItems(messages, {
+                  messageNumbering: options?.messageNumbering,
+                  includeTimestamps: shouldIncludeTimestamps(options),
+                  platform: conversation.metadata?.Source || 'AI',
+                })
+              : [];
           const zip = new JSZip();
           const padLen = String(chunks.length).length;
 
@@ -878,6 +920,7 @@ export class ImageFormatter extends ExportFormatter {
               {
                 ...options,
                 _messageNumbers: chunkNumbers,
+                _tocItems: i === 0 ? fullTocItems : [],
                 _partInfo: { part: i + 1, total: chunks.length },
                 _isFirstPart: i === 0,
                 _isLastPart: i === chunks.length - 1,
@@ -899,7 +942,7 @@ export class ImageFormatter extends ExportFormatter {
         }
       }
 
-      return await this.captureElement(container, options);
+      return await this.captureElement(container, { ...options, _prepared: true });
     } finally {
       if (container.parentNode) {
         container.parentNode.removeChild(container);

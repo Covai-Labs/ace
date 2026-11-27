@@ -1017,7 +1017,9 @@ export default defineContentScript({
                   platform: platformName,
                   title: conversation.title || 'Conversation',
                 });
-                a.download = `${formattedName}.${formatter.getFileExtension()}`;
+                const extension =
+                  blob.type === 'application/zip' ? 'zip' : formatter.getFileExtension();
+                a.download = `${formattedName}.${extension}`;
 
                 document.body.appendChild(a);
                 a.click();

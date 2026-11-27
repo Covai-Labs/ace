@@ -72,6 +72,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const printBtn = document.getElementById('print-btn');
   const formatTabsContainer = document.getElementById('format-tabs');
 
+  let cachedPngBlob = null;
+  let pngCacheGeneration = 0;
+  function invalidatePngCache() {
+    cachedPngBlob = null;
+    pngCacheGeneration += 1;
+  }
+
   const pngWarningBanner = document.getElementById('png-warning-banner');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
   const pngSplitCheckbox = document.getElementById('png-split-checkbox');
@@ -85,12 +92,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (pngQualityCheckbox) {
     pngQualityCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
     });
   }
   if (pngSplitCheckbox) {
     pngSplitCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
       if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
         chrome.storage.sync.set({ splitLongPng: pngSplitCheckbox.checked });
       }
@@ -98,33 +105,33 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   if (includeImagesCheckbox) {
     includeImagesCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (includeAttachmentsCheckbox) {
     includeAttachmentsCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (includeTimestampsCheckbox) {
     includeTimestampsCheckbox.addEventListener('change', () => {
       exportOptions.includeTimestamps = includeTimestampsCheckbox.checked;
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (previewNumberingSelect) {
     previewNumberingSelect.addEventListener('change', () => {
       exportOptions.messageNumbering = previewNumberingSelect.value;
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
@@ -188,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       chrome.storage.sync.set({ theme: selected });
       applyTheme(selected, document);
       syncThemeToIframe(selected);
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
@@ -263,7 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const pbEl = document.getElementById('page-break-prompt-checkbox');
           if (pbEl) pbEl.checked = exportOptions.pageBreakPerPrompt === true;
         }
-        cachedPngBlob = null;
+        invalidatePngCache();
         recalculateContent();
       }
     });
@@ -286,7 +293,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   let activeExtension = 'html';
 
   let currentBlobUrl = null;
-  let cachedPngBlob = null;
 
   const getCleanPdfTitle = () => {
     const raw =
@@ -444,7 +450,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const toggle = doc.getElementById('theme-toggle-checkbox');
       if (toggle) {
         toggle.addEventListener('change', (e) => {
-          cachedPngBlob = null;
+          invalidatePngCache();
           if (e.target.checked) {
             doc.documentElement.setAttribute('data-theme', 'dark');
           } else {
@@ -664,7 +670,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       includeToc: shouldIncludeToc,
     });
 
-    cachedPngBlob = null;
+    invalidatePngCache();
     switchTab(currentActiveTab);
   };
 
@@ -1401,6 +1407,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let pngBlob = cachedPngBlob;
         if (!pngBlob && conversation) {
+          const renderGen = pngCacheGeneration;
           const isHighQuality = pngQualityCheckbox ? pngQualityCheckbox.checked : true;
           const isSplitLongPng = pngSplitCheckbox ? pngSplitCheckbox.checked : true;
           const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
@@ -1449,7 +1456,9 @@ document.addEventListener('DOMContentLoaded', async () => {
               theme: activeTheme,
             });
           }
-          cachedPngBlob = pngBlob;
+          if (renderGen === pngCacheGeneration) {
+            cachedPngBlob = pngBlob;
+          }
         }
 
         if (!pngBlob) {

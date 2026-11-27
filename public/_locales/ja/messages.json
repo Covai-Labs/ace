@@ -870,15 +870,15 @@
     "description": "Select responses button in turn selector"
   },
   "splitLongPng": {
-    "message": "Split Long PNGs (ZIP)",
+    "message": "長いPNGを分割 (ZIP)",
     "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
   },
   "splitLongPngDefault": {
-    "message": "Split long PNG exports into crisp parts (ZIP)",
+    "message": "長いPNGエクスポートを鮮明なパーツに分割 (ZIP)",
     "description": "Default setting for splitting long PNG exports"
   },
   "splitLongPngHelp": {
-    "message": "Prevents blurry text on long chats by splitting into multiple full-resolution images bundled in a ZIP file.",
+    "message": "長いチャットで文字がぼやけるのを防ぐため、複数のフル解像度画像に分割してZIPファイルにまとめます。",
     "description": "Help text for split long PNG setting"
   }
 }

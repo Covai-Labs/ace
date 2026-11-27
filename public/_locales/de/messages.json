@@ -870,15 +870,15 @@
     "description": "Select responses button in turn selector"
   },
   "splitLongPng": {
-    "message": "Split Long PNGs (ZIP)",
+    "message": "Lange PNGs aufteilen (ZIP)",
     "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
   },
   "splitLongPngDefault": {
-    "message": "Split long PNG exports into crisp parts (ZIP)",
+    "message": "Lange PNG-Exporte in scharfe Teile aufteilen (ZIP)",
     "description": "Default setting for splitting long PNG exports"
   },
   "splitLongPngHelp": {
-    "message": "Prevents blurry text on long chats by splitting into multiple full-resolution images bundled in a ZIP file.",
+    "message": "Verhindert unscharfen Text bei langen Chats, indem in mehrere hochauflösende Bilder in einer ZIP-Datei aufgeteilt wird.",
     "description": "Help text for split long PNG setting"
   }
 }
