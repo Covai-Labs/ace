@@ -63,6 +63,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const defaultIncludeTimestamps = document.getElementById('default-include-timestamps');
   const defaultIncludeToc = document.getElementById('default-include-toc');
   const defaultPageBreak = document.getElementById('default-page-break');
+  const defaultSplitLongPng = document.getElementById('default-split-long-png');
   const showContextMenuCheckbox = document.getElementById('show-context-menu-checkbox');
   const messageNumberingSelect = document.getElementById('message-numbering-select');
   const filenameTemplateInput = document.getElementById('filename-template-input');
@@ -112,6 +113,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'includeTimestamps',
     'includeToc',
     'pageBreakPerPrompt',
+    'splitLongPng',
     'showContextMenu',
     'messageNumbering',
     'filenameTemplate',
@@ -152,6 +154,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     defaultIncludeTimestamps.checked = stored.includeTimestamps === true;
   if (defaultIncludeToc) defaultIncludeToc.checked = stored.includeToc === true;
   if (defaultPageBreak) defaultPageBreak.checked = stored.pageBreakPerPrompt === true;
+  if (defaultSplitLongPng) defaultSplitLongPng.checked = stored.splitLongPng !== false;
   if (showContextMenuCheckbox) showContextMenuCheckbox.checked = stored.showContextMenu !== false;
   if (messageNumberingSelect) {
     messageNumberingSelect.value = normalizeMessageNumbering(stored.messageNumbering);
@@ -231,6 +234,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (defaultPageBreak) {
     defaultPageBreak.addEventListener('change', () => {
       chrome.storage.sync.set({ pageBreakPerPrompt: defaultPageBreak.checked });
+      showToast();
+    });
+  }
+
+  if (defaultSplitLongPng) {
+    defaultSplitLongPng.addEventListener('change', () => {
+      chrome.storage.sync.set({ splitLongPng: defaultSplitLongPng.checked });
       showToast();
     });
   }

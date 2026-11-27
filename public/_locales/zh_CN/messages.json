@@ -868,5 +868,17 @@
   "selectResponses": {
     "message": "回复",
     "description": "Select responses button in turn selector"
+  },
+  "splitLongPng": {
+    "message": "拆分长 PNG (ZIP)",
+    "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
+  },
+  "splitLongPngDefault": {
+    "message": "将长 PNG 导出拆分为清晰分段 (ZIP)",
+    "description": "Default setting for splitting long PNG exports"
+  },
+  "splitLongPngHelp": {
+    "message": "通过将长对话拆分为多张全分辨率图片并打包为 ZIP 文件，防止文字模糊。",
+    "description": "Help text for split long PNG setting"
   }
 }

@@ -307,3 +307,122 @@ test('ImageFormatter.captureElement renders container with html2canvas and retur
     }
   }
 });
+
+test('ImageFormatter.format splits long multi-message chats into a ZIP of crisp PNGs by default', async () => {
+  const { ImageFormatter } = await importFormatter();
+  const { default: JSZip } = await import('jszip');
+  const formatter = new ImageFormatter();
+
+  if (typeof globalThis.document === 'undefined') {
+    const { document, window } = parseHTML('<!DOCTYPE html><html><body></body></html>');
+    globalThis.document = document;
+    globalThis.window = window;
+  }
+
+  const capturedScales = [];
+  const capturedTexts = [];
+  globalThis.html2canvas = async (el, opts) => {
+    capturedScales.push(opts.scale);
+    capturedTexts.push(el.textContent);
+    return {
+      toBlob: (cb) => cb(new Blob([`png-${capturedScales.length}`], { type: 'image/png' })),
+    };
+  };
+
+  // Stub height measurements so the full container appears > 8192px (requires splitting at 2x)
+  // while individual message elements are ~4500px each.
+  const origCreate = formatter.createScreenshotContainer.bind(formatter);
+  formatter.createScreenshotContainer = (conv, opts) => {
+    const el = origCreate(conv, opts);
+    const msgEls = Array.from(el.querySelectorAll('.ai-exporter-png-message'));
+    msgEls.forEach((m) => {
+      Object.defineProperty(m, 'offsetHeight', { value: 4500, configurable: true });
+    });
+    const totalH = msgEls.length * 4524 + 260;
+    Object.defineProperty(el, 'offsetHeight', { value: totalH, configurable: true });
+    Object.defineProperty(el, 'offsetWidth', { value: 800, configurable: true });
+    return el;
+  };
+
+  const conversation = {
+    title: 'Long Chat',
+    messages: [
+      { role: 'User', content: 'Message one' },
+      { role: 'Assistant', content: 'Message two' },
+      { role: 'User', content: 'Message three' },
+    ],
+    metadata: { Source: 'ChatGPT' },
+  };
+
+  try {
+    const zipBlob = await formatter.format(conversation, {
+      highQuality: true,
+      messageNumbering: 'per-message',
+      includeToc: true,
+    });
+
+    assert.equal(zipBlob.type, 'application/zip');
+    const zip = await JSZip.loadAsync(await zipBlob.arrayBuffer());
+    const fileNames = Object.keys(zip.files).sort();
+    assert.deepEqual(fileNames, ['part-1.png', 'part-2.png', 'part-3.png']);
+    assert.deepEqual(capturedScales, [2, 2, 2]);
+    assert.ok(capturedTexts[0].includes('Part 1 of 3'));
+    assert.ok(capturedTexts[0].includes('Message one'));
+    assert.ok(capturedTexts[0].includes('Message three'));
+    assert.ok(capturedTexts[1].includes('Part 2 of 3'));
+    assert.ok(capturedTexts[1].includes('ChatGPT [2]'));
+    assert.ok(capturedTexts[2].includes('User [3]'));
+  } finally {
+    delete globalThis.html2canvas;
+  }
+});
+
+test('ImageFormatter.format keeps a single PNG when splitLongPng is false or only 1 message', async () => {
+  const { ImageFormatter } = await importFormatter();
+  const formatter = new ImageFormatter();
+
+  if (typeof globalThis.document === 'undefined') {
+    const { document, window } = parseHTML('<!DOCTYPE html><html><body></body></html>');
+    globalThis.document = document;
+    globalThis.window = window;
+  }
+
+  globalThis.html2canvas = async () => ({
+    toBlob: (cb) => cb(new Blob(['single-png'], { type: 'image/png' })),
+  });
+
+  const origCreate = formatter.createScreenshotContainer.bind(formatter);
+  formatter.createScreenshotContainer = (conv, opts) => {
+    const el = origCreate(conv, opts);
+    Object.defineProperty(el, 'offsetHeight', { value: 20000, configurable: true });
+    Object.defineProperty(el, 'offsetWidth', { value: 800, configurable: true });
+    return el;
+  };
+
+  try {
+    const singleModeBlob = await formatter.format(
+      {
+        title: 'Long Chat Single Mode',
+        messages: [
+          { role: 'User', content: 'One' },
+          { role: 'Assistant', content: 'Two' },
+        ],
+        metadata: { Source: 'ChatGPT' },
+      },
+      { highQuality: true, splitLongPng: false },
+    );
+    assert.equal(singleModeBlob.type, 'image/png');
+
+    const singleMsgBlob = await formatter.format(
+      {
+        title: 'Single Giant Message',
+        messages: [{ role: 'Assistant', content: 'Giant single response' }],
+        metadata: { Source: 'ChatGPT' },
+      },
+      { highQuality: true, splitLongPng: true },
+    );
+    assert.equal(singleMsgBlob.type, 'image/png');
+  } finally {
+    delete globalThis.html2canvas;
+  }
+});

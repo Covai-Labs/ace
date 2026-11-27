@@ -868,5 +868,17 @@
   "selectResponses": {
     "message": "응답",
     "description": "Select responses button in turn selector"
+  },
+  "splitLongPng": {
+    "message": "긴 PNG 분할 (ZIP)",
+    "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
+  },
+  "splitLongPngDefault": {
+    "message": "긴 PNG 내보내기를 선명한 파트로 분할 (ZIP)",
+    "description": "Default setting for splitting long PNG exports"
+  },
+  "splitLongPngHelp": {
+    "message": "긴 대화에서 텍스트가 흐려지는 것을 방지하기 위해 여러 고해상도 이미지로 분할하여 ZIP 파일로 묶습니다.",
+    "description": "Help text for split long PNG setting"
   }
 }

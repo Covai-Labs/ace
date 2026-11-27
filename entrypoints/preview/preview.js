@@ -72,8 +72,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   const printBtn = document.getElementById('print-btn');
   const formatTabsContainer = document.getElementById('format-tabs');
 
+  let cachedPngBlob = null;
+  let pngCacheGeneration = 0;
+  function invalidatePngCache() {
+    cachedPngBlob = null;
+    pngCacheGeneration += 1;
+  }
+
   const pngWarningBanner = document.getElementById('png-warning-banner');
   const pngQualityCheckbox = document.getElementById('png-quality-checkbox');
+  const pngSplitCheckbox = document.getElementById('png-split-checkbox');
   const includeImagesCheckbox = document.getElementById('include-images-checkbox');
   const includeAttachmentsCheckbox = document.getElementById('include-attachments-checkbox');
   const includeThinkingCheckbox = document.getElementById('include-thinking-checkbox');
@@ -84,38 +92,46 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   if (pngQualityCheckbox) {
     pngQualityCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
+    });
+  }
+  if (pngSplitCheckbox) {
+    pngSplitCheckbox.addEventListener('change', () => {
+      invalidatePngCache();
+      if (typeof chrome !== 'undefined' && chrome.storage?.sync) {
+        chrome.storage.sync.set({ splitLongPng: pngSplitCheckbox.checked });
+      }
     });
   }
   if (includeImagesCheckbox) {
     includeImagesCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (includeThinkingCheckbox) {
     includeThinkingCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (includeAttachmentsCheckbox) {
     includeAttachmentsCheckbox.addEventListener('change', () => {
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (includeTimestampsCheckbox) {
     includeTimestampsCheckbox.addEventListener('change', () => {
       exportOptions.includeTimestamps = includeTimestampsCheckbox.checked;
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
   if (previewNumberingSelect) {
     previewNumberingSelect.addEventListener('change', () => {
       exportOptions.messageNumbering = previewNumberingSelect.value;
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
@@ -179,7 +195,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       chrome.storage.sync.set({ theme: selected });
       applyTheme(selected, document);
       syncThemeToIframe(selected);
-      cachedPngBlob = null;
+      invalidatePngCache();
       recalculateContent();
     });
   }
@@ -254,7 +270,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           const pbEl = document.getElementById('page-break-prompt-checkbox');
           if (pbEl) pbEl.checked = exportOptions.pageBreakPerPrompt === true;
         }
-        cachedPngBlob = null;
+        invalidatePngCache();
         recalculateContent();
       }
     });
@@ -277,7 +293,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   let activeExtension = 'html';
 
   let currentBlobUrl = null;
-  let cachedPngBlob = null;
 
   const getCleanPdfTitle = () => {
     const raw =
@@ -435,7 +450,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const toggle = doc.getElementById('theme-toggle-checkbox');
       if (toggle) {
         toggle.addEventListener('change', (e) => {
-          cachedPngBlob = null;
+          invalidatePngCache();
           if (e.target.checked) {
             doc.documentElement.setAttribute('data-theme', 'dark');
           } else {
@@ -655,7 +670,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       includeToc: shouldIncludeToc,
     });
 
-    cachedPngBlob = null;
+    invalidatePngCache();
     switchTab(currentActiveTab);
   };
 
@@ -908,6 +923,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (pngQualityContainer) {
       pngQualityContainer.classList.toggle('hidden', tabName !== 'png');
     }
+    const pngSplitContainer = document.getElementById('png-split-container');
+    if (pngSplitContainer) {
+      pngSplitContainer.classList.toggle('hidden', tabName !== 'png');
+    }
     {
       // Keep pageBreakContainer visible across HTML and PDF tabs so users can configure print page breaks anytime
       const printHint = document.getElementById('print-hint');
@@ -1028,6 +1047,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       'autoPrint',
       'autoDownloadPng',
       'highQualityPng',
+      'splitLongPng',
       'includeImages',
       'includeThinking',
     ]);
@@ -1055,6 +1075,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (pngQualityCheckbox && data.highQualityPng !== undefined) {
       pngQualityCheckbox.checked = data.highQualityPng;
+    }
+    if (pngSplitCheckbox) {
+      if (data.splitLongPng !== undefined) {
+        pngSplitCheckbox.checked = data.splitLongPng !== false;
+      } else {
+        pngSplitCheckbox.checked = exportOptions.splitLongPng !== false;
+      }
     }
     if (includeImagesCheckbox && data.includeImages !== undefined) {
       includeImagesCheckbox.checked = data.includeImages;
@@ -1290,6 +1317,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (
         activeExtension === 'png' &&
         cachedPngBlob &&
+        cachedPngBlob.type === 'image/png' &&
         typeof ClipboardItem !== 'undefined' &&
         navigator.clipboard &&
         navigator.clipboard.write
@@ -1379,7 +1407,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         let pngBlob = cachedPngBlob;
         if (!pngBlob && conversation) {
+          const renderGen = pngCacheGeneration;
           const isHighQuality = pngQualityCheckbox ? pngQualityCheckbox.checked : true;
+          const isSplitLongPng = pngSplitCheckbox ? pngSplitCheckbox.checked : true;
           const includeImages = includeImagesCheckbox ? includeImagesCheckbox.checked : true;
           const activeTheme = getActiveTheme();
           const activeConv = getActiveConversation();
@@ -1402,32 +1432,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             // Ignore iframe DOM access error
           }
 
-          if (container && typeof imageFormatter.captureElement === 'function') {
+          if (container && typeof imageFormatter.prepareContainer === 'function') {
+            await imageFormatter.prepareContainer(container);
+          }
+
+          const requestedScale = isHighQuality ? 2 : 1;
+          const needsSplit =
+            isSplitLongPng &&
+            container &&
+            typeof imageFormatter.calculateSafeScale === 'function' &&
+            imageFormatter.calculateSafeScale(container, requestedScale) < requestedScale &&
+            (activeConv?.messages?.length || 0) > 1;
+
+          if (container && !needsSplit && typeof imageFormatter.captureElement === 'function') {
             pngBlob = await imageFormatter.captureElement(container, {
               highQuality: isHighQuality,
               includeImages,
               theme: activeTheme,
+              _prepared: true,
             });
           } else {
             pngBlob = await imageFormatter.format(activeConv, {
               ...exportOptions,
               highQuality: isHighQuality,
+              splitLongPng: isSplitLongPng,
               includeImages,
               includeToc: Boolean(includeTocCheckbox && includeTocCheckbox.checked),
               theme: activeTheme,
             });
           }
-          cachedPngBlob = pngBlob;
+          if (renderGen === pngCacheGeneration) {
+            cachedPngBlob = pngBlob;
+          }
         }
 
         if (!pngBlob) {
           throw new Error('PNG generation failed');
         }
 
+        let downloadFilename = filename;
+        if (pngBlob.type === 'application/zip' && downloadFilename.endsWith('.png')) {
+          downloadFilename = downloadFilename.replace(/\.png$/, '.zip');
+        }
+
         const url = URL.createObjectURL(pngBlob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = filename;
+        a.download = downloadFilename;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);

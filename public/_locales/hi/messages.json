@@ -868,5 +868,17 @@
   "selectResponses": {
     "message": "उत्तर",
     "description": "Select responses button in turn selector"
+  },
+  "splitLongPng": {
+    "message": "लंबे PNG विभाजित करें (ZIP)",
+    "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
+  },
+  "splitLongPngDefault": {
+    "message": "लंबे PNG निर्यात को स्पष्ट भागों में विभाजित करें (ZIP)",
+    "description": "Default setting for splitting long PNG exports"
+  },
+  "splitLongPngHelp": {
+    "message": "लंबे चैट में धुंधले टेक्स्ट को रोकने के लिए उन्हें ZIP फ़ाइल में कई पूर्ण-रिज़ॉल्यूशन छवियों में विभाजित करता है।",
+    "description": "Help text for split long PNG setting"
   }
 }

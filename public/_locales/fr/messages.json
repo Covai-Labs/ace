@@ -868,5 +868,17 @@
   "selectResponses": {
     "message": "Réponses",
     "description": "Select responses button in turn selector"
+  },
+  "splitLongPng": {
+    "message": "Diviser les longs PNG (ZIP)",
+    "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
+  },
+  "splitLongPngDefault": {
+    "message": "Diviser les exports PNG longs en parties nettes (ZIP)",
+    "description": "Default setting for splitting long PNG exports"
+  },
+  "splitLongPngHelp": {
+    "message": "Évite le texte flou sur les longues discussions en les divisant en plusieurs images haute résolution dans un fichier ZIP.",
+    "description": "Help text for split long PNG setting"
   }
 }

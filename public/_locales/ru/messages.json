@@ -869,5 +869,17 @@
   "selectResponses": {
     "message": "Ответы",
     "description": "Select responses button in turn selector"
+  },
+  "splitLongPng": {
+    "message": "Разделять длинные PNG (ZIP)",
+    "description": "Toggle splitting long PNG exports into multiple crisp images bundled in a ZIP"
+  },
+  "splitLongPngDefault": {
+    "message": "Разделять длинные PNG-экспорты на чёткие части (ZIP)",
+    "description": "Default setting for splitting long PNG exports"
+  },
+  "splitLongPngHelp": {
+    "message": "Предотвращает размытие текста в длинных чатах, разделяя их на несколько изображений в полном разрешении в ZIP-архиве.",
+    "description": "Help text for split long PNG setting"
   }
 }
