@@ -246,6 +246,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (changes.includeTimestamps && includeTimestampsCheckbox) {
           includeTimestampsCheckbox.checked = exportOptions.includeTimestamps === true;
         }
+        if (changes.includeToc) {
+          const tocEl = document.getElementById('include-toc-checkbox');
+          if (tocEl) tocEl.checked = exportOptions.includeToc === true;
+        }
+        if (changes.pageBreakPerPrompt) {
+          const pbEl = document.getElementById('page-break-prompt-checkbox');
+          if (pbEl) pbEl.checked = exportOptions.pageBreakPerPrompt === true;
+        }
         cachedPngBlob = null;
         recalculateContent();
       }
@@ -474,6 +482,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   const pageBreakCheckbox = document.getElementById('page-break-prompt-checkbox');
   const includeTocCheckbox = document.getElementById('include-toc-checkbox');
 
+  if (pageBreakCheckbox) {
+    pageBreakCheckbox.checked = exportOptions.pageBreakPerPrompt === true;
+  }
+  if (includeTocCheckbox) {
+    includeTocCheckbox.checked = exportOptions.includeToc === true;
+  }
+
   let selectedIndices = new Set();
   let lastCheckedIndex = null;
   let currentActiveTab = 'html-render';
@@ -682,11 +697,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
   if (pageBreakCheckbox) {
     pageBreakCheckbox.addEventListener('change', () => {
-      setIframeContent(htmlContent);
+      exportOptions.pageBreakPerPrompt = pageBreakCheckbox.checked;
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+        chrome.storage.sync.set({ pageBreakPerPrompt: pageBreakCheckbox.checked });
+      }
+      recalculateContent();
     });
   }
   if (includeTocCheckbox) {
     includeTocCheckbox.addEventListener('change', () => {
+      exportOptions.includeToc = includeTocCheckbox.checked;
+      if (typeof chrome !== 'undefined' && chrome.storage && chrome.storage.sync) {
+        chrome.storage.sync.set({ includeToc: includeTocCheckbox.checked });
+      }
       recalculateContent();
     });
   }
@@ -717,7 +740,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           let cssRules = '';
           if (pageBreakCheckbox && pageBreakCheckbox.checked) {
             cssRules +=
-              '.message-card.role-user { page-break-before: always !important; break-before: page !important; }';
+              '.message-card.role-user:not(:first-of-type) { page-break-before: always !important; break-before: page !important; }';
           }
           printStyle.textContent = cssRules;
         }
@@ -857,10 +880,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       pngQualityContainer.classList.toggle('hidden', tabName !== 'png');
     }
     {
-      const pageBreakContainer = document.getElementById('page-break-container');
-      if (pageBreakContainer) {
-        pageBreakContainer.classList.toggle('hidden', tabName !== 'pdf');
-      }
+      // Keep pageBreakContainer visible across HTML and PDF tabs so users can configure print page breaks anytime
       const printHint = document.getElementById('print-hint');
       if (printHint) {
         printHint.classList.toggle('hidden', tabName !== 'pdf');

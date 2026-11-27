@@ -807,6 +807,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           parserMode: storedSettings.parserMode || 'auto',
           articleEngine: storedSettings.articleEngine || 'auto',
           theme: storedSettings.theme || 'system',
+          includeThinking: storedSettings.includeThinking !== false,
+          includeAttachments: storedSettings.includeAttachments !== false,
+          includeTimestamps: storedSettings.includeTimestamps === true,
+          includeToc: storedSettings.includeToc === true,
+          pageBreakPerPrompt: storedSettings.pageBreakPerPrompt === true,
+          messageNumbering: storedSettings.messageNumbering || 'off',
         });
 
         if (response && response.success) {
@@ -840,6 +846,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         parserMode: storedSettings.parserMode || 'auto',
         articleEngine: storedSettings.articleEngine || 'auto',
         theme: storedSettings.theme || 'system',
+        includeThinking: storedSettings.includeThinking !== false,
+        includeAttachments: storedSettings.includeAttachments !== false,
+        includeTimestamps: storedSettings.includeTimestamps === true,
+        includeToc: storedSettings.includeToc === true,
+        pageBreakPerPrompt: storedSettings.pageBreakPerPrompt === true,
+        messageNumbering: storedSettings.messageNumbering || 'off',
       });
 
       if (response && response.success) {

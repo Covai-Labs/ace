@@ -4,6 +4,8 @@ export const DEFAULT_INCLUDE_ATTRIBUTION = true;
 export const DEFAULT_INCLUDE_THINKING = true;
 export const DEFAULT_INCLUDE_ATTACHMENTS = true;
 export const DEFAULT_INCLUDE_TIMESTAMPS = false;
+export const DEFAULT_INCLUDE_TOC = false;
+export const DEFAULT_PAGE_BREAK_PER_PROMPT = false;
 export const DEFAULT_MESSAGE_NUMBERING = 'off';
 export const DEFAULT_THEME = 'system';
 
@@ -42,6 +44,8 @@ export async function getExportOptions(overrides = {}) {
   let includeThinking = DEFAULT_INCLUDE_THINKING;
   let includeAttachments = DEFAULT_INCLUDE_ATTACHMENTS;
   let includeTimestamps = DEFAULT_INCLUDE_TIMESTAMPS;
+  let includeToc = DEFAULT_INCLUDE_TOC;
+  let pageBreakPerPrompt = DEFAULT_PAGE_BREAK_PER_PROMPT;
   let messageNumbering = DEFAULT_MESSAGE_NUMBERING;
 
   try {
@@ -52,6 +56,8 @@ export async function getExportOptions(overrides = {}) {
         'includeThinking',
         'includeAttachments',
         'includeTimestamps',
+        'includeToc',
+        'pageBreakPerPrompt',
         'messageNumbering',
       ]);
       if (syncData) {
@@ -67,6 +73,12 @@ export async function getExportOptions(overrides = {}) {
         }
         if (syncData.includeTimestamps !== undefined) {
           includeTimestamps = syncData.includeTimestamps === true;
+        }
+        if (syncData.includeToc !== undefined) {
+          includeToc = syncData.includeToc === true;
+        }
+        if (syncData.pageBreakPerPrompt !== undefined) {
+          pageBreakPerPrompt = syncData.pageBreakPerPrompt === true;
         }
         if (syncData.messageNumbering !== undefined) {
           messageNumbering = normalizeMessageNumbering(syncData.messageNumbering);
@@ -87,6 +99,8 @@ export async function getExportOptions(overrides = {}) {
     includeThinking,
     includeAttachments,
     includeTimestamps,
+    includeToc,
+    pageBreakPerPrompt,
     messageNumbering,
     ...cleanOverrides,
   };
@@ -116,6 +130,14 @@ export function applyExportOptionChanges(currentOptions, changes) {
   }
   if (changes.includeAttachments) {
     currentOptions.includeAttachments = changes.includeAttachments.newValue !== false;
+    changed = true;
+  }
+  if (changes.includeToc) {
+    currentOptions.includeToc = changes.includeToc.newValue === true;
+    changed = true;
+  }
+  if (changes.pageBreakPerPrompt) {
+    currentOptions.pageBreakPerPrompt = changes.pageBreakPerPrompt.newValue === true;
     changed = true;
   }
   if (changes.includeTimestamps) {

@@ -61,6 +61,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const includeAttribution = document.getElementById('include-attribution');
   const defaultIncludeThinking = document.getElementById('default-include-thinking');
   const defaultIncludeTimestamps = document.getElementById('default-include-timestamps');
+  const defaultIncludeToc = document.getElementById('default-include-toc');
+  const defaultPageBreak = document.getElementById('default-page-break');
   const showContextMenuCheckbox = document.getElementById('show-context-menu-checkbox');
   const messageNumberingSelect = document.getElementById('message-numbering-select');
   const filenameTemplateInput = document.getElementById('filename-template-input');
@@ -108,6 +110,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     'includeThinking',
     'includeAttachments',
     'includeTimestamps',
+    'includeToc',
+    'pageBreakPerPrompt',
     'showContextMenu',
     'messageNumbering',
     'filenameTemplate',
@@ -146,6 +150,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     defaultIncludeAttachments.checked = stored.includeAttachments !== false;
   if (defaultIncludeTimestamps)
     defaultIncludeTimestamps.checked = stored.includeTimestamps === true;
+  if (defaultIncludeToc) defaultIncludeToc.checked = stored.includeToc === true;
+  if (defaultPageBreak) defaultPageBreak.checked = stored.pageBreakPerPrompt === true;
   if (showContextMenuCheckbox) showContextMenuCheckbox.checked = stored.showContextMenu !== false;
   if (messageNumberingSelect) {
     messageNumberingSelect.value = normalizeMessageNumbering(stored.messageNumbering);
@@ -211,6 +217,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (defaultIncludeTimestamps) {
     defaultIncludeTimestamps.addEventListener('change', () => {
       chrome.storage.sync.set({ includeTimestamps: defaultIncludeTimestamps.checked });
+      showToast();
+    });
+  }
+
+  if (defaultIncludeToc) {
+    defaultIncludeToc.addEventListener('change', () => {
+      chrome.storage.sync.set({ includeToc: defaultIncludeToc.checked });
+      showToast();
+    });
+  }
+
+  if (defaultPageBreak) {
+    defaultPageBreak.addEventListener('change', () => {
+      chrome.storage.sync.set({ pageBreakPerPrompt: defaultPageBreak.checked });
       showToast();
     });
   }
