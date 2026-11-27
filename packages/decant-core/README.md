@@ -44,7 +44,7 @@ AI platforms don't expose stable public APIs for reading conversation history. N
 
 Maintaining that per-platform logic in every exporter is wasteful and fragile. `decant-core` centralizes it:
 
-- ✅ **19 AI chat platform parsers** with normalized output — you get structured messages, models, metadata and Markdown, not DOM soup.
+- ✅ **20 AI chat platform parsers** with normalized output — you get structured messages, models, metadata and Markdown, not DOM soup.
 - ✅ **Web article extraction** — Mozilla Readability, Defuddle, and Article-Extractor run in parallel and arbitrate by content-quality scoring.
 - ✅ **Detection utilities** — tell an "AI chat page" apart from a "regular web page" before you decide which parser to run.
 - ✅ **Math & Markdown handling** — LaTeX normalization plus GFM tables/code fencing that survive round-trips into Obsidian, Logseq and Notion.
@@ -120,7 +120,7 @@ import { normalizeLatexMath } from "decant-core";
 
 ## Supported Platforms
 
-19 AI chat platform parsers plus generic web article extraction:
+20 AI chat platform parsers plus generic web article extraction:
 
 | Platform                            | Parser                    | Extraction strategy                        |
 | :---------------------------------- | :------------------------ | :----------------------------------------- |
@@ -143,6 +143,7 @@ import { normalizeLatexMath } from "decant-core";
 | **Joyland**                         | `JoylandParser`           | DOM                                        |
 | **Chub**                            | `ChubParser`              | DOM                                        |
 | **Duck.ai (DuckDuckGo AI)**         | `DuckAIParser`            | DOM                                        |
+| **Dola**                            | `DolaParser`              | DOM                                        |
 | **Generic Web Article**             | `ArticleParser`           | Readability + Defuddle + Article-Extractor |
 
 All parsers extend the base [`ChatParser`](ai/base.js) interface — a consistent `isAvailable(url)` +

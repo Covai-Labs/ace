@@ -21,6 +21,7 @@ export const TRANSFER_TARGETS = [
   },
   { id: 'z_ai', label: 'Z.ai', url: 'https://chat.z.ai/' },
   { id: 'grok', label: 'Grok', url: 'https://grok.com/' },
+  { id: 'dola', label: 'Dola', url: 'https://www.dola.com/' },
 ];
 
 export const TRANSFER_TARGET_IDS = TRANSFER_TARGETS.map((t) => t.id);

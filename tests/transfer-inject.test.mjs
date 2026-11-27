@@ -37,7 +37,7 @@ const okEnv = (document, seen = {}) => ({
 
 // ── targets registry ──────────────────────────────────────────────
 
-test('transfer targets: exactly the 12 supported AI chats', () => {
+test('transfer targets: supported AI chats include dola', () => {
   assert.deepEqual(TRANSFER_TARGET_IDS, [
     'chatgpt',
     'claude',
@@ -51,8 +51,9 @@ test('transfer targets: exactly the 12 supported AI chats', () => {
     'meta',
     'z_ai',
     'grok',
+    'dola',
   ]);
-  assert.equal(TRANSFER_TARGETS.length, 12);
+  assert.equal(TRANSFER_TARGETS.length, 13);
 });
 
 test('transfer targets: copilot uses copilot.com, grok/z_ai present', () => {
@@ -102,6 +103,10 @@ test('findComposer: per-platform selectors hit the right node', () => {
     ['qwen', '<textarea class="message-input-textarea">x</textarea>'],
     ['mistral', '<div class="ProseMirror" data-placeholder="x" contenteditable="true">x</div>'],
     ['deepseek', '<textarea placeholder="Message DeepSeek">x</textarea>'],
+    [
+      'dola',
+      '<div data-testid="chat_input_input"><div class="tiptap ProseMirror" contenteditable="true">x</div></div>',
+    ],
   ];
   for (const [target, html] of cases) {
     const el = findComposer(docOf(html), target);
