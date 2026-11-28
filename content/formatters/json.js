@@ -1,4 +1,10 @@
-import { ExportFormatter, formatMessageTimestamp, shouldIncludeTimestamps } from './base.js';
+import {
+  ExportFormatter,
+  formatMessageTimestamp,
+  resolveConversationLink,
+  shouldIncludeLink,
+  shouldIncludeTimestamps,
+} from './base.js';
 
 const SCHEMA_PATH = './schemas/export-v1.schema.json';
 
@@ -48,6 +54,10 @@ export class JsonFormatter extends ExportFormatter {
     const metadata = conversation.metadata || {};
     const source = metadata.Source || this.platform || 'Unknown';
     const includeTimestamps = shouldIncludeTimestamps(options);
+    const includeLink = shouldIncludeLink(options);
+    const exportMetadata = includeLink
+      ? metadata
+      : Object.fromEntries(Object.entries(metadata).filter(([key]) => key !== 'Link'));
 
     return {
       $schema: SCHEMA_PATH,
@@ -55,7 +65,7 @@ export class JsonFormatter extends ExportFormatter {
       exportedAt: this.exportedAt || new Date().toISOString(),
       source: {
         platform: source,
-        url: conversation.url || metadata.Link || this.url,
+        url: includeLink ? resolveConversationLink(conversation, options, this.url) : null,
         title: conversation.title || 'AI Chat Export',
       },
       messages: (conversation.messages || []).map((message, index) => {
@@ -71,7 +81,7 @@ export class JsonFormatter extends ExportFormatter {
         }
         return entry;
       }),
-      metadata,
+      metadata: exportMetadata,
     };
   }
 

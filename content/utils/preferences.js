@@ -1,6 +1,7 @@
 import { normalizeMessageNumbering } from '../formatters/base.js';
 
 export const DEFAULT_INCLUDE_ATTRIBUTION = true;
+export const DEFAULT_INCLUDE_LINK = true;
 export const DEFAULT_INCLUDE_THINKING = true;
 export const DEFAULT_INCLUDE_ATTACHMENTS = true;
 export const DEFAULT_INCLUDE_TIMESTAMPS = false;
@@ -37,11 +38,12 @@ export async function getMessageNumberingSetting() {
 /**
  * Reads and normalizes all export-relevant preferences from chrome.storage.sync.
  * @param {Record<string, any>} [overrides]
- * @returns {Promise<{ theme: string, includeAttribution: boolean, messageNumbering: string, includeTimestamps: boolean, [key: string]: any }>}
+ * @returns {Promise<{ theme: string, includeAttribution: boolean, includeLink: boolean, messageNumbering: string, includeTimestamps: boolean, [key: string]: any }>}
  */
 export async function getExportOptions(overrides = {}) {
   let theme = DEFAULT_THEME;
   let includeAttribution = DEFAULT_INCLUDE_ATTRIBUTION;
+  let includeLink = DEFAULT_INCLUDE_LINK;
   let includeThinking = DEFAULT_INCLUDE_THINKING;
   let includeAttachments = DEFAULT_INCLUDE_ATTACHMENTS;
   let includeTimestamps = DEFAULT_INCLUDE_TIMESTAMPS;
@@ -55,6 +57,7 @@ export async function getExportOptions(overrides = {}) {
       const syncData = await chrome.storage.sync.get([
         'theme',
         'includeAttribution',
+        'includeLink',
         'includeThinking',
         'includeAttachments',
         'includeTimestamps',
@@ -67,6 +70,9 @@ export async function getExportOptions(overrides = {}) {
         if (syncData.theme) theme = syncData.theme;
         if (syncData.includeAttribution !== undefined) {
           includeAttribution = syncData.includeAttribution;
+        }
+        if (syncData.includeLink !== undefined) {
+          includeLink = syncData.includeLink !== false;
         }
         if (syncData.includeThinking !== undefined) {
           includeThinking = syncData.includeThinking !== false;
@@ -102,6 +108,7 @@ export async function getExportOptions(overrides = {}) {
   return {
     theme,
     includeAttribution,
+    includeLink,
     includeThinking,
     includeAttachments,
     includeTimestamps,
@@ -129,6 +136,10 @@ export function applyExportOptionChanges(currentOptions, changes) {
   }
   if (changes.includeAttribution) {
     currentOptions.includeAttribution = changes.includeAttribution.newValue !== false;
+    changed = true;
+  }
+  if (changes.includeLink) {
+    currentOptions.includeLink = changes.includeLink.newValue !== false;
     changed = true;
   }
   if (changes.includeThinking) {

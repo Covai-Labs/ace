@@ -263,6 +263,10 @@
     "message": "Hinweis \"Exported with AI Chat Exporter\" in Exporten einschließen",
     "description": "Label for default include attribution credit checkbox"
   },
+  "includeLinkDefault": {
+    "message": "Ursprünglichen Chat-Link in Exporte einschließen",
+    "description": "Label for include original chat link checkbox"
+  },
   "messageNumberingLabel": {
     "message": "Message Numbering",
     "description": "Label for message numbering dropdown"

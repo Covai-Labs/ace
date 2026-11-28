@@ -263,6 +263,10 @@
     "message": "निर्यात में \"Exported with AI Chat Exporter\" क्रेडिट शामिल करें",
     "description": "Label for default include attribution credit checkbox"
   },
+  "includeLinkDefault": {
+    "message": "निर्यात में मूल चैट लिंक शामिल करें",
+    "description": "Label for include original chat link checkbox"
+  },
   "messageNumberingLabel": {
     "message": "Message Numbering",
     "description": "Label for message numbering dropdown"

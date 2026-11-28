@@ -135,3 +135,32 @@ test('JSON formatter respects includeTimestamps option', async () => {
   assert.equal(enabledOutput.messages[0].timestamp, '2026-09-30T08:48:07.000Z');
   assert.equal(enabledOutput.messages[1].timestamp, '2024-03-09T16:00:00.000Z');
 });
+
+test('JSON formatter omits source.url and metadata.Link when includeLink is false', async () => {
+  const { JsonFormatter } = await importFormatter();
+  const formatter = new JsonFormatter({
+    platform: 'Claude',
+    url: 'https://claude.ai/chat/123',
+    exportedAt: '2026-05-20T00:00:00.000Z',
+  });
+
+  const conversation = {
+    title: 'No Link JSON',
+    url: 'https://claude.ai/chat/123',
+    messages: [{ role: 'User', content: 'Hi' }],
+    metadata: {
+      Source: 'Claude',
+      Link: 'https://claude.ai/chat/123',
+      Model: 'claude-sonnet-5-5',
+    },
+  };
+
+  const defaultOutput = JSON.parse(formatter.format(conversation));
+  assert.equal(defaultOutput.source.url, 'https://claude.ai/chat/123');
+  assert.equal(defaultOutput.metadata.Link, 'https://claude.ai/chat/123');
+
+  const withoutLink = JSON.parse(formatter.format(conversation, { includeLink: false }));
+  assert.equal(withoutLink.source.url, null);
+  assert.equal(withoutLink.metadata.Link, undefined);
+  assert.equal(withoutLink.metadata.Model, 'claude-sonnet-5-5');
+});

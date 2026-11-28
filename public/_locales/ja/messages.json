@@ -263,6 +263,10 @@
     "message": "エクスポートに「Exported with AI Chat Exporter」のクレジットを含める",
     "description": "Label for default include attribution credit checkbox"
   },
+  "includeLinkDefault": {
+    "message": "エクスポートに元のチャットリンクを含める",
+    "description": "Label for include original chat link checkbox"
+  },
   "messageNumberingLabel": {
     "message": "Message Numbering",
     "description": "Label for message numbering dropdown"

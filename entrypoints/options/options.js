@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const defaultIncludeImages = document.getElementById('default-include-images');
   const defaultIncludeAttachments = document.getElementById('default-include-attachments');
   const includeAttribution = document.getElementById('include-attribution');
+  const includeLink = document.getElementById('include-link');
   const defaultIncludeThinking = document.getElementById('default-include-thinking');
   const defaultIncludeTimestamps = document.getElementById('default-include-timestamps');
   const defaultIncludeToc = document.getElementById('default-include-toc');
@@ -108,6 +109,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     'defaultFormat',
     'includeImages',
     'includeAttribution',
+    'includeLink',
     'includeThinking',
     'includeAttachments',
     'includeTimestamps',
@@ -146,6 +148,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (stored.includeImages !== undefined) defaultIncludeImages.checked = stored.includeImages;
   if (stored.includeAttribution !== undefined)
     includeAttribution.checked = stored.includeAttribution;
+  if (includeLink) includeLink.checked = stored.includeLink !== false;
   if (stored.includeThinking !== undefined && defaultIncludeThinking)
     defaultIncludeThinking.checked = stored.includeThinking !== false;
   if (stored.includeAttachments !== undefined && defaultIncludeAttachments)
@@ -202,6 +205,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     chrome.storage.sync.set({ includeAttribution: includeAttribution.checked });
     showToast();
   });
+
+  if (includeLink) {
+    includeLink.addEventListener('change', async () => {
+      const checked = includeLink.checked;
+      try {
+        await chrome.storage.sync.set({ includeLink: checked });
+        showToast();
+      } catch {
+        includeLink.checked = !checked;
+        showToast('Failed to save preference');
+      }
+    });
+  }
 
   if (defaultIncludeThinking) {
     defaultIncludeThinking.addEventListener('change', () => {

@@ -3,6 +3,7 @@ import {
   getMessageNumbers,
   getTocItems,
   isArticleConversation,
+  resolveConversationLink,
   shouldIncludeAttribution,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
@@ -159,7 +160,7 @@ export class MarkdownFormatter extends ExportFormatter {
     const metadata = conversation.metadata || {};
     const platform = metadata.Source || 'AI';
     const date = metadata.Date || formattedDate;
-    const link = conversation.url || metadata.Link || '';
+    const link = resolveConversationLink(conversation, options, '');
     const model = metadata.Model;
     const method = metadata.Method;
 

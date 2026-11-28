@@ -1,6 +1,6 @@
 {
   "extensionName": {
-    "message": "ACE · Export Save Transfer · ChatGPT Claude Gemini · PDF Markdown PNG",
+    "message": "ACE · Export Save Transfer · ChatGPT Claude Gemini · PDF PNG MD · FREE",
     "description": "The extension name for Chrome Web Store"
   },
   "extensionNameEdge": {
@@ -262,6 +262,10 @@
   "includeAttributionDefault": {
     "message": "Include \"Exported with AI Chat Exporter\" credit in exports",
     "description": "Label for default include attribution credit checkbox"
+  },
+  "includeLinkDefault": {
+    "message": "Include original chat link in exports",
+    "description": "Label for include original chat link checkbox"
   },
   "messageNumberingLabel": {
     "message": "Message Numbering",
