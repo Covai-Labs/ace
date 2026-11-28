@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.28.0](https://github.com/Covai-Labs/ace/compare/v1.27.1...v1.28.0) (2026-11-28)
+
+
+### Features
+
+* add includeLink option and update Chrome extension name ([#227](https://github.com/Covai-Labs/ace/issues/227)) ([621a3dc](https://github.com/Covai-Labs/ace/commit/621a3dc08fe15cff78441a6ec8055f66e4c89070))
+* **parser:** add Dola (dola.com) parser and transfer target support ([#224](https://github.com/Covai-Labs/ace/issues/224)) ([2fa9930](https://github.com/Covai-Labs/ace/commit/2fa9930d365946eb34cb78c25f4409c28a8776cc))
+* **png:** split long PNG exports into crisp parts (ZIP) by default ([#222](https://github.com/Covai-Labs/ace/issues/222)) ([168e466](https://github.com/Covai-Labs/ace/commit/168e466c71703f940c976afada4284b476a49a3c))
+
+
+### Bug Fixes
+
+* **google-search-ai:** strip highlight boundary labels and unwrap &lt;mark&gt; tags ([#228](https://github.com/Covai-Labs/ace/issues/228)) ([e544f62](https://github.com/Covai-Labs/ace/commit/e544f6286f061e38bd62ec5d9c8024c49f2a8176))
+
 ## [1.27.1](https://github.com/Covai-Labs/ace/compare/v1.27.0...v1.27.1) (2026-11-27)
 
 
