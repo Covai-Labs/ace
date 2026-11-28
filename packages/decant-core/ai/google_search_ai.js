@@ -51,11 +51,22 @@ export function sanitizeResponseContainer(container) {
       ? container.cloneNode(true)
       : container;
 
-  // 1. Remove script, style, and noscript elements to prevent inline script leakage
+  // 1. Remove script, style, noscript, and screen-reader-only highlight boundary elements
+  // (.iMqumd, [data-skip-highlighting], .sr-only, .visually-hidden) to prevent leakage
   const unwanted = clone.querySelectorAll
-    ? clone.querySelectorAll("script, style, noscript")
+    ? clone.querySelectorAll(
+        "script, style, noscript, .iMqumd, [data-skip-highlighting], .sr-only, .visually-hidden",
+      )
     : [];
   unwanted.forEach((el) => el.remove());
+
+  // 1b. Unwrap <mark> highlight containers while preserving their inner formatting/nodes
+  const marks = clone.querySelectorAll ? clone.querySelectorAll("mark") : [];
+  marks.forEach((el) => {
+    if (el.parentNode) {
+      el.replaceWith(...el.childNodes);
+    }
+  });
 
   // 2. Remove base64 inline images to prevent megabyte-scale text walls in markdown exports,
   // while preserving math LaTeX equation images marked with data-xpm-latex

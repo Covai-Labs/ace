@@ -338,3 +338,20 @@ test("sanitizeResponseContainer still strips non-entity controls inside formatte
 
   assert.equal(md, "**Text**");
 });
+
+test("sanitizeResponseContainer strips highlight boundary labels (.iMqumd, [data-skip-highlighting], .visually-hidden) and unwraps <mark>", () => {
+  const html = `<div data-container-id="main-col">
+    <p>La <strong>fotosíntesis</strong> es el <mark class="b6AQX"><span class="iMqumd lrmywc" data-rfsp="" data-skip-highlighting=""> [Highlight start] </span>proceso <strong>químico</strong> con <code>CO2</code><span class="iMqumd lrmywc" data-rfsp="" data-skip-highlighting=""> [Highlight end] </span></mark>.</p>
+    <p>Texto <mark><span class="visually-hidden">Inicio del resaltado</span>resaltado<span class="sr-only">Fin del resaltado</span></mark> limpio.</p>
+  </div>`;
+  const { document } = parseHTML(html);
+  const container = document.querySelector('[data-container-id="main-col"]');
+  const clean = sanitizeResponseContainer(container);
+  const md = cleanMarkdownSpacing(convertToMarkdown(clean));
+
+  assert.equal(clean.querySelectorAll("mark").length, 0);
+  assert.equal(
+    md,
+    "La **fotosíntesis** es el proceso **químico** con `CO2`.\n\nTexto resaltado limpio.",
+  );
+});
