@@ -50,6 +50,32 @@ test('MarkdownFormatter omits Exported with credit when includeAttribution is fa
   assert.ok(output.includes('**Date:** 8/6/2026 12:00:00'));
 });
 
+test('MarkdownFormatter omits Link when includeLink is false', () => {
+  const formatter = new MarkdownFormatter();
+
+  const conversation = {
+    title: 'No Link Test',
+    url: 'https://claude.ai/chat/123',
+    messages: [{ role: 'User', content: 'Hello' }],
+    metadata: {
+      Source: 'Claude',
+      Date: '8/6/2026 12:00:00',
+      Link: 'https://claude.ai/chat/123',
+      Model: 'claude-sonnet-5-5',
+    },
+  };
+
+  const withLink = formatter.format(conversation);
+  assert.ok(
+    withLink.includes('**Link:** [https://claude.ai/chat/123](https://claude.ai/chat/123)'),
+  );
+
+  const withoutLink = formatter.format(conversation, { includeLink: false });
+  assert.ok(!withoutLink.includes('**Link:**'));
+  assert.ok(!withoutLink.includes('https://claude.ai/chat/123'));
+  assert.ok(withoutLink.includes('**Model:** claude-sonnet-5-5'));
+});
+
 test('MarkdownFormatter omits Model and Link when missing', () => {
   const formatter = new MarkdownFormatter();
 

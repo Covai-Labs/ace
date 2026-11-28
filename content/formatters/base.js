@@ -85,6 +85,16 @@ export function shouldIncludeAttribution(options = {}) {
 }
 
 /**
+ * Determines whether the original chat link should be included based on formatter options.
+ * Link is included by default and only omitted when explicitly disabled.
+ * @param {{ includeLink?: boolean }} [options]
+ * @returns {boolean}
+ */
+export function shouldIncludeLink(options = {}) {
+  return options.includeLink !== false;
+}
+
+/**
  * Determines whether per-message timestamps should be included based on formatter options.
  * Timestamps are opt-in and only rendered when the parser provided one.
  * @param {{ includeTimestamps?: boolean }} [options]

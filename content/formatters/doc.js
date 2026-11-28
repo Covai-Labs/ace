@@ -4,6 +4,7 @@ import {
   getTocItems,
   isArticleConversation,
   shouldIncludeAttribution,
+  shouldIncludeLink,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
   getOmittedAttachmentsSuffix,
@@ -18,7 +19,9 @@ export class DocFormatter extends ExportFormatter {
     const formattedDate = `${now.getMonth() + 1}/${now.getDate()}/${now.getFullYear()} ${now.toLocaleTimeString('en-US', { hour12: false })}`;
 
     const platform = conversation.metadata?.Source || 'AI';
-    const link = conversation.url || conversation.metadata?.Link || '';
+    const link = shouldIncludeLink(options)
+      ? conversation.url || conversation.metadata?.Link || ''
+      : '';
     const model = conversation.metadata?.Model || '';
     const method = conversation.metadata?.Method || '';
 

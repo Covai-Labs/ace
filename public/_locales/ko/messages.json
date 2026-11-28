@@ -263,6 +263,10 @@
     "message": "내보내기에 \"Exported with AI Chat Exporter\" 크레딧 포함",
     "description": "Label for default include attribution credit checkbox"
   },
+  "includeLinkDefault": {
+    "message": "내보내기에 원본 채팅 링크 포함",
+    "description": "Label for include original chat link checkbox"
+  },
   "messageNumberingLabel": {
     "message": "Message Numbering",
     "description": "Label for message numbering dropdown"

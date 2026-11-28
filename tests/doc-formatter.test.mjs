@@ -64,6 +64,27 @@ test('DocFormatter omits AI Chat Exporter credit when includeAttribution is fals
   assert.ok(withoutCredit.includes('Exported from Claude'));
 });
 
+test('DocFormatter omits Original Link when includeLink is false', async () => {
+  const { DocFormatter } = await importFormatter();
+  const formatter = new DocFormatter();
+
+  const conversation = {
+    title: 'No Link Test',
+    url: 'https://claude.ai/chat/123',
+    messages: [{ role: 'User', content: 'Hello' }],
+    metadata: { Source: 'Claude', Link: 'https://claude.ai/chat/123', Model: 'claude-sonnet-5-5' },
+  };
+
+  const withLink = formatter.format(conversation);
+  assert.ok(withLink.includes('Original Link'));
+  assert.ok(withLink.includes('https://claude.ai/chat/123'));
+
+  const withoutLink = formatter.format(conversation, { includeLink: false });
+  assert.ok(!withoutLink.includes('Original Link'));
+  assert.ok(!withoutLink.includes('https://claude.ai/chat/123'));
+  assert.ok(withoutLink.includes('Model: claude-sonnet-5-5'));
+});
+
 test('DocFormatter generates Word-compliant HTML document with MSO XML headers', async () => {
   const { DocFormatter } = await importFormatter();
   const formatter = new DocFormatter();

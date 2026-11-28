@@ -146,3 +146,28 @@ test('getExportOptions reads the stored include-attachments value and honours ov
   assert.equal((await getExportOptions()).includeAttachments, false);
   assert.equal((await getExportOptions({ includeAttachments: true })).includeAttachments, true);
 });
+
+test('getExportOptions and applyExportOptionChanges handle includeLink (default true)', async () => {
+  globalThis.chrome = {
+    storage: {
+      sync: {
+        get: async () => ({}),
+      },
+    },
+  };
+  assert.equal((await getExportOptions()).includeLink, true);
+
+  globalThis.chrome = {
+    storage: {
+      sync: {
+        get: async () => ({ includeLink: false }),
+      },
+    },
+  };
+  assert.equal((await getExportOptions()).includeLink, false);
+  assert.equal((await getExportOptions({ includeLink: true })).includeLink, true);
+
+  const current = { includeLink: true };
+  assert.equal(applyExportOptionChanges(current, { includeLink: { newValue: false } }), true);
+  assert.equal(current.includeLink, false);
+});

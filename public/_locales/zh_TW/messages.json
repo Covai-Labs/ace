@@ -263,6 +263,10 @@
     "message": "在匯出中包含 \"Exported with AI Chat Exporter\" 署名",
     "description": "Label for default include attribution credit checkbox"
   },
+  "includeLinkDefault": {
+    "message": "在匯出中包含原始聊天連結",
+    "description": "Label for include original chat link checkbox"
+  },
   "messageNumberingLabel": {
     "message": "Message Numbering",
     "description": "Label for message numbering dropdown"

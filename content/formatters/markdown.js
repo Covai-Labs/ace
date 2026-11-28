@@ -4,6 +4,7 @@ import {
   getTocItems,
   isArticleConversation,
   shouldIncludeAttribution,
+  shouldIncludeLink,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
   slugifyHeading,
@@ -159,7 +160,7 @@ export class MarkdownFormatter extends ExportFormatter {
     const metadata = conversation.metadata || {};
     const platform = metadata.Source || 'AI';
     const date = metadata.Date || formattedDate;
-    const link = conversation.url || metadata.Link || '';
+    const link = shouldIncludeLink(options) ? conversation.url || metadata.Link || '' : '';
     const model = metadata.Model;
     const method = metadata.Method;
 

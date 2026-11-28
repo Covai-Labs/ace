@@ -210,6 +210,27 @@ test('HTML formatter omits export footer when includeAttribution is false', asyn
   assert.ok(withoutFooter.includes('<title>No Footer Test</title>'));
 });
 
+test('HTML formatter omits Original Link when includeLink is false', async () => {
+  const { HtmlFormatter } = await importFormatter();
+  const formatter = new HtmlFormatter();
+
+  const conversation = {
+    title: 'No Link Test',
+    url: 'https://claude.ai/chat/123',
+    messages: [{ role: 'User', content: 'Hello' }],
+    metadata: { Source: 'Claude', Link: 'https://claude.ai/chat/123', Model: 'claude-sonnet-5-5' },
+  };
+
+  const withLink = formatter.format(conversation);
+  assert.ok(withLink.includes('Original Link'));
+  assert.ok(withLink.includes('https://claude.ai/chat/123'));
+
+  const withoutLink = formatter.format(conversation, { includeLink: false });
+  assert.ok(!withoutLink.includes('Original Link'));
+  assert.ok(!withoutLink.includes('https://claude.ai/chat/123'));
+  assert.ok(withoutLink.includes('Model: claude-sonnet-5-5'));
+});
+
 test('HTML formatter formats LaTeX math equations with bracket and dollar delimiters', async () => {
   const { HtmlFormatter } = await importFormatter();
   const formatter = new HtmlFormatter();

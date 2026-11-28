@@ -104,6 +104,28 @@ test('TextFormatter omits attribution when includeAttribution is false', () => {
   assert.ok(output.includes('Hello'));
 });
 
+test('TextFormatter omits Link when includeLink is false', () => {
+  const formatter = new TextFormatter();
+
+  const conversation = {
+    title: 'No Link Test',
+    url: 'https://chatgpt.com/c/123',
+    messages: [{ role: 'User', content: 'Hello' }],
+    metadata: {
+      Source: 'ChatGPT',
+      Date: '10/1/2026 10:00:00',
+      Link: 'https://chatgpt.com/c/123',
+    },
+  };
+
+  const withLink = formatter.format(conversation);
+  assert.ok(withLink.includes('Link: https://chatgpt.com/c/123'));
+
+  const withoutLink = formatter.format(conversation, { includeLink: false });
+  assert.ok(!withoutLink.includes('Link: https://chatgpt.com/c/123'));
+  assert.ok(withoutLink.includes('Source: ChatGPT'));
+});
+
 test('TextFormatter supports message numbering: per-message, per-turn, and off', () => {
   const formatter = new TextFormatter();
 
