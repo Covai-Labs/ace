@@ -3,8 +3,8 @@ import {
   getMessageNumbers,
   getTocItems,
   isArticleConversation,
+  resolveConversationLink,
   shouldIncludeAttribution,
-  shouldIncludeLink,
   shouldIncludeTimestamps,
   formatMessageTimestamp,
   stripTags,
@@ -255,7 +255,7 @@ export class TextFormatter extends ExportFormatter {
     const metadata = conversation.metadata || {};
     const platform = metadata.Source || 'AI';
     const date = metadata.Date || formattedDate;
-    const link = shouldIncludeLink(options) ? conversation.url || metadata.Link || '' : '';
+    const link = resolveConversationLink(conversation, options, '');
     const model = metadata.Model;
     const method = metadata.Method;
 

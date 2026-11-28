@@ -1,6 +1,7 @@
 import {
   ExportFormatter,
   formatMessageTimestamp,
+  resolveConversationLink,
   shouldIncludeLink,
   shouldIncludeTimestamps,
 } from './base.js';
@@ -64,7 +65,7 @@ export class JsonFormatter extends ExportFormatter {
       exportedAt: this.exportedAt || new Date().toISOString(),
       source: {
         platform: source,
-        url: includeLink ? conversation.url || metadata.Link || this.url : null,
+        url: includeLink ? resolveConversationLink(conversation, options, this.url) : null,
         title: conversation.title || 'AI Chat Export',
       },
       messages: (conversation.messages || []).map((message, index) => {

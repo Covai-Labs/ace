@@ -207,9 +207,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   if (includeLink) {
-    includeLink.addEventListener('change', () => {
-      chrome.storage.sync.set({ includeLink: includeLink.checked });
-      showToast();
+    includeLink.addEventListener('change', async () => {
+      const checked = includeLink.checked;
+      try {
+        await chrome.storage.sync.set({ includeLink: checked });
+        showToast();
+      } catch {
+        includeLink.checked = !checked;
+        showToast('Failed to save preference');
+      }
     });
   }
 
